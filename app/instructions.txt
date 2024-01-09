@@ -1,0 +1,1 @@
+php artisan infyom:scaffold $MODEL_NAME --fromTable --tableName=$TABLE_NAME
