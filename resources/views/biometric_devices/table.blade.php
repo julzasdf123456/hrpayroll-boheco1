@@ -3,7 +3,6 @@
         <table class="table" id="biometric-devices-table">
             <thead>
             <tr>
-                <th>Id</th>
                 <th>Ipaddress</th>
                 <th>Brand</th>
                 <th>Office</th>
@@ -15,7 +14,6 @@
             <tbody>
             @foreach($biometricDevices as $biometricDevices)
                 <tr>
-                    <td>{{ $biometricDevices->id }}</td>
                     <td>{{ $biometricDevices->IPAddress }}</td>
                     <td>{{ $biometricDevices->Brand }}</td>
                     <td>{{ $biometricDevices->Office }}</td>
@@ -42,9 +40,4 @@
         </table>
     </div>
 
-    <div class="card-footer clearfix">
-        <div class="float-right">
-            @include('adminlte-templates::common.paginate', ['records' => $biometricDevices])
-        </div>
-    </div>
 </div>

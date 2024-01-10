@@ -14,7 +14,8 @@ class BiometricDevices extends Model
         'Brand',
         'Office',
         'Status',
-        'Notes'
+        'Notes',
+        'DatetimeLastSynced'
     ];
 
     protected $casts = [
@@ -23,7 +24,8 @@ class BiometricDevices extends Model
         'Brand' => 'string',
         'Office' => 'string',
         'Status' => 'string',
-        'Notes' => 'string'
+        'Notes' => 'string',
+        'DatetimeLastSynced' => 'string',
     ];
 
     public static array $rules = [
@@ -33,7 +35,8 @@ class BiometricDevices extends Model
         'Status' => 'nullable|string|max:50',
         'Notes' => 'nullable|string|max:500',
         'created_at' => 'nullable',
-        'updated_at' => 'nullable'
+        'updated_at' => 'nullable',
+        'DatetimeLastSynced' => 'nullable',
     ];
 
     

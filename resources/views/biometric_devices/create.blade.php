@@ -1,3 +1,7 @@
+@php
+    use App\Models\IDGenerator;
+@endphp
+
 @extends('layouts.app')
 
 @section('content')
@@ -6,7 +10,7 @@
             <div class="row mb-2">
                 <div class="col-sm-12">
                     <h1>
-                    Create Biometric Devices
+                    Add Biometric Device
                     </h1>
                 </div>
             </div>
@@ -15,27 +19,32 @@
 
     <div class="content px-3">
 
-        @include('adminlte-templates::common.errors')
+        <div class="row">
+            <div class="col-lg-6 offset-lg-3">
+                @include('adminlte-templates::common.errors')
 
-        <div class="card">
+                <div class="card shadow-none">
 
-            {!! Form::open(['route' => 'biometricDevices.store']) !!}
+                    {!! Form::open(['route' => 'biometricDevices.store']) !!}
 
-            <div class="card-body">
+                    <input type="hidden" name="id" value="{{ IDGenerator::generateIDandRandString(); }}">
+                    <div class="card-body">
 
-                <div class="row">
-                    @include('biometric_devices.fields')
+                        <div class="row">
+                            @include('biometric_devices.fields')
+                        </div>
+
+                    </div>
+
+                    <div class="card-footer">
+                        {!! Form::submit('Save', ['class' => 'btn btn-primary']) !!}
+                        <a href="{{ route('biometricDevices.index') }}" class="btn btn-default"> Cancel </a>
+                    </div>
+
+                    {!! Form::close() !!}
+
                 </div>
-
             </div>
-
-            <div class="card-footer">
-                {!! Form::submit('Save', ['class' => 'btn btn-primary']) !!}
-                <a href="{{ route('biometricDevices.index') }}" class="btn btn-default"> Cancel </a>
-            </div>
-
-            {!! Form::close() !!}
-
-        </div>
+        </div>        
     </div>
 @endsection

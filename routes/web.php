@@ -153,4 +153,4 @@ Route::resource('leaveBalanceDetails', App\Http\Controllers\LeaveBalanceDetailsC
 
 Route::resource('leaveImageAttachments', App\Http\Controllers\LeaveImageAttachmentsController::class);
 
-Route::resource('biometric-devices', App\Http\Controllers\BiometricDevicesController::class);
+Route::resource('biometricDevices', App\Http\Controllers\BiometricDevicesController::class);

@@ -8,6 +8,8 @@ use App\Http\Controllers\AppBaseController;
 use App\Repositories\BiometricDevicesRepository;
 use Illuminate\Http\Request;
 use Flash;
+use App\Models\BiometricDevices;
+use App\Models\IDGenerator;
 
 class BiometricDevicesController extends AppBaseController
 {

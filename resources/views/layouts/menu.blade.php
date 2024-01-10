@@ -225,6 +225,14 @@
                 <p>Roles</p>
             </a>
         </li>
+
+        <li class="nav-item">
+            <a href="{{ route('biometricDevices.index') }}"
+               class="nav-link {{ Request::is('biometricDevices*') ? 'active' : '' }}">
+               <i class="fas fa-fingerprint nav-icon"></i>
+                <p>Biometric Devices</p>
+            </a>
+        </li>
     </ul>
 </li>
 @endcanany
