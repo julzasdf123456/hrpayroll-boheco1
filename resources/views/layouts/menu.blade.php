@@ -162,6 +162,13 @@
         </li>
 
         <li class="nav-item">
+            <a href="{{ route('holidaysLists.index') }}" class="nav-link {{ Request::is('holidaysLists*') ? 'active' : '' }}">
+                <i class="nav-icon fas fa-circle"></i>
+                <p>Holidays Lists</p>
+            </a>
+        </li>
+
+        <li class="nav-item">
             <a href="{{ route('positions.index') }}"
                class="nav-link {{ Request::is('positions*') ? 'active' : '' }}">
                <i class="fas fa-circle nav-icon"></i>
@@ -236,3 +243,5 @@
     </ul>
 </li>
 @endcanany
+
+

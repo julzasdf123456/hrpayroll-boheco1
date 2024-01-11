@@ -15,7 +15,7 @@ class BiometricDevices extends Model
         'Office',
         'Status',
         'Notes',
-        'DatetimeLastSynced'
+        'DatetimeLastSynced',
     ];
 
     protected $casts = [

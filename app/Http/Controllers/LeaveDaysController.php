@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use App\Models\LeaveDays;
 use App\Models\IDGenerator;
 use App\Models\LeaveApplications;
+use App\Models\HolidaysList;
 use Illuminate\Support\Facades\DB;
 use \DatePeriod;
 use \DateTime;
@@ -175,12 +176,18 @@ class LeaveDaysController extends AppBaseController
             ->select(DB::raw($leaveApplication->LeaveType . ' AS Balance'))
             ->where('EmployeeId', $leaveApplication->EmployeeId)
             ->first();
+        $holidaysList = HolidaysList::whereRaw("HolidayDate > GETDATE()")->get();
+        $holidays = [];
+        foreach ($holidaysList as $item) {
+            array_push($holidays, date('Y-m-d', strtotime($item->HolidayDate)));
+        }
 
         if ($from == $to) {
             $day = date('D', strtotime($to));
             if ($day == 'Sun') {
 
             } else {
+
                 // CHECK NO OF DAYS FROM BALANCE
                 $prevLeaveDays = LeaveDays::where('LeaveId', $leaveId)->get();
                 $totalPrev = 0;
@@ -296,96 +303,101 @@ class LeaveDaysController extends AppBaseController
                 // array_push($arr,
                 //     $value->format('Y-m-d')
                 // ); 
-                $day = $value->format('D');
-                if ($day == 'Sun') {
-    
+                // CHECK IF DAY IS HOLIDAY
+                if (in_array($value->format('Y-m-d'), $holidays)) {
+                    // skip if holiday
                 } else {
-                    //CHECK IF DAY EXISTS ALREADY
-                    $leaveDayCheck = LeaveDays::where('LeaveDate', $value->format('Y-m-d'))->first();
-                    if ($leaveDayCheck == null) {
-                        // CHECK IF THERE ARE STILL AVAILABLE BALANCE
-                        $remain = $balance - $totalPrev;
+                    $day = $value->format('D');
+                    if ($day == 'Sun') {
+        
+                    } else {
+                        //CHECK IF DAY EXISTS ALREADY
+                        $leaveDayCheck = LeaveDays::where('LeaveDate', $value->format('Y-m-d'))->first();
+                        if ($leaveDayCheck == null) {
+                            // CHECK IF THERE ARE STILL AVAILABLE BALANCE
+                            $remain = $balance - $totalPrev;
 
-                        if ($remain >= 1) {
-                            $lid = IDGenerator::generateIDandRandString();
-                            $leaveDays = new LeaveDays;
-                            $leaveDays->id = $lid;
-                            $leaveDays->LeaveId = $leaveId;
-                            $leaveDays->LeaveDate = $value->format('Y-m-d');
-                            $leaveDays->Longevity = 1;
-                            $leaveDays->Duration = 'WHOLE';
-                            $leaveDays->save();
-            
-                            $output .= "<tr id='" . $lid . "'>
-                                            <td>" . $value->format('D, M d, Y') . "</td>
-                                            <td>
-                                                <select id='longevity-" . $lid . "' class='form-control form-control-sm'>
-                                                    <option value='WHOLE' selected>Whole Day</option>
-                                                    <option value='AM'>Morning Only</option>
-                                                    <option value='PM'>Afternoon Only</option>
-                                                </select>
-                                            </td>
-                                            <td>
-                                                <button class='btn btn-xs btn-danger float-right' onclick=deleteDate('" . $lid . "')><i class='fas fa-trash'></i></button>
-                                                <button class='btn btn-xs btn-primary float-right' onclick=updateLongevity('" . $lid . "')><i class='fas fa-check-circle'></i></button>
-                                            </td>
-                                        </tr>";
-                            $totalPrev += 1;
-                        } elseif ($remain < 1 && $remain >= .5) {
-                            $lid = IDGenerator::generateIDandRandString();
-                            $leaveDays = new LeaveDays;
-                            $leaveDays->id = $lid;
-                            $leaveDays->LeaveId = $leaveId;
-                            $leaveDays->LeaveDate = $value->format('Y-m-d');
-                            $leaveDays->Longevity = 0.5;
-                            $leaveDays->Duration = 'AM';
-                            $leaveDays->save();
-            
-                            $output .= "<tr id='" . $lid . "'>
-                                            <td>" . $value->format('D, M d, Y') . "</td>
-                                            <td>
-                                                <select id='longevity-" . $lid . "' class='form-control form-control-sm'>
-                                                    <option value='WHOLE'>Whole Day</option>
-                                                    <option value='AM' selected>Morning Only</option>
-                                                    <option value='PM'>Afternoon Only</option>
-                                                </select>
-                                            </td>
-                                            <td>
-                                                <button class='btn btn-xs btn-danger float-right' onclick=deleteDate('" . $lid . "')><i class='fas fa-trash'></i></button>
-                                                <button class='btn btn-xs btn-primary float-right' onclick=updateLongevity('" . $lid . "')><i class='fas fa-check-circle'></i></button>
-                                            </td>
-                                        </tr>";
-                            $totalPrev += 0.5;
-                        } elseif ($remain == -.5) {
-                            $lid = IDGenerator::generateIDandRandString();
-                            $leaveDays = new LeaveDays;
-                            $leaveDays->id = $lid;
-                            $leaveDays->LeaveId = $leaveId;
-                            $leaveDays->LeaveDate = $from;
-                            $leaveDays->Longevity = 0.5;
-                            $leaveDays->Duration = 'AM';
-                            $leaveDays->save();
-    
-                            $output .= "<tr id='" . $lid . "'>
-                                            <td>" . date('D, M d, Y', strtotime($from)) . "</td>
-                                            <td>
-                                                <select id='longevity-" . $lid . "' class='form-control form-control-sm'>
-                                                    <option value='WHOLE'>Whole Day</option>
-                                                    <option value='AM' selected>Morning Only</option>
-                                                    <option value='PM'>Afternoon Only</option>
-                                                </select>
-                                            </td>
-                                            <td>
-                                                <button class='btn btn-xs btn-danger float-right' onclick=deleteDate('" . $lid . "')><i class='fas fa-trash'></i></button>
-                                                <button class='btn btn-xs btn-primary float-right' onclick=updateLongevity('" . $lid . "')><i class='fas fa-check-circle'></i></button>
-                                            </td>
-                                        </tr>";
-                            $totalPrev += 0.5;
-                        } else {
-                            // NO AVAILABLE LEAVE BALANCE LEFT
-                        }                        
-                    }                    
-                }                
+                            if ($remain >= 1) {
+                                $lid = IDGenerator::generateIDandRandString();
+                                $leaveDays = new LeaveDays;
+                                $leaveDays->id = $lid;
+                                $leaveDays->LeaveId = $leaveId;
+                                $leaveDays->LeaveDate = $value->format('Y-m-d');
+                                $leaveDays->Longevity = 1;
+                                $leaveDays->Duration = 'WHOLE';
+                                $leaveDays->save();
+                
+                                $output .= "<tr id='" . $lid . "'>
+                                                <td>" . $value->format('D, M d, Y') . "</td>
+                                                <td>
+                                                    <select id='longevity-" . $lid . "' class='form-control form-control-sm'>
+                                                        <option value='WHOLE' selected>Whole Day</option>
+                                                        <option value='AM'>Morning Only</option>
+                                                        <option value='PM'>Afternoon Only</option>
+                                                    </select>
+                                                </td>
+                                                <td>
+                                                    <button class='btn btn-xs btn-danger float-right' onclick=deleteDate('" . $lid . "')><i class='fas fa-trash'></i></button>
+                                                    <button class='btn btn-xs btn-primary float-right' onclick=updateLongevity('" . $lid . "')><i class='fas fa-check-circle'></i></button>
+                                                </td>
+                                            </tr>";
+                                $totalPrev += 1;
+                            } elseif ($remain < 1 && $remain >= .5) {
+                                $lid = IDGenerator::generateIDandRandString();
+                                $leaveDays = new LeaveDays;
+                                $leaveDays->id = $lid;
+                                $leaveDays->LeaveId = $leaveId;
+                                $leaveDays->LeaveDate = $value->format('Y-m-d');
+                                $leaveDays->Longevity = 0.5;
+                                $leaveDays->Duration = 'AM';
+                                $leaveDays->save();
+                
+                                $output .= "<tr id='" . $lid . "'>
+                                                <td>" . $value->format('D, M d, Y') . "</td>
+                                                <td>
+                                                    <select id='longevity-" . $lid . "' class='form-control form-control-sm'>
+                                                        <option value='WHOLE'>Whole Day</option>
+                                                        <option value='AM' selected>Morning Only</option>
+                                                        <option value='PM'>Afternoon Only</option>
+                                                    </select>
+                                                </td>
+                                                <td>
+                                                    <button class='btn btn-xs btn-danger float-right' onclick=deleteDate('" . $lid . "')><i class='fas fa-trash'></i></button>
+                                                    <button class='btn btn-xs btn-primary float-right' onclick=updateLongevity('" . $lid . "')><i class='fas fa-check-circle'></i></button>
+                                                </td>
+                                            </tr>";
+                                $totalPrev += 0.5;
+                            } elseif ($remain == -.5) {
+                                $lid = IDGenerator::generateIDandRandString();
+                                $leaveDays = new LeaveDays;
+                                $leaveDays->id = $lid;
+                                $leaveDays->LeaveId = $leaveId;
+                                $leaveDays->LeaveDate = $from;
+                                $leaveDays->Longevity = 0.5;
+                                $leaveDays->Duration = 'AM';
+                                $leaveDays->save();
+        
+                                $output .= "<tr id='" . $lid . "'>
+                                                <td>" . date('D, M d, Y', strtotime($from)) . "</td>
+                                                <td>
+                                                    <select id='longevity-" . $lid . "' class='form-control form-control-sm'>
+                                                        <option value='WHOLE'>Whole Day</option>
+                                                        <option value='AM' selected>Morning Only</option>
+                                                        <option value='PM'>Afternoon Only</option>
+                                                    </select>
+                                                </td>
+                                                <td>
+                                                    <button class='btn btn-xs btn-danger float-right' onclick=deleteDate('" . $lid . "')><i class='fas fa-trash'></i></button>
+                                                    <button class='btn btn-xs btn-primary float-right' onclick=updateLongevity('" . $lid . "')><i class='fas fa-check-circle'></i></button>
+                                                </td>
+                                            </tr>";
+                                $totalPrev += 0.5;
+                            } else {
+                                // NO AVAILABLE LEAVE BALANCE LEFT
+                            }                        
+                        }                    
+                    }  
+                }           
             }
         }
         

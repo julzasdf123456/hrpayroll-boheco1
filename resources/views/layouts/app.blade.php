@@ -373,7 +373,7 @@
      */
      function fetchBarangayFromTown(townId, prevValue) {
         $.ajax({
-            url : '/barangays/get-barangays-json/' + townId,
+            url : "{{ url('/barangays/get-barangays-json') }}/" + townId,
             type: "GET",
             dataType : "json",
             success : function(data) {
@@ -384,14 +384,14 @@
             },
             error : function(error) {
                 // alert(error);
-                console.log(error);
+                // console.log(error);
             }
         });
     }
 
     function fetchBarangayFromTownPermanent(townId, prevValue) {
         $.ajax({
-            url : '/barangays/get-barangays-json/' + townId,
+            url : "{{ url('/barangays/get-barangays-json') }}/" + townId,
             type: "GET",
             dataType : "json",
             success : function(data) {
@@ -402,14 +402,14 @@
             },
             error : function(error) {
                 // alert(error);
-                console.log(error);
+                // console.log(error);
             }
         });
     }
 
     function fetchNotifications() {
         $.ajax({
-            url : '/notifications/get-all-notifications',
+            url : "{{ url('/notifications/get-all-notifications') }}",
             type : 'GET',
             success : function(response) {
                 if (jQuery.isEmptyObject(response)) {
@@ -426,7 +426,7 @@
 
     function countNotifications() {
         $.ajax({
-            url : '/notifications/get-notif-counter',
+            url : "{{ url('/notifications/get-notif-counter') }}",
             type : 'GET',
             success : function(response) {
                 if (jQuery.isEmptyObject(response)) {

@@ -15,25 +15,7 @@
     </section>
 
     <div class="row">
-        <div class="col-lg-4">            
-            {{-- SIGNATORY --}}
-            <div class="card shadow-none">
-                <div class="card-header border-0">
-                    <span class="card-title">Add Signatory</span>
-                </div>
-                <div class="card-body">
-                    <div class="form-group">
-                        <select class="form-control form-control-sm" name="" id="signatories">
-                            @foreach ($users as $item)
-                                <option value="{{ $item->id }}">{{ Employees::getMergeName($item) }} </option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    <button class="btn btn-primary btn-sm" id="add-signatory"><i class="fas fa-plus-circle ico-tab-mini"></i>Add</button>
-                </div>
-            </div>
-
+        <div class="col-lg-4">           
             {{-- ADD DAYS --}}
             <div class="card shadow-none">
                 <div class="card-header border-0">
@@ -66,9 +48,19 @@
                     </table>
                     @push('page_scripts')
                         <script>
+                            var holidays = "{{ $holidays }}"
+                            holidays = holidays.split(',')
+                            
                             $('#Day').daterangepicker({
                                 showDropdowns: true,
                                 alwaysShowCalendars: true,
+                                isInvalidDate: function(date) {
+                                    if (date.day() == 0 | holidays.includes(date.format('YYYY-MM-DD'))) {
+                                        return true
+                                    } else {
+                                        return false
+                                    }
+                                },
                                 minYear: 1901,
                                 maxYear: parseInt(moment().format('YYYY'),10)
                             }, function(start, end, label) {
@@ -143,10 +135,9 @@
         function deleteSignatory(id) {
             if (confirm('Are you sure you want to delete this signatory?')) {
                 $.ajax({
-                    url : '/leaveSignatories/' + id,
-                    type : 'DELETE',
+                    url : "{{ route('leaveApplications.remove-leave-signatory') }}",
+                    type : 'GET',
                     data : {
-                        _token : "{{ csrf_token() }}",
                         id : id
                     },
                     success : function(res) {
@@ -170,7 +161,7 @@
                 /* Read more about isConfirmed, isDenied below */
                 if (result.isConfirmed) {
                     $.ajax({
-                        url : '/leaveDays/' + id,
+                        url : "{{ url('/leaveDays') }}/" + id,
                         type : 'DELETE',
                         data : {
                             _token : "{{ csrf_token() }}"
@@ -324,7 +315,7 @@
         $(document).ready(function() {            
             $('#add-signatory').on('click', function() {
                 $.ajax({
-                    url : '/leave_applications/add-signatories',
+                    url : "{{ url('/leave_applications/add-signatories') }}",
                     type : 'POST',
                     data : {
                         _token : "{{ csrf_token() }}",

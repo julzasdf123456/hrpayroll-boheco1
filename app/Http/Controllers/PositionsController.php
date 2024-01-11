@@ -35,8 +35,10 @@ class PositionsController extends AppBaseController
     {
         $positions = $this->positionsRepository->all();
 
-        return view('positions.index')
-            ->with('positions', $positions);
+        return view('positions.index', [
+            'positions' => $positions,
+            'supers' => Positions::whereIn('Level', ['Manager', 'Chief', 'Head'])->get(),
+        ]);
     }
 
     /**
@@ -173,5 +175,19 @@ class PositionsController extends AppBaseController
         Flash::success('Positions deleted successfully.');
 
         return redirect(route('positions.index'));
+    }
+
+    public function updateSuper(Request $request) {
+        $positionId = $request['PositionId'];
+        $superId = $request['SuperId'];
+
+        $position = Positions::find($positionId);
+
+        if ($position != null) {
+            $position->ParentPositionId = $superId;
+            $position->save();
+        }
+
+        return response()->json($position, 200);
     }
 }

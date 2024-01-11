@@ -18,6 +18,7 @@ class BiometricDevicesController extends AppBaseController
 
     public function __construct(BiometricDevicesRepository $biometricDevicesRepo)
     {
+        $this->middleware('auth');
         $this->biometricDevicesRepository = $biometricDevicesRepo;
     }
 

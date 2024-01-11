@@ -163,6 +163,14 @@
                     $('#special-dropdown').hide()
                     $('#Content').removeAttr('readonly')
                     $('#Content').val(null)
+                } else if (value == 'Paternity' | value == 'Maternity') {
+                    $('#special-dropdown').hide()   
+                    $('#Content').val(null)   
+                    $('#Content').attr('readonly', true)
+                } else {           
+                    $('#special-dropdown').hide()   
+                    $('#Content').val(null)  
+                    $('#Content').removeAttr('readonly')
                 }
             })
 

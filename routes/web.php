@@ -86,6 +86,7 @@ Route::get('/leave_applications/approve-ajax', [App\Http\Controllers\LeaveApplic
 Route::get('/leave_applications/delete-leave', [App\Http\Controllers\LeaveApplicationsController::class, 'deleteLeave'])->name('leaveApplications.delete-leave');
 Route::post('/leave_applications/add-image-attachments', [App\Http\Controllers\LeaveApplicationsController::class, 'addImageAttachments'])->name('leaveApplications.add-image-attachments');
 Route::get('/leave_applications/remove-image', [App\Http\Controllers\LeaveApplicationsController::class, 'removeImage'])->name('leaveApplications.remove-image');
+Route::get('/leave_applications/remove-leave-signatory', [App\Http\Controllers\LeaveApplicationsController::class, 'removeLeaveSignatory'])->name('leaveApplications.remove-leave-signatory');
 Route::resource('leaveApplications', App\Http\Controllers\LeaveApplicationsController::class);
 
 Route::resource('leaveSignatories', App\Http\Controllers\LeaveSignatoriesController::class);
@@ -123,7 +124,7 @@ Route::resource('payrollDetails', App\Http\Controllers\PayrollDetailsController:
 
 Route::resource('overtimes', App\Http\Controllers\OvertimesController::class);
 
-
+Route::get('/positions/update-super', [App\Http\Controllers\PositionsController::class, 'updateSuper'])->name('positions.update-super');
 Route::resource('positions', App\Http\Controllers\PositionsController::class);
 
 
@@ -154,3 +155,6 @@ Route::resource('leaveBalanceDetails', App\Http\Controllers\LeaveBalanceDetailsC
 Route::resource('leaveImageAttachments', App\Http\Controllers\LeaveImageAttachmentsController::class);
 
 Route::resource('biometricDevices', App\Http\Controllers\BiometricDevicesController::class);
+
+
+Route::resource('holidaysLists', App\Http\Controllers\HolidaysListController::class);
