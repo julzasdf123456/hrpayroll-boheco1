@@ -36,7 +36,8 @@ class LeaveSignatories extends Model
         'LeaveId',
         'EmployeeId',
         'Rank',
-        'Status'
+        'Status',
+        'Notes'
     ];
 
     /**
@@ -49,7 +50,8 @@ class LeaveSignatories extends Model
         'LeaveId' => 'string',
         'EmployeeId' => 'string',
         'Rank' => 'integer',
-        'Status' => 'string'
+        'Status' => 'string',
+        'Notes' => 'string',
     ];
 
     /**
@@ -63,7 +65,8 @@ class LeaveSignatories extends Model
         'Rank' => 'nullable|integer',
         'Status' => 'nullable|string|max:255',
         'created_at' => 'nullable',
-        'updated_at' => 'nullable'
+        'updated_at' => 'nullable',
+        'Notes' => 'nullable|string',
     ];
 
     

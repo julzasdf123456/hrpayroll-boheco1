@@ -76,7 +76,8 @@ class Employees extends Model
         'Citizenship',
         'Designation',
         'BiometricsUserId',
-        'PayrollScheduleId'
+        'PayrollScheduleId',
+        'AuthorizedToDrive'
     ];
 
     /**
@@ -108,7 +109,8 @@ class Employees extends Model
         'Citizenship' => 'string',
         'Designation' => 'string',
         'BiometricsUserId' => 'string',
-        'PayrollScheduleId' => 'string'
+        'PayrollScheduleId' => 'string',
+        'AuthorizedToDrive' => 'string',
     ];
 
     /**
@@ -141,12 +143,21 @@ class Employees extends Model
         'updated_at' => 'nullable',
         'Designation' => 'nullable|string',
         'BiometricsUserId' => 'nullable|string',
-        'PayrollScheduleId' => 'nullable|string'
+        'PayrollScheduleId' => 'nullable|string',
+        'AuthorizedToDrive' => 'nullable|string',
     ];
 
     public static function getMergeName($employee) {
         if ($employee != null) {
             return $employee->FirstName . " " . $employee->MiddleName . " " . $employee->LastName . " " . $employee->Suffix;
+        } else {
+            return "No name";
+        }
+    }
+
+    public static function getMergeNameFormal($employee) {
+        if ($employee != null) {
+            return  $employee->LastName . ', ' . $employee->FirstName . " " . $employee->MiddleName . " " . $employee->Suffix;
         } else {
             return "No name";
         }

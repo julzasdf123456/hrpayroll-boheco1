@@ -183,4 +183,18 @@ class UsersController extends AppBaseController
 
         return redirect('users/' . $request->userId);
     }
+
+    public function switchColorModes(Request $request) {
+        $id = $request['id'];
+        $color = $request['Color'];
+
+        $user = User::find($id);
+
+        if ($user != null) {
+            $user->ColorProfile = $color;
+            $user->save();
+        }
+
+        return response()->json($user, 200);
+    }
 }

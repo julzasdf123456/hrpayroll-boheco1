@@ -108,9 +108,20 @@ class LeaveApplicationsController extends AppBaseController
             ->leftJoin('Employees', 'users.employee_id', '=', 'Employees.id')
             ->leftJoin('EmployeesDesignations', 'EmployeesDesignations.EmployeeId', '=', 'Employees.id')
             ->leftJoin('Positions', 'EmployeesDesignations.PositionId', '=', 'Positions.id')
-            ->select('LeaveSignatories.id', 'LeaveSignatories.EmployeeId', 'LeaveSignatories.Status', 'Employees.FirstName', 'Employees.LastName', 'Employees.MiddleName', 'Employees.Suffix', 'Positions.Position')
+            ->select(
+                'LeaveSignatories.id', 
+                'LeaveSignatories.EmployeeId', 
+                'LeaveSignatories.Status', 
+                'Employees.FirstName', 
+                'Employees.LastName', 
+                'Employees.MiddleName', 
+                'Employees.Suffix', 
+                'Positions.Position', 
+                'LeaveSignatories.updated_at', 
+                'LeaveSignatories.Notes')
             ->where('LeaveSignatories.LeaveId', $id)
             ->whereRaw("(LeaveSignatories.Status IS NULL OR LeaveSignatories.Status NOT IN('REMOVED'))")
+            ->orderBy('LeaveSignatories.Rank')
             ->get();
 
         if (empty($leaveApplications)) {
@@ -760,6 +771,9 @@ class LeaveApplicationsController extends AppBaseController
                         $totalDays += .5;
                     }
                 }  
+                // UPDATE LEAVE DAYS STATUS
+                LeaveDays::where('LeaveId', $id)
+                    ->update(['Status' => 'APPROVED']);
                 
                 // UPDATE LEAVE BALANCES
                 $leaveBalances = LeaveBalances::where('EmployeeId', $leaveApplication->EmployeeId)->first();
@@ -908,5 +922,56 @@ class LeaveApplicationsController extends AppBaseController
         }
 
         return response()->json($leaveSignatory, 200);
+    }
+
+    public function rejectLeaveAjax(Request $request) {
+        $id = $request['id'];
+        $signatoryId = $request['SignatoryId'];
+        $notes = $request['Notes'];
+
+        $leaveApplication = LeaveApplications::find($id);
+        $leaveSignatory = LeaveSignatories::find($signatoryId);
+
+        if ($leaveApplication != null) {
+            $leaveApplication->Status = 'REJECTED';
+            $leaveApplication->save();
+        }
+
+        if ($leaveSignatory != null) {
+            $leaveSignatory->Status = 'REJECTED';
+            $leaveSignatory->Notes = $notes;
+            $leaveSignatory->save();
+
+            $nextSignatories = DB::table('LeaveSignatories')
+                ->whereRaw("LeaveId='" . $id . "' AND (Status IS NULL OR Status NOT IN('REMOVED')) AND Rank > " . $leaveSignatory->Rank)
+                ->orderBy('Rank')
+                ->get();
+            foreach ($nextSignatories as $item) {
+                $leaveSig = LeaveSignatories::find($item->id);
+                if ($leaveSig != null) {
+                    $leaveSig->Status = 'REJECTED';
+                    $leaveSig->Notes = 'Auto rejected due to rejection of previous signatory.';
+                    $leaveSig->save();
+                }
+            }
+            
+            // UPDATE LEAVE DAYS STATUS
+            LeaveDays::where('LeaveId', $id)
+                ->update(['Status' => 'REJECTED']);
+
+            // INSERT SMS CODE HERE
+
+            // INSERT NOTIF
+            $user = Users::where('employee_id', $leaveApplication->EmployeeId)->first();
+            $notifications = new Notifications;
+            $notifications->UserId = $user != null ? $user->id : '';
+            $notifications->Type = 'LEAVE_INFO';
+            $notifications->Content = Users::find($leaveSignatory->EmployeeId)->name . ' rejected your leave application.';
+            $notifications->Notes = $id;
+            $notifications->Status = "UNREAD";
+            $notifications->save();
+        }
+
+        return response()->json($leaveApplication, 200);
     }
 }

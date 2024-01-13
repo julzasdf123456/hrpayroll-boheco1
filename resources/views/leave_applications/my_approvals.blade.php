@@ -41,8 +41,8 @@
                         <span class="text-muted">Date Filed: <strong>{{ date('D, M d, Y', strtotime($item->created_at)) }}</strong></span>
                     </div>
                     <div class="card-footer">
-                        <button id="{{ $item->id }}" class="btn btn-sm btn-success" onclick="approveLeave('{{ $item->id }}')" sig-id="{{ $item->SignatoryId }}"><i class="fas fa-check-circle ico-tab-mini"></i>Approve</button>
-                        <a href="" class="btn btn-sm btn-danger float-right"><i class="fas fa-exclamation-circle ico-tab-mini"></i>Reject</a>
+                        <button id="{{ $item->id }}" class="btn btn-sm btn-success" onclick="approveLeave(`{{ $item->id }}`)" sig-id="{{ $item->SignatoryId }}"><i class="fas fa-check-circle ico-tab-mini"></i>Approve</button>
+                        <button onclick="rejectLeave(`{{ $item->id }}`, `{{ $item->SignatoryId }}`)" class="btn btn-sm btn-danger float-right"><i class="fas fa-times-circle ico-tab-mini"></i>Reject</button>
                     </div>
                 </div>
             </div>
@@ -94,6 +94,47 @@
                     
                 }
             })
+        }
+
+        function rejectLeave(id, signatoryId) {
+            (async () => {
+                const { value: text } = await Swal.fire({
+                    input: 'textarea',
+                    inputLabel: 'Remarks/Notes',
+                    inputPlaceholder: 'Type your remarks here...',
+                    inputAttributes: {
+                        'aria-label': 'Type your remarks here'
+                    },
+                    title: 'Reject This Leave?',
+                    text : 'Before you reject this leave, please provide a remark or comment so the employee can assess the situation further.',
+                    showCancelButton: true
+                })
+
+                if (text) {
+                    $.ajax({
+                        url : "{{ route('leaveApplications.reject-leave-ajax') }}",
+                        type : "GET",
+                        data : {
+                            id : id, 
+                            SignatoryId : signatoryId,
+                            Notes : text, 
+                        }, 
+                        success : function(res) {
+                            Toast.fire({
+                                icon : 'info',
+                                text : 'Leave rejected!'
+                            })                            
+                            $('#card-' + id).remove()
+                        },
+                        error : function(err) {
+                            Swal.fire({
+                                icon : 'error',
+                                text : 'Error rejecting leave!'
+                            })
+                        }
+                    })
+                }
+            })()
         }
     </script>
 @endpush

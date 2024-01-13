@@ -65,6 +65,27 @@
     </ul>
 </li>
 
+{{-- TRIP TICKETS --}}
+<li class="nav-item">
+    <a href="#" class="nav-link">
+        <i class="nav-icon fas fa-car"></i>
+        <p>
+            Trip Tickets
+            <i class="right fas fa-angle-left"></i>
+        </p>
+    </a>
+    <ul class="nav nav-treeview">
+        <li class="nav-item">
+            <a href="{{ route('tripTickets.create') }}" class="nav-link {{ Request::is('tripTickets.create') ? 'active' : '' }}">
+                <i class="nav-icon fas fa-plus-circle"></i>
+                <p>File Trip Ticket</p>
+            </a>
+        </li>
+    </ul>
+</li>
+
+
+
 {{-- APPROVALS --}}
 <li class="nav-item">
     <a href="#" class="nav-link">
@@ -182,7 +203,14 @@
                <i class="fas fa-circle nav-icon"></i>
                 <p>Payroll Schedules</p>
             </a>
-        </li>      
+        </li>    
+        
+        <li class="nav-item">
+            <a href="{{ route('vehicles.index') }}" class="nav-link {{ Request::is('vehicles*') ? 'active' : '' }}">
+                <i class="nav-icon fas fa-car"></i>
+                <p>Vehicles</p>
+            </a>
+        </li>
     </ul>
 </li>
 @endcanany
@@ -243,5 +271,4 @@
     </ul>
 </li>
 @endcanany
-
 

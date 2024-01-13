@@ -5,6 +5,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UsersController;
+use App\Http\Controllers\LeaveApplicationsController;
+use App\Http\Controllers\EmployeesController;
+use App\Http\Controllers\TripTicketPassengersController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -28,26 +31,27 @@ Route::get('/home', [
 
 Route::get('/users/add_permissions/{id}', [UsersController::class, 'addRoles'])->name('users.add-roles');
 Route::post('/users/create-roles', [UsersController::class, 'createRoles']);
+Route::get('/users/switch-color-modes', [UsersController::class, 'switchColorModes'])->name('users.switch-color-modes');
 Route::resource('users', App\Http\Controllers\UsersController::class);
 
 Route::get('/register/get-employee-ajax', [App\Http\Controllers\Auth\RegisterController::class, 'getEmployeeAjax'])->name('register.get-employee-ajax');
 
-Route::get('/employees/create-designations/{id}', [App\Http\Controllers\EmployeesController::class, 'createDesignations'])->name('employees.create-designations');
-Route::get('/employees/get-search-results', [App\Http\Controllers\EmployeesController::class, 'getSearchResults'])->name('employees.get-search-results');
-Route::get('/employees/update-ranking/{id}', [App\Http\Controllers\EmployeesController::class, 'updateRanking'])->name('employees.update-ranking');
-Route::post('/employees/add-ranking', [App\Http\Controllers\EmployeesController::class, 'addRanking']);
-Route::get('/employees/update-educational-attainment/{id}', [App\Http\Controllers\EmployeesController::class, 'updateEducationalAttainment'])->name('employees.update-educational-attainment');
-Route::post('/employees/save-educatonal-attainment', [App\Http\Controllers\EmployeesController::class, 'saveEducationalAttainment']);
-Route::get('/employees/download-file/{folder}/{type}/{file}', [App\Http\Controllers\EmployeesController::class, 'downloadFile'])->name('employees.download-file');
-Route::get('/employees/update-third-party-ids/{id}', [App\Http\Controllers\EmployeesController::class, 'updateThirdPartyIDs'])->name('employees.update-third-party-ids');
-Route::get('/employees/attendance/{id}', [App\Http\Controllers\EmployeesController::class, 'attendance'])->name('employees.attendance');
-Route::get('/employees/get-attendance', [App\Http\Controllers\EmployeesController::class, 'getAttendance'])->name('employees.get-attendance');
-Route::get('/employees/capture-image/{id}', [App\Http\Controllers\EmployeesController::class, 'captureImage'])->name('employees.capture-image');
-Route::post('/employees/create-image', [App\Http\Controllers\EmployeesController::class, 'createImage'])->name('employees.create-image');
-Route::get('/employees/get-image/{id}', [App\Http\Controllers\EmployeesController::class, 'getImage'])->name('employees.get-image');
-Route::get('/employees/get-employee-ajax', [App\Http\Controllers\EmployeesController::class, 'getEmployeeAjax'])->name('employees.get-employee-ajax');
-Route::get('/employees/get-attendance-data-ajax', [App\Http\Controllers\EmployeesController::class, 'getAttendanceDataAjax'])->name('employees.get-attendance-data-ajax');
-Route::resource('employees', App\Http\Controllers\EmployeesController::class);
+Route::get('/employees/create-designations/{id}', [EmployeesController::class, 'createDesignations'])->name('employees.create-designations');
+Route::get('/employees/get-search-results', [EmployeesController::class, 'getSearchResults'])->name('employees.get-search-results');
+Route::get('/employees/update-ranking/{id}', [EmployeesController::class, 'updateRanking'])->name('employees.update-ranking');
+Route::post('/employees/add-ranking', [EmployeesController::class, 'addRanking']);
+Route::get('/employees/update-educational-attainment/{id}', [EmployeesController::class, 'updateEducationalAttainment'])->name('employees.update-educational-attainment');
+Route::post('/employees/save-educatonal-attainment', [EmployeesController::class, 'saveEducationalAttainment']);
+Route::get('/employees/download-file/{folder}/{type}/{file}', [EmployeesController::class, 'downloadFile'])->name('employees.download-file');
+Route::get('/employees/update-third-party-ids/{id}', [EmployeesController::class, 'updateThirdPartyIDs'])->name('employees.update-third-party-ids');
+Route::get('/employees/attendance/{id}', [EmployeesController::class, 'attendance'])->name('employees.attendance');
+Route::get('/employees/get-attendance', [EmployeesController::class, 'getAttendance'])->name('employees.get-attendance');
+Route::get('/employees/capture-image/{id}', [EmployeesController::class, 'captureImage'])->name('employees.capture-image');
+Route::post('/employees/create-image', [EmployeesController::class, 'createImage'])->name('employees.create-image');
+Route::get('/employees/get-image/{id}', [EmployeesController::class, 'getImage'])->name('employees.get-image');
+Route::get('/employees/get-employee-ajax', [EmployeesController::class, 'getEmployeeAjax'])->name('employees.get-employee-ajax');
+Route::get('/employees/get-attendance-data-ajax', [EmployeesController::class, 'getAttendanceDataAjax'])->name('employees.get-attendance-data-ajax');
+Route::resource('employees', EmployeesController::class);
 
 Route::resource('permissions', App\Http\Controllers\PermissionController::class);
 
@@ -77,17 +81,18 @@ Route::resource('educationalAttainments', App\Http\Controllers\EducationalAttain
 Route::resource('professionalIDs', App\Http\Controllers\ProfessionalIDsController::class);
 
 
-Route::get('/leave_applications/create-step-two/{id}', [App\Http\Controllers\LeaveApplicationsController::class, 'createStepTwo'])->name('leaveApplications.create-step-two');
-Route::post('/leave_applications/add-signatories', [App\Http\Controllers\LeaveApplicationsController::class, 'addSignatories'])->name('leaveApplications.add-signatories');
-Route::get('/leave_applications/approvals/{id}', [App\Http\Controllers\LeaveApplicationsController::class, 'leaveApprovals'])->name('leaveApplications.approvals');
-Route::get('/leave_applications/approve-leave/{id}/{signatoryId}', [App\Http\Controllers\LeaveApplicationsController::class, 'approveLeave'])->name('leaveApplications.approve-leave');
-Route::get('/leave_applications/my-approvals', [App\Http\Controllers\LeaveApplicationsController::class, 'myApprovals'])->name('leaveApplications.my-approvals');
-Route::get('/leave_applications/approve-ajax', [App\Http\Controllers\LeaveApplicationsController::class, 'approveAjax'])->name('leaveApplications.approve-ajax');
-Route::get('/leave_applications/delete-leave', [App\Http\Controllers\LeaveApplicationsController::class, 'deleteLeave'])->name('leaveApplications.delete-leave');
-Route::post('/leave_applications/add-image-attachments', [App\Http\Controllers\LeaveApplicationsController::class, 'addImageAttachments'])->name('leaveApplications.add-image-attachments');
-Route::get('/leave_applications/remove-image', [App\Http\Controllers\LeaveApplicationsController::class, 'removeImage'])->name('leaveApplications.remove-image');
-Route::get('/leave_applications/remove-leave-signatory', [App\Http\Controllers\LeaveApplicationsController::class, 'removeLeaveSignatory'])->name('leaveApplications.remove-leave-signatory');
-Route::resource('leaveApplications', App\Http\Controllers\LeaveApplicationsController::class);
+Route::get('/leave_applications/create-step-two/{id}', [LeaveApplicationsController::class, 'createStepTwo'])->name('leaveApplications.create-step-two');
+Route::post('/leave_applications/add-signatories', [LeaveApplicationsController::class, 'addSignatories'])->name('leaveApplications.add-signatories');
+Route::get('/leave_applications/approvals/{id}', [LeaveApplicationsController::class, 'leaveApprovals'])->name('leaveApplications.approvals');
+Route::get('/leave_applications/approve-leave/{id}/{signatoryId}', [LeaveApplicationsController::class, 'approveLeave'])->name('leaveApplications.approve-leave');
+Route::get('/leave_applications/my-approvals', [LeaveApplicationsController::class, 'myApprovals'])->name('leaveApplications.my-approvals');
+Route::get('/leave_applications/approve-ajax', [LeaveApplicationsController::class, 'approveAjax'])->name('leaveApplications.approve-ajax');
+Route::get('/leave_applications/delete-leave', [LeaveApplicationsController::class, 'deleteLeave'])->name('leaveApplications.delete-leave');
+Route::post('/leave_applications/add-image-attachments', [LeaveApplicationsController::class, 'addImageAttachments'])->name('leaveApplications.add-image-attachments');
+Route::get('/leave_applications/remove-image', [LeaveApplicationsController::class, 'removeImage'])->name('leaveApplications.remove-image');
+Route::get('/leave_applications/remove-leave-signatory', [LeaveApplicationsController::class, 'removeLeaveSignatory'])->name('leaveApplications.remove-leave-signatory');
+Route::get('/leave_applications/reject-leave-ajax', [LeaveApplicationsController::class, 'rejectLeaveAjax'])->name('leaveApplications.reject-leave-ajax');
+Route::resource('leaveApplications', LeaveApplicationsController::class);
 
 Route::resource('leaveSignatories', App\Http\Controllers\LeaveSignatoriesController::class);
 
@@ -158,3 +163,10 @@ Route::resource('biometricDevices', App\Http\Controllers\BiometricDevicesControl
 
 
 Route::resource('holidaysLists', App\Http\Controllers\HolidaysListController::class);
+Route::resource('tripTickets', App\Http\Controllers\TripTicketsController::class);
+Route::resource('tripTicketDestinations', App\Http\Controllers\TripTicketDestinationsController::class);
+
+Route::get('/trip_ticket_passengers/remove-passenger-ajax', [TripTicketPassengersController::class, 'removePassengerAjax'])->name('tripTicketPassengers.remove-passenger-ajax');
+Route::resource('tripTicketPassengers', TripTicketPassengersController::class);
+Route::resource('vehicles', App\Http\Controllers\VehiclesController::class);
+Route::resource('trip-ticket-signatories', App\Http\Controllers\TripTicketSignatoriesController::class);

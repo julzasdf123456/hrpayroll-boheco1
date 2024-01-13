@@ -9,106 +9,161 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-12">
-                    <p class="badge bg-warning" style="padding: 10px;">{{ $leaveApplication->Status }}</p>
+                    @if ($leaveApplication->Status == 'APPROVED')
+                        <p class="badge bg-success" style="padding: 10px;">{{ $leaveApplication->Status }}</p>
+                    @elseif ($leaveApplication->Status == 'REJECTED')
+                        <p class="badge bg-danger" style="padding: 10px;">{{ $leaveApplication->Status }}</p>
+                    @else
+                        <p class="badge bg-info" style="padding: 10px;">{{ $leaveApplication->Status }}</p>
+                    @endif
                 </div>
             </div>
         </div>
     </section>
 
     <div class="row">
-        <div class="col-lg-10 offset-lg-1 col-md-12">
+        <div class="col-lg-12">
             <div class="card shadow-none">
                 <div class="card-header border-0">
                     <span class="card-title">
                         @if ($leaveApplication->Status == 'APPROVED')
                             <i class="fas fa-check-circle ico-tab text-success"></i>
+                        @elseif ($leaveApplication->Status == 'REJECTED')
+                            <i class="fas fa-exclamation-circle ico-tab text-danger"></i>
                         @else
                             <i class="fas fa-info-circle ico-tab text-warning"></i>
                         @endif
                         <strong>{{ Employees::getMergeName(Employees::find($leaveApplication->EmployeeId)) }}</strong>
+                        <span class="badge bg-info" style="padding: 8px; margin-left: 8px;">{{ $leaveApplication->LeaveType }}</span>
                     </span>
 
                     <div class="card-tools">
-                        <span class='text-muted'>Date Filed: </span>{{ date('F d, Y', strtotime($leaveApplication->created_at)) }}
+                        
                     </div>
                 </div>
                 <div class="card-body">
-                    <p><span class="text-muted">Leave Type: </span> <span class="badge bg-info" style="padding: 10px;">{{ $leaveApplication->LeaveType }}</span></p>
-                    <p style="font-size: 1.4em;"><span class="text-muted">Reason: </span> <strong style="border-bottom: 1px solid #242424">{{ $leaveApplication->Content }}</strong></p>
-                    <span class="text-muted">Dates of Leave:</span>
-                    <br>
-                    <ul>
-                        @foreach ($leaveDays as $item)
-                            <li>{{ date('D, F d, Y', strtotime($item->LeaveDate)) }} ({{ $item->Duration }})
-                                @if ($leaveApplication->Status == 'APPROVED' | $leaveApplication->Status == 'FOR REVIEW')
-                                    
-                                @else
-                                    <button class="btn btn-xs btn-danger" style="margin-left: 20px;"><i class="fas fa-trash"></i></button>
-                                @endif                                
-                            </li>
-                        @endforeach
-                    </ul>
 
-                    {{-- FOR SICK LEAVE --}}
-                    @if ($leaveApplication->LeaveType == 'Sick')
-                        <div class="divider"></div>
-                        <input type="file" accept="image/png, image/gif, image/jpeg" id="img-attachment" style="display: none"/>
-                        <button class="btn btn-sm btn-primary float-right" onclick="thisFileUpload()"><i class="fas fa-upload ico-tab-mini"></i>Upload Medical Certificate</button>
-                        <p class="text-muted">Medical Certificate Attachment(s)</p>
+                    <div class="row">
+                        {{-- DETAILS --}}
+                        <div class="col-lg-8">
+                            <table class="table table-hover table-sm table-bordered">
+                                <tr>
+                                    <td class="text-muted">Reason</td>
+                                    <td>
+                                        {{ $leaveApplication->Content }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Date Filed</td>
+                                    <td>
+                                        {{ date('F d, Y h:i A', strtotime($leaveApplication->created_at)) }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Dates of Leave</td>
+                                    <td>
+                                        <ul>
+                                            @foreach ($leaveDays as $item)
+                                                <li>{{ date('D, F d, Y', strtotime($item->LeaveDate)) }} ({{ $item->Duration }})
+                                                    @if ($leaveApplication->Status == 'APPROVED' | $leaveApplication->Status == 'FOR REVIEW')
+                                                        
+                                                    @else
+                                                        <button class="btn btn-xs btn-danger" style="margin-left: 20px;"><i class="fas fa-trash"></i></button>
+                                                    @endif                                
+                                                </li>
+                                            @endforeach
+                                        </ul>
+                                    </td>
+                                </tr>
+                            </table>                    
 
-                        <div class="row" id="imgs-data">
-                            @foreach ($leaveImgs as $item)
-                                <div class="col-md-3" id="{{ $item->id }}">
-                                    <button class="btn btn-xs btn-danger" style="position: absolute; right: 10px; top: 5px;" onclick="removeImg('{{ $item->id }}')"><i class="fas fa-trash"></i></button>
-                                    <img src="{{ $item->HexImage }}" style="width: 100%;" alt="">
+                            {{-- FOR SICK LEAVE --}}
+                            @if ($leaveApplication->LeaveType == 'Sick')
+                                <div class="divider"></div>
+                                <input type="file" accept="image/png, image/gif, image/jpeg" id="img-attachment" style="display: none"/>
+                                <button class="btn btn-sm btn-primary float-right" onclick="thisFileUpload()"><i class="fas fa-upload ico-tab-mini"></i>Upload Medical Certificate</button>
+                                <p class="text-muted">Medical Certificate Attachment(s)</p>
+
+                                <div class="row" id="imgs-data">
+                                    @foreach ($leaveImgs as $item)
+                                        <div class="col-md-3" id="{{ $item->id }}">
+                                            <button class="btn btn-xs btn-danger" style="position: absolute; right: 10px; top: 5px;" onclick="removeImg('{{ $item->id }}')"><i class="fas fa-trash"></i></button>
+                                            <img src="{{ $item->HexImage }}" style="width: 100%;" alt="">
+                                        </div>
+                                        
+                                    @endforeach
                                 </div>
-                                
+
+                                <div class="divider"></div>
+                            @endif
+                        </div>
+                        {{-- LOGS --}}
+                        <div class="col-lg-4">
+                            <p class="text-muted">Signatory Logs</p>
+                            @foreach ($leaveSignatories as $item)
+                                <div class="mb-2 p-2 {{ Auth::user()->ColorProfile != null ? 'border-left-dark' : 'border-left-light' }}">
+                                    @if ($item->Status === 'APPROVED')
+                                        <span class="badge bg-success">{{ $item->Status }}</span>
+                                    @elseif ($item->Status === 'REJECTED')
+                                        <span class="badge bg-danger">{{ $item->Status }}</span>
+                                    @else
+                                        <span class="badge {{ Auth::user()->ColorProfile != null ? 'bg-white' : 'bg-dark' }}">{{ $item->Status == null ? 'PENDING' : $item->Status }}</span>
+                                    @endif
+                                    
+                                    <span style="font-size: .85em;" class="text-muted float-right">{{ date('M d, Y h:i A', strtotime($item->updated_at)) }}</span>
+                                    <br>
+                                    <p class="no-pads"><strong>{{ Employees::getMergeName($item) }}</strong></p>
+                                    @if ($item->Notes != null)
+                                        <span class="text-muted">{{ $item->Notes }}</span>
+                                    @endif
+                                </div>
                             @endforeach
                         </div>
-
-                        <div class="divider"></div>
-                    @endif
-
-                    <div class="row justify-content-around">
-                        @foreach ($leaveSignatories as $item)
-                            @if (Auth::id() == $item->EmployeeId)
-                                <div class="col-5" style="margin-top: 20px;">
-                                    <p class="text-center" style="padding: 0 !important; margin: 0 !important;">
-                                        <u><strong>{{ Employees::getMergeName($item) }}</strong></u>
-                                        
-                                    </p>
-                                    <address class="text-center"><i>{{ $item->Position }}</i></address>
-                                    <p class="text-center">
-                                        @if ($item->Status == 'APPROVED')
-
-                                        @else
-                                            <a href="{{ route('leaveApplications.approve-leave', [$leaveApplication->id, $item->id]) }}" class="btn btn-xs btn-primary text-center"><i class="fas fa-check-circle ico-tab-mini"></i>Approve This Leave</a>
-                                        @endif                                        
-                                    </p>                                  
-                                </div>  
-                            @else
-                                <div class="col-5" style="margin-top: 20px;">
-                                    @if ($item->Status == 'APPROVED')
-                                        <p class="text-center" style="padding: 0 !important; margin: 0 !important;">
-                                            <u><strong>{{ Employees::getMergeName($item) }}</strong></u>
-                                            
-                                        </p>
-                                        <address class="text-center"><i>{{ $item->Position }}</i></address>
-                                        <p class="text-center"><button class="btn btn-xs btn-success text-center"><i class="fas fa-check-circle ico-tab-mini"></i>Approved</button></p>
+                        {{-- SIGNATORES --}}
+                        <div class="col-lg-12">
+                            <div class="row justify-content-around">
+                                @foreach ($leaveSignatories as $item)
+                                    @if (Auth::id() == $item->EmployeeId)
+                                        <div class="col-5" style="margin-top: 20px;">
+                                            <p class="text-center" style="padding: 0 !important; margin: 0 !important;">
+                                                <u><strong>{{ Employees::getMergeName($item) }}</strong></u>
+                                                
+                                            </p>
+                                            <address class="text-center"><i>{{ $item->Position }}</i></address>
+                                            <p class="text-center">
+                                                @if ($item->Status == 'APPROVED')
+        
+                                                @else
+                                                    <a href="{{ route('leaveApplications.approve-leave', [$leaveApplication->id, $item->id]) }}" class="btn btn-xs btn-primary text-center"><i class="fas fa-check-circle ico-tab-mini"></i>Approve This Leave</a>
+                                                @endif                                        
+                                            </p>                                  
+                                        </div>  
                                     @else
-                                        <p class="text-center text-muted" style="padding: 0 !important; margin: 0 !important;">
-                                            <u><strong>{{ Employees::getMergeName($item) }}</strong></u>
-                                            
-                                        </p>
-                                        <address class="text-center text-muted"><i>{{ $item->Position }}</i></address>
-                                        <p class="text-center"><button class="btn btn-xs btn-default text-center"><i class="fas fa-info-circle ico-tab-mini"></i>Unapproved</button></p>
+                                        <div class="col-5" style="margin-top: 20px;">
+                                            @if ($item->Status == 'APPROVED')
+                                                <p class="text-center" style="padding: 0 !important; margin: 0 !important;">
+                                                    <u><strong>{{ Employees::getMergeName($item) }}</strong></u>
+                                                    
+                                                </p>
+                                                <address class="text-center"><i>{{ $item->Position }}</i></address>
+                                                <p class="text-center"><button class="btn btn-xs btn-success text-center"><i class="fas fa-check-circle ico-tab-mini"></i>Approved</button></p>
+                                            @else
+                                                <p class="text-center text-muted" style="padding: 0 !important; margin: 0 !important;">
+                                                    <u><strong>{{ Employees::getMergeName($item) }}</strong></u>
+                                                    
+                                                </p>
+                                                <address class="text-center text-muted"><i>{{ $item->Position }}</i></address>
+                                                <p class="text-center"><button class="btn btn-xs btn-default text-center"><i class="fas fa-info-circle ico-tab-mini"></i>Unapproved</button></p>
+                                            @endif
+                                        </div>                               
                                     @endif
-                                </div>                               
-                            @endif
-                            
-                        @endforeach
-                        
+                                    
+                                @endforeach
+                                
+                            </div>
+                        </div>
                     </div>
+
                 </div>
                 <div class="card-footer">
                     <a href="{{ route('home') }}" class="btn btn-default">Home</a>

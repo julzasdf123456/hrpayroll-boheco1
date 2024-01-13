@@ -63,10 +63,35 @@
 
     @stack('page_css')
     <style>
+        .no-pads {
+            margin: 0px !important;
+            padding: 0px !important;
+        }
+
+        .border-left-light {
+            border-left: 5px solid #5f5f5f;
+            border-radius: 4px;
+            background-color: #f5f5f5;
+        }
+
+        .border-left-dark {
+            border-left: 5px solid #7e7e7e;
+            border-radius: 4px;
+            background-color: #3c4447;
+        }
+
         .divider {
             width: 100%;
             height: 1px;
             background-color: #dedede;
+            margin-top: 4px;
+            margin-bottom: 4px;
+        }
+
+        .divider-dark {
+            width: 100%;
+            height: 1px;
+            background-color: #575a61;
             margin-top: 4px;
             margin-bottom: 4px;
         }
@@ -138,13 +163,41 @@
             background-color: #00ad51 !important;
             color: #ffffff !important;
         }
+
+        /**
+         * DATE RANGE PICKER
+         */
+        .available {
+            color : #333;
+        }
+
+        .available:hover {
+            background-color : #7ca9c7 !important;
+            color : #333;
+        }
+
+        td.off {
+            background-color: #e4e4e4 !important;
+            border-radius: 0px !important;
+        }
+
+        .calendar-table table thead tr th {
+            color : #333;
+        }
+
+        
+        .ui-datepicker-next span.ui-icon {
+            background-color: red !important;
+        }
     </style>
 </head>
-
-<body class="hold-transition sidebar-mini layout-fixed">
+@php
+    $userCache = Auth::user();
+@endphp
+<body class="hold-transition sidebar-mini layout-fixed {{ $userCache->ColorProfile }}">
 <div class="wrapper">
     <!-- Main Header -->
-    <nav class="main-header navbar navbar-expand navbar-white navbar-light">
+    <nav class="main-header navbar navbar-expand {{ $userCache->ColorProfile != null ? 'navbar-dark' : 'navbar-light' }}">
         <!-- Left navbar links -->
         <ul class="navbar-nav">
             <li class="nav-item">
@@ -174,26 +227,45 @@
                 </a>
                 <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
                     <!-- User image -->
-                    <li class="user-header bg-primary">
+                    <li class="user-header {{ $userCache->ColorProfile != null ? 'bg-light' : 'bg-dark' }}">
+                        {{-- <img src="https://boheco1.com/wp-content/uploads/2018/06/boheco-1-1024x1012.png" class="user-image img-circle elevation-2" alt="User Image"> --}}
                         <img src="{{ URL::asset('imgs/logo.png'); }}"
                              class="img-circle elevation-2"
-                             alt="User Image">
-                        <p>
-                            {{ Auth::user()->name }}
-                            <small>Member since {{ Auth::user()->created_at->format('M. Y') }}</small>
-                        </p>
+                             alt="User Image"> 
+                        <br>
+                        <h4 style="margin-top: 10px;"> {{ Auth::check() ? Auth::user()->name : '' }} </h4>
                     </li>
-                    <!-- Menu Footer-->
-                    <li class="user-footer">
-                        {{-- <a href="{{ route('employees.show', [App\Models\Employees::find(Auth::user()->id)]) }}" class="btn btn-default btn-flat">Profile</a> --}}
-                        <a href="#" class="btn btn-default btn-flat float-right"
-                           onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                            Sign out
-                        </a>
-                        <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
-                            @csrf
-                        </form>
-                    </li>
+                    <table class="table table-borderless table-hover table-sm">
+                        <tr>
+                            <td>
+                                <a href="" class="btn btn-link {{ $userCache->ColorProfile != null ? 'text-light' : 'text-dark' }}"><i class="fas fa-user-circle ico-tab"></i>My Account</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                {{-- <div class="custom-control custom-switch">
+                                    <label class="custom-control-label" for="color-modes" id="color-modes">Dark Mode</label>
+                                    <input type="checkbox" class="custom-control-input" id="color-modes">
+                                </div> --}}
+                                <div class="custom-control custom-switch" style="margin-left: 10px; margin-top: 6px; margin-bottom: 6px;">
+                                    <input type="checkbox" {{ $userCache->ColorProfile != null ? 'checked' : '' }} class="custom-control-input" id="color-switch">
+                                    <label style="font-weight: normal;" class="custom-control-label" for="color-switch" id="color-switchLabel">Dark Mode</label>
+                                </div>
+                                
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="border-top: 1px solid #e6e6e6;">
+                                <a href="#" class="btn btn-link {{ $userCache->ColorProfile != null ? 'text-light' : 'text-dark' }}"
+                                onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                    <i class="fas fa-sign-out-alt ico-tab"></i>Sign out
+                                </a>
+                                <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                                    @csrf
+                                </form>
+                            </td>
+                        </tr>
+                    </table>
                 </ul>
             </li>
         </ul>
@@ -255,10 +327,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-switch/3.3.4/js/bootstrap-switch.min.js" integrity="sha512-J+763o/bd3r9iW+gFEqTaeyi+uAphmzkE/zU8FxY6iAvD3nQKXa+ZAWkBI9QS9QkYEKddQoiy0I5GDxKf/ORBA==" crossorigin="anonymous"></script> --}}
 
 
-/**
- * LOCAL
- *
- */
  {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"
         integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg=="
         crossorigin="anonymous"></script> --}}
@@ -366,6 +434,36 @@
         $('#TownPermanent').on('change', function() {
             fetchBarangayFromTownPermanent(this.value, $('#Def_Brgy_Permanent').text());
         });
+
+        /**
+         * COLOR MODES CONTROLLER 
+         **/
+         $('#color-switch').on('change', function(e) {
+            var col = ''
+            if (e.target.checked) {
+               col = 'dark-mode'
+            } else {
+               col = null
+            }
+
+            $.ajax({
+                url : "{{ route('users.switch-color-modes') }}",
+                type : "GET",
+                data : {
+                    id : "{{ Auth::id() }}",
+                    Color : col,
+                },
+                success : function(res) {
+                    location.reload()
+                },
+                error : function(err) {
+                    Swal.fire({
+                        icon : 'error',
+                        text : 'Error changing color profile'
+                    })
+                }
+            })
+         })
     });
 
     /**

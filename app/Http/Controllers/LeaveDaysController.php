@@ -312,7 +312,9 @@ class LeaveDaysController extends AppBaseController
         
                     } else {
                         //CHECK IF DAY EXISTS ALREADY
-                        $leaveDayCheck = LeaveDays::where('LeaveDate', $value->format('Y-m-d'))->first();
+                        $leaveDayCheck = LeaveDays::where('LeaveDate', $value->format('Y-m-d'))
+                            ->whereRaw("(Status IS NULL OR Status NOT IN ('REJECTED'))")
+                            ->first();
                         if ($leaveDayCheck == null) {
                             // CHECK IF THERE ARE STILL AVAILABLE BALANCE
                             $remain = $balance - $totalPrev;

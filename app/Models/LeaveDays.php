@@ -40,7 +40,8 @@ class LeaveDays extends Model
         'LeaveDate',
         'Longevity',
         'Notes',
-        'Duration'
+        'Duration',
+        'Status',
     ];
 
     /**
@@ -54,7 +55,8 @@ class LeaveDays extends Model
         'LeaveDate' => 'date',
         'Longevity' => 'float',
         'Notes' => 'string',
-        'Duration' => 'string'
+        'Duration' => 'string',
+        'Status' => 'string'
     ];
 
     /**
@@ -70,6 +72,7 @@ class LeaveDays extends Model
         'created_at' => 'nullable',
         'updated_at' => 'nullable',
         'Duration' => 'nullable|string',
+        'Status' => 'nullable|string'
     ];
 
     
