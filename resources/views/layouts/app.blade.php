@@ -556,6 +556,14 @@
         showConfirmButton: false,
         timer: 3000
     });
+
+    function serializeEmployeeName(fName, lName, mName, suffix) {
+        if (jQuery.isEmptyObject(mName)) {
+            return fName + " " + lName + " " + suffix
+        } else {
+            return fName + " " + mName + " " + lName + " " + suffix
+        }
+    }
 </script>
 
 @yield('third_party_scripts')

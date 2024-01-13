@@ -9,6 +9,7 @@ use App\Repositories\TripTicketDestinationsRepository;
 use Illuminate\Http\Request;
 use Flash;
 use App\Models\IDGenerator;
+use App\Models\TripTicketDestinations;
 
 class TripTicketDestinationsController extends AppBaseController
 {
@@ -128,5 +129,16 @@ class TripTicketDestinationsController extends AppBaseController
         Flash::success('Trip Ticket Destinations deleted successfully.');
 
         return redirect(route('tripTicketDestinations.index'));
+    }
+
+    public function removeDestination(Request $request) {
+        $tripTicketId = $request['TripTicketId'];
+        $destinationAddress = $request['DestinationAddress'];
+
+        TripTicketDestinations::where('TripTicketId', $tripTicketId)
+            ->where('DestinationAddress', $destinationAddress)
+            ->delete();
+
+        return response()->json('ok', 200);
     }
 }

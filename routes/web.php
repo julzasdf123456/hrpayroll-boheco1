@@ -163,7 +163,11 @@ Route::resource('biometricDevices', App\Http\Controllers\BiometricDevicesControl
 
 
 Route::resource('holidaysLists', App\Http\Controllers\HolidaysListController::class);
+
+Route::get('/trip_tickets/get-signatories', [App\Http\Controllers\TripTicketsController::class, 'getSignatories'])->name('tripTickets.get-signatories');
 Route::resource('tripTickets', App\Http\Controllers\TripTicketsController::class);
+
+Route::get('/trip_ticket_destinations/remove-destination', [App\Http\Controllers\TripTicketDestinationsController::class, 'removeDestination'])->name('tripTicketDestinations.remove-destination');
 Route::resource('tripTicketDestinations', App\Http\Controllers\TripTicketDestinationsController::class);
 
 Route::get('/trip_ticket_passengers/remove-passenger-ajax', [TripTicketPassengersController::class, 'removePassengerAjax'])->name('tripTicketPassengers.remove-passenger-ajax');

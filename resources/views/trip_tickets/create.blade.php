@@ -47,7 +47,7 @@
                                 <tr>
                                     <td class="text-muted">Date Of Travel</td>
                                     <td>
-                                        <input type="text" name="DateOfTravel" id="DateOfTravel" class="form-control form-control-sm" autofocus value="{{ date('Y-m-d') }}" required>
+                                        <input type="text" name="DateOfTravel" id="DateOfTravel" class="form-control" autofocus value="{{ date('Y-m-d') }}" required>
                                         @push('page_scripts')
                                             <script type="text/javascript">
                                                 $('#DateOfTravel').datetimepicker({
@@ -125,7 +125,7 @@
                                 <table class="table table-hover table-sm table-borderless">
                                     <tbody>
                                         <tr>
-                                            <td>Add Passenger</td>
+                                            <td><i class="fas fa-users ico-tab-mini"></i>Add Passenger</td>
                                             <td>
                                                 <select class="custom-select select2" id="PassengerSelection" style="width: 100%;">
                                                     <option value="">-- Select --</option>
@@ -147,7 +147,7 @@
             <div class="col-lg-5 col-md-12">
                 <div class="card shadow-none">
                     <div class="card-header">
-                        <span class="card-title"><i class="fas fa-map ico-tab"></i>Set Destination</span>
+                        <span class="card-title"><i class="fas fa-map ico-tab"></i>Set Destination & Signatory</span>
                     </div>
                     <div class="card-body">
                         {{-- DESTINATION --}}
@@ -166,7 +166,7 @@
                                 <table class="table table-hover table-sm table-borderless">
                                     <tbody>
                                         <tr>
-                                            <td>Select Destination</td>
+                                            <td><i class="fas fa-map-marker-alt ico-tab-mini"></i>Select Destination</td>
                                             <td>
                                                 <select class="custom-select select2" id="Destinations">
                                                     <option value="">-- Select --</option>
@@ -188,12 +188,31 @@
                                 </table>
                                 <p class="text-center text-muted">Or Directly Type In Destination Below</p>
                                 <textarea class="form-control" name="DestinationTyped" id="DestinationTyped" rows="4" placeholder="Seprate with semicolon (;) if more than one"></textarea>
+                                <br>
+                            </div>
+                        </div>
+
+                        {{-- ADD SIGNATORY --}}
+                        <div class="card" style="margin: 10px;">
+                            <div class="card-body py-1">
+                                <table class="table table-hover table-sm table-borderless">
+                                    <tbody>
+                                        <tr>
+                                            <td><i class="fas fa-user-edit ico-tab-mini"></i>Default Signatory</td>
+                                            <td>
+                                                <select style="width: 100%;" class="custom-select select2" id="Signatory" name="Signatory">
+                                                    <option value="">-- Select --</option>                                                    
+                                                </select>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
 
                     <div class="card-footer">
-                        <button class="btn btn-success float-right" type="submit"><i class="fas fa-check-circle ico-tab-mini"></i> Save</button>
+                        <button class="btn btn-success float-right" type="submit"><i class="fas fa-check-circle ico-tab-mini"></i> Submit Trip Ticket</button>
                     </div>
                 </div>
             </div>
@@ -208,6 +227,10 @@
         $(document).ready(function() {
             $('#EmployeeId').on('change', function() {
                 $('#Vehicle').val('').change()
+
+                if (!jQuery.isEmptyObject(this.value)) {
+                    getDefaultSignatories(this.value)
+                }
             })
 
             $('#PassengerSelection').on('change', function() {
@@ -326,33 +349,74 @@
             return "<tr id='added-destination-" + id + "'>" +
                         "<td><i class='fas fa-map-marker-alt ico-tab text-primary'></i>" + destination + "</td>" +
                         "<td>" + 
-                            "<button onclick='return removeDestination(`" + id + "`)' class='btn btn-sm btn-link text-danger float-right'><i class='fas fa-trash'></i></button>" +
+                            "<button onclick='return removeDestination(`" + id + "`, `" + destination + "`)' class='btn btn-sm btn-link text-danger float-right'><i class='fas fa-trash'></i></button>" +
                         "</td>" +
                     "</td>"
         }
 
-        function removeDestination(id) {
+        function removeDestination(id, destinationAddress) {
             $('#added-destination-' + id).remove()
 
-            // $.ajax({
-            //     url : "{{ route('tripTicketPassengers.remove-passenger-ajax') }}",
-            //     type : "GET",
-            //     data : {
-            //         EmployeeId : id,
-            //         TripTicketId : "{{ $id }}",
-            //     },
-            //     success : function (res) {
+            $.ajax({
+                url : "{{ route('tripTicketDestinations.remove-destination') }}",
+                type : "GET",
+                data : {
+                    DestinationAddress : destinationAddress,
+                    TripTicketId : "{{ $id }}",
+                },
+                success : function (res) {
                     
-            //     },
-            //     error : function(err) {
-            //         Toast.fire({
-            //                 icon : 'error',
-            //                 text : 'Error removing passenger'
-            //             })
-            //     }
-            // })
+                },
+                error : function(err) {
+                    Toast.fire({
+                            icon : 'error',
+                            text : 'Error removing destination'
+                        })
+                }
+            })
 
             return false
+        }
+
+        function getDefaultSignatories(employeeId) {
+            $('#Signatory option').remove()
+            $('#Signatory').append('<option value="">-- Select --</option>')
+
+            $.ajax({
+                url : "{{ route('tripTickets.get-signatories') }}",
+                type : "GET",
+                data : {
+                    EmployeeId : employeeId,
+                },
+                success : function(res) {
+                    if (!jQuery.isEmptyObject(res)) {
+             
+                        $.each(res, function(index, element) {
+                            $('#Signatory').append(addSignatoryOptions(
+                                res[index]['id'], 
+                                serializeEmployeeName(res[index]['FirstName'], res[index]['MiddleName'], res[index]['LastName'], res[index]['Suffix']), 
+                                (res[index]['Level'] == "Manager" ? true : (index == 0 ? true : false)) // set manager first, if no manager is detected, switch to first array
+                            ))
+                        })
+                    }
+                },
+                error : function(xhr, status, error) {
+                    Swal.fire({
+                        icon : 'error',
+                        title : 'Oops!',
+                        text : xhr.responseText
+                    })
+                }
+            })
+        }
+
+        function addSignatoryOptions(employeeId, employeeName, isSelected) {
+            if (isSelected) {
+                return "<option value='" + employeeId + "' selected>" + employeeName + "</option>"
+            } else {
+                return "<option value='" + employeeId + "'>" + employeeName + "</option>"
+            }
+            
         }
     </script>
 @endpush

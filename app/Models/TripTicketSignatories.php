@@ -11,7 +11,7 @@ class TripTicketSignatories extends Model
     public $fillable = [
         'id',
         'TripTicketId',
-        'EmployeeId',
+        'EmployeeId', // USER ID
         'Rank',
         'Status',
         'Notes'

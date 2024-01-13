@@ -34,7 +34,7 @@ class LeaveSignatories extends Model
 
     public $fillable = [
         'LeaveId',
-        'EmployeeId',
+        'EmployeeId', // USER ID
         'Rank',
         'Status',
         'Notes'
