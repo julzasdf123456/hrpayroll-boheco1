@@ -8,6 +8,8 @@ use App\Http\Controllers\UsersController;
 use App\Http\Controllers\LeaveApplicationsController;
 use App\Http\Controllers\EmployeesController;
 use App\Http\Controllers\TripTicketPassengersController;
+use App\Http\Controllers\TripTicketsController;
+use App\Http\Controllers\TripTicketGRSController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -164,8 +166,14 @@ Route::resource('biometricDevices', App\Http\Controllers\BiometricDevicesControl
 
 Route::resource('holidaysLists', App\Http\Controllers\HolidaysListController::class);
 
-Route::get('/trip_tickets/get-signatories', [App\Http\Controllers\TripTicketsController::class, 'getSignatories'])->name('tripTickets.get-signatories');
-Route::resource('tripTickets', App\Http\Controllers\TripTicketsController::class);
+Route::get('/trip_tickets/get-trip-ticket-ajax', [TripTicketsController::class, 'getTripTicketAjax'])->name('tripTickets.get-trip-ticket-ajax');
+Route::get('/trip_tickets/get-signatories', [TripTicketsController::class, 'getSignatories'])->name('tripTickets.get-signatories');
+Route::get('/trip_tickets/my-trip-tickets/{userId}', [TripTicketsController::class, 'myTripTickets'])->name('tripTickets.my-trip-tickets');
+Route::get('/trip_tickets/my-approvals', [TripTicketsController::class, 'myApprovals'])->name('tripTickets.my-approvals');
+Route::get('/trip_tickets/approve-leave', [TripTicketsController::class, 'approveLeave'])->name('tripTickets.approve-leave');
+Route::get('/trip_tickets/reject-leave', [TripTicketsController::class, 'rejectLeave'])->name('tripTickets.reject-leave');
+Route::get('/trip_tickets/request-grs', [TripTicketsController::class, 'requestGRS'])->name('tripTickets.request-grs');
+Route::resource('tripTickets', TripTicketsController::class);
 
 Route::get('/trip_ticket_destinations/remove-destination', [App\Http\Controllers\TripTicketDestinationsController::class, 'removeDestination'])->name('tripTicketDestinations.remove-destination');
 Route::resource('tripTicketDestinations', App\Http\Controllers\TripTicketDestinationsController::class);
@@ -174,3 +182,8 @@ Route::get('/trip_ticket_passengers/remove-passenger-ajax', [TripTicketPassenger
 Route::resource('tripTicketPassengers', TripTicketPassengersController::class);
 Route::resource('vehicles', App\Http\Controllers\VehiclesController::class);
 Route::resource('trip-ticket-signatories', App\Http\Controllers\TripTicketSignatoriesController::class);
+
+Route::get('/trip_ticket_g_rs/print-grs/{ttId}/{grsId}', [TripTicketGRSController::class, 'printGRS'])->name('tripTicketGRS.print-grs');
+Route::get('/trip_ticket_g_rs/save-grs', [TripTicketGRSController::class, 'saveGRS'])->name('tripTicketGRS.save-grs');
+Route::get('/trip_ticket_g_rs/grs-requests', [TripTicketGRSController::class, 'grsRequests'])->name('tripTicketGRS.grs-requests');
+Route::resource('tripTicketGRS', TripTicketGRSController::class);

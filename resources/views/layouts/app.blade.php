@@ -104,6 +104,14 @@
             margin-right: 10px;
         }
 
+        .ico-tab-left {
+            margin-left: 20px;
+        }
+
+        .ico-tab-left-mini {
+            margin-left: 10px;
+        }
+
         .ellipsize {
             width: 290px;
             white-space: nowrap;
@@ -188,6 +196,10 @@
         
         .ui-datepicker-next span.ui-icon {
             background-color: red !important;
+        }
+
+        .gone {
+            display: none;
         }
     </style>
 </head>
@@ -559,9 +571,17 @@
 
     function serializeEmployeeName(fName, lName, mName, suffix) {
         if (jQuery.isEmptyObject(mName)) {
-            return fName + " " + lName + " " + suffix
+            return fName + " " + lName + " " + validateNulls(suffix)
         } else {
-            return fName + " " + mName + " " + lName + " " + suffix
+            return fName + " " + validateNulls(mName) + " " + lName + " " + validateNulls(suffix)
+        }
+    }
+
+    function validateNulls(regex) {
+        if (jQuery.isEmptyObject(regex)) {
+            return ''
+        } else {
+            return regex
         }
     }
 </script>

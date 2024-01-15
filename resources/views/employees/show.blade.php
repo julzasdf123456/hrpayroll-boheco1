@@ -140,6 +140,9 @@
                                 <a class="nav-link" id="leave-tab" data-toggle="pill" href="#leave-content" role="tab" aria-controls="leave-content" aria-selected="false">Leave</a>
                             </li>
                             <li class="nav-item">
+                                <a class="nav-link" id="trip-tickets-tab" data-toggle="pill" href="#trip-ticket-content" role="tab" aria-controls="trip-ticket-content" aria-selected="false">Trip Tickets</a>
+                            </li>
+                            <li class="nav-item">
                                 <a class="nav-link" id="promotions-tab" data-toggle="pill" href="#promotions-content" role="tab" aria-controls="promotions-content" aria-selected="false">Promotions</a>
                             </li>
                             <li class="nav-item">
@@ -160,6 +163,9 @@
                             </div>
                             <div class="tab-pane fade" id="leave-content" role="tabpanel" aria-labelledby="leave-tab">
                                 @include('employees.leave')
+                            </div>
+                            <div class="tab-pane fade" id="trip-ticket-content" role="tabpanel" aria-labelledby="trip-tickets-tab">
+                                @include('employees.tab_trip_tickets')
                             </div>
                             <div class="tab-pane fade" id="promotions-content" role="tabpanel" aria-labelledby="promotions-tab">
                                 @include('employees.promotions')

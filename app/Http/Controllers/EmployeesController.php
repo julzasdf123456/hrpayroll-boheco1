@@ -129,6 +129,24 @@ class EmployeesController extends AppBaseController
         $leaveBalance = LeaveBalances::where('EmployeeId', $id)->first();
         $leaveBalanceDetails = LeaveBalanceDetails::where('EmployeeId', $id)->orderByDesc('created_at')->get();
 
+        $tripTickets = DB::table('TripTickets')
+            ->leftJoin('Employees', 'TripTickets.Driver', '=', 'Employees.id')
+            ->leftJoin(DB::raw("Employees AS e"), 'TripTickets.EmployeeId', '=', DB::raw("e.id"))
+            ->whereRaw("TripTickets.EmployeeId='" . $id . "' AND TripTickets.Status NOT IN ('Trash')")
+            ->select(
+                'TripTickets.*',
+                'Employees.FirstName AS DriverFirstName',
+                'Employees.MiddleName AS DriverMiddleName',
+                'Employees.LastName AS DriverLastName',
+                'Employees.Suffix AS DriverSuffix',
+                'e.FirstName',
+                'e.MiddleName',
+                'e.LastName',
+                'e.Suffix',
+            )
+            ->orderByDesc('DatetimeFiled')
+            ->get();
+
         if ( Users::where('employee_id', $id)->first() != null) {
             $leaveApplications = LeaveApplications::where('EmployeeId', Users::where('employee_id', $id)->first()->employee_id)->get();
         } else {
@@ -154,6 +172,7 @@ class EmployeesController extends AppBaseController
                 'workSchedules' => $workSchedules,
                 'leaveBalance' => $leaveBalance,
                 'leaveBalanceDetails' => $leaveBalanceDetails,
+                'tripTickets' => $tripTickets,
             ]);
         } else {
             return abort(403, "You're not authorized view your profile.");

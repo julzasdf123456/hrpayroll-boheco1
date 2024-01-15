@@ -20,6 +20,7 @@ class TripTickets extends Model
         'UserId',
         'DateOfTravel',
         'Vehicle',
+        'RequestGRS',
     ];
 
     protected $casts = [
@@ -34,6 +35,7 @@ class TripTickets extends Model
         'UserId' => 'string',
         'DateOfTravel' => 'string',
         'Vehicle' => 'string',
+        'RequestGRS' => 'string',
     ];
 
     public static array $rules = [
@@ -49,7 +51,16 @@ class TripTickets extends Model
         'UserId' => 'nullable|string',
         'DateOfTravel' => 'nullable|string',
         'Vehicle' => 'nullable|string',
+        'RequestGRS' => 'nullable|string',
     ];
 
-    
+    public static function getBgStatus($status) {
+        if ($status == null | $status == 'FILED') {
+            return 'bg-primary';
+        } elseif ($status == 'APPROVED') {
+            return 'bg-success';
+        } else {
+            return 'bg-danger';
+        }
+    }
 }

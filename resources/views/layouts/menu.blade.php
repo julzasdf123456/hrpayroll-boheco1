@@ -81,10 +81,16 @@
                 <p>File Trip Ticket</p>
             </a>
         </li>
+        @canany(['create grs', 'god permission'])
+            <li class="nav-item">
+                <a href="{{ route('tripTicketGRS.grs-requests') }}" class="nav-link {{ Request::is('tripTicketGRS.grs-requests') ? 'active' : '' }}">
+                    <i class="nav-icon fas fa-gas-pump"></i>
+                    <p>GRS Requests</p>
+                </a>
+            </li>
+        @endcanany
     </ul>
 </li>
-
-
 
 {{-- APPROVALS --}}
 <li class="nav-item">
@@ -101,6 +107,12 @@
             <a href="{{ route('leaveApplications.my-approvals') }}"
                class="nav-link {{ Request::is('leaveApplications.my-approvals*') ? 'active' : '' }}">
                 <i class="fas fa-file-export nav-icon"></i><p>Leave Applications</p>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="{{ route('tripTickets.my-approvals') }}"
+               class="nav-link {{ Request::is('tripTickets.my-approvals*') ? 'active' : '' }}">
+                <i class="fas fa-car nav-icon"></i><p>Trip Tickets</p>
             </a>
         </li>
         {{-- @endcanany --}}

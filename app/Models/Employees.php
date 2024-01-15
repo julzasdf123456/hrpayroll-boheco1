@@ -155,6 +155,14 @@ class Employees extends Model
         }
     }
 
+    public static function getDriverMergeName($employee) {
+        if ($employee != null) {
+            return $employee->DriverFirstName . " " . $employee->DriverMiddleName . " " . $employee->DriverLastName . " " . $employee->DriverSuffix;
+        } else {
+            return "No name";
+        }
+    }
+
     public static function getMergeNameFormal($employee) {
         if ($employee != null) {
             return  $employee->LastName . ', ' . $employee->FirstName . " " . $employee->MiddleName . " " . $employee->Suffix;
