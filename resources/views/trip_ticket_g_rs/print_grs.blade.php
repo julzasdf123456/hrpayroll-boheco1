@@ -15,15 +15,16 @@
         margin: 0px !important;
         padding: 0px !important;
         font-family: sans-serif;
-        font-size: 1.08em;
+        font-size: .9em;
     }
 
     td, th {
-      font-size: 1.05em;
+      font-size: .85em;
     }
     
     table {
       border-collapse: collapse;
+      width: 100% !important;
     }
 
     .border {
@@ -85,7 +86,6 @@
 	}
 
     .underlined {
-		width: 100%;
 		border-bottom: 1px solid;
 		border-color: #232323;
 		margin-top: -1px;
@@ -116,8 +116,9 @@
     }
 
     .col-md-6 {
-        width: 49.5%;
+        width: 45.4%;
         display: inline-table;
+        margin: 10px;
     }
 
     .col-md-4 {
@@ -156,22 +157,103 @@
     .left-text {
         text-align: left;
     }
+
+    .width-full {
+        width: 100%;
+    }
+
+    .inline {
+        display: inline-block;
+    }
+
+    .no-underline {
+        border-bottom: 0px !important;
+        text-decoration: none !important;
+    }
 }
 </style>
 
 
 <div class="header-print">
     <div class="row">
-        <div class="col-md-12">
-            <h4 class="no-line-spacing center-text"><strong>{{ strtoupper(env('APP_COMPANY')) }}</strong></h4>
-            <p class="no-line-spacing center-text">{{ env('APP_ADDRESS') }}</p>
-            
-        </div>
+        @for ($x = 0; $x < 4; $x++)
+            <div class="col-md-6 border">
+                <h4 class="no-line-spacing center-text">{{ strtoupper(env('APP_COMPANY')) }}</h4>
+                <p class="no-line-spacing center-text">{{ env('APP_ADDRESS') }}</p>
+                
+                <h4 class="center-text"><strong>GAS REQUISITION SLIP (GRS)</strong></h4>
+
+                <table class="table" style="width: 100% !important;">
+                    <tr>
+                        <td style="width: 30%;">DATE:</td>
+                        <td class="underlined">{{ date('M d, Y', strtotime($tripTicket->DateOfTravel)) }}</td>
+                    </tr>
+                    <tr>
+                        <td>GRS No:</td>
+                        <td class="underlined">{{ explode("-", $grs->id)[0] }}</td>
+                    </tr>
+                    <tr>
+                        <td>No. of Liters:</td>
+                        <td class="underlined"><strong>{{ $grs->TotalLiters }}</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Fuel Type:</td>
+                        <td class="underlined"><strong>{{ strtoupper($grs->TypeOfFuel) }}</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Vehicle:</td>
+                        <td class="underlined">{{ $tripTicket->Vehicle }}</td>
+                    </tr>
+                    <tr>
+                        <td>Vehicle No.:</td>
+                        <td class="underlined"></td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: left; vertical-align: top; padding-top: 10px;">Travel Purpose:</td>
+                        <td style="padding-top: 10px;">
+                            @php
+                                $purpose = explode(";", $tripTicket->PurposeOfTravel);
+                            @endphp
+                            <ul style="height: 5.2em; overflow: hidden; text-overflow: '>>';">
+                                @for ($i = 0; $i<count($purpose); $i++)
+                                    <li>{{ $purpose[$i] }}</li>
+                                @endfor
+                            </ul>                        
+                        </td>
+                    </tr>
+                </table>
+
+                <div class="row">
+                    <div class="col-md-7">
+                        <h4 class="no-line-spacing center-text underlined">{{ Employees::getDriverMergeName($tripTicket) }}</h4>
+                        <p class="no-line-spacing center-text"><i>Driver's Name over Signature</i></p>
+                    </div>
+                    <div class="col-md-5"></div>
+                    <div class="col-md-5"></div>
+                    <div class="col-md-7">
+                        <br><br><br>
+                        @if ($signatory != null)
+                            <h4 class="no-line-spacing center-text underlined">{{ $signatory->name }}</h4>
+                        @else
+                            <h4 class="no-line-spacing center-text underlined"></h4>
+                        @endif
+                        
+                        <p class="no-line-spacing center-text"><i>Department Manager</i></p>
+                    </div>
+
+                    <div class="col-md-12">
+                        <br><br>
+                        <p class="no-line-spacing center-text"><strong>NOTICE TO THE SUPPLIER</strong></p>
+                        <p class="no-line-spacing">1. Each GRS is good for 50 liters of gasoline or 100 liters of diesel fuel.</p>
+                        <p class="no-line-spacing">2. Authority to use GRS is not transferable.</p>
+                        <p class="no-line-spacing">3. Alternation of any entry shall render the GRS invalid.</p>
+                        <p class="no-line-spacing">4. Only the original copy of GRS with full signature and not initials shall be considered to support claims for payment.</p>
+                    </div>
+                </div>
+            </div>
+        @endfor
+        
     </div>
-
-    <br>
-
-
 </div>
 
 <script type="text/javascript">   

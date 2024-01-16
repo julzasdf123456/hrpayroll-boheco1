@@ -205,9 +205,20 @@ class TripTicketGRSController extends AppBaseController
 
         $grs = TripTicketGRS::find($grsId);
 
+        $signatory = DB::table('TripTicketSignatories')
+            ->leftJoin('users', 'TripTicketSignatories.EmployeeId', '=', 'users.id')
+            ->whereRaw("TripTicketSignatories.TripTicketId='" . $ttId . "'")
+            ->select('users.*', 
+                'TripTicketSignatories.id AS SignatoryId',
+                'TripTicketSignatories.Status'
+            )
+            ->orderBy('users.name')
+            ->first();
+
         return view('/trip_ticket_g_rs/print_grs', [
             'tripTicket' => $tripTicket,
             'grs' => $grs,
+            'signatory' => $signatory,
         ]);
     }
 }
