@@ -16,8 +16,13 @@ import daterangepicker from 'daterangepicker';
 import { createApp } from 'vue/dist/vue.esm-bundler.js';
 
 import EmployeesSearch from "./components/employees/search.vue"
+import Reeve from "./components/reeve/reeve.vue"
 
 const app = createApp({});
+
+app.use(jQuery);
+
 app.component('employees-search', EmployeesSearch);
+app.component('reeve', Reeve);
 
 app.mount("#app");

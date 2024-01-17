@@ -21,6 +21,8 @@ class TripTickets extends Model
         'DateOfTravel',
         'Vehicle',
         'RequestGRS',
+        'GuardLoggedDeparture',
+        'GuardLoggedArrival'
     ];
 
     protected $casts = [
@@ -36,6 +38,8 @@ class TripTickets extends Model
         'DateOfTravel' => 'string',
         'Vehicle' => 'string',
         'RequestGRS' => 'string',
+        'GuardLoggedDeparture' => 'string',
+        'GuardLoggedArrival' => 'string',
     ];
 
     public static array $rules = [
@@ -52,13 +56,17 @@ class TripTickets extends Model
         'DateOfTravel' => 'nullable|string',
         'Vehicle' => 'nullable|string',
         'RequestGRS' => 'nullable|string',
+        'GuardLoggedDeparture' => 'nullable|string',
+        'GuardLoggedArrival' => 'nullable|string',
     ];
 
     public static function getBgStatus($status) {
         if ($status == null | $status == 'FILED') {
             return 'bg-primary';
-        } elseif ($status == 'APPROVED') {
+        } elseif ($status == 'APPROVED' | $status == 'ARRIVED') {
             return 'bg-success';
+        } elseif ($status == 'DEPARTED') {
+            return 'bg-warning';
         } else {
             return 'bg-danger';
         }

@@ -220,6 +220,8 @@
             } else {
                 if (status == 'APPROVED') {
                     return "<span class='badge bg-success ico-tab-left-mini'>" + status + "</span>"
+                } else if (status == 'DEPARTED') {
+                    return "<span class='badge bg-warning ico-tab-left-mini'>" + status + "</span>"
                 } else {
                     return "<span class='badge bg-danger ico-tab-left-mini'>" + status + "</span>"
                 }

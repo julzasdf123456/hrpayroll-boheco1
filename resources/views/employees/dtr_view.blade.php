@@ -19,13 +19,16 @@
                 success : function(res) {
                     moment.tz.setDefault("Asia/Taipei");
                     
-                    var hrFormat = "YYYY-MM-DD HH:mm:ss"
-                    
+                    var hrFormat = "YYYY-MM-DD HH:mm:ss"                    
 
-                    $.each(res, function(index, element) {
+                    /**
+                     * INSERT BIOMETRICS DATA FROM BIOMETRIC DEVICES
+                     **/
+                    var biometrics = res['Biometrics']                    
+                    $.each(biometrics, function(index, element) {
                         var obj = {}
-                        var timestamp = moment(res[index]['Timestamp'], 'YYYY-MM-DD hh:mm:ss')
-                        var timeOnly = moment(res[index]['Timestamp'], 'YYYY-MM-DD HH:mm:ss')
+                        var timestamp = moment(biometrics[index]['Timestamp'], 'YYYY-MM-DD hh:mm:ss')
+                        var timeOnly = moment(biometrics[index]['Timestamp'], 'YYYY-MM-DD HH:mm:ss')
                         /**
                          * ANALYZE TIME IN AND OUT
                          */
@@ -111,6 +114,45 @@
                         scheds.push(obj)
                     })
 
+                    /**
+                     * INSERT LEAVE DATA
+                     **/
+                    var leave = res['Leave']
+                    $.each(leave, function(index, element) {
+                        var obj = {}
+
+                        if (leave[index]['Duration'] == 'WHOLE') {
+                            obj['title'] = 'LEAVE (WHOLE DAY)'
+                        } else {
+                            obj['title'] = 'LEAVE (' + leave[index]['Duration'] + ')'
+                        }
+                        obj['backgroundColor'] = '#7a3041';
+                        obj['borderColor'] = '#7a3041';
+                        obj['start'] = moment(leave[index]['LeaveDate']).format('YYYY-MM-DD');
+
+                        obj['allDay'] = true;
+                        scheds.push(obj)
+                    })
+
+                    /**
+                     * TRIP TICKET DATA
+                     **/
+                     var tripTickets = res['TripTickets']
+                     $.each(tripTickets, function(index, element) {
+                        var obj = {}
+
+                        obj['title'] = 'TRIP'
+                        obj['backgroundColor'] = '#305375';
+                        obj['borderColor'] = '#305375';
+                        obj['start'] = moment(tripTickets[index]['DateOfTravel']).format('YYYY-MM-DD');
+
+                        obj['allDay'] = true;
+                        scheds.push(obj)
+                    })
+
+                    // scheds = scheds.filter(function (obj) { 
+                    //     return obj.start !== '2024-01-17'
+                    // })
                             /* initialize the calendar
                     -----------------------------------------------------------------*/
                     //Date for the calendar events (dummy data)

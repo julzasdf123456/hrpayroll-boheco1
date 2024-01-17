@@ -13,6 +13,7 @@ use App\Models\RankingRepository;
 use App\Models\Employees;
 use App\Models\EducationalAttainment;
 use App\Models\LeaveApplications;
+use App\Models\LeaveDays;
 use App\Models\Users;
 use App\Models\ProfessionalIDs;
 use App\Models\LeaveAttendanceDates;
@@ -496,10 +497,39 @@ class EmployeesController extends AppBaseController
 
         $employee = Employees::find($employeeId);
 
-        if ($employee != null && $employee->BiometricsUserId != null) {
-            $attendanceData = AttendanceData::where('BiometricUserId', $employee->BiometricsUserId)->orderBy('Timestamp')->get();
+        $data = [];
 
-            return response()->json($attendanceData, 200);
+        if ($employee != null && $employee->BiometricsUserId != null) {
+            $attendanceData = AttendanceData::where('BiometricUserId', $employee->BiometricsUserId)
+                ->whereNull('AbsentPermission')
+                ->orderBy('Timestamp')
+                ->get();
+
+            $leaveDays = DB::table('LeaveDays')
+                ->leftJoin('LeaveApplications', 'LeaveDays.LeaveId', '=', 'LeaveApplications.id')
+                ->whereRaw("LeaveApplications.EmployeeId='" . $employeeId . "' AND LeaveApplications.Status='APPROVED'")
+                ->select(
+                    'LeaveDays.LeaveDate',
+                    'LeaveDays.Duration'
+                )
+                ->groupBy('LeaveDays.LeaveDate', 'LeaveDays.Duration')
+                ->orderBy('LeaveDays.LeaveDate')
+                ->get();
+
+            $tripTickets = DB::table('TripTicketPassengers')
+                ->leftJoin('TripTickets', 'TripTicketPassengers.TripTicketId', '=', 'TripTickets.id')
+                ->whereRaw("TripTickets.Status IN ('APPROVED', 'DEPARTED', 'ARRIVED') AND TripTicketPassengers.EmployeeId='" . $employeeId . "'")
+                ->select(
+                    'TripTickets.DateOfTravel',
+                )
+                ->orderBy('TripTickets.DateOfTravel')
+                ->get();
+
+            $data['Biometrics'] = $attendanceData;
+            $data['Leave'] = $leaveDays;
+            $data['TripTickets'] = $tripTickets;
+
+            return response()->json($data, 200);
         } else {
             return response()->json([], 200);
         }

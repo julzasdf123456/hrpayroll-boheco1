@@ -31,6 +31,9 @@ Route::get('/home', [
     HomeController::class, 'index'
 ])->name('home');
 
+Route::post('/home/chat-reeve', [HomeController::class, 'chatReeve'])->name('home.chat-reeve');
+Route::get('/home/reeve', [HomeController::class, 'reeve'])->name('home.reeve');
+
 Route::get('/users/add_permissions/{id}', [UsersController::class, 'addRoles'])->name('users.add-roles');
 Route::post('/users/create-roles', [UsersController::class, 'createRoles']);
 Route::get('/users/switch-color-modes', [UsersController::class, 'switchColorModes'])->name('users.switch-color-modes');
@@ -170,9 +173,13 @@ Route::get('/trip_tickets/get-trip-ticket-ajax', [TripTicketsController::class, 
 Route::get('/trip_tickets/get-signatories', [TripTicketsController::class, 'getSignatories'])->name('tripTickets.get-signatories');
 Route::get('/trip_tickets/my-trip-tickets/{userId}', [TripTicketsController::class, 'myTripTickets'])->name('tripTickets.my-trip-tickets');
 Route::get('/trip_tickets/my-approvals', [TripTicketsController::class, 'myApprovals'])->name('tripTickets.my-approvals');
-Route::get('/trip_tickets/approve-leave', [TripTicketsController::class, 'approveLeave'])->name('tripTickets.approve-leave');
-Route::get('/trip_tickets/reject-leave', [TripTicketsController::class, 'rejectLeave'])->name('tripTickets.reject-leave');
+Route::get('/trip_tickets/approve-trip-ticket', [TripTicketsController::class, 'approveTripTicket'])->name('tripTickets.approve-trip-ticket');
+Route::get('/trip_tickets/reject-trip-ticket', [TripTicketsController::class, 'rejectTripTicket'])->name('tripTickets.reject-trip-ticket');
 Route::get('/trip_tickets/request-grs', [TripTicketsController::class, 'requestGRS'])->name('tripTickets.request-grs');
+Route::get('/trip_tickets/log-vehicle-trips', [TripTicketsController::class, 'logVehicleTrips'])->name('tripTickets.log-vehicle-trips');
+Route::get('/trip_tickets/log-departure', [TripTicketsController::class, 'logDeparture'])->name('tripTickets.log-departure');
+Route::get('/trip_tickets/log-vehicle-arrivals', [TripTicketsController::class, 'logVehicleArrivals'])->name('tripTickets.log-vehicle-arrivals');
+Route::get('/trip_tickets/log-arrival', [TripTicketsController::class, 'logArrival'])->name('tripTickets.log-arrival');
 Route::resource('tripTickets', TripTicketsController::class);
 
 Route::get('/trip_ticket_destinations/remove-destination', [App\Http\Controllers\TripTicketDestinationsController::class, 'removeDestination'])->name('tripTicketDestinations.remove-destination');

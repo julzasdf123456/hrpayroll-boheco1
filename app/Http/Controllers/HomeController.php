@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\LeaveApplications;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Notifications;
+use Illuminate\Support\Facades\Http;
 
 class HomeController extends Controller
 {
@@ -39,5 +40,36 @@ class HomeController extends Controller
             'leaves' => $leaves,
             'info' => $info,
         ]);
+    }
+
+    public function reeve() {
+        return view('reeve', [
+
+        ]);
+    }
+
+    public function chatReeve(Request $request) {
+        $query = $request['prompt'];
+        $apiKey = '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'; // Replace with your actual OpenAI API key
+
+        try {
+            $response = Http::withHeaders([
+                'Content-Type' => 'application/json',
+                'Authorization' => 'Bearer ' . $apiKey,
+            ])->post('https://api.openai.com/v1/chat/completions', [
+                'messages' => [[
+                    "role" => "user", "content" => $query
+                ]],
+                // 'max_tokens' => 1500, // Customize parameters as needed
+                'model' => 'gpt-3.5-turbo',
+            ]);
+
+            // echo $response;
+            // $data = $response->json();
+            return response()->json(['generatedText' => $response['choices'][0]['message']['content']]);
+        } catch (\Exception $e) {
+            // echo $e->getMessage();
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
 }
