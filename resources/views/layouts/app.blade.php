@@ -223,7 +223,7 @@
                     <div class="dropdown-menu" aria-labelledby="file-menu">
                         <a href="{{ route('leaveApplications.create') }}" class="dropdown-item" title="File for leave">Leave</a>
                         <a href="{{ route('tripTickets.create') }}" class="dropdown-item" title="Make a trip ticket">Trip Ticket</a>
-                        <a href="" class="dropdown-item" title="Claim an offset">Offset</a>
+                        <a href="{{ route('offsetApplications.create') }}" class="dropdown-item" title="Claim an offset">Offset</a>
                         <a href="" class="dropdown-item" title="File for an overtime">Overtime</a>
                     </div>
                 </li>
@@ -601,6 +601,14 @@
             return ''
         } else {
             return regex
+        }
+    }
+
+    function isNull(regex) {
+        if (jQuery.isEmptyObject(regex)) {
+            return true
+        } else {
+            return false
         }
     }
 </script>

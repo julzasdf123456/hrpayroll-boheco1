@@ -218,7 +218,7 @@ class LeaveApplicationsController extends AppBaseController
         $employee = DB::table('Employees')
             ->leftJoin('EmployeesDesignations', 'EmployeesDesignations.EmployeeId', '=', 'Employees.id')
             ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
-            ->select('Positions.Department', 'Positions.ParentPositionId')
+            ->select('Positions.Department', 'Positions.ParentPositionId', 'Positions.Level')
             ->whereRaw("Employees.id='" . $leaveApplication->EmployeeId . "'")
             ->first();
 
@@ -227,7 +227,7 @@ class LeaveApplicationsController extends AppBaseController
             ->leftJoin('EmployeesDesignations', 'EmployeesDesignations.EmployeeId', '=', 'Employees.id')
             ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
             ->select('users.id', 'Employees.FirstName', 'Employees.LastName', 'Employees.MiddleName', 'Employees.Suffix')
-            ->whereRaw("Positions.Department='" . $employee->Department . "' AND Positions.Level IN ('Managerial', 'Chief', 'Supervisor')")
+            ->whereRaw("Positions.Department='" . $employee->Department . "' AND Positions.Level IN ('Manager', 'Chief', 'Supervisor')")
             ->get();
 
         // LOOP SIGNATORIES AND FETCH UPPER LEVEL POSITIONS
@@ -236,46 +236,62 @@ class LeaveApplicationsController extends AppBaseController
         $dept = $employee->Department;
         $sign = true;
         $i = 0;
+        $rank = 0;
+        
         while ($sign) {
             $signatoryParents = DB::table('users')
                 ->leftJoin('Employees', 'users.employee_id', '=', 'Employees.id')
                 ->leftJoin('EmployeesDesignations', 'EmployeesDesignations.EmployeeId', '=', 'Employees.id')
                 ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
-                ->select('users.id', 'Employees.FirstName', 'Employees.LastName', 'Employees.MiddleName', 'Employees.Suffix', 'Positions.Position', 'Positions.ParentPositionId', 'Positions.id AS PositionId')
-                ->whereRaw("Positions.Department='" . $dept . "' AND Positions.id='" . $parentPosId . "'")
+                ->select('users.id', 'Employees.FirstName', 'Employees.LastName', 'Employees.MiddleName', 'Employees.Suffix', 'Positions.Position', 'Positions.Level', 'Positions.ParentPositionId', 'Positions.id AS PositionId')
+                ->whereRaw("Positions.id='" . $parentPosId . "' " . ($employee->Level=="Manager" ? "" : " AND Positions.Level NOT IN ('General Manager')"))
                 ->first();
 
-            array_push($users, [
-                'id' => $signatoryParents->id,
-                'FirstName' => $signatoryParents->FirstName,
-                'LastName' => $signatoryParents->LastName,
-                'MiddleName' => $signatoryParents->MiddleName,
-                'Suffix' => $signatoryParents->Suffix,
-                'Position' => $signatoryParents->Position,
-            ]);         
-            
-            // INSERT SIGNATORIES AUTOMATICALLY
-            $leaveSig = LeaveSignatories::where('LeaveId', $id)->where('EmployeeId', $signatoryParents->id)->first();
-            if ($leaveSig == null) {
-                $leaveSig = new LeaveSignatories;
-                // $leaveSig->id = IDGenerator::generateID() . "" . $i;
-                $leaveSig->LeaveId = $id;
-                $leaveSig->EmployeeId = $signatoryParents->id;
-                $leaveSig->Rank = ($i+1);
-                $leaveSig->Status = null;
-                $leaveSig->save();
-            }
-
-            if ($signatoryParents->ParentPositionId != null) {
-                $parentPosId = $signatoryParents->ParentPositionId;
-                $sign = true;
-                $i++;
-            } else {
-                $sign = false;
+            if ($i > 4) {
                 break;
-            }
-        }
+            } else {
+                if ($signatoryParents != null) {
+                    array_push($users, [
+                        'id' => $signatoryParents->id,
+                        'FirstName' => $signatoryParents->FirstName,
+                        'LastName' => $signatoryParents->LastName,
+                        'MiddleName' => $signatoryParents->MiddleName,
+                        'Suffix' => $signatoryParents->Suffix,
+                        'Position' => $signatoryParents->Position,
+                    ]);         
+                    
+                    // INSERT SIGNATORIES AUTOMATICALLY
+                    if ($signatoryParents->Level == 'Chief' | $signatoryParents->Level == 'Manager' | $signatoryParents->Level == 'General Manager') {
+                        $leaveSig = LeaveSignatories::where('LeaveId', $id)->where('EmployeeId', $signatoryParents->id)->first();
+                        if ($leaveSig == null) {
+                            $leaveSig = new LeaveSignatories;
+                            // $leaveSig->id = IDGenerator::generateID() . "" . $i;
+                            $leaveSig->LeaveId = $id;
+                            $leaveSig->EmployeeId = $signatoryParents->id;
+                            $leaveSig->Rank = ($rank+1);
+                            $leaveSig->Status = null;
+                            $leaveSig->save();
 
+                            $rank++;
+                        }
+                    }
+
+                    if ($signatoryParents->ParentPositionId != null) {
+                        $parentPosId = $signatoryParents->ParentPositionId;
+                        $sign = true;
+                        $i++;
+                    } else {
+                        $sign = false;
+                        break;
+                    }
+                } else {
+                    $sign = false;
+                    break;
+                }    
+            }
+                    
+        }
+       
         $leaveSignatories = DB::table('LeaveSignatories')
             ->leftJoin('users', 'LeaveSignatories.EmployeeId', '=', DB::raw("TRY_CAST(users.id AS VARCHAR)"))
             ->leftJoin('Employees', 'users.employee_id', '=', 'Employees.id')

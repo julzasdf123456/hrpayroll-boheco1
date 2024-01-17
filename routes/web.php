@@ -10,6 +10,7 @@ use App\Http\Controllers\EmployeesController;
 use App\Http\Controllers\TripTicketPassengersController;
 use App\Http\Controllers\TripTicketsController;
 use App\Http\Controllers\TripTicketGRSController;
+use App\Http\Controllers\OffsetApplicationsController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -194,3 +195,8 @@ Route::get('/trip_ticket_g_rs/print-grs/{ttId}/{grsId}', [TripTicketGRSControlle
 Route::get('/trip_ticket_g_rs/save-grs', [TripTicketGRSController::class, 'saveGRS'])->name('tripTicketGRS.save-grs');
 Route::get('/trip_ticket_g_rs/grs-requests', [TripTicketGRSController::class, 'grsRequests'])->name('tripTicketGRS.grs-requests');
 Route::resource('tripTicketGRS', TripTicketGRSController::class);
+
+Route::get('/offset_applications/save-offset-applications', [OffsetApplicationsController::class, 'saveOffsetApplications'])->name('offsetApplications.save-offset-applications');
+Route::resource('offsetApplications', OffsetApplicationsController::class);
+
+Route::resource('offsetSignatories', App\Http\Controllers\OffsetSignatoriesController::class);
