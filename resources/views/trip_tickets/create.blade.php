@@ -260,9 +260,9 @@
             })
 
             $('#Destinations').on('change', function() {
-                var destination = $("#Destinations option:selected").text();
-                var brgyId = $("#Destinations option:selected").attr("barangayId");
-                var townId = $("#Destinations option:selected").attr("townId");
+                var destination = $("#Destinations option:selected").text()
+                var brgyId = $("#Destinations option:selected").attr("barangayId")
+                var townId = $("#Destinations option:selected").attr("townId")
                 
                 $('#destinations-table tbody').append(addDestinationRow(this.value, destination))
 

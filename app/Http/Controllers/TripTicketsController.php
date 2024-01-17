@@ -263,7 +263,7 @@ class TripTicketsController extends AppBaseController
         $employee = DB::table('Employees')
             ->leftJoin('EmployeesDesignations', 'EmployeesDesignations.EmployeeId', '=', 'Employees.id')
             ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
-            ->select('Employees.LastName', 'Positions.Position', 'Positions.Department', 'Positions.ParentPositionId')
+            ->select('Employees.LastName', 'Positions.Position', 'Positions.Department', 'Positions.ParentPositionId', 'Positions.Level')
             ->whereRaw("Employees.id='" . $employeeId . "'")
             ->first();
 
@@ -281,28 +281,32 @@ class TripTicketsController extends AppBaseController
                         ->leftJoin('EmployeesDesignations', 'EmployeesDesignations.EmployeeId', '=', 'Employees.id')
                         ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
                         ->select('users.id', 'Employees.FirstName', 'Employees.LastName', 'Employees.MiddleName', 'Employees.Suffix', 'Positions.Level', 'Positions.Position', 'Positions.ParentPositionId', 'Positions.id AS PositionId')
-                        ->whereRaw("Positions.Department='" . $dept . "' AND Positions.id='" . $parentPosId . "'")
+                        ->whereRaw("Positions.id='" . $parentPosId . "' ")
                         ->first();
 
-                    if ($signatoryParents->id != null) {
-                        array_push($signatories, [
-                            'id' => $signatoryParents->id,
-                            'FirstName' => $signatoryParents->FirstName,
-                            'LastName' => $signatoryParents->LastName,
-                            'MiddleName' => $signatoryParents->MiddleName,
-                            'Suffix' => $signatoryParents->Suffix,
-                            'Position' => $signatoryParents->Position,
-                            'Level' => $signatoryParents->Level,
-                        ]);
-                    }
-
-                    if ($signatoryParents->ParentPositionId != null) {
-                        $parentPosId = $signatoryParents->ParentPositionId;
-                        $sign = true;
-                        $i++;
-                    } else {
-                        $sign = false;
+                    if ($i > 3) {
                         break;
+                    } else {
+                        if ($signatoryParents->id != null) {
+                            array_push($signatories, [
+                                'id' => $signatoryParents->id,
+                                'FirstName' => $signatoryParents->FirstName,
+                                'LastName' => $signatoryParents->LastName,
+                                'MiddleName' => $signatoryParents->MiddleName,
+                                'Suffix' => $signatoryParents->Suffix,
+                                'Position' => $signatoryParents->Position,
+                                'Level' => $signatoryParents->Level,
+                            ]);
+                        }
+
+                        if ($signatoryParents->ParentPositionId != null) {
+                            $parentPosId = $signatoryParents->ParentPositionId;
+                            $sign = true;
+                            $i++;
+                        } else {
+                            $sign = false;
+                            break;
+                        }
                     }
                 }
 
