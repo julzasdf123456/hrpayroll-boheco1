@@ -14,6 +14,9 @@ use App\Models\TripTickets;
 use App\Models\TripTicketDestinations;
 use App\Models\TripTicketSignatories;
 use App\Models\IDGenerator;
+use App\Models\AttendanceData;
+use App\Models\Users;
+use App\Models\TripTicketGRS;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Flash;
@@ -378,14 +381,18 @@ class TripTicketsController extends AppBaseController
                 )
                 ->orderBy('users.name')
                 ->first();
+
+            $grs = TripTicketGRS::where('TripTicketId', $id)->first();
             
             $tripTicket->Passengers = $passengers;
             $tripTicket->Destinations = $destinations;
             $tripTicket->Signatory = $signatory;
+            $tripTicket->GRS = $grs;
         } else {
             $tripTicket->Passengers = [];
             $tripTicket->Destinations = [];
             $tripTicket->Signatory = null;
+            $tripTicket->GRS = [];
         }
 
         return response()->json($tripTicket, 200);
@@ -396,7 +403,7 @@ class TripTicketsController extends AppBaseController
             ->leftJoin('Employees', 'TripTickets.Driver', '=', 'Employees.id')
             ->leftJoin(DB::raw("Employees AS e"), 'TripTickets.EmployeeId', '=', DB::raw("e.id"))
             ->leftJoin('TripTicketSignatories', 'TripTickets.id', '=', 'TripTicketSignatories.TripTicketId')
-            ->whereRaw("TripTicketSignatories.EmployeeId='" . Auth::id() . "' AND TripTickets.Status NOT IN ('Trash', 'APPROVED', 'REJECTED')")
+            ->whereRaw("TripTicketSignatories.EmployeeId='" . Auth::id() . "' AND TripTickets.Status NOT IN ('Trash', 'APPROVED', 'REJECTED', 'DEPARTED', 'ARRIVED')")
             ->select(
                 'TripTickets.*',
                 'Employees.FirstName AS DriverFirstName',
@@ -416,11 +423,15 @@ class TripTicketsController extends AppBaseController
         ]);
     }
 
-    public function approveLeave(Request $request) {
+    public function approveTripTicket(Request $request) {
         $id = $request['id'];
 
-        TripTickets::where('id', $id)
-            ->update(['Status' => 'APPROVED']);
+        $tripTicket = TripTickets::where('id', $id)->first();
+
+        if ($tripTicket != null) {
+            $tripTicket->Status = 'APPROVED';
+            $tripTicket->save();
+        }
 
         TripTicketSignatories::where('TripTicketId', $id)
             ->update(['Status' => 'APPROVED']);
@@ -428,7 +439,7 @@ class TripTicketsController extends AppBaseController
         return response()->json('ok', 200);
     }
 
-    public function rejectLeave(Request $request) {
+    public function rejectTripTicket(Request $request) {
         $id = $request['id'];
 
         TripTickets::where('id', $id)
@@ -445,6 +456,131 @@ class TripTicketsController extends AppBaseController
 
         TripTickets::where('id', $id)
             ->update(['RequestGRS' => 'Yes']);
+
+        return response()->json('ok', 200);
+    }
+
+    public function logVehicleTrips(Request $request) {
+        $tripTickets = DB::table('TripTickets')
+            ->leftJoin('Employees', 'TripTickets.Driver', '=', 'Employees.id')
+            ->leftJoin(DB::raw("Employees AS e"), 'TripTickets.EmployeeId', '=', DB::raw("e.id"))
+            ->whereRaw("TripTickets.Status IN ('APPROVED') AND TripTickets.DateOfTravel='" . date('Y-m-d') . "'")
+            ->select(
+                'TripTickets.*',
+                'Employees.FirstName AS DriverFirstName',
+                'Employees.MiddleName AS DriverMiddleName',
+                'Employees.LastName AS DriverLastName',
+                'Employees.Suffix AS DriverSuffix',
+                'e.FirstName',
+                'e.MiddleName',
+                'e.LastName',
+                'e.Suffix',
+            )
+            ->orderBy('TripTickets.created_at')
+            ->get();            
+
+        return view('/trip_tickets/log_vehicle_trips', [
+            'tripTickets' => $tripTickets,
+            'employees' => Employees::orderBy('LastName')->get(),
+        ]);
+    }
+
+    public function logDeparture(Request $request) {
+        $id = $request['id'];
+
+        $tripTicket = TripTickets::where('id', $id)->first();
+
+        if ($tripTicket != null) {
+            $tripTicket->Status = 'DEPARTED';
+            $tripTicket->DatetimeDeparted = date('Y-m-d H:i:s');
+            $tripTicket->GuardLoggedDeparture = Auth::user()->name;
+            $tripTicket->save();
+        }
+
+        // INSERT TO ATTENDANCES
+        $employee = Employees::find($tripTicket->EmployeeId);
+
+        if ($employee != null) {
+            $user = Users::where('employee_id', $employee->id)->first();
+            // INSERT START MORNING IN
+            $attendance = new AttendanceData;
+            $attendance->id = IDGenerator::generateIDandRandString();
+            $attendance->BiometricUserId = $employee->BiometricsUserId;
+            $attendance->EmployeeId = $employee->id;
+            $attendance->UserId = $user != null ? $user->id : null;
+            $attendance->Timestamp = date('Y-m-d', strtotime($tripTicket->DateOfTravel)) . ' 07:31:00';
+            $attendance->AbsentPermission = 'TRIP TICKET';
+            $attendance->save();
+
+            // INSERT START MORNING OUT
+            $attendance = new AttendanceData;
+            $attendance->id = IDGenerator::generateIDandRandString();
+            $attendance->BiometricUserId = $employee->BiometricsUserId;
+            $attendance->EmployeeId = $employee->id;
+            $attendance->UserId = $user != null ? $user->id : null;
+            $attendance->Timestamp = date('Y-m-d', strtotime($tripTicket->DateOfTravel)) . ' 12:05:00';
+            $attendance->AbsentPermission = 'TRIP TICKET';
+            $attendance->save();
+
+            // INSERT START AFTERNOON IN
+            $attendance = new AttendanceData;
+            $attendance->id = IDGenerator::generateIDandRandString();
+            $attendance->BiometricUserId = $employee->BiometricsUserId;
+            $attendance->EmployeeId = $employee->id;
+            $attendance->UserId = $user != null ? $user->id : null;
+            $attendance->Timestamp = date('Y-m-d', strtotime($tripTicket->DateOfTravel)) . ' 12:45:00';
+            $attendance->AbsentPermission = 'TRIP TICKET';
+            $attendance->save();
+
+            // INSERT START AFTERNOON OUT
+            $attendance = new AttendanceData;
+            $attendance->id = IDGenerator::generateIDandRandString();
+            $attendance->BiometricUserId = $employee->BiometricsUserId;
+            $attendance->EmployeeId = $employee->id;
+            $attendance->UserId = $user != null ? $user->id : null;
+            $attendance->Timestamp = date('Y-m-d', strtotime($tripTicket->DateOfTravel)) . ' 17:05:00';
+            $attendance->AbsentPermission = 'TRIP TICKET';
+            $attendance->save();
+        }
+
+        return response()->json('ok', 200);
+    }
+
+    public function logVehicleArrivals(Request $request) {
+        $tripTickets = DB::table('TripTickets')
+            ->leftJoin('Employees', 'TripTickets.Driver', '=', 'Employees.id')
+            ->leftJoin(DB::raw("Employees AS e"), 'TripTickets.EmployeeId', '=', DB::raw("e.id"))
+            ->whereRaw("TripTickets.Status IN ('DEPARTED') AND TripTickets.DateOfTravel>'" . date('Y-m-d', strtotime('today -4 days')) . "'")
+            ->select(
+                'TripTickets.*',
+                'Employees.FirstName AS DriverFirstName',
+                'Employees.MiddleName AS DriverMiddleName',
+                'Employees.LastName AS DriverLastName',
+                'Employees.Suffix AS DriverSuffix',
+                'e.FirstName',
+                'e.MiddleName',
+                'e.LastName',
+                'e.Suffix',
+            )
+            ->orderBy('TripTickets.created_at')
+            ->get();            
+
+        return view('/trip_tickets/log_vehicle_arrivals', [
+            'tripTickets' => $tripTickets,
+        ]);
+    }
+
+    public function logArrival(Request $request) {
+        $id = $request['id'];
+
+        $tripTicket = TripTickets::where('id', $id)->first();
+
+        if ($tripTicket != null) {
+            $tripTicket->Status = 'ARRIVED';
+            $tripTicket->DatetimeArrived = date('Y-m-d H:i:s');
+            $tripTicket->GuardLoggedArrival = Auth::user()->name;
+            $tripTicket->save();
+        }
 
         return response()->json('ok', 200);
     }

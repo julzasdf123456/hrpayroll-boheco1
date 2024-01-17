@@ -215,9 +215,28 @@
             <li class="nav-item">
                 <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
             </li>
+
+            {{-- FILE SHORTCUT --}}
+            @if (!in_array(Route::currentRouteName(), ['tripTickets.log-vehicle-trips', 'tripTickets.log-vehicle-arrivals']))
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="file-menu" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">File </a>
+                    <div class="dropdown-menu" aria-labelledby="file-menu">
+                        <a href="{{ route('leaveApplications.create') }}" class="dropdown-item" title="File for leave">Leave</a>
+                        <a href="{{ route('tripTickets.create') }}" class="dropdown-item" title="Make a trip ticket">Trip Ticket</a>
+                        <a href="" class="dropdown-item" title="Claim an offset">Offset</a>
+                        <a href="" class="dropdown-item" title="File for an overtime">Overtime</a>
+                    </div>
+                </li>
+            @endif            
         </ul>
 
         <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+                <a class="nav-link text-warning" href="{{ route('home.reeve') }}" title="Ask Reeve for Help">
+                    <i class="fas fa-poo"></i>
+                </a>
+            </li>
+
             <li class="nav-item dropdown">
                 <a class="nav-link" data-toggle="dropdown" href="#">
                     <i class="far fa-bell"></i>

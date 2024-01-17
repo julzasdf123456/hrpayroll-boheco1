@@ -89,6 +89,20 @@
                 </a>
             </li>
         @endcanany
+        @canany(['log vehicle departures', 'god permission'])
+            <li class="nav-item">
+                <a href="{{ route('tripTickets.log-vehicle-trips') }}" class="nav-link {{ Request::is('tripTickets.log-vehicle-trips') ? 'active' : '' }}">
+                    <i class="nav-icon fas fa-plane-departure"></i>
+                    <p>Vehicle Departures</p>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ route('tripTickets.log-vehicle-arrivals') }}" class="nav-link {{ Request::is('tripTickets.log-vehicle-arrivals') ? 'active' : '' }}">
+                    <i class="nav-icon fas fa-plane-arrival"></i>
+                    <p>Vehicle Arrivals</p>
+                </a>
+            </li>
+        @endcanany
     </ul>
 </li>
 
