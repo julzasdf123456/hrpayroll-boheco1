@@ -43,7 +43,9 @@ class Overtimes extends Model
         'TypeOfDay',
         'PurposeOfOT',
         'UserId',
-        'TotalHours'
+        'TotalHours',
+        'MaxHourThreshold',
+        'Status',
     ];
 
     /**
@@ -62,6 +64,10 @@ class Overtimes extends Model
         'PurposeOfOT' => 'string',
         'UserId' => 'string',
         'TotalHours' => 'string',
+        'MaxHourThreshold' => 'string',
+        'Status' => 'string',
+        'From' => 'string',
+        'To' => 'string',
     ];
 
     /**
@@ -82,7 +88,9 @@ class Overtimes extends Model
         'TypeOfDay' => 'nullable|string',
         'PurposeOfOT' => 'nullable|string',
         'UserId' => 'nullable|string',
-        'TotalHours' => 'nullable|string',
+        'TotalHours' => 'nullable|string',        
+        'MaxHourThreshold' => 'nullable|string',
+        'Status' => 'nullable|string',
     ];
 
     

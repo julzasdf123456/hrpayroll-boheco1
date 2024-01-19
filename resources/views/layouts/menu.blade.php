@@ -141,6 +141,12 @@
                 <i class="fas fa-fingerprint nav-icon"></i><p>Attendance Confirmation</p>
             </a>
         </li>
+        <li class="nav-item">
+            <a href="{{ route('overtimes.my-approvals') }}"
+               class="nav-link {{ Request::is('overtimes.my-approvals*') ? 'active' : '' }}">
+                <i class="fas fa-clock nav-icon"></i><p>Overtime</p>
+            </a>
+        </li>
         {{-- @endcanany --}}
     </ul>
 </li>
@@ -301,3 +307,4 @@
     </ul>
 </li>
 @endcanany
+

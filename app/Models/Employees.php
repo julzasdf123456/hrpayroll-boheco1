@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Barangays;
 use App\Models\Towns;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Class Employees
@@ -185,5 +186,79 @@ class Employees extends Model
         } else {
             return "-";
         }
+    }
+
+    public static function getSupers($employeeId, $levelArrayFilter) {
+        $employee = DB::table('Employees')
+            ->leftJoin('EmployeesDesignations', 'EmployeesDesignations.EmployeeId', '=', 'Employees.id')
+            ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+            ->select('Employees.LastName', 'Positions.Position', 'Positions.Department', 'Positions.ParentPositionId')
+            ->whereRaw("Employees.id='" . $employeeId . "'")
+            ->orderByDesc('EmployeesDesignations.DateStarted')
+            ->first();
+
+        $signatories = [];
+        if ($employee != null && $employee->ParentPositionId != null) {
+            // LOOP SIGNATORIES AND FETCH UPPER LEVEL POSITIONS
+            $parentPosId = $employee->ParentPositionId;
+            $dept = $employee->Department;
+            $sign = true;
+            $i = 0;
+            $rank = 0;
+
+            while ($sign) {
+                $signatoryParents = DB::table('users')
+                    ->leftJoin('Employees', 'users.employee_id', '=', 'Employees.id')
+                    ->leftJoin('EmployeesDesignations', 'EmployeesDesignations.EmployeeId', '=', 'Employees.id')
+                    ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+                    ->select('users.id', 'Employees.FirstName', 'Employees.LastName', 'Employees.MiddleName', 'Employees.Suffix', 'Positions.Level', 'Positions.Position', 'Positions.ParentPositionId', 'Positions.id AS PositionId')
+                    ->whereRaw("Positions.id='" . $parentPosId . "' ")
+                    ->first();
+
+                if ($i > 5) {
+                    $sign = false;
+                    break;
+                } else {
+                    if ($signatoryParents != null && $signatoryParents->id != null) {
+                        if ($levelArrayFilter == null | count($levelArrayFilter) == 0) {
+                            array_push($signatories, [
+                                'id' => $signatoryParents->id,
+                                'FirstName' => $signatoryParents->FirstName,
+                                'LastName' => $signatoryParents->LastName,
+                                'MiddleName' => $signatoryParents->MiddleName,
+                                'Suffix' => $signatoryParents->Suffix,
+                                'Position' => $signatoryParents->Position,
+                                'PositionId' => $signatoryParents->PositionId,
+                                'ParentPositionId' => $signatoryParents->ParentPositionId,
+                                'Level' => $signatoryParents->Level,
+                            ]);
+                        } else {
+                            if (in_array($signatoryParents->Level, $levelArrayFilter)) {
+                                array_push($signatories, [
+                                    'id' => $signatoryParents->id,
+                                    'FirstName' => $signatoryParents->FirstName,
+                                    'LastName' => $signatoryParents->LastName,
+                                    'MiddleName' => $signatoryParents->MiddleName,
+                                    'Suffix' => $signatoryParents->Suffix,
+                                    'Position' => $signatoryParents->Position,
+                                    'PositionId' => $signatoryParents->PositionId,
+                                    'ParentPositionId' => $signatoryParents->ParentPositionId,
+                                    'Level' => $signatoryParents->Level,
+                                ]);
+                            }
+                        }
+
+                        $parentPosId = $signatoryParents->ParentPositionId;
+                        $sign = true;
+                        $i++;
+                    } else {
+                        $sign = false;
+                        break;
+                    }
+                }
+            }
+        }
+
+        return $signatories;
     }
 }

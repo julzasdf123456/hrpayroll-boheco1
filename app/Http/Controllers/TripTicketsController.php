@@ -265,6 +265,7 @@ class TripTicketsController extends AppBaseController
             ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
             ->select('Employees.LastName', 'Positions.Position', 'Positions.Department', 'Positions.ParentPositionId', 'Positions.Level')
             ->whereRaw("Employees.id='" . $employeeId . "'")
+            ->orderByDesc('EmployeesDesignations.DateStarted')
             ->first();
 
         if ($employee != null) {

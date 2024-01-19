@@ -12,6 +12,7 @@ use App\Http\Controllers\TripTicketsController;
 use App\Http\Controllers\TripTicketGRSController;
 use App\Http\Controllers\OffsetApplicationsController;
 use App\Http\Controllers\AttendaneConfirmationsController;
+use App\Http\Controllers\OvertimesController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -134,7 +135,10 @@ Route::resource('payrollIndices', App\Http\Controllers\PayrollIndexController::c
 Route::resource('payrollDetails', App\Http\Controllers\PayrollDetailsController::class);
 
 
-Route::resource('overtimes', App\Http\Controllers\OvertimesController::class);
+Route::get('/overtimes/get-overtime-ajax', [OvertimesController::class, 'getOvertimeAjax'])->name('overtimes.get-overtime-ajax');
+Route::get('/overtimes/my-approvals', [OvertimesController::class, 'myApprovals'])->name('overtimes.my-approvals');
+Route::get('/overtimes/save', [OvertimesController::class, 'save'])->name('overtimes.save');
+Route::resource('overtimes', OvertimesController::class);
 
 Route::get('/positions/update-super', [App\Http\Controllers\PositionsController::class, 'updateSuper'])->name('positions.update-super');
 Route::resource('positions', App\Http\Controllers\PositionsController::class);
@@ -210,3 +214,5 @@ Route::get('/attendane_confirmations/approve', [AttendaneConfirmationsController
 Route::get('/attendane_confirmations/my-approvals', [AttendaneConfirmationsController::class, 'myApprovals'])->name('attendanceConfirmations.my-approvals');
 Route::resource('attendanceConfirmations', AttendaneConfirmationsController::class);
 Route::resource('attendanceConfirmationSignatories', App\Http\Controllers\AttendaneConfirmationSignatoriesController::class);
+
+Route::resource('overtimeSignatories', App\Http\Controllers\OvertimeSignatoriesController::class);
