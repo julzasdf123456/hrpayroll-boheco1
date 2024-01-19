@@ -9,10 +9,12 @@ use App\Repositories\OffsetApplicationsRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
-use App\Models\Employees;
+use App\Models\Employees; 
 use App\Models\OffsetApplications;
 use App\Models\OffsetSignatories;
 use App\Models\IDGenerator;
+use App\Models\AttendanceData;
+use App\Models\Users;
 use Flash;
 
 class OffsetApplicationsController extends AppBaseController
@@ -232,5 +234,97 @@ class OffsetApplicationsController extends AppBaseController
         }
 
         return response()->json('ok', 200);
+    }
+
+    public function myApprovals(Request $request) {
+        $offsets = DB::table('OffsetSignatories')
+            ->leftJoin('OffsetApplications', 'OffsetSignatories.OffsetBatchId', '=', 'OffsetApplications.OffsetBatchId')
+            ->leftJoin('users', 'OffsetApplications.PreparedBy', '=', 'users.id')
+            ->leftJoin('Employees', 'OffsetApplications.EmployeeId', '=', 'Employees.id')
+            ->whereRaw("OffsetSignatories.EmployeeId='" . Auth::id() . "' AND (OffsetApplications.Status IS NULL OR OffsetApplications.Status='FILED') AND OffsetSignatories.id IN 
+                (SELECT TOP 1 x.id FROM OffsetSignatories x WHERE x.OffsetBatchId=OffsetSignatories.OffsetBatchId AND x.Status IS NULL ORDER BY x.Rank)")
+            ->select('OffsetApplications.*',
+                'OffsetSignatories.id AS SignatoryId',
+                'Employees.FirstName',
+                'Employees.MiddleName',
+                'Employees.LastName',
+                'Employees.Suffix',
+                'users.name')
+            ->get();
+
+        return view('/offset_applications/my_approvals', [
+            'offsets' => $offsets,
+        ]);
+    }
+
+    public function approve(Request $request) {
+        $id = $request['id'];
+
+        $offset = OffsetApplications::find($id);
+
+        if ($offset != null) {
+            $offset->Status = 'APPROVED';
+            $offset->save();
+
+            $employee = Employees::find($offset->EmployeeId);
+            $user = Users::where('employee_id', $employee->id)->first();
+
+            // INSERT START MORNING IN
+            $attendance = new AttendanceData;
+            $attendance->id = IDGenerator::generateIDandRandString();
+            $attendance->BiometricUserId = $employee->BiometricsUserId;
+            $attendance->EmployeeId = $employee->id;
+            $attendance->UserId = $user != null ? $user->id : null;
+            $attendance->Timestamp = date('Y-m-d', strtotime($offset->DateOfOffset)) . ' 07:31:00';
+            $attendance->AbsentPermission = 'OFFSET';
+            $attendance->save();
+
+            // INSERT START MORNING OUT
+            $attendance = new AttendanceData;
+            $attendance->id = IDGenerator::generateIDandRandString();
+            $attendance->BiometricUserId = $employee->BiometricsUserId;
+            $attendance->EmployeeId = $employee->id;
+            $attendance->UserId = $user != null ? $user->id : null;
+            $attendance->Timestamp = date('Y-m-d', strtotime($offset->DateOfOffset)) . ' 12:05:00';
+            $attendance->AbsentPermission = 'OFFSET';
+            $attendance->save();
+
+            // INSERT START AFTERNOON IN
+            $attendance = new AttendanceData;
+            $attendance->id = IDGenerator::generateIDandRandString();
+            $attendance->BiometricUserId = $employee->BiometricsUserId;
+            $attendance->EmployeeId = $employee->id;
+            $attendance->UserId = $user != null ? $user->id : null;
+            $attendance->Timestamp = date('Y-m-d', strtotime($offset->DateOfOffset)) . ' 12:45:00';
+            $attendance->AbsentPermission = 'OFFSET';
+            $attendance->save();
+
+            // INSERT START AFTERNOON OUT
+            $attendance = new AttendanceData;
+            $attendance->id = IDGenerator::generateIDandRandString();
+            $attendance->BiometricUserId = $employee->BiometricsUserId;
+            $attendance->EmployeeId = $employee->id;
+            $attendance->UserId = $user != null ? $user->id : null;
+            $attendance->Timestamp = date('Y-m-d', strtotime($offset->DateOfOffset)) . ' 17:05:00';
+            $attendance->AbsentPermission = 'OFFSET';
+            $attendance->save();
+        }
+
+        return response()->json($offset, 200);
+    }
+
+    public function reject(Request $request) {
+        $id = $request['id'];
+        $notes = $request['Notes'];
+
+        $offset = OffsetApplications::find($id);
+
+        if ($offset != null) {
+            $offset->Status = 'REJECTED';
+            $offset->Notes = $notes;
+            $offset->save();
+        }
+
+        return response()->json($offset, 200);
     }
 }

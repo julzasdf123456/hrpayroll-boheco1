@@ -59,7 +59,7 @@ class AttendanceData extends Model
         'BiometricUserId' => 'string',
         'EmployeeId' => 'string',
         'UserId' => 'string',
-        'Timestamp' => 'datetime',
+        'Timestamp' => 'string',
         'State' => 'string',
         'UID' => 'string',
         'DeviceIp' => 'string',

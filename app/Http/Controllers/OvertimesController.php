@@ -18,6 +18,7 @@ class OvertimesController extends AppBaseController
 
     public function __construct(OvertimesRepository $overtimesRepo)
     {
+        $this->middleware('auth');
         $this->overtimesRepository = $overtimesRepo;
     }
 
@@ -44,7 +45,7 @@ class OvertimesController extends AppBaseController
     public function create()
     {
         return view('overtimes.create', [
-            'employees' => Employees::all(),
+            'employees' => Employees::orderBy('FirstName')->get(),
         ]);
     }
 

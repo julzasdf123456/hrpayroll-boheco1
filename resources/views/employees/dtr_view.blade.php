@@ -137,14 +137,30 @@
                     /**
                      * TRIP TICKET DATA
                      **/
-                     var tripTickets = res['TripTickets']
-                     $.each(tripTickets, function(index, element) {
+                    var tripTickets = res['TripTickets']
+                    $.each(tripTickets, function(index, element) {
                         var obj = {}
 
                         obj['title'] = 'TRIP'
                         obj['backgroundColor'] = '#305375';
                         obj['borderColor'] = '#305375';
                         obj['start'] = moment(tripTickets[index]['DateOfTravel']).format('YYYY-MM-DD');
+
+                        obj['allDay'] = true;
+                        scheds.push(obj)
+                    })
+
+                    /**
+                     * OFFSET DATA
+                     **/
+                    var offsets = res['Offsets']
+                    $.each(offsets, function(index, element) {
+                        var obj = {}
+
+                        obj['title'] = 'OFFSET'
+                        obj['backgroundColor'] = '#c99402';
+                        obj['borderColor'] = '#c99402';
+                        obj['start'] = moment(offsets[index]['DateOfOffset']).format('YYYY-MM-DD');
 
                         obj['allDay'] = true;
                         scheds.push(obj)
