@@ -9,6 +9,9 @@ use App\Http\Controllers\AppBaseController;
 use Illuminate\Http\Request;
 use Flash;
 use Response;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+use App\Models\AttendanceData;
 
 class AttendanceDataController extends AppBaseController
 {
@@ -153,5 +156,17 @@ class AttendanceDataController extends AppBaseController
         Flash::success('Attendance Data deleted successfully.');
 
         return redirect(route('attendanceDatas.index'));
+    }
+
+    public function fetchByEmployeeAndDate(Request $request) {
+        $employeeBioId = $request['EmployeeBiometricsId'];
+        $date = $request['Date'];
+
+        $attendanceData = AttendanceData::where('BiometricUserId', $employeeBioId)
+            ->where(DB::raw("TRY_CAST(Timestamp AS DATE)"), $date)
+            ->whereNull('AbsentPermission')
+            ->get();
+
+        return response()->json($attendanceData);
     }
 }

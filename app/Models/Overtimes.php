@@ -31,15 +31,19 @@ class Overtimes extends Model
 
     protected $dates = ['deleted_at'];
 
-
-
     public $fillable = [
+        'id',
         'EmployeeId',
         'DateOfOT',
         'From',
         'To',
         'Notes',
-        'Multiplier'
+        'Multiplier',
+        'DateOTEnded',
+        'TypeOfDay',
+        'PurposeOfOT',
+        'UserId',
+        'TotalHours'
     ];
 
     /**
@@ -52,7 +56,12 @@ class Overtimes extends Model
         'EmployeeId' => 'string',
         'DateOfOT' => 'date',
         'Notes' => 'string',
-        'Multiplier' => 'string'
+        'Multiplier' => 'string',
+        'DateOTEnded' => 'string',
+        'TypeOfDay' => 'string',
+        'PurposeOfOT' => 'string',
+        'UserId' => 'string',
+        'TotalHours' => 'string',
     ];
 
     /**
@@ -68,7 +77,12 @@ class Overtimes extends Model
         'Notes' => 'nullable|string|max:1500',
         'created_at' => 'nullable',
         'updated_at' => 'nullable',
-        'Multiplier' => 'nullable|string'
+        'Multiplier' => 'nullable|string',
+        'DateOTEnded' => 'nullable|string',
+        'TypeOfDay' => 'nullable|string',
+        'PurposeOfOT' => 'nullable|string',
+        'UserId' => 'nullable|string',
+        'TotalHours' => 'nullable|string',
     ];
 
     

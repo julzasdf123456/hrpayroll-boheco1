@@ -20,7 +20,8 @@ class OffsetApplications extends Model
         'DateOfOffset',
         'OffsetReason',
         'Status',
-        'OffsetBatchId'
+        'OffsetBatchId',
+        'Notes',
     ];
 
     protected $casts = [
@@ -34,6 +35,7 @@ class OffsetApplications extends Model
         'OffsetReason' => 'string',
         'Status' => 'string',
         'OffsetBatchId' => 'string',
+        'Notes' => 'string',
     ];
 
     public static array $rules = [
@@ -50,6 +52,7 @@ class OffsetApplications extends Model
         'created_at' => 'nullable',
         'updated_at' => 'nullable',
         'OffsetBatchId' => 'nullable|string',
+        'Notes' => 'nullable|string',
     ];
 
     

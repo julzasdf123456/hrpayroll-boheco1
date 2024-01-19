@@ -24,6 +24,7 @@ use App\Models\EmployeePayrollSchedules;
 use App\Models\PayrollSchedules;
 use App\Models\LeaveBalances;
 use App\Models\LeaveBalanceDetails;
+use App\Models\OffsetApplications;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -525,9 +526,15 @@ class EmployeesController extends AppBaseController
                 ->orderBy('TripTickets.DateOfTravel')
                 ->get();
 
+            $offsets = OffsetApplications::where('EmployeeId', $employeeId)
+                    ->where('Status', 'APPROVED')
+                    ->select('DateOfOffset')
+                    ->get();
+
             $data['Biometrics'] = $attendanceData;
             $data['Leave'] = $leaveDays;
             $data['TripTickets'] = $tripTickets;
+            $data['Offsets'] = $offsets;
 
             return response()->json($data, 200);
         } else {

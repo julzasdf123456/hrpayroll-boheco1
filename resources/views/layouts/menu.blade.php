@@ -129,6 +129,18 @@
                 <i class="fas fa-car nav-icon"></i><p>Trip Tickets</p>
             </a>
         </li>
+        <li class="nav-item">
+            <a href="{{ route('offsetApplications.my-approvals') }}"
+               class="nav-link {{ Request::is('offsetApplications.my-approvals*') ? 'active' : '' }}">
+                <i class="fas fa-calendar-minus nav-icon"></i><p>Offsets</p>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="{{ route('attendanceConfirmations.my-approvals') }}"
+               class="nav-link {{ Request::is('attendanceConfirmations.my-approvals*') ? 'active' : '' }}">
+                <i class="fas fa-fingerprint nav-icon"></i><p>Attendance Confirmation</p>
+            </a>
+        </li>
         {{-- @endcanany --}}
     </ul>
 </li>
@@ -150,14 +162,6 @@
                class="nav-link {{ Request::is('payrollIndices*') ? 'active' : '' }}">
                <i class="fas fa-money-check-alt nav-icon"></i>
                 <p>All Payroll</p>
-            </a>
-        </li>
-
-        <li class="nav-item">
-            <a href="{{ route('overtimes.create') }}"
-               class="nav-link {{ Request::is('overtimes.create*') ? 'active' : '' }}">
-               <i class="fas fa-user-clock nav-icon"></i>
-                <p>Overtime Entry</p>
             </a>
         </li>
         
@@ -297,4 +301,3 @@
     </ul>
 </li>
 @endcanany
-

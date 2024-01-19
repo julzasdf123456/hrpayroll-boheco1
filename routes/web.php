@@ -11,6 +11,7 @@ use App\Http\Controllers\TripTicketPassengersController;
 use App\Http\Controllers\TripTicketsController;
 use App\Http\Controllers\TripTicketGRSController;
 use App\Http\Controllers\OffsetApplicationsController;
+use App\Http\Controllers\AttendaneConfirmationsController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -146,7 +147,7 @@ Route::resource('leaveDays', App\Http\Controllers\LeaveDaysController::class);
 
 Route::resource('biometricUsers', App\Http\Controllers\BiometricUsersController::class);
 
-
+Route::get('/attendance_datas/fetch-by-employee-and-date', [App\Http\Controllers\AttendanceDataController::class, 'fetchByEmployeeAndDate'])->name('attendanceDatas.fetch-by-employee-and-date');
 Route::resource('attendanceDatas', App\Http\Controllers\AttendanceDataController::class);
 
 
@@ -196,7 +197,16 @@ Route::get('/trip_ticket_g_rs/save-grs', [TripTicketGRSController::class, 'saveG
 Route::get('/trip_ticket_g_rs/grs-requests', [TripTicketGRSController::class, 'grsRequests'])->name('tripTicketGRS.grs-requests');
 Route::resource('tripTicketGRS', TripTicketGRSController::class);
 
+Route::get('/offset_applications/reject', [OffsetApplicationsController::class, 'reject'])->name('offsetApplications.reject');
+Route::get('/offset_applications/approve', [OffsetApplicationsController::class, 'approve'])->name('offsetApplications.approve');
+Route::get('/offset_applications/my-approvals', [OffsetApplicationsController::class, 'myApprovals'])->name('offsetApplications.my-approvals');
 Route::get('/offset_applications/save-offset-applications', [OffsetApplicationsController::class, 'saveOffsetApplications'])->name('offsetApplications.save-offset-applications');
 Route::resource('offsetApplications', OffsetApplicationsController::class);
 
 Route::resource('offsetSignatories', App\Http\Controllers\OffsetSignatoriesController::class);
+
+Route::get('/attendane_confirmations/reject', [AttendaneConfirmationsController::class, 'reject'])->name('attendanceConfirmations.reject');
+Route::get('/attendane_confirmations/approve', [AttendaneConfirmationsController::class, 'approve'])->name('attendanceConfirmations.approve');
+Route::get('/attendane_confirmations/my-approvals', [AttendaneConfirmationsController::class, 'myApprovals'])->name('attendanceConfirmations.my-approvals');
+Route::resource('attendanceConfirmations', AttendaneConfirmationsController::class);
+Route::resource('attendanceConfirmationSignatories', App\Http\Controllers\AttendaneConfirmationSignatoriesController::class);
