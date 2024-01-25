@@ -9,7 +9,7 @@ use App\Repositories\OffsetApplicationsRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
-use App\Models\Employees; 
+use App\Models\Employees;
 use App\Models\OffsetApplications;
 use App\Models\OffsetSignatories;
 use App\Models\IDGenerator;

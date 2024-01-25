@@ -37,7 +37,7 @@ class PositionsController extends AppBaseController
 
         return view('positions.index', [
             'positions' => $positions,
-            'supers' => Positions::whereIn('Level', ['General Manager', 'Manager', 'Chief', 'Head'])->get(),
+            'supers' => Positions::whereIn('Level', ['General Manager', 'Manager', 'Chief', 'Head'])->orderBy('Position')->get(),
         ]);
     }
 
