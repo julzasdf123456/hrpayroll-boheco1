@@ -24,3 +24,4 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
  */
 Route::get('get-users', [Biometrics::class, 'getUsers']);
 Route::get('get-attendance', [Biometrics::class, 'getAttendance']);
+Route::get('get-version', [Biometrics::class, 'getVersion']);

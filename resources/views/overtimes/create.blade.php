@@ -186,7 +186,7 @@
             var typeOfLeaveValue = $('#TypeOfLeave').val()
             var maxHours = isNull($('#MaxHours').val()) ? null : parseFloat($('#MaxHours').val())
 
-            if (isNull(employeeId) | isNull(purpose) | isNull(startDate) | isNull(endDate) | isNull(typeOfLeave)) {
+            if (isNull(employeeId) | isNull(purpose) | isNull(startDate) | isNull(endDate) | isNull(typeOfLeaveValue)) {
                 Toast.fire({
                     icon : 'info',
                     text : 'Please fill in all fields'

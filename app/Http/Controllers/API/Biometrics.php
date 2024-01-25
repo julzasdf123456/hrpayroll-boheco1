@@ -54,4 +54,16 @@ class Biometrics extends Controller {
         $zk->disconnect();
         return response()->json($arr, 200);
     }
+
+    public function getVersion(Request $request) {
+        $ip = $request['Ip'];
+        
+        $zk = new ZKTeco($ip);
+        $zk->connect();
+        
+        $version = $zk->getAttendance();
+
+        $zk->disconnect();
+        return response()->json($version, 200);
+    }
 }
