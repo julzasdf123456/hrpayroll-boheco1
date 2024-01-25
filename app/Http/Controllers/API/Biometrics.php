@@ -40,19 +40,19 @@ class Biometrics extends Controller {
         $zk->connect();
         $attendance = $zk->getAttendance();
 
-        $arr = [];
-        foreach ($attendance as $key => $value) {
-            array_push($arr, [
-                "uid" => $value['uid'],
-                "id"=> $value['id'], // USER ID
-                "state"=> $value['state'],
-                "timestamp"=> $value['timestamp'],
-                "type"=> $value['type'],
-            ]);
-        }
+        // $arr = [];
+        // foreach ($attendance as $key => $value) {
+        //     array_push($arr, [
+        //         "uid" => $value['uid'],
+        //         "id"=> $value['id'], // USER ID
+        //         "state"=> $value['state'],
+        //         "timestamp"=> $value['timestamp'],
+        //         "type"=> $value['type'],
+        //     ]);
+        // }
 
         $zk->disconnect();
-        return response()->json($arr, 200);
+        return response()->json($attendance, 200);
     }
 
     public function getVersion(Request $request) {
