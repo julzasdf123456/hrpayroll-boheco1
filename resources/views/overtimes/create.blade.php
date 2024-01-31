@@ -159,7 +159,7 @@
                                         icon : 'success',
                                         text : 'Offset filing success!'
                                     })
-                                    // window.location.href = "{{ route('home') }}"
+                                    window.location.href = "{{ route('home') }}"
                                 },
                                 error : function(err) {
                                     Swal.fire({

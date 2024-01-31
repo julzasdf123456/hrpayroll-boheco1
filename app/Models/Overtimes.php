@@ -93,5 +93,15 @@ class Overtimes extends Model
         'Status' => 'nullable|string',
     ];
 
-    
+    public static function getStatusColor($status) {
+        if ($status != null) {
+            if ($status == 'APPROVED') {
+                return 'bg-success';
+            } else {
+                return 'bg-danger';
+            }
+        } else {
+            return 'bg-warning';
+        }
+    }
 }

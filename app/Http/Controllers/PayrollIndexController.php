@@ -13,11 +13,13 @@ use App\Models\PayrollIndex;
 use App\Models\LeaveAttendanceDates;
 use App\Models\Overtimes;
 use App\Models\PayrollDetails;
+use App\Models\PayrollSchedules;
 use App\Models\Notifications;
 use App\Models\User;
 use App\Models\Positions;
 use App\Models\EmployeesDesignations;
 use App\Models\ProfessionalIDs;
+use App\Models\AttendanceData;
 use Flash;
 use Response;
 
@@ -540,5 +542,59 @@ class PayrollIndexController extends AppBaseController
             'employeeDesignation' => $employeeDesignation,
             'deductions' => $deductions,
         ]);
+    }
+
+    public function payroll(Request $request) {
+        return view('/payroll_indices/payroll', [
+
+        ]);
+    }
+
+    public function getPayrollData(Request $request) {
+        $employeeType = $request['EmployeeType'];
+        $department = $request['Department'];
+        $salaryPeriod = $request['SalaryPeriod'];
+        $from = $request['From'];
+        $to = $request['To'];
+
+        $employees = DB::table('Employees')
+            ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+            ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+            ->leftJoin('PayrollSchedules', 'Employees.PayrollScheduleId', '=', 'PayrollSchedules.id')
+            ->select('Employees.FirstName',
+                    'Employees.MiddleName',
+                    'Employees.LastName',
+                    'Employees.Suffix',
+                    'Employees.id',
+                    'Employees.BiometricsUserId',
+                    'Employees.PayrollScheduleId',
+                    'Employees.NoAttendanceAllowed',
+                    'Positions.BasicSalary AS SalaryAmount',
+                    'EmployeesDesignations.Status',
+                    'PayrollSchedules.StartTime',
+                    'PayrollSchedules.BreakStart',
+                    'PayrollSchedules.BreakEnd',
+                    'PayrollSchedules.EndTime',
+            )
+            ->where('EmployeesDesignations.Status', $employeeType)
+            ->where('Positions.Department', $department)
+            ->orderBy('Employees.LastName')
+            ->get();
+
+        $defaultSched = PayrollSchedules::where('Name', 'Default')->orderByDesc('created_at')->first();
+
+        foreach($employees as $item) {
+            $item->AttendanceData = DB::table('AttendanceData')
+                ->whereRaw("BiometricUserId='" . $item->BiometricsUserId . "' AND (TRY_CAST(Timestamp AS DATE) BETWEEN '" . $from . "' AND '" . $to . "') AND AbsentPermission IS NULL")
+                ->select(
+                    DB::raw("TRY_CAST(Timestamp AS DATE) AS DateLogged"), 
+                    'Timestamp', 
+                    'Type', 
+                    'AbsentPermission')
+                ->orderBy('Timestamp')
+                ->get();
+        }
+
+        return response()->json($employees, 200);
     }
 }

@@ -1,5 +1,7 @@
 @php
     use App\Models\Employees;
+
+    $colorProf = Auth::user()->ColorProfile;
 @endphp
 @extends('layouts.app')
 
@@ -7,14 +9,63 @@
     <section class="content-header">
         <div class="container-fluid">
             <div class="row mb-2">
-                <div class="col-sm-6">
-                    <h4>Employees Details</h4>
+                <div class="col-lg-8">
+                    <div style="display: flex; padding-top: 15px; padding-bottom: 15px;">
+                        <div style="width: 88px; display: inline;">
+                            <img id="prof-img" style="width: 75px !important;" class="profile-user-img img-fluid img-circle" src="{{ asset('imgs/prof-img.png') }}" alt="User profile picture">
+                        </div>
+                        <div>
+                            <span>
+                                <span style="font-size: 1.85em;"><strong>{{ Employees::getMergeName($employees) }}</strong></span><br>
+                                <span class="text-muted">
+                                    @if (count($employeeDesignations) > 0)
+                                        <i class="fas fa-lightbulb ico-tab-mini"></i>{{ $employeeDesignations{0}->Position }}
+                                    @endif
+
+                                    @if ($employees->ContactNumbers != null)
+                                        <span style="margin-left: 15px; margin-right: 15px;">|</span><i class="fas fa-phone ico-tab-mini"></i>{{ $employees->ContactNumbers }}
+                                    @endif
+                                </span>
+                            </span>
+                        </div>
+                    </div>
+                    
                 </div>
-                <div class="col-sm-6">
-                    <a class="btn btn-default float-right"
-                       href="{{ route('employees.index') }}">
-                        Back
-                    </a>
+                <div class="col-lg-4">                    
+                    @if (count($employeeDesignations) < 1)
+                        <a href="{{ route('employees.create-designations', [$employees->id]) }}" class="btn btn-primary float-right {{ $colorProf != null ? 'text-white' : '' }}" style="margin-left: 15px;" title="Add job description to {{ Employees::getMergeName($employees) }}">Add Position</a>
+                    @endif
+
+                    <div class="dropdown">
+                        <a class="btn btn-link dropdown-toggle float-right {{ $colorProf != null ? 'text-white' : '' }}" href="#" role="button" data-toggle="dropdown" aria-expanded="false" style="margin-right: 15px;">
+                          Actions
+                        </a>
+                      
+                        <div class="dropdown-menu">
+                            @canany('god permission', 'employees update')
+                                <a class="dropdown-item" href="{{ route('employees.edit', [$employees->id]) }}"><i class="fas fa-pen ico-tab"></i>Edit Details</a>
+                                @if (count($employeeDesignations) > 0)
+                                    <a class="dropdown-item" href="{{ route('employeesDesignations.edit', [$employeeDesignations[0]->id]) }}"><i class="fas fa-lightbulb ico-tab"></i>Edit Position</a>
+                                    <a class="dropdown-item" href="{{ route('employees.create-designations', [$employees->id]) }}"><i class="fas fa-hand-point-up ico-tab"></i>Create Promotion</a>
+                                @endif
+                                <div class="dropdown-divider"></div>
+                                @if ($employees->NoAttendanceAllowed != null)
+                                    <button class="dropdown-item" onclick="disAllowNoAttendance(`{{ $employees->id }}`)"><i class="fas fa-times ico-tab"></i>Disable No Attendance</button>
+                                @else
+                                    <button class="dropdown-item" onclick="allowNoAttendance(`{{ $employees->id }}`)"><i class="fas fa-fingerprint ico-tab"></i>Allow No Attendance</button>
+                                @endif
+                                
+                            @endcanany
+                            <a class="dropdown-item" href="{{ route('employees.attendance', [$employees->id]) }}"><i class="fas fa-calendar-alt ico-tab"></i>View Attendance</a>
+                            
+                            @canany('god permission', 'employees delete')
+                            <div class="dropdown-divider"></div>
+                            {!! Form::open(['route' => ['employees.destroy', $employees->id], 'method' => 'delete', 'style' => 'display: inline;']) !!}
+                                {!! Form::button('<i class="fas fa-trash-alt ico-tab text-danger" title="Delete this employee"></i>Trash Employee Data', ['type' => 'submit', 'class' => 'dropdown-item text-danger', 'onclick' => "return confirm('Are you sure?')"]) !!}
+                            {!! Form::close() !!}
+                            @endcanany
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -22,166 +73,111 @@
 
     <div class="content px-3">
         <div class="row">
-            <div class="col-lg-4 col-md-5">
-                <div class="card card-primary card-outline">
-                    <div class="card-body box-profile">
-                        <div class="text-center">
-                            <img id="prof-img" class="profile-user-img img-fluid img-circle" src="" alt="User profile picture">
-                        </div>
-      
-                        <h3 class="profile-username text-center">
-                            {{ Employees::getMergeName($employees) }}
-                            @canany('god permission', 'employees update')
-                            <a title="Change picture" href="{{ route('employees.capture-image', [$employees->id]) }}" style="padding-left: 10px;"><i class="fas fa-camera text-success" style="font-size: .8em;"></i></a>
-                            @endcanany
-                        </h3>
-      
-                        <p class="text-muted text-center">
-                            @if (count($employeeDesignations) > 0)
-                                {{ $employeeDesignations{0}->Position }}
-                            @endif
-                        </p>
-      
-                        <ul class="list-group list-group-unbordered mb-3">
-                            <li class="list-group-item">
-                                <b>Contact</b> <a class="float-right">{{ $employees->ContactNumbers }}</a>
-                            </li>
-                            <li class="list-group-item">
-                                <b>Email</b> <a class="float-right">{{ $employees->EmailAddress }}</a>
-                            </li>
-                            <li class="list-group-item">
-                                <b>Job Status</b> <a class="float-right">
-                                    @if (count($employeeDesignations) > 0)
-                                        {{ $employeeDesignations{0}->Status }}
-                                    @endif
-                                </a>
-                            </li>
-                        </ul>
-                        
-                        @canany('god permission', 'employees update')
-                        <a href="{{ route('employees.edit', [$employees->id]) }}" class="btn btn-link text-info" title="Edit {{ Employees::getMergeName($employees) }}"><i class="fas fa-pen"></i></a>
-                        @if (count($employeeDesignations) > 0)
-                            <a href="{{ route('employeesDesignations.edit', [$employeeDesignations[0]->id]) }}" class="btn btn-link text-info" title="Edit {{ Employees::getMergeName($employees) }}'s Job Status"><i class="fas fa-clipboard"></i></a>
-                            <a href="{{ route('employees.create-designations', [$employees->id]) }}" class="btn btn-link text-warning" title="Promote {{ Employees::getMergeName($employees) }}"><i class="fas fa-hand-point-up"></i></a>
-                        @else
-                            <a href="{{ route('employees.create-designations', [$employees->id]) }}" class="btn btn-link text-success" title="Add job description to {{ Employees::getMergeName($employees) }}"><i class="fas fa-folder-plus"></i></a>
-                        @endif
-                        @endcanany
+            <div class="col-lg-12">
+                <div class="card shadow-none">
+                    <div class="card-body p-0">
+                        <div class="row">
+                            {{-- BASIC DETAILS --}}
+                            <div class="col-lg-4" style="padding: 25px 35px 15px 35px;">
+                                <h4><strong>Key Details</strong></h4>
 
-                        <a href="{{ route('employees.attendance', [$employees->id]) }}" class="btn btn-link text-info" title="View attendance"><i class="fas fa-calendar-alt"></i></a>
-                        
-                        @canany('god permission', 'employees delete')
-                        {!! Form::open(['route' => ['employees.destroy', $employees->id], 'method' => 'delete', 'style' => 'display: inline;']) !!}
-                            {!! Form::button('<i class="fas fa-trash-alt" title="Delete this employee"></i>', ['type' => 'submit', 'class' => 'btn btn-link text-danger float-right', 'onclick' => "return confirm('Are you sure?')"]) !!}
-                        {!! Form::close() !!}
-                        @endcanany
-                    </div>
-                    <!-- /.card-body -->
-                </div>
-
-                <div class="card card-primary">
-                    <div class="card-header">
-                      <h3 class="card-title">About Me</h3>
-                    </div>
-                    <!-- /.card-header -->
-                    <div class="card-body">        
-                        <strong><i class="fas fa-map-marker-alt mr-1"></i> Current Address</strong>        
-                        <p class="text-muted">{{ Employees::getCurrentAddress($employees) }}</p>
-        
-                        <hr>
-
-                        <strong><i class="fas fa-map-marker-alt mr-1"></i> Permanent Address</strong>        
-                        <p class="text-muted">{{ Employees::getPermanentAddress($employees) }}</p>
-        
-                        <hr>
-        
-                        <strong><i class="fas fa-birthday-cake mr-1"></i> Birthday</strong>
-        
-                        <p class="text-muted">
-                            @if ($employees->Birthdate != null)
-                                {{ date('F d, Y', strtotime($employees->Birthdate)) }}
-                            @endif
-                        </p>
-        
-                        <hr>
-
-                        <strong><i class="fas fa-info-circle mr-1"></i> Civil Status</strong>        
-                        <p class="text-muted">{{ $employees->CivilStatus }}</p>
-        
-                        <hr>
-
-                        <strong><i class="fas fa-globe-asia mr-1"></i> Citizenship</strong>        
-                        <p class="text-muted">{{ $employees->Citizenship }}</p>
-        
-                        <hr>
-
-                        <strong><i class="fas fa-cross mr-1"></i> Religion</strong>        
-                        <p class="text-muted">{{ $employees->Religion }}</p>
-        
-                        <hr>
-
-                        <strong><i class="fas fa-pump-medical mr-1"></i> Blood Type</strong>        
-                        <p class="text-muted">{{ $employees->BloodType }}</p>
-        
-                        <hr>
-                    </div>
-                    <!-- /.card-body -->
-                </div>
-            </div>
-
-            <div class="col-lg-8 col-md-7">
-                <div class="card card-primary card-outline card-tabs shadow-none">
-                    <div class="card-header p-0 pt-1 border-bottom-0">
-                        <ul class="nav nav-tabs" id="custom-tabs-three-tab" role="tablist">
-                            <li class="nav-item">
-                                <a class="nav-link active" id="dtr-tab" data-toggle="pill" href="#dtr-content" role="tab" aria-controls="dtr-content" aria-selected="false">DTR</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" id="leave-tab" data-toggle="pill" href="#leave-content" role="tab" aria-controls="leave-content" aria-selected="false">Leave</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" id="trip-tickets-tab" data-toggle="pill" href="#trip-ticket-content" role="tab" aria-controls="trip-ticket-content" aria-selected="false">Trip Tickets</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" id="promotions-tab" data-toggle="pill" href="#promotions-content" role="tab" aria-controls="promotions-content" aria-selected="false">Promotions</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" id="educational-attainments-tab" data-toggle="pill" href="#educational-attainment-content" role="tab" aria-controls="educational-attainment-content" aria-selected="false">Educational Attainment</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" id="private-info-tab" data-toggle="pill" href="#private-info-content" role="tab" aria-controls="private-info-content" aria-selected="false">Private Information</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" id="payslip-tab" data-toggle="pill" href="#payslip-content" role="tab" aria-controls="payslip-content" aria-selected="false">Payslips</a>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="card-body">
-                        <div class="tab-content" id="custom-tabs-three-tabContent">
-                            <div class="tab-pane fade active show" id="dtr-content" role="tabpanel" aria-labelledby="dtr-tab">
-                                @include('employees.dtr_view')
+                                <table class="table table-sm table-borderless" style="margin-top: 18px;">
+                                    <tbody>
+                                        <tr>
+                                            <td><i class="fas text-muted fa-at"></i></td>
+                                            <td>{{ $employees->EmailAddress }}</td>
+                                        </tr>
+                                        <tr title="Current Address">
+                                            <td><i class="fas text-muted fa-map-pin"></i></td>
+                                            <td>{{ Employees::getCurrentAddress($employees) }}</td>
+                                        </tr>
+                                        <tr title="Permanent Address">
+                                            <td><i class="fas text-muted fa-map-marker-alt"></i></td>
+                                            <td>{{ Employees::getPermanentAddress($employees) }}</td>
+                                        </tr>
+                                        <tr title="Birthday">
+                                            <td><i class="fas text-muted fa-birthday-cake"></i></td>
+                                            <td>{{ $employees->Birthdate != null ? date('F d, Y', strtotime($employees->Birthdate)) : '' }}</td>
+                                        </tr>
+                                        <tr title="Civil Status">
+                                            <td><i class="fas text-muted fa-paperclip"></i></td>
+                                            <td>{{ $employees->CivilStatus }}</td>
+                                        </tr>
+                                        <tr title="Citizenship">
+                                            <td><i class="fas text-muted fa-flag"></i></td>
+                                            <td>{{ $employees->Citizenship }}</td>
+                                        </tr>
+                                        <tr title="Religion">
+                                            <td><i class="fas text-muted fa-cross"></i></td>
+                                            <td>{{ $employees->Religion }}</td>
+                                        </tr>
+                                        <tr title="Blood Type">
+                                            <td><i class="fas text-muted fa-tint"></i></td>
+                                            <td>{{ $employees->BloodType }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
-                            <div class="tab-pane fade" id="leave-content" role="tabpanel" aria-labelledby="leave-tab">
-                                @include('employees.leave')
-                            </div>
-                            <div class="tab-pane fade" id="trip-ticket-content" role="tabpanel" aria-labelledby="trip-tickets-tab">
-                                @include('employees.tab_trip_tickets')
-                            </div>
-                            <div class="tab-pane fade" id="promotions-content" role="tabpanel" aria-labelledby="promotions-tab">
-                                @include('employees.promotions')
-                            </div>
-                            <div class="tab-pane fade" id="educational-attainment-content" role="tabpanel" aria-labelledby="educational-attainments-tab">
-                                @include('employees.educational_attainment_view')
-                            </div>
-                            <div class="tab-pane fade" id="private-info-content" role="tabpanel" aria-labelledby="private-info-tab">
-                                @include('employees.private_info_view')
-                            </div>
-                            <div class="tab-pane fade" id="payslip-content" role="tabpanel" aria-labelledby="payslip-tab">
-                                @include('employees.payslips')
+
+                            {{-- TABS --}}
+                            <div class="col-lg-8 {{ $colorProf != null ? 'bl-dark' : 'bl-light' }}" style="padding-top: 15px; padding-bottom: 15px; padding-left: 25px; padding-right: 25px;">
+                                {{-- TAB HEADS --}}
+                                <ul class="nav nav-tabs" id="custom-tabs-three-tab" role="tablist">
+                                    <li class="nav-item">
+                                        <a class="nav-link active" id="dtr-tab" data-toggle="pill" href="#dtr-content" role="tab" aria-controls="dtr-content" aria-selected="false">DTR</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" id="leave-tab" data-toggle="pill" href="#leave-content" role="tab" aria-controls="leave-content" aria-selected="false">Leave</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" id="trip-tickets-tab" data-toggle="pill" href="#trip-ticket-content" role="tab" aria-controls="trip-ticket-content" aria-selected="false">Trip Tickets</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" id="overtime-tab" data-toggle="pill" href="#overtime-content" role="tab" aria-controls="overtime-content" aria-selected="false">Overtime</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" id="promotions-tab" data-toggle="pill" href="#promotions-content" role="tab" aria-controls="promotions-content" aria-selected="false">Promotions</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" id="educational-attainments-tab" data-toggle="pill" href="#educational-attainment-content" role="tab" aria-controls="educational-attainment-content" aria-selected="false">Educational Attainment</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" id="private-info-tab" data-toggle="pill" href="#private-info-content" role="tab" aria-controls="private-info-content" aria-selected="false">Private Information</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" id="payslip-tab" data-toggle="pill" href="#payslip-content" role="tab" aria-controls="payslip-content" aria-selected="false">Payslips</a>
+                                    </li>
+                                </ul>
+                                {{-- TAB BODY --}}
+                                <div class="tab-content" id="custom-tabs-three-tabContent">
+                                    <div class="tab-pane fade active show" id="dtr-content" role="tabpanel" aria-labelledby="dtr-tab">
+                                        @include('employees.dtr_view')
+                                    </div>
+                                    <div class="tab-pane fade" id="leave-content" role="tabpanel" aria-labelledby="leave-tab">
+                                        @include('employees.leave')
+                                    </div>
+                                    <div class="tab-pane fade" id="trip-ticket-content" role="tabpanel" aria-labelledby="trip-tickets-tab">
+                                        @include('employees.tab_trip_tickets')
+                                    </div>
+                                    <div class="tab-pane fade" id="overtime-content" role="tabpanel" aria-labelledby="overtime-tab">
+                                        @include('employees.tab_overtime')
+                                    </div>
+                                    <div class="tab-pane fade" id="promotions-content" role="tabpanel" aria-labelledby="promotions-tab">
+                                        @include('employees.promotions')
+                                    </div>
+                                    <div class="tab-pane fade" id="educational-attainment-content" role="tabpanel" aria-labelledby="educational-attainments-tab">
+                                        @include('employees.educational_attainment_view')
+                                    </div>
+                                    <div class="tab-pane fade" id="private-info-content" role="tabpanel" aria-labelledby="private-info-tab">
+                                        @include('employees.private_info_view')
+                                    </div>
+                                    <div class="tab-pane fade" id="payslip-content" role="tabpanel" aria-labelledby="payslip-tab">
+                                        @include('employees.payslips')
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <!-- /.card -->
                 </div>
             </div>
         </div>
@@ -191,6 +187,7 @@
 @push('page_scripts')
     <script>
         $(document).ready(function() {
+            $('body').addClass('sidebar-collapse')
             // LOAD IMAGE
             $.ajax({
                 url : '/employees/get-image/' + "{{ $employees->id }}",
@@ -204,5 +201,73 @@
                 }
             })
         });
+
+        function allowNoAttendance(id) {
+            Swal.fire({
+                title: "Allow No Attendance",
+                text : 'Allow this employee to skip logging in biometric attendance?',
+                showCancelButton: true,
+                confirmButtonText: "Yes",
+            }).then((result) => {
+                /* Read more about isConfirmed, isDenied below */
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url : "{{ route('employees.allow-no-attendance') }}",
+                        type : "GET",
+                        data : {
+                            id : id,
+                            Status : 'Yes'
+                        },
+                        success : function(res) {
+                            Toast.fire({
+                                icon : 'success',
+                                error : 'Allowed for no time-in no time-out.'
+                            })
+                            location.reload()
+                        },
+                        error : function(err) {
+                            Toast.fire({
+                                icon : 'error',
+                                error : 'Error allowing no time-in no time-out!'
+                            })
+                        }
+                    })
+                }
+            })
+        }
+
+        function disAllowNoAttendance(id) {
+            Swal.fire({
+                title: "Remove No-Attendance",
+                text : 'Remove no-attendance policy grant for this employee?',
+                showCancelButton: true,
+                confirmButtonText: "Yes",
+            }).then((result) => {
+                /* Read more about isConfirmed, isDenied below */
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url : "{{ route('employees.allow-no-attendance') }}",
+                        type : "GET",
+                        data : {
+                            id : id,
+                            Status : null,
+                        },
+                        success : function(res) {
+                            Toast.fire({
+                                icon : 'success',
+                                error : 'No attendance policy removed!'
+                            })
+                            location.reload()
+                        },
+                        error : function(err) {
+                            Toast.fire({
+                                icon : 'error',
+                                error : 'Error removing no time-in no time-out!'
+                            })
+                        }
+                    })
+                }
+            })
+        }
     </script>
 @endpush

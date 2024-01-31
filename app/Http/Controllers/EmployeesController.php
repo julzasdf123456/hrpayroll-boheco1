@@ -25,6 +25,7 @@ use App\Models\PayrollSchedules;
 use App\Models\LeaveBalances;
 use App\Models\LeaveBalanceDetails;
 use App\Models\OffsetApplications;
+use App\Models\Overtimes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -149,6 +150,8 @@ class EmployeesController extends AppBaseController
             ->orderByDesc('DatetimeFiled')
             ->get();
 
+        $overtimes = Overtimes::where('EmployeeId', $id)->orderByDesc('created_at')->get();
+
         if ( Users::where('employee_id', $id)->first() != null) {
             $leaveApplications = LeaveApplications::where('EmployeeId', Users::where('employee_id', $id)->first()->employee_id)->get();
         } else {
@@ -175,6 +178,7 @@ class EmployeesController extends AppBaseController
                 'leaveBalance' => $leaveBalance,
                 'leaveBalanceDetails' => $leaveBalanceDetails,
                 'tripTickets' => $tripTickets,
+                'overtimes' => $overtimes,
             ]);
         } else {
             return abort(403, "You're not authorized view your profile.");
@@ -540,5 +544,18 @@ class EmployeesController extends AppBaseController
         } else {
             return response()->json([], 200);
         }
+    }
+
+    public function allowNoAttendance(Request $request) {
+        $id = $request['id'];
+        $status = $request['Status'];
+
+        $employee = Employees::find($id);
+        if ($employee != null) {
+            $employee->NoAttendanceAllowed = $status;
+            $employee->save();
+        }
+
+        return response()->json($employee, 200);
     }
 }
