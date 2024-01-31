@@ -219,12 +219,12 @@
                         "<td>" + purpose + "</td>" +
                         "<td>" + startDate + "</td>" +
                         "<td>" + 
-                            "<input style='width: 80%; display: inline;' type='time' class='form-control form-control-sm' id='start-" + index + "'/>" +
+                            "<input onchange='inputChangeTime(`IN`, `" + index + "`, `" + startDate + "`)' style='width: 80%; display: inline;' type='time' class='form-control form-control-sm' id='start-" + index + "'/>" +
                             "<button title='Fetch from biometrics' onclick='fetchFromBio(`" + index + "`, `IN`, `" + bioId + "`, `" + startDate + "`)' class='btn btn-sm float-right btn-link'><i class='fas fa-fingerprint text-info'></i></button>" +
                         "</td>" +
                         "<td>" + endDate + "</td>" +
                         "<td>" + 
-                            "<input style='width: 80%; display: inline;' type='time' class='form-control form-control-sm' id='end-" + index + "'/>" +
+                            "<input onchange='inputChangeTime(`OUT`, `" + index + "`, `" + endDate + "`)' style='width: 80%; display: inline;' type='time' class='form-control form-control-sm' id='end-" + index + "'/>" +
                             "<button title='Fetch from biometrics' onclick='fetchFromBio(`" + index + "`, `OUT`, `" + bioId + "`, `" + endDate + "`)' class='btn btn-sm float-right btn-link'><i class='fas fa-fingerprint text-info'></i></button>" +
                         "</td>" +
                         "<td>" + typeOfLeave + "</td>" +
@@ -247,6 +247,19 @@
             }
         }
 
+        function inputChangeTime(type, index, date) {
+            var start = $('#start-' + index).val()
+            var end = $('#end-' + index).val()
+
+            if(type === 'IN' && !isNull(start)) {
+                insertTime(date + ' ' + start, type, index)
+            } 
+            
+            if (type === 'OUT' && !isNull(end)) {
+                insertTime(date + ' ' + end, type, index)
+            }            
+        }
+
         function insertTime(timestamp, type, index) {
             // UPDATE TIME VALUES IN items[]
             objIndex = items.findIndex((obj => obj.Index == index))
@@ -264,7 +277,6 @@
             // SHOW TOTAL HOURS
             $('#total-hrs-' + index).text(items[objIndex].TotalHours)
 
-            console.log(items)
             $('#modal-fetch-from-bio').modal('hide')
         }
 

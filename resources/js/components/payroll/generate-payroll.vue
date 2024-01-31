@@ -38,7 +38,11 @@
                 </div>
                 <div class="col-lg-3">
                     <span class="text-muted">Action</span><br>
-                    <button class="btn btn-primary btn-sm" @click="generate()"><i class="fas fa-check-circle ico-tab-mini"></i>Generate Payroll</button>
+                    <button class="btn btn-primary btn-sm" :disabled="isButtonDisabled" @click="generate()"><i class="fas fa-check-circle ico-tab-mini"></i>Generate Payroll</button>
+
+                    <div class="spinner-border text-primary float-right" :class="isDisplayed" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
                 </div>
             </div>
             <!-- <span class="text-muted"><strong>Ask Reeve about Something</strong></span>
@@ -49,6 +53,19 @@
             </div>
             <button id="go-btn" class="btn btn-primary btn-sm float-right" @click="ask()" style="margin-top: 5px;"><i class="fas fa-check-circle ico-tab-mini"></i>Go Ask Reeve</button> -->
         </div>
+    </div>
+
+    <div class="legend" style="margin-bottom: 15px; margin-left: 20px;">
+        <span class="text-muted" style="margin-right: 15px;"><strong>Legend : </strong></span>
+        <span style="width: 10px !important; height: 10px !important; background-color: #f51836; display: inline-block; border-radius: 50%; margin-right: 5px;"></span> AWOL
+        <span style="width: 30px !important; height: 10px !important; background-color: #1d8fcc; display: inline-block; border-radius: 5px; margin-left: 20px; margin-right: 5px;"></span> Off Days
+        <span style="width: 30px !important; height: 10px !important; background-color: #f7076f; display: inline-block; border-radius: 5px; margin-left: 20px; margin-right: 5px;"></span> Holidays
+        <span style="width: 10px !important; height: 10px !important; background-color: #debe07; display: inline-block; border-radius: 50%; margin-left: 20px; margin-right: 5px;"></span> No Time In/Time Out
+        <span style="width: 10px !important; height: 10px !important; background-color: #05b05d; display: inline-block; border-radius: 50%; margin-left: 20px; margin-right: 5px;"></span> Okiesss
+        <span style="width: 10px !important; height: 10px !important; background-color: #e823ba; display: inline-block; border-radius: 50%; margin-left: 20px; margin-right: 5px;"></span> Trip Ticket
+        <span style="width: 10px !important; height: 10px !important; background-color: #f2780c; display: inline-block; border-radius: 50%; margin-left: 20px; margin-right: 5px;"></span> Offset
+        <span style="width: 10px !important; height: 10px !important; background-color: #0cf2c4; display: inline-block; border-radius: 50%; margin-left: 20px; margin-right: 5px;"></span> Leave
+
     </div>
 
     <div class="table-responsive">
@@ -66,8 +83,8 @@
             </thead>
             <tbody>
                 <tr v-for="(employee, index) in employees" :key="employee.id">
-                    <td>{{ employee.name }}</td>
-                    <td v-for="(attendance, colIndex) in attendances[index]" @click="showInfo(dateHeaders[colIndex].name, employee.id, employee.name)">{{ attendance }}</td> 
+                    <td><strong>{{ employee.name }}</strong></td>
+                    <td v-for="(attendance, colIndex) in attendances[index]" @click="showInfo(dateHeaders[colIndex].name, employee.id, employee.name)" v-html="attendance"></td> 
                 </tr>
             </tbody>
         </table>
@@ -110,6 +127,8 @@ export default {
             // TABLE DATA
             employees : [],
             attendances : [],
+            isDisplayed : 'gone',
+            isButtonDisabled : false,
         }
     },
     methods : {
@@ -128,22 +147,34 @@ export default {
             while (startDate <= lastDate) {
                 this.dateHeaders.push({
                     name : moment(startDate).format('YYYY-MM-DD'),
-                    label : moment(startDate).format('MMM-DD-YY dddd')
+                    label : moment(startDate).format('MMM-DD-YY ddd')
                 }); 
                 startDate = moment(startDate).add(1, 'days');
             }
 
-            // ADD OT COlUMN
+            // ADD TOTAL HOURS RENDERED COLUMN
+            this.dateHeaders.push({
+                name : 'Total Hours Rendered',
+                label : 'Total Hours Rendered'
+            }); 
+
+            // ADD TOTAL HOURS WORKABLE
+            this.dateHeaders.push({
+                name : 'Total Working Hours',
+                label : 'Total Working Hours'
+            }); 
+
+            // ADD OT HOURS COlUMN
             this.dateHeaders.push({
                 name : 'Overtime Hours',
                 label : 'Overtime Hours'
             });
 
-            // ADD TOTAL COLUMN
+            // ADD OT AMOUNT COlUMN
             this.dateHeaders.push({
-                name : 'Total Hours Rendered',
-                label : 'Total Hours Rendered'
-            }); 
+                name : 'Overtime Amount',
+                label : 'Overtime Amount'
+            });
         },
         isIn(timeToCheck, scheduleMedianTimestamp) {
             var from = moment(scheduleMedianTimestamp).subtract(2, 'hours').format('YYYY-MM-DD HH:mm:ss');
@@ -640,6 +671,21 @@ export default {
         getLeaveDate(date, leaveDays) {
             return leaveDays.filter(obj => obj.LeaveDate === date);
         },
+        isDateInOffset(date, offsets) {
+            return offsets.some(obj => obj.DateOfOffset === date);
+        },
+        getOffsetDate(date, offsets) {
+            return offsets.filter(obj => obj.DateOfOffset === date);
+        },
+        isDateInTripTicket(date, tripTickets) {
+            return tripTickets.some(obj => obj.DateOfTravel === date);
+        },
+        isDateInHoliday(date, holidays) {
+            return holidays.some(obj => obj.HolidayDate === date);
+        },
+        getTripTicketDate(date, tripTickets) {
+            return tripTickets.filter(obj => obj.DateOfTravel === date);
+        },
         validateHours(maxHours, hoursTotal) {
             if (maxHours >= hoursTotal) {
                 return hoursTotal;
@@ -647,13 +693,15 @@ export default {
                 return maxHours;
             }
         },
-        getHoursAttended(attendanceData, scheduleArray, noAttendanceAllowed, date, dayOffDays, specialDutyDays, leaveDays) {
+        getHoursAttended(attendanceData, scheduleArray, noAttendanceAllowed, date, dayOffDays, specialDutyDays, leaveDays, offsets, tripTickets, holidays) {
             var daySpelled = moment(date).format('dddd');
             var leaveTotalHours = 0;
+            var offsetTotalHours = 0;
+            var tripTicketTotalHours = 0;
 
             /**
              * ===========================================================
-             * CHECK IF LEAVE
+             * CHECK IF HAS LEAVE
              * ===========================================================
              */
             if (this.isDateInLeave(date, leaveDays)) {
@@ -673,124 +721,226 @@ export default {
 
             /**
              * ===========================================================
+             * CHECK IF HAS OFFSET
+             * ===========================================================
+             */
+             if (this.isDateInOffset(date, offsets)) {
+                var offsetDay = this.getOffsetDate(date, offsets);
+                if (this.isNull(offsetDay)) {
+                    offsetTotalHours = 0;
+                } else {
+                    offsetTotalHours = 8;
+                }
+            } else {
+                offsetTotalHours = 0;
+            }
+
+            /**
+             * ===========================================================
+             * CHECK IF HAS TRIP TICKET
+             * ===========================================================
+             */
+             if (this.isDateInTripTicket(date, tripTickets)) {
+                var tripTicket = this.getTripTicketDate(date, tripTickets);
+                if (this.isNull(tripTicket)) {
+                    tripTicketTotalHours = 0;
+                } else {
+                    tripTicketTotalHours = 8;
+                }
+            } else {
+                tripTicketTotalHours = 0;
+            }
+
+            /**
+             * ===========================================================
              * START ATTENDANCE CHECKING
              * ===========================================================
              */
-            if (noAttendanceAllowed) {
-                if (!this.isNull(dayOffDays) && dayOffDays.includes(daySpelled) && !this.isDateInSpecialDuty(date, specialDutyDays)) {
-                    return 'off';
-                } else {
-                    if (this.isDateInSpecialDuty(date, specialDutyDays) ) {
-                        // CHECK IF SPECIAL DUTY DAY IS WHOLE DAY OR HALF DAY
-                        var specialDuty = this.getSpecialDuty(date, specialDutyDays);
+            // CHECK FIRST IF ATTENDANCE IS HALF DAY ONLY, Do not reduce break if half day
+            var isHalfDay = false;
+            if (this.isHalfDay(attendanceData, scheduleArray, date)) {
+                isHalfDay = true;
+            }
 
-                        if (this.isNull(specialDuty)) {
-                            return 8;
-                        } else {
-                            if (specialDuty[0].Term == 'Morning Only' | specialDuty[0].Term == 'Afternoon Only') {
-                                return 4;
-                            } else {
-                                return 8;
-                            }
-                        }
-                    } else {
-                        return 8;
-                    }                    
-                }                
+            if (this.isDateInHoliday(date, holidays)) {
+                /**
+                 * ===========================================================
+                 * CHECK IF HOLIDAY
+                 * ===========================================================
+                 */
+                return 'holiday';
             } else {
-                var attSize = attendanceData.length;
-                
-                var startIn = null;
-                var endOut = null;
-                if (attSize > 1) {
-                    startIn = attendanceData[0]['Timestamp'];
-                    endOut = attendanceData[attSize-1]['Timestamp'];
-
-                    // CHECK IF ATTENDANCE HAS NO LUNCH/BREAK IN AND OUT
-                    if (this.isBefore(startIn, (date + " " + scheduleArray['Start']))) {
-                        startIn = (date + " " + scheduleArray['Start'].split('.')[0]);
-                    }
-
-                    if (this.isAfter(endOut, (date + " " + scheduleArray['End']))) {
-                        endOut = (date + " " + scheduleArray['End'].split('.')[0]);
-                    }
-                    
-                    // DEDUCT HOURS IF HAS BREAK
-                    var hoursBreak = 0;
-                    if (!this.isNull(scheduleArray['BreakStart']) && !this.isNull(scheduleArray['BreakEnd'])) {
-                        hoursBreak = this.getHoursInHours(scheduleArray['BreakStart'].split('.')[0], scheduleArray['BreakEnd'].split('.')[0]);
-                    } else {
-                        hoursBreak = 0;
-                    }
-
-                    // CHECK IF ATTENDANCE IS HALF DAY ONLY, Do not reduce break if half day
-                    var isHalfDay = false;
-                    if (this.isHalfDay(attendanceData, scheduleArray, date)) {
-                        hoursBreak = 0;
-                        isHalfDay = true;
-                    }
-
-                    // CHECK IF SATURDAY, DO no reduce break if saturday or sunday
-                    // if (this.isWeekend(date)) {
-                    //     hoursBreak = 0;
-                    //     isHalfDay = true;
-                    // }
-                    
-                    endOut = this.deductHours(endOut, hoursBreak);
-
-                    var hours = this.getHours(startIn, endOut);
-                    
+                /**
+                 * ===========================================================
+                 * REGULAR WORKING DAYS
+                 * ===========================================================
+                 */
+                if (noAttendanceAllowed) {
                     if (!this.isNull(dayOffDays) && dayOffDays.includes(daySpelled) && !this.isDateInSpecialDuty(date, specialDutyDays)) {
                         return 'off';
                     } else {
-                        if (hours < 0) {
-                            if (leaveTotalHours > 0) {
-                                return leaveTotalHours;
+                        if (this.isDateInSpecialDuty(date, specialDutyDays) ) {
+                            // CHECK IF SPECIAL DUTY DAY IS WHOLE DAY OR HALF DAY
+                            var specialDuty = this.getSpecialDuty(date, specialDutyDays);
+
+                            if (this.isNull(specialDuty)) {
+                                return 8;
                             } else {
-                                return 'xTI/xTO';
+                                if (specialDuty[0].Term == 'Morning Only' | specialDuty[0].Term == 'Afternoon Only') {
+                                    return 4;
+                                } else {
+                                    return 8;
+                                }
                             }
                         } else {
-                            if (!isHalfDay) {
-                                return this.validateHours(8, hours + leaveTotalHours);
-                            } else {
-                                if (hours >= 4) {
-                                    if (leaveTotalHours > 0) {
-                                        return this.validateHours(8, hours + leaveTotalHours);
-                                    } else {
-                                        return 4;
-                                    }                                    
-                                } else {
-                                    return this.validateHours(4, hours + leaveTotalHours);
-                                }
-                            }                        
-                        }
-                    }
-                } else if (attSize == 1) {
-                    if (leaveTotalHours > 0) {
-                        return leaveTotalHours;
-                    } else {
-                        return 'xTI/xTO';
-                    }
+                            return 8;
+                        }                    
+                    }                
                 } else {
-                    if (!this.isNull(dayOffDays) && dayOffDays.includes(daySpelled) && !this.isDateInSpecialDuty(date, specialDutyDays)) {
-                        return 'off';
-                    } else {
-                        if (leaveTotalHours > 0) {
-                            return leaveTotalHours;
-                        } else {
-                            return 'awol'; // absent
+                    var attSize = attendanceData.length;
+                    
+                    var startIn = null;
+                    var endOut = null;
+                    if (attSize > 1) {
+                        startIn = attendanceData[0]['Timestamp'];
+                        endOut = attendanceData[attSize-1]['Timestamp'];
+
+                        // CHECK IF ATTENDANCE HAS NO LUNCH/BREAK IN AND OUT
+                        if (this.isBefore(startIn, (date + " " + scheduleArray['Start']))) {
+                            startIn = (date + " " + scheduleArray['Start'].split('.')[0]);
+                        }
+
+                        if (this.isAfter(endOut, (date + " " + scheduleArray['End']))) {
+                            endOut = (date + " " + scheduleArray['End'].split('.')[0]);
                         }
                         
+                        // DEDUCT HOURS IF HAS BREAK
+                        var hoursBreak = 0;
+                        if (!this.isNull(scheduleArray['BreakStart']) && !this.isNull(scheduleArray['BreakEnd'])) {
+                            hoursBreak = this.getHoursInHours(scheduleArray['BreakStart'].split('.')[0], scheduleArray['BreakEnd'].split('.')[0]);
+                        } else {
+                            hoursBreak = 0;
+                        }
+
+                        // CHECK IF ATTENDANCE IS HALF DAY ONLY, Do not reduce break if half day
+                        if (isHalfDay) {
+                            hoursBreak = 0;
+                        }
+
+                        // CHECK IF SATURDAY, DO no reduce break if saturday or sunday
+                        // if (this.isWeekend(date)) {
+                        //     hoursBreak = 0;
+                        //     isHalfDay = true;
+                        // }
+                        
+                        endOut = this.deductHours(endOut, hoursBreak);
+
+                        var hours = this.getHours(startIn, endOut);
+                        
+                        if (!this.isNull(dayOffDays) && dayOffDays.includes(daySpelled) && !this.isDateInSpecialDuty(date, specialDutyDays)) {
+                            return 'off';
+                        } else {
+                            if (hours < 0) {
+                                if (leaveTotalHours > 0 | offsetTotalHours > 0 | tripTicketTotalHours > 0) {
+                                    return this.validateHours(8, leaveTotalHours + offsetTotalHours + tripTicketTotalHours);
+                                } else {
+                                    return 'xTI/xTO';
+                                }
+                            } else {
+                                if (!isHalfDay) {
+                                    return this.validateHours(8, hours + leaveTotalHours + offsetTotalHours + tripTicketTotalHours);
+                                } else {
+                                    if (hours >= 4) {
+                                        if (leaveTotalHours > 0 | offsetTotalHours > 0 | tripTicketTotalHours > 0) {
+                                            return this.validateHours(8, hours + leaveTotalHours + offsetTotalHours + tripTicketTotalHours);
+                                        } else {
+                                            return 4;
+                                        }                                    
+                                    } else {
+                                        return this.validateHours(4, hours + leaveTotalHours + offsetTotalHours + tripTicketTotalHours);
+                                    }
+                                }                        
+                            }
+                        }
+                    } else if (attSize == 1) {
+                        if (leaveTotalHours > 0 | offsetTotalHours > 0 | tripTicketTotalHours > 0) {
+                            if (!isHalfDay) {
+                                return this.validateHours(8, leaveTotalHours + offsetTotalHours + tripTicketTotalHours);
+                            } else {
+                                return this.validateHours(4, leaveTotalHours + offsetTotalHours + tripTicketTotalHours);
+                            }
+                        } else {
+                            return 'xTI/xTO';
+                        }
+                    } else {
+                        if (!this.isNull(dayOffDays) && dayOffDays.includes(daySpelled) && !this.isDateInSpecialDuty(date, specialDutyDays)) {
+                            return 'off';
+                        } else {
+                            if (leaveTotalHours > 0 | offsetTotalHours > 0 | tripTicketTotalHours > 0) {
+                                if (!isHalfDay) {
+                                    return this.validateHours(8, leaveTotalHours + offsetTotalHours + tripTicketTotalHours);
+                                } else {
+                                    return this.validateHours(4, leaveTotalHours + offsetTotalHours + tripTicketTotalHours);
+                                }
+                            } else {
+                                return 'awol'; // absent
+                            }                            
+                        }
                     }
                 }
             }
-            
         },
         isNumber(value) {
             return typeof value === 'number';
         },        
         round(value) {
             return Math.round((value + Number.EPSILON) * 100) / 100;
+        },
+        beautifyDisplay(data, date, leaveDays, offsets, tripTickets) {
+            if (data == 'awol') {
+                return `<div><span style="width: 10px !important; height: 10px !important; background-color: #f51836; display: inline-block; border-radius: 50%;"></span><div>`;
+            } else if (data == 'off') {
+                return `<div><span style="width: 100%; height: 10px !important; background-color: #1d8fcc; display: inline-block; border-radius: 5px;"></span><div>`;
+            } else if (data == 'xTI/xTO') {
+                return `<div><span style="width: 10px !important; height: 10px !important; background-color: #debe07; display: inline-block; border-radius: 50%;"></span><div>`;
+            } else if (data == 'holiday') {
+                return `<div><span style="width: 100% !important; height: 10px !important; background-color: #f7076f; display: inline-block; border-radius: 5px;"></span><div>`;
+            } else {
+                if (this.isDateInLeave(date, leaveDays)) {
+                    return `<div><span style="width: 10px !important; height: 10px !important; background-color: #0cf2c4; display: inline-block; border-radius: 50%; margin-right: 10px;"></span>${data}<div>`;
+                } else if (this.isDateInOffset(date, offsets)) {
+                    return `<div><span style="width: 10px !important; height: 10px !important; background-color: #f2780c; display: inline-block; border-radius: 50%; margin-right: 10px;"></span>${data}<div>`;
+                } else  if (this.isDateInTripTicket(date, tripTickets)) {
+                    return `<div><span style="width: 10px !important; height: 10px !important; background-color: #e823ba; display: inline-block; border-radius: 50%; margin-right: 10px;"></span>${data}<div>`;
+                } else {
+                    // IF PRESENT
+                    return `<div><span style="width: 10px !important; height: 10px !important; background-color: #05b05d; display: inline-block; border-radius: 50%; margin-right: 10px;"></span>${data}<div>`;
+                }                
+            }
+        },
+        getOvertimes(overtimes, employeeData) {
+            var totalHours = 0;
+            var totalAmount = 0;
+            var baseSalary = employeeData['SalaryAmount'];
+            for (let i=0; i<overtimes.length; i++) {
+                totalHours += parseFloat(overtimes[i]['TotalHours']);
+
+                var multiplier = parseFloat(overtimes[i]['Multiplier']);
+                totalAmount += this.isNull(baseSalary) ? 0 : (this.getSalaryPerHour(baseSalary) * multiplier * parseFloat(overtimes[i]['TotalHours']));
+            }
+            
+            return {
+                'TotalHours' : totalHours,  
+                'TotalAmount' : totalAmount,
+            };
+        },
+        getSalaryPerHour(baseSalary) {
+            baseSalary = parseFloat(baseSalary);
+
+            return this.round(((baseSalary * 12) / 302) / 8);
+        },
+        toMoney(value) {
+            return Number(value).toLocaleString(2)
         },
         generate() {
             if (this.isNull(this.employeeType) | this.isNull(this.department) | this.isNull(this.salaryPeriod) | this.isNull(this.from) | this.isNull(this.to)) {
@@ -799,9 +949,13 @@ export default {
                     text : 'Please fill in all fields!',
                 });
             } else {
+                this.isDisplayed = null;
+                this.isButtonDisabled = true;
                 // SETUP HEADERS
                 this.dateHeaders = [];
                 this.dateSubHeaders = [];
+                this.employees = [];
+                this.attendances = [];
                 this.getInBetweenDates(this.from, this.to);
 
                 // GET EMPLOYEES DATA
@@ -815,52 +969,63 @@ export default {
                     }
                 })
                 .then(response => {
-                    this.employees = [];
-                    this.attendances = [];
-                    var size = response.data.length;
+                    var size = response.data['Employees'].length;
                     for (let i=0; i<size; i++) {
                         this.employees.push({
-                            name : response.data[i]['LastName'] + ", " + response.data[i]['FirstName'],
-                            id : response.data[i]['id']
+                            name : response.data['Employees'][i]['LastName'] + ", " + response.data['Employees'][i]['FirstName'],
+                            id : response.data['Employees'][i]['id']
                         });
 
                         // FILTER ATTENDANCE DATA
-                        var attData = response.data[i]['AttendanceData'];
+                        var attData = response.data['Employees'][i]['AttendanceData'];
                         var attendanceChunks = [];
                         var totalHoursRendered = 0.0;
                         // LOOP DATES
-                        for (var j=0; j<this.dateHeaders.length-2; j++) {
+                        for (var j=0; j<this.dateHeaders.length-4; j++) {
                             // GET DATES SUB ARRAY
                             // filters the attendance data that belongs to the current day in the loop
                             const subDatesArray = attData.filter(x => x.DateLogged==this.dateHeaders[j].name);
                             const schedule = {
-                                'Start' : response.data[i]['StartTime'],
-                                'BreakStart' : response.data[i]['BreakStart'],
-                                'BreakEnd' : response.data[i]['BreakEnd'],
-                                'End' : response.data[i]['EndTime'],
+                                'Start' : response.data['Employees'][i]['StartTime'],
+                                'BreakStart' : response.data['Employees'][i]['BreakStart'],
+                                'BreakEnd' : response.data['Employees'][i]['BreakEnd'],
+                                'End' : response.data['Employees'][i]['EndTime'],
                             };
                             // VALIDATE LOGGINS
                             var hours = this.getHoursAttended(
                                 subDatesArray, 
                                 schedule, 
-                                this.isNull(response.data[i]['NoAttendanceAllowed']) ? false : true, 
+                                this.isNull(response.data['Employees'][i]['NoAttendanceAllowed']) ? false : true, 
                                 this.dateHeaders[j].name, 
-                                response.data[i]['DayOffDates'],
-                                response.data[i]['SpecialDutyDays'],
-                                response.data[i]['LeaveDays']
+                                response.data['Employees'][i]['DayOffDates'],
+                                response.data['Employees'][i]['SpecialDutyDays'],
+                                response.data['Employees'][i]['LeaveDays'],
+                                response.data['Employees'][i]['Offsets'],
+                                response.data['Employees'][i]['TripTickets'],
+                                response.data['Holidays'],
                             );
 
-                            attendanceChunks.push(hours);
+                            attendanceChunks.push(this.beautifyDisplay(hours, 
+                                this.dateHeaders[j].name,
+                                response.data['Employees'][i]['LeaveDays'],
+                                response.data['Employees'][i]['Offsets'],
+                                response.data['Employees'][i]['TripTickets']));
 
                             if (this.isNumber(hours)) {
                                 totalHoursRendered += parseFloat(hours);
                             }
                         } 
 
-                        attendanceChunks.push(''); // UPDATE OTs
+                        var overtimesData = this.getOvertimes(response.data['Employees'][i]['Overtimes'], response.data['Employees'][i]);
                         attendanceChunks.push(this.round(totalHoursRendered));
+                        attendanceChunks.push(''); // INSERT TOTAL WORKING HOURS
+                        attendanceChunks.push(overtimesData['TotalHours'] > 0 ? overtimesData['TotalHours'] : ''); // UPDATE OT HOURS
+                        attendanceChunks.push(overtimesData['TotalAmount'] > 0 ? (`₱ ` + this.toMoney(this.round(overtimesData['TotalAmount']))) : ''); // UPDATE OT AMOUNT
 
                         this.attendances.push(attendanceChunks);
+                        
+                        this.isDisplayed = 'gone';
+                        this.isButtonDisabled = false;
                     }
                 })
                 .catch(error => {
@@ -869,6 +1034,8 @@ export default {
                         title : 'Error getting employee data!',
                     });
                     console.log(error)
+                    this.isDisplayed = 'gone';
+                    this.isButtonDisabled = false;
                 });
             }
         },
