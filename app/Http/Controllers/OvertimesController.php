@@ -246,6 +246,90 @@ class OvertimesController extends AppBaseController
             )
             ->first();
 
+        $signatories = DB::table('OvertimeSignatories')
+            ->leftJoin('users', 'OvertimeSignatories.EmployeeId', '=', 'users.id')
+            ->select(
+                'OvertimeSignatories.*',
+                'users.name'
+            )
+            ->where('OvertimeId', $request['id'])
+            ->orderBy('Rank')
+            ->get();
+
+        $overtime->Logs = $signatories;
+
         return response()->json($overtime);
+    }
+
+    public function approve(Request $request) {
+        $id = $request['id'];
+
+        $overtime = Overtimes::find($id);
+
+        if ($overtime != null) {
+            // GET CURRENT APPROVER
+            $currentSignatoryApprover = OvertimeSignatories::where('OvertimeId', $id)
+                ->where('EmployeeId', Auth::id())
+                ->first();
+
+            if ($currentSignatoryApprover != null) {
+                $currentSignatoryApprover->Status='APPROVED';
+                $currentSignatoryApprover->save();
+
+                // FIND NEXT SIGNATORY
+                $nextSignatory = DB::table('OvertimeSignatories')
+                    ->whereRaw("OvertimeId='" . $id . "' AND (Status IS NULL OR Status NOT IN('REMOVED')) AND Rank > " . $currentSignatoryApprover->Rank)
+                    ->orderBy('Rank')
+                    ->first();
+                
+                
+                // CHECK IF ALL SIGNATORIES ARE COMPLETED
+                if ($nextSignatory == null) {
+                    // UPDATE STATUS IF COMPLETED
+                    $overtime->Status='APPROVED';
+                    $overtime->save();
+                }
+            }
+        }
+
+        return response()->json($overtime, 200);
+    }
+
+    public function reject(Request $request) {
+        $id = $request['id'];
+        $notes = $request['Notes'];
+
+        $overtime = Overtimes::find($id);
+
+        if ($overtime != null) {
+            // GET CURRENT APPROVER
+            $currentSignatoryApprover = OvertimeSignatories::where('OvertimeId', $id)
+                ->where('EmployeeId', Auth::id())
+                ->first();
+
+            if ($currentSignatoryApprover != null) {
+                $currentSignatoryApprover->Status = 'REJECTED';
+                $currentSignatoryApprover->Notes = $notes;
+                $currentSignatoryApprover->save();
+
+                // FIND NEXT SIGNATORY
+                $nextSignatory = DB::table('OvertimeSignatories')
+                    ->whereRaw("OvertimeId='" . $id . "' AND (Status IS NULL OR Status NOT IN('REMOVED')) AND Rank > " . $currentSignatoryApprover->Rank)
+                    ->orderBy('Rank')
+                    ->get();
+                
+                foreach ($nextSignatory as $item) {
+                    OvertimeSignatories::where('id', $item->id)
+                        ->update(['Status' => 'REJECTED']);
+                }
+                
+                // UPDATE REJECTED
+                $overtime->Status = 'REJECTED';
+                $overtime->Notes = $notes;
+                $overtime->save();
+            }
+        }
+
+        return response()->json($overtime, 200);
     }
 }

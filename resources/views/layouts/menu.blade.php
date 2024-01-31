@@ -172,8 +172,8 @@
         </li>
         
         <li class="nav-item">
-            <a href="{{ route('payrollIndices.choose-payroll-type') }}"
-               class="nav-link {{ Request::is('payrollIndices.choose-payroll-type*') ? 'active' : '' }}">
+            <a href="{{ route('payrollIndices.payroll') }}"
+               class="nav-link {{ Request::is('payrollIndices.payroll*') ? 'active' : '' }}">
                <i class="fas fa-wallet nav-icon"></i>
                 <p>Generate Payroll</p>
             </a>

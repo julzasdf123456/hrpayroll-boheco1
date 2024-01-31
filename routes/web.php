@@ -13,6 +13,7 @@ use App\Http\Controllers\TripTicketGRSController;
 use App\Http\Controllers\OffsetApplicationsController;
 use App\Http\Controllers\AttendaneConfirmationsController;
 use App\Http\Controllers\OvertimesController;
+use App\Http\Controllers\PayrollIndexController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -59,6 +60,7 @@ Route::post('/employees/create-image', [EmployeesController::class, 'createImage
 Route::get('/employees/get-image/{id}', [EmployeesController::class, 'getImage'])->name('employees.get-image');
 Route::get('/employees/get-employee-ajax', [EmployeesController::class, 'getEmployeeAjax'])->name('employees.get-employee-ajax');
 Route::get('/employees/get-attendance-data-ajax', [EmployeesController::class, 'getAttendanceDataAjax'])->name('employees.get-attendance-data-ajax');
+Route::get('/employees/allow-no-attendance', [EmployeesController::class, 'allowNoAttendance'])->name('employees.allow-no-attendance');
 Route::resource('employees', EmployeesController::class);
 
 Route::resource('permissions', App\Http\Controllers\PermissionController::class);
@@ -124,12 +126,14 @@ Route::resource('leaveAttendanceDates', App\Http\Controllers\LeaveAttendanceDate
 
 Route::resource('employeeImages', App\Http\Controllers\EmployeeImagesController::class);
 
-Route::get('/payroll_indices/choose-payroll-type', [App\Http\Controllers\PayrollIndexController::class, 'choosePayrollType'])->name('payrollIndices.choose-payroll-type');
-Route::post('/payroll_indices/validate-payroll-select-type', [App\Http\Controllers\PayrollIndexController::class, 'validatePayrollSelectType'])->name('payrollIndices.validate-payroll-select-type');
-Route::get('/payroll_indices/process-payroll/{payrollIndexId}', [App\Http\Controllers\PayrollIndexController::class, 'processPayroll'])->name('payrollIndices.process-payroll');
-Route::get('/payroll_indices/generate-payroll/{id}', [App\Http\Controllers\PayrollIndexController::class, 'generatePayroll'])->name('payrollIndices.generate-payroll');
-Route::get('/payroll_indices/payslip/{id}', [App\Http\Controllers\PayrollIndexController::class, 'payslip'])->name('payrollIndices.payslip');
-Route::resource('payrollIndices', App\Http\Controllers\PayrollIndexController::class);
+Route::get('/payroll_indices/choose-payroll-type', [PayrollIndexController::class, 'choosePayrollType'])->name('payrollIndices.choose-payroll-type');
+Route::post('/payroll_indices/validate-payroll-select-type', [PayrollIndexController::class, 'validatePayrollSelectType'])->name('payrollIndices.validate-payroll-select-type');
+Route::get('/payroll_indices/process-payroll/{payrollIndexId}', [PayrollIndexController::class, 'processPayroll'])->name('payrollIndices.process-payroll');
+Route::get('/payroll_indices/generate-payroll/{id}', [PayrollIndexController::class, 'generatePayroll'])->name('payrollIndices.generate-payroll');
+Route::get('/payroll_indices/payslip/{id}', [PayrollIndexController::class, 'payslip'])->name('payrollIndices.payslip');
+Route::get('/payroll_indices/payroll', [PayrollIndexController::class, 'payroll'])->name('payrollIndices.payroll');
+Route::get('/payroll_indices/get-payroll-data', [PayrollIndexController::class, 'getPayrollData'])->name('payrollIndices.get-payroll-data');
+Route::resource('payrollIndices', PayrollIndexController::class);
 
 
 Route::resource('payrollDetails', App\Http\Controllers\PayrollDetailsController::class);
@@ -138,6 +142,8 @@ Route::resource('payrollDetails', App\Http\Controllers\PayrollDetailsController:
 Route::get('/overtimes/get-overtime-ajax', [OvertimesController::class, 'getOvertimeAjax'])->name('overtimes.get-overtime-ajax');
 Route::get('/overtimes/my-approvals', [OvertimesController::class, 'myApprovals'])->name('overtimes.my-approvals');
 Route::get('/overtimes/save', [OvertimesController::class, 'save'])->name('overtimes.save');
+Route::get('/overtimes/approve', [OvertimesController::class, 'approve'])->name('overtimes.approve');
+Route::get('/overtimes/reject', [OvertimesController::class, 'reject'])->name('overtimes.reject');
 Route::resource('overtimes', OvertimesController::class);
 
 Route::get('/positions/update-super', [App\Http\Controllers\PositionsController::class, 'updateSuper'])->name('positions.update-super');

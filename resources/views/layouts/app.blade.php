@@ -80,6 +80,14 @@
             background-color: #3c4447;
         }
 
+        .bl-light {
+            border-left: 1px solid #e9e9e9;
+        }
+
+        .bl-dark {
+            border-left: 1px solid #494c50;
+        }
+
         .divider {
             width: 100%;
             height: 1px;

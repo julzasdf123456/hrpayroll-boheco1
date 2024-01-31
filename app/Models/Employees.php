@@ -78,7 +78,8 @@ class Employees extends Model
         'Designation',
         'BiometricsUserId',
         'PayrollScheduleId',
-        'AuthorizedToDrive'
+        'AuthorizedToDrive',
+        'NoAttendanceAllowed'
     ];
 
     /**
@@ -112,6 +113,7 @@ class Employees extends Model
         'BiometricsUserId' => 'string',
         'PayrollScheduleId' => 'string',
         'AuthorizedToDrive' => 'string',
+        'NoAttendanceAllowed' => 'string',
     ];
 
     /**
@@ -146,6 +148,7 @@ class Employees extends Model
         'BiometricsUserId' => 'nullable|string',
         'PayrollScheduleId' => 'nullable|string',
         'AuthorizedToDrive' => 'nullable|string',
+        'NoAttendanceAllowed' => 'nullable|string',
     ];
 
     public static function getMergeName($employee) {
@@ -188,7 +191,7 @@ class Employees extends Model
         }
     }
 
-    public static function getSupers($employeeId, $levelArrayFilter) {
+    public static function getSupers($employeeId, $levelArrayFilter /** FILTERS THE LEVELS YOU WANT TO FETCH */) {
         $employee = DB::table('Employees')
             ->leftJoin('EmployeesDesignations', 'EmployeesDesignations.EmployeeId', '=', 'Employees.id')
             ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')

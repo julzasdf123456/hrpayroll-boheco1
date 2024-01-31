@@ -15,10 +15,13 @@
         "@vitejs/plugin-vue": "^4.3.4",
         "bootstrap": "^5.3.1",
         "daterangepicker": "^3.1.0",
+        "flatpickr": "^4.6.13",
         "jquery": "^3.7.1",
         "laravel-vue-pagination": "^4.1.1",
         "moment": "^2.29.4",
         "openai": "^4.0.0",
-        "vue": "^3.2.36"
+        "sweetalert2": "^11.10.4",
+        "vue": "^3.2.36",
+        "vue-flatpickr-component": "^11.0.3"
     }
 }

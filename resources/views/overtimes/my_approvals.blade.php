@@ -74,15 +74,34 @@
 
         function approve(id) {
             Swal.fire({
-                title: 'Approval Confirmation',
-                text : 'Approve this offset application?',
+                title: 'Confirm Approval',
+                text : 'Approve this overtime application?',
                 showDenyButton: true,
                 confirmButtonText: 'Approve',
-                denyButtonText: `Close`,
+                denyButtonText: `Cancel`,
                 }).then((result) => {
                 /* Read more about isConfirmed, isDenied below */
                 if (result.isConfirmed) {
-                    
+                    $.ajax({
+                        url : "{{ route('overtimes.approve') }}",
+                        type : "GET",
+                        data : {
+                            id : id,
+                        },
+                        success : function(res) {
+                            Toast.fire({
+                                icon : 'success',
+                                text : 'Overtime approved!'
+                            })
+                            $('#' + id).remove()
+                        },
+                        error : function(err) {
+                            Swal.fire({
+                                icon : 'error',
+                                text : 'Error approving overtime!'
+                            })
+                        }
+                    })
                 } 
             })
         }
@@ -96,13 +115,33 @@
                     inputAttributes: {
                         'aria-label': 'Type your remarks here'
                     },
-                    title: 'Reject This Offset?',
-                    text : 'Before you reject this offset, please provide a remark or comment so the employee can assess the situation further.',
+                    title: 'Reject This Overtime?',
+                    text : 'Before you reject this overtime, please provide a remark or comment so the employee can assess the situation further.',
                     showCancelButton: true
                 })
 
                 if (text) {
-                    // do event here
+                    $.ajax({
+                        url : "{{ route('overtimes.reject') }}",
+                        type : "GET",
+                        data : {
+                            id : id,
+                            Notes : text,
+                        },
+                        success : function(res) {
+                            Toast.fire({
+                                icon : 'info',
+                                text : 'Overtime rejected!'
+                            })
+                            $('#' + id).remove()
+                        },
+                        error : function(err) {
+                            Swal.fire({
+                                icon : 'error',
+                                text : 'Error rejecting overtime!'
+                            })
+                        }
+                    })
                 }
             })()
         }
@@ -117,18 +156,34 @@
                     id : id,
                 },
                 success : function(res) {
-                    console.log(res)
                     $('#ot-employee').text(serializeEmployeeName(res['FirstName'], res['LastName'], res['MiddleName'], res['Suffix']))
                     $('#ot-purpose').text(res['PurposeOfOT'])
                     $('#ot-leave-type').text(res['TypeOfDay'])
-                    $('#ot-start-date').text(moment(res['DateOfOT']).format('MMM DD, YYY'))
-                    $('#ot-start-time').text(res['From'].split('.')[0])
-                    $('#ot-end-date').text(moment(res['DateOTEnded']).format('MMM DD, YYY'))
-                    $('#ot-end-time').text(res['To'].split('.')[0])
+                    $('#ot-start-date').text(isNull(res['DateOfOT']) ? '-' : moment(res['DateOfOT']).format('MMM DD, YYYY'))
+                    $('#ot-start-time').text(isNull(res['From']) ? '-' : res['From'].split('.')[0])
+                    $('#ot-end-date').text(isNull(res['DateOTEnded']) ? '-' : moment(res['DateOTEnded']).format('MMM DD, YYYY'))
+                    $('#ot-end-time').text(isNull(res['To']) ? '-' : res['To'].split('.')[0])
                     $('#ot-max-hours').text(res['MaxHourThreshold'])
                     $('#ot-total-hours').text(res['TotalHours'])
                     $('#ot-prepared-by').text(res['name'])
-                    $('#ot-date-prepared').text(moment(res['created_at']).format('MMM DD, YYY hh:mm A'))
+                    $('#ot-date-prepared').text(moment(res['created_at']).format('MMM DD, YYYY hh:mm A'))
+                    $('#ot-notes').text(res['Notes'])
+
+                    $('#ot-status').removeClass('bg-warning').removeClass('bg-success')
+                    if (res['Status'] === null | isNull(res['Status'])) {
+                        $('#ot-status').addClass('bg-warning')
+                        $('#ot-status').text('PENDING APPROVAL')
+                    } else {
+                        $('#ot-status').addClass('bg-success')
+                        $('#ot-status').text(res['Status'])
+                    }
+
+                    // SIGNATORY LOGS
+                    var signatoryLogs = res['Logs']
+                    $('.ot-log').remove()
+                    if (!isNull(signatoryLogs)) {
+                        $('#ot-logs').html(addLogsRow(signatoryLogs)) // FOUND IN overtimes.modal_view_full
+                    }
                 },
                 error : function(err) {
                     Toast.fire({
