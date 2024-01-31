@@ -79,7 +79,8 @@ class Employees extends Model
         'BiometricsUserId',
         'PayrollScheduleId',
         'AuthorizedToDrive',
-        'NoAttendanceAllowed'
+        'NoAttendanceAllowed',
+        'DayOffDates',
     ];
 
     /**
@@ -114,6 +115,7 @@ class Employees extends Model
         'PayrollScheduleId' => 'string',
         'AuthorizedToDrive' => 'string',
         'NoAttendanceAllowed' => 'string',
+        'DayOffDates' => 'string',
     ];
 
     /**
@@ -149,6 +151,7 @@ class Employees extends Model
         'PayrollScheduleId' => 'nullable|string',
         'AuthorizedToDrive' => 'nullable|string',
         'NoAttendanceAllowed' => 'nullable|string',
+        'DayOffDates' => 'nullable|string',
     ];
 
     public static function getMergeName($employee) {

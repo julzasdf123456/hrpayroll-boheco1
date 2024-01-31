@@ -569,7 +569,9 @@ class PayrollIndexController extends AppBaseController
                     'Employees.BiometricsUserId',
                     'Employees.PayrollScheduleId',
                     'Employees.NoAttendanceAllowed',
+                    'Employees.DayOffDates',
                     'Positions.BasicSalary AS SalaryAmount',
+                    'Positions.Level',
                     'EmployeesDesignations.Status',
                     'PayrollSchedules.StartTime',
                     'PayrollSchedules.BreakStart',
@@ -583,7 +585,13 @@ class PayrollIndexController extends AppBaseController
 
         $defaultSched = PayrollSchedules::where('Name', 'Default')->orderByDesc('created_at')->first();
 
+        $specialDutyDays = DB::table('SpecialDutyDays')
+            ->whereRaw("Date BETWEEN '" . $from . "' AND '" . $to . "'")
+            ->select('Date', 'Term')
+            ->get();
+
         foreach($employees as $item) {
+            // ADD ATTENDANCE
             $item->AttendanceData = DB::table('AttendanceData')
                 ->whereRaw("BiometricUserId='" . $item->BiometricsUserId . "' AND (TRY_CAST(Timestamp AS DATE) BETWEEN '" . $from . "' AND '" . $to . "') AND AbsentPermission IS NULL")
                 ->select(
@@ -593,8 +601,47 @@ class PayrollIndexController extends AppBaseController
                     'AbsentPermission')
                 ->orderBy('Timestamp')
                 ->get();
+
+            // ADD SPECIAL DUTY DAYS
+            $item->SpecialDutyDays = $specialDutyDays;
+
+            // LEAVE DAYS
+            $item->LeaveDays = DB::table('LeaveDays')
+                ->leftJoin('LeaveApplications', 'LeaveDays.LeaveId', '=', 'LeaveApplications.id')
+                ->whereRaw("LeaveApplications.EmployeeId='" . $item->id . "' AND LeaveApplications.Status='APPROVED' AND 
+                    (LeaveDays.LeaveDate BETWEEN '" . $from . "' AND '" . $to . "')")
+                ->select(
+                    'LeaveDays.LeaveDate',
+                    'LeaveDays.Duration'
+                )
+                ->groupBy('LeaveDays.LeaveDate', 'LeaveDays.Duration')
+                ->orderBy('LeaveDays.LeaveDate')
+                ->get();
         }
 
         return response()->json($employees, 200);
+    }
+
+    public function getPayrollDateInformation(Request $request) {
+        $employeeId = $request['EmployeeId'];
+        $date = $request['Date'];
+
+        $employee = Employees::find($employeeId);
+        if ($employee != null) {
+            // GET ATTENDANCE DATA
+            $employee->AttendanceData = DB::table('AttendanceData')
+                ->whereRaw("BiometricUserId='" . $employee->BiometricsUserId . "' AND (TRY_CAST(Timestamp AS DATE))='" . $date . "' AND AbsentPermission IS NULL")
+                ->select(
+                    DB::raw("TRY_CAST(Timestamp AS DATE) AS DateLogged"), 
+                    'Timestamp', 
+                    'Type', 
+                    'AbsentPermission')
+                ->orderBy('Timestamp')
+                ->get();
+
+            return response()->json($employee, 200);
+        } else {
+            return response()->json('Employee not found', 404);
+        }
     }
 }

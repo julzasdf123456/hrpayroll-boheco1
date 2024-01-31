@@ -14,6 +14,7 @@ use App\Http\Controllers\OffsetApplicationsController;
 use App\Http\Controllers\AttendaneConfirmationsController;
 use App\Http\Controllers\OvertimesController;
 use App\Http\Controllers\PayrollIndexController;
+use App\Http\Controllers\EmployeePayrollSchedulesController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -133,6 +134,7 @@ Route::get('/payroll_indices/generate-payroll/{id}', [PayrollIndexController::cl
 Route::get('/payroll_indices/payslip/{id}', [PayrollIndexController::class, 'payslip'])->name('payrollIndices.payslip');
 Route::get('/payroll_indices/payroll', [PayrollIndexController::class, 'payroll'])->name('payrollIndices.payroll');
 Route::get('/payroll_indices/get-payroll-data', [PayrollIndexController::class, 'getPayrollData'])->name('payrollIndices.get-payroll-data');
+Route::get('/payroll_indices/get-payroll-date-information', [PayrollIndexController::class, 'getPayrollDateInformation'])->name('payrollIndices.get-payroll-date-information');
 Route::resource('payrollIndices', PayrollIndexController::class);
 
 
@@ -161,8 +163,9 @@ Route::get('/attendance_datas/fetch-by-employee-and-date', [App\Http\Controllers
 Route::resource('attendanceDatas', App\Http\Controllers\AttendanceDataController::class);
 
 
-Route::get('/employee_payroll_schedules/create-schedule', [App\Http\Controllers\EmployeePayrollSchedulesController::class, 'createSchedule'])->name('employeePayrollSchedules.create-schedule');
-Route::resource('employeePayrollSchedules', App\Http\Controllers\EmployeePayrollSchedulesController::class);
+Route::get('/employee_payroll_schedules/create-schedule', [EmployeePayrollSchedulesController::class, 'createSchedule'])->name('employeePayrollSchedules.create-schedule');
+Route::get('/employee_payroll_schedules/update-dayoff', [EmployeePayrollSchedulesController::class, 'updateDayOff'])->name('employeePayrollSchedules.update-dayoff');
+Route::resource('employeePayrollSchedules', EmployeePayrollSchedulesController::class);
 
 
 Route::resource('payrollSchedules', App\Http\Controllers\PayrollSchedulesController::class);
@@ -222,3 +225,5 @@ Route::resource('attendanceConfirmations', AttendaneConfirmationsController::cla
 Route::resource('attendanceConfirmationSignatories', App\Http\Controllers\AttendaneConfirmationSignatoriesController::class);
 
 Route::resource('overtimeSignatories', App\Http\Controllers\OvertimeSignatoriesController::class);
+Route::resource('dayOffSchedules', App\Http\Controllers\DayOffSchedulesController::class);
+Route::resource('specialDutyDays', App\Http\Controllers\SpecialDutyDaysController::class);
