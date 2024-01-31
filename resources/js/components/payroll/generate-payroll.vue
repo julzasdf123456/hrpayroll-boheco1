@@ -67,7 +67,7 @@
             <tbody>
                 <tr v-for="(employee, index) in employees" :key="employee.id">
                     <td>{{ employee.name }}</td>
-                    <td v-for="attendance in attendances[index]">{{ attendance }}</td> 
+                    <td v-for="(attendance, colIndex) in attendances[index]" @click="showInfo(dateHeaders[colIndex].name, employee.id, employee.name)">{{ attendance }}</td> 
                 </tr>
             </tbody>
         </table>
@@ -628,9 +628,75 @@ export default {
         deductHours(timeToDeduct, hours) {
             return moment(timeToDeduct).subtract(hours, 'hours').format('YYYY-MM-DD HH:mm:ss');
         },
-        getHoursAttended(attendanceData, scheduleArray, noAttendanceAllowed, date) {
+        isDateInSpecialDuty(date, specialDutyDays) {
+            return specialDutyDays.some(obj => obj.Date === date);
+        },
+        getSpecialDuty(date, specialDutyDays) {
+            return specialDutyDays.filter(obj => obj.Date === date);
+        },
+        isDateInLeave(date, leaveDays) {
+            return leaveDays.some(obj => obj.LeaveDate === date);
+        },
+        getLeaveDate(date, leaveDays) {
+            return leaveDays.filter(obj => obj.LeaveDate === date);
+        },
+        validateHours(maxHours, hoursTotal) {
+            if (maxHours >= hoursTotal) {
+                return hoursTotal;
+            } else {
+                return maxHours;
+            }
+        },
+        getHoursAttended(attendanceData, scheduleArray, noAttendanceAllowed, date, dayOffDays, specialDutyDays, leaveDays) {
+            var daySpelled = moment(date).format('dddd');
+            var leaveTotalHours = 0;
+
+            /**
+             * ===========================================================
+             * CHECK IF LEAVE
+             * ===========================================================
+             */
+            if (this.isDateInLeave(date, leaveDays)) {
+                var leaveDay = this.getLeaveDate(date, leaveDays);
+                if (this.isNull(leaveDay)) {
+                    leaveTotalHours = 0;
+                } else {
+                    if (leaveDay[0].Duration == 'WHOLE') {
+                        leaveTotalHours = 8;
+                    } else {
+                        leaveTotalHours = 4;
+                    }
+                }
+            } else {
+                leaveTotalHours = 0;
+            }
+
+            /**
+             * ===========================================================
+             * START ATTENDANCE CHECKING
+             * ===========================================================
+             */
             if (noAttendanceAllowed) {
-                return 8;
+                if (!this.isNull(dayOffDays) && dayOffDays.includes(daySpelled) && !this.isDateInSpecialDuty(date, specialDutyDays)) {
+                    return 'off';
+                } else {
+                    if (this.isDateInSpecialDuty(date, specialDutyDays) ) {
+                        // CHECK IF SPECIAL DUTY DAY IS WHOLE DAY OR HALF DAY
+                        var specialDuty = this.getSpecialDuty(date, specialDutyDays);
+
+                        if (this.isNull(specialDuty)) {
+                            return 8;
+                        } else {
+                            if (specialDuty[0].Term == 'Morning Only' | specialDuty[0].Term == 'Afternoon Only') {
+                                return 4;
+                            } else {
+                                return 8;
+                            }
+                        }
+                    } else {
+                        return 8;
+                    }                    
+                }                
             } else {
                 var attSize = attendanceData.length;
                 
@@ -662,7 +728,7 @@ export default {
                     if (this.isHalfDay(attendanceData, scheduleArray, date)) {
                         hoursBreak = 0;
                         isHalfDay = true;
-                    } 
+                    }
 
                     // CHECK IF SATURDAY, DO no reduce break if saturday or sunday
                     // if (this.isWeekend(date)) {
@@ -674,32 +740,51 @@ export default {
 
                     var hours = this.getHours(startIn, endOut);
                     
-                    // if (hours >= 8) {
-                    //     return hours;
-                    // } else {
-                    //     // CHECK IF UNDERTIMED OR HALF DAY
-                    //     return this.assessAttendanceHours(attendanceData, scheduleArray, date);
-                    // }
-                    if (hours < 0) {
-                        return 0;
+                    if (!this.isNull(dayOffDays) && dayOffDays.includes(daySpelled) && !this.isDateInSpecialDuty(date, specialDutyDays)) {
+                        return 'off';
                     } else {
-                        if (!isHalfDay) {
-                            return hours;
-                        } else {
-                            if (hours >= 4) {
-                                return 4;
+                        if (hours < 0) {
+                            if (leaveTotalHours > 0) {
+                                return leaveTotalHours;
                             } else {
-                                return hours;
+                                return 'xTI/xTO';
                             }
-                        }                        
+                        } else {
+                            if (!isHalfDay) {
+                                return this.validateHours(8, hours + leaveTotalHours);
+                            } else {
+                                if (hours >= 4) {
+                                    if (leaveTotalHours > 0) {
+                                        return this.validateHours(8, hours + leaveTotalHours);
+                                    } else {
+                                        return 4;
+                                    }                                    
+                                } else {
+                                    return this.validateHours(4, hours + leaveTotalHours);
+                                }
+                            }                        
+                        }
                     }
-                    
                 } else if (attSize == 1) {
-                    return 'xTI/xTO';
+                    if (leaveTotalHours > 0) {
+                        return leaveTotalHours;
+                    } else {
+                        return 'xTI/xTO';
+                    }
                 } else {
-                    return ''; // absent
+                    if (!this.isNull(dayOffDays) && dayOffDays.includes(daySpelled) && !this.isDateInSpecialDuty(date, specialDutyDays)) {
+                        return 'off';
+                    } else {
+                        if (leaveTotalHours > 0) {
+                            return leaveTotalHours;
+                        } else {
+                            return 'awol'; // absent
+                        }
+                        
+                    }
                 }
             }
+            
         },
         isNumber(value) {
             return typeof value === 'number';
@@ -755,7 +840,15 @@ export default {
                                 'End' : response.data[i]['EndTime'],
                             };
                             // VALIDATE LOGGINS
-                            var hours = this.getHoursAttended(subDatesArray, schedule, this.isNull(response.data[i]['NoAttendanceAllowed']) ? false : true, this.dateHeaders[j].name);
+                            var hours = this.getHoursAttended(
+                                subDatesArray, 
+                                schedule, 
+                                this.isNull(response.data[i]['NoAttendanceAllowed']) ? false : true, 
+                                this.dateHeaders[j].name, 
+                                response.data[i]['DayOffDates'],
+                                response.data[i]['SpecialDutyDays'],
+                                response.data[i]['LeaveDays']
+                            );
 
                             attendanceChunks.push(hours);
 
@@ -778,6 +871,46 @@ export default {
                     console.log(error)
                 });
             }
+        },
+        showInfo(date, employeeId, employeeName) {
+            axios.get(`${ axios.defaults.baseURL }/payroll_indices/get-payroll-date-information`, {
+                params: {
+                    EmployeeId : employeeId,
+                    Date : date
+                }
+            })
+            .then(response => {
+                var attendanceTable = `<table class='table table-sm table-hover table-bordered'>
+                                            <thead>
+                                                <th>Timestamp</th>
+                                                <th>Type</th>
+                                            </thead>
+                                            <tbody>`;
+                var attendanceData = response.data.AttendanceData;
+                for (let i=0; i<attendanceData.length; i++) {
+                    attendanceTable += `<tr>
+                                            <td>` + moment(attendanceData[i]['Timestamp']).format('MMMM DD, YYYY hh:mm A') + `</td>
+                                            <td>` + attendanceData[i]['Type'] + `</td>
+                                        </tr>`;
+                }
+                attendanceTable += `</tbody></table>`;
+
+                Swal.fire({
+                    title: employeeName,
+                    html: moment(date).format('MMMM DD, YYYY') + ' Attendance Data' + 
+                        `<br>` +
+                        attendanceTable,
+                    showCloseButton: true,
+                });
+            })
+            .catch(error => {
+                Swal.fire({
+                    icon : 'error',
+                    title : 'Error getting employee data!',
+                });
+                console.log(error)
+            });
+            
         },
     },
     created() {

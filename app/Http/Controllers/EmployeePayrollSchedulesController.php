@@ -11,6 +11,7 @@ use App\Models\PayrollSchedules;
 use App\Models\IDGenerator;
 use App\Models\Employees;
 use App\Models\EmployeePayrollSchedules;
+use App\Models\DayOffSchedules;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Flash;
@@ -44,6 +45,7 @@ class EmployeePayrollSchedulesController extends AppBaseController
             ->get();
 
         $schedules = PayrollSchedules::orderBy('Name')->get();
+        $dayOffs = DayOffSchedules::orderBy('Days')->get();
 
         if ($department != null) {
             $employees = DB::table('Employees')
@@ -66,6 +68,7 @@ class EmployeePayrollSchedulesController extends AppBaseController
             'departments' => $departments,
             'employees' => $employees,
             'schedules' => $schedules,
+            'dayOffs' => $dayOffs,
         ]);
     }
 
@@ -204,5 +207,18 @@ class EmployeePayrollSchedulesController extends AppBaseController
             ->update(['PayrollScheduleId' => $scheduleId]);
 
         return response()->json($sched, 200);
+    }
+
+    public function updateDayOff(Request $request) {
+        $id = $request['id'];
+        $dayOff = $request['DayOff'];
+
+        $employee = Employees::find($id);
+        if ($employee != null) {
+            $employee->DayOffDates = $dayOff;
+            $employee->save();
+        }
+
+        return response()->json($employee, 200);
     }
 }

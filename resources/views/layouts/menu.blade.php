@@ -240,7 +240,18 @@
                 <p>Payroll Schedules</p>
             </a>
         </li>    
-        
+        <li class="nav-item">
+            <a href="{{ route('dayOffSchedules.index') }}" class="nav-link {{ Request::is('dayOffSchedules*') ? 'active' : '' }}">
+                <i class="nav-icon fas fa-calendar-times"></i>
+                <p>Day Off Schedules</p>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="{{ route('specialDutyDays.index') }}" class="nav-link {{ Request::is('specialDutyDays*') ? 'active' : '' }}">
+                <i class="nav-icon fas fa-calendar-day"></i>
+                <p>Special Duty Days</p>
+            </a>
+        </li>
         <li class="nav-item">
             <a href="{{ route('vehicles.index') }}" class="nav-link {{ Request::is('vehicles*') ? 'active' : '' }}">
                 <i class="nav-icon fas fa-car"></i>
@@ -307,4 +318,8 @@
     </ul>
 </li>
 @endcanany
+
+
+
+
 

@@ -46,6 +46,7 @@
                         <th>Department</th>
                         <th>Designation</th>
                         <th>Schedule</th>
+                        <th>Day Offs</th>
                     </thead>
                     <tbody>
                         @foreach ($employees as $item)
@@ -58,6 +59,14 @@
                                         <option value="">-</option>
                                         @foreach ($schedules as $itemx)
                                             <option value="{{ $itemx->id }}" {{ $item->PayrollScheduleId == $itemx->id ? 'selected' : '' }}>{{ $itemx->Name }}</option>
+                                        @endforeach
+                                    </select>
+                                </td>
+                                <td>
+                                    <select id="off-{{ $item->id }}" class="form-control form-control-sm" onchange="updateDayOff('{{ $item->id }}')">
+                                        <option value="">-</option>
+                                        @foreach ($dayOffs as $itemy)
+                                            <option value="{{ $itemy->Days }}" {{ $item->DayOffDates == $itemy->Days ? 'selected' : '' }}>{{ $itemy->Days }}</option>
                                         @endforeach
                                     </select>
                                 </td>
@@ -98,6 +107,33 @@
                         Toast.fire({
                             icon : 'error',
                             text : 'Error setting schedule!'
+                        })
+                    }
+                })
+            }            
+        }
+
+        function updateDayOff(id) {
+            var dayoff = $('#off-' + id).val()
+
+            if (!jQuery.isEmptyObject(dayoff)) {
+                $.ajax({
+                    url : "{{ route('employeePayrollSchedules.update-dayoff') }}",
+                    type : "GET",
+                    data : {
+                        id : id,
+                        DayOff : dayoff,
+                    },
+                    success : function(res) {
+                        Toast.fire({
+                            icon : 'success',
+                            text : 'Dayoff updated!'
+                        })
+                    },
+                    error : function(err) {
+                        Toast.fire({
+                            icon : 'error',
+                            text : 'Error setting dayoff!'
                         })
                     }
                 })
