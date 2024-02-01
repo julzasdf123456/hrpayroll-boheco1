@@ -108,7 +108,7 @@ export default {
     data() {
         return {
             fifteenth : moment().format('YYYY-MM-15'),
-            thirtieth : moment().format('YYYY-MM-30'),
+            thirtieth : moment().month()==1 ? moment().format('YYYY-MM-28') : moment().format('YYYY-MM-30'),
             moment : moment,
             selectedDate: null,
             pickerOptions: {
@@ -164,6 +164,12 @@ export default {
                 label : 'Total Working Hours'
             }); 
 
+            // ADD TOTAL HOURS ABSENT LATE
+            this.dateHeaders.push({
+                name : 'Total Abs/Late Hours',
+                label : 'Total Abs/Late Hours'
+            });
+
             // ADD OT HOURS COlUMN
             this.dateHeaders.push({
                 name : 'Overtime Hours',
@@ -174,6 +180,18 @@ export default {
             this.dateHeaders.push({
                 name : 'Overtime Amount',
                 label : 'Overtime Amount'
+            });
+
+            // BASIC SALARY
+            this.dateHeaders.push({
+                name : 'Monthly Wage',
+                label : 'Monthly Wage'
+            });
+
+            // REGULAR WAGE
+            this.dateHeaders.push({
+                name : 'Term Wage',
+                label : 'Term Wage'
             });
         },
         isIn(timeToCheck, scheduleMedianTimestamp) {
@@ -863,15 +881,20 @@ export default {
                             }
                         }
                     } else if (attSize == 1) {
-                        if (leaveTotalHours > 0 | offsetTotalHours > 0 | tripTicketTotalHours > 0) {
-                            if (!isHalfDay) {
-                                return this.validateHours(8, leaveTotalHours + offsetTotalHours + tripTicketTotalHours);
-                            } else {
-                                return this.validateHours(4, leaveTotalHours + offsetTotalHours + tripTicketTotalHours);
-                            }
+                        if (!this.isNull(dayOffDays) && dayOffDays.includes(daySpelled) && !this.isDateInSpecialDuty(date, specialDutyDays)) {
+                            return 'off';
                         } else {
-                            return 'xTI/xTO';
+                            if (leaveTotalHours > 0 | offsetTotalHours > 0 | tripTicketTotalHours > 0) {
+                                if (!isHalfDay) {
+                                    return this.validateHours(8, leaveTotalHours + offsetTotalHours + tripTicketTotalHours);
+                                } else {
+                                    return this.validateHours(4, leaveTotalHours + offsetTotalHours + tripTicketTotalHours);
+                                }
+                            } else {
+                                return 'xTI/xTO';
+                            }
                         }
+                        
                     } else {
                         if (!this.isNull(dayOffDays) && dayOffDays.includes(daySpelled) && !this.isDateInSpecialDuty(date, specialDutyDays)) {
                             return 'off';
@@ -942,6 +965,35 @@ export default {
         toMoney(value) {
             return Number(value).toLocaleString(2)
         },
+        getTotalWorkingHours(date, dayOffDays, specialDutyDays, holidays) {
+            var workingHours = 0;
+            var daySpelled = moment(date).format('dddd');
+
+            if (this.isDateInHoliday(date, holidays)) {
+                workingHours = 0;
+            } else {
+                if (!this.isNull(dayOffDays) && dayOffDays.includes(daySpelled) && !this.isDateInSpecialDuty(date, specialDutyDays)) {
+                    workingHours = 0;
+                } else {
+                    if (this.isDateInSpecialDuty(date, specialDutyDays)) {
+                        var specialDuty = this.getSpecialDuty(date, specialDutyDays);
+                        if (this.isNull(specialDuty)) {
+                            workingHours = 8;
+                        } else {
+                            if (specialDuty[0].Term == 'Morning Only' | specialDuty[0].Term == 'Afternoon Only') {
+                                workingHours = 4;
+                            } else {
+                                workingHours = 8;
+                            }
+                        }
+                    } else {
+                        workingHours = 8;
+                    }
+                }
+            }
+
+            return workingHours;
+        },
         generate() {
             if (this.isNull(this.employeeType) | this.isNull(this.department) | this.isNull(this.salaryPeriod) | this.isNull(this.from) | this.isNull(this.to)) {
                 Swal.fire({
@@ -980,8 +1032,9 @@ export default {
                         var attData = response.data['Employees'][i]['AttendanceData'];
                         var attendanceChunks = [];
                         var totalHoursRendered = 0.0;
+                        var totalWorkingHours = 0;
                         // LOOP DATES
-                        for (var j=0; j<this.dateHeaders.length-4; j++) {
+                        for (var j=0; j<this.dateHeaders.length-7; j++) {
                             // GET DATES SUB ARRAY
                             // filters the attendance data that belongs to the current day in the loop
                             const subDatesArray = attData.filter(x => x.DateLogged==this.dateHeaders[j].name);
@@ -1014,13 +1067,27 @@ export default {
                             if (this.isNumber(hours)) {
                                 totalHoursRendered += parseFloat(hours);
                             }
+
+                            totalWorkingHours += this.getTotalWorkingHours(this.dateHeaders[j].name, 
+                                response.data['Employees'][i]['DayOffDates'],
+                                response.data['Employees'][i]['SpecialDutyDays'], 
+                                response.data['Holidays']);
                         } 
 
                         var overtimesData = this.getOvertimes(response.data['Employees'][i]['Overtimes'], response.data['Employees'][i]);
                         attendanceChunks.push(this.round(totalHoursRendered));
-                        attendanceChunks.push(''); // INSERT TOTAL WORKING HOURS
-                        attendanceChunks.push(overtimesData['TotalHours'] > 0 ? overtimesData['TotalHours'] : ''); // UPDATE OT HOURS
-                        attendanceChunks.push(overtimesData['TotalAmount'] > 0 ? (`₱ ` + this.toMoney(this.round(overtimesData['TotalAmount']))) : ''); // UPDATE OT AMOUNT
+                        // INSERT TOTAL WORKING HOURS
+                        attendanceChunks.push(this.round(totalWorkingHours)); 
+                        // TOTAL HOURS ABSENT/LATE
+                        attendanceChunks.push(this.round(totalWorkingHours - totalHoursRendered)); 
+                        // UPDATE OT HOURS
+                        attendanceChunks.push(overtimesData['TotalHours'] > 0 ? overtimesData['TotalHours'] : ''); 
+                        // UPDATE OT AMOUNT
+                        attendanceChunks.push(overtimesData['TotalAmount'] > 0 ? (`₱ ` + this.toMoney(this.round(overtimesData['TotalAmount']))) : ''); 
+                        // BASIC SALARY
+                        attendanceChunks.push(this.isNull(response.data['Employees'][i]['SalaryAmount']) ? (`₱ ` + 0) : (`₱ ` + this.toMoney(this.round(parseFloat(response.data['Employees'][i]['SalaryAmount'])))));
+                        // TERM SALARY
+                        attendanceChunks.push(this.isNull(response.data['Employees'][i]['SalaryAmount']) ? (`₱ ` + 0) : (`₱ ` + this.toMoney(this.round(parseFloat(response.data['Employees'][i]['SalaryAmount'])/2))));
 
                         this.attendances.push(attendanceChunks);
                         
