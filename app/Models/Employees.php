@@ -81,6 +81,7 @@ class Employees extends Model
         'AuthorizedToDrive',
         'NoAttendanceAllowed',
         'DayOffDates',
+        'Longevity',
     ];
 
     /**
@@ -116,6 +117,7 @@ class Employees extends Model
         'AuthorizedToDrive' => 'string',
         'NoAttendanceAllowed' => 'string',
         'DayOffDates' => 'string',
+        'Longevity' => 'string',
     ];
 
     /**
@@ -152,6 +154,7 @@ class Employees extends Model
         'AuthorizedToDrive' => 'nullable|string',
         'NoAttendanceAllowed' => 'nullable|string',
         'DayOffDates' => 'nullable|string',
+        'Longevity' => 'nullable|string',
     ];
 
     public static function getMergeName($employee) {

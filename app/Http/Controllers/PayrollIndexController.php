@@ -571,6 +571,7 @@ class PayrollIndexController extends AppBaseController
                     'Employees.PayrollScheduleId',
                     'Employees.NoAttendanceAllowed',
                     'Employees.DayOffDates',
+                    'Employees.Longevity',
                     'Positions.BasicSalary AS SalaryAmount',
                     'Positions.Level',
                     'EmployeesDesignations.Status',
