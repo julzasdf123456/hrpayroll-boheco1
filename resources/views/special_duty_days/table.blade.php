@@ -5,6 +5,7 @@
             <tr>
                 <th>Date</th>
                 <th>Notes</th>
+                <th>Duration</th>
                 <th colspan="3">Action</th>
             </tr>
             </thead>
@@ -13,6 +14,7 @@
                 <tr>
                     <td>{{ date('F d, Y', strtotime($specialDutyDay->Date)) }}</td>
                     <td>{{ $specialDutyDay->Notes }}</td>
+                    <td>{{ $specialDutyDay->Term }}</td>
                     <td  style="width: 120px">
                         {!! Form::open(['route' => ['specialDutyDays.destroy', $specialDutyDay->id], 'method' => 'delete']) !!}
                         <div class='btn-group'>

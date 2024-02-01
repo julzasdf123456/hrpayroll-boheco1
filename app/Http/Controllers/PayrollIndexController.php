@@ -20,6 +20,7 @@ use App\Models\Positions;
 use App\Models\EmployeesDesignations;
 use App\Models\ProfessionalIDs;
 use App\Models\AttendanceData;
+use App\Models\HolidaysList;
 use Flash;
 use Response;
 
@@ -617,9 +618,36 @@ class PayrollIndexController extends AppBaseController
                 ->groupBy('LeaveDays.LeaveDate', 'LeaveDays.Duration')
                 ->orderBy('LeaveDays.LeaveDate')
                 ->get();
+
+            // OFFSETS
+            $item->Offsets = DB::table('OffsetApplications')
+                ->whereRaw("EmployeeId='" . $item->id . "' AND Status='APPROVED' AND (DateOfOffset BETWEEN '" . $from . "' AND '" . $to . "')")
+                ->select('DateOfOffset')
+                ->get();
+
+            $item->TripTickets = DB::table('TripTicketPassengers')
+                ->leftJoin('TripTickets', 'TripTicketPassengers.TripTicketId', '=', 'TripTickets.id')
+                ->whereRaw("TripTicketPassengers.EmployeeId='" . $item->id . "' AND TripTickets.Status='APPROVED' AND (TripTickets.DateOfTravel BETWEEN '" . $from . "' AND '" . $to . "')")
+                ->select('DateOfTravel')
+                ->get();
+
+            $item->Overtimes = DB::table('Overtimes')
+                ->whereRaw("EmployeeId='" . $item->id . "' AND Status='APPROVED' AND (DateOfOT BETWEEN '" . $from . "' AND '" . $to . "')")
+                ->select('Overtimes.*')
+                ->get();
         }
 
-        return response()->json($employees, 200);
+        $holidays = DB::table('HolidaysList')
+            ->whereRaw("(HolidayDate BETWEEN '" . $from . "' AND '" . $to . "')")
+            ->select('HolidayDate', 'Holiday')
+            ->get();
+
+        $dataSets = [
+            'Employees' => $employees,
+            'Holidays' => $holidays,            
+        ];
+
+        return response()->json($dataSets, 200);
     }
 
     public function getPayrollDateInformation(Request $request) {
