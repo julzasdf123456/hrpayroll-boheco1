@@ -1132,6 +1132,17 @@ export default {
 
             return workingHours;
         },
+        getLoan(loans, type) {
+            var totalLoan = 0
+            
+            for(let i=0; i<loans.length; i++) {
+                if (loans[i].LoanFor == type) {
+                    totalLoan += this.isNull(loans[i].MonthlyAmmortization) ? 0 : parseFloat(loans[i].MonthlyAmmortization)
+                }
+            }
+
+            return totalLoan
+        },
         generate() {
             if (this.isNull(this.employeeType) | this.isNull(this.department) | this.isNull(this.salaryPeriod) | this.isNull(this.from) | this.isNull(this.to)) {
                 Swal.fire({
@@ -1247,48 +1258,60 @@ export default {
                         summaryChunks.push(longevity > 0 ? `₱` + this.toMoney(longevity) : '-'); 
 
                         // RICE ALLOWANCE/LAUNDRY
-                        var riceAllowance = this.isFifteenth(this.salaryPeriod) ? 2500 : 0;                        
+                        var riceAllowance = this.isFifteenth(this.salaryPeriod) ? (this.isNull(response.data['Employees'][i]['RiceAllowance']) ? 0 : this.round(parseFloat(response.data['Employees'][i]['RiceAllowance']))) : 0;
                         summaryChunks.push(riceAllowance > 0 ? `₱` + this.toMoney(riceAllowance) : '-'); 
 
-                        // OTHERS - ADDONS                     
-                        summaryChunks.push('-'); 
+                        // OTHERS - ADDONS
+                        var otherAddonsPlus = 0 
+                        summaryChunks.push(otherAddonsPlus > 0 ? `₱` + this.toMoney(otherAddonsPlus) : '-'); 
 
-                        // OTHERS - DEDUCTIONS                     
-                        summaryChunks.push('-'); 
+                        // OTHERS - DEDUCTIONS 
+                        var otherAddonsMinus = 0
+                        summaryChunks.push(otherAddonsMinus > 0 ? `₱` + this.toMoney(otherAddonsMinus) : '-'); 
 
                         // TOTAL AMOUNT
-                        var totalAmountPartial = (termWage - lateAmount) + otAmount + longevity + riceAllowance;
+                        var totalAmountPartial = (termWage - lateAmount) + otAmount + longevity + riceAllowance + otherAddonsPlus - otherAddonsMinus;
                         summaryChunks.push(totalAmountPartial > 0 ? `₱` + this.toMoney(totalAmountPartial) : '-'); 
 
-                        // MC LOAN                 
-                        summaryChunks.push('-'); 
+                        // MC LOAN   
+                        var mcLoan = this.getLoan(response.data['Employees'][i]['Loans'], 'Motorcycle')
+                        summaryChunks.push(mcLoan > 0 ? `₱` + this.toMoney(mcLoan) : '-'); 
 
-                        // PAG IBIG CONT              
-                        summaryChunks.push('-');
+                        // PAG IBIG CONT  
+                        var pagIbigContribution = this.isFifteenth(this.salaryPeriod) ? (this.isNull(response.data['Employees'][i]['PagIbigContribution']) ? 0 : this.round(parseFloat(response.data['Employees'][i]['PagIbigContribution']))) : 0;
+                        summaryChunks.push(pagIbigContribution > 0 ? `₱` + this.toMoney(pagIbigContribution) : '-');
                         
-                        // PAG IBIG LOAN            
-                        summaryChunks.push('-');
+                        // PAG IBIG LOAN  
+                        var pagIbigLoan = this.getLoan(response.data['Employees'][i]['Loans'], 'Pag-Ibig')
+                        summaryChunks.push(pagIbigLoan > 0 ? `₱` + this.toMoney(pagIbigLoan) : '-');
 
-                        // SSS CONT         
-                        summaryChunks.push('-');
+                        // SSS CONT 
+                        var sssContribution = !this.isFifteenth(this.salaryPeriod) ? (this.isNull(response.data['Employees'][i]['SSSContribution']) ? 0 : this.round(parseFloat(response.data['Employees'][i]['SSSContribution']))) : 0;
+                        summaryChunks.push(sssContribution > 0 ? `₱` + this.toMoney(sssContribution) : '-');
 
-                        // SSS LOAN         
-                        summaryChunks.push('-');
+                        // SSS LOAN   
+                        var sssLoan = this.getLoan(response.data['Employees'][i]['Loans'], 'SSS')
+                        summaryChunks.push(sssLoan > 0 ? `₱` + this.toMoney(sssLoan) : '-');
 
-                        // PHIL HEALTH         
-                        summaryChunks.push('-');
+                        // PHIL HEALTH 
+                        var philHealth = !this.isFifteenth(this.salaryPeriod) ? (this.isNull(response.data['Employees'][i]['PhilHealth']) ? 0 : this.round(parseFloat(response.data['Employees'][i]['PhilHealth']))) : 0;       
+                        summaryChunks.push(philHealth > 0 ? `₱` + this.toMoney(philHealth) : '-');
 
-                        // OTHER DEDUCTIONS        
-                        summaryChunks.push('-');
+                        // OTHER DEDUCTIONS   
+                        var otherDeductions = 0     
+                        summaryChunks.push(otherDeductions > 0 ? `₱` + this.toMoney(otherDeductions) : '-');
 
-                        // TAX WITHHELD        
-                        summaryChunks.push('-');
+                        // TAX WITHHELD     
+                        var taxWheld = 0    
+                        summaryChunks.push(taxWheld > 0 ? `₱` + this.toMoney(taxWheld) : '-');
 
-                        // TOTAL DEDUCTIONS       
-                        summaryChunks.push('-');
+                        // TOTAL DEDUCTIONS 
+                        var totalDeductions = taxWheld + otherDeductions + philHealth + sssLoan + sssContribution + pagIbigLoan + pagIbigContribution + mcLoan
+                        summaryChunks.push(totalDeductions > 0 ? `₱` + this.toMoney(totalDeductions) : '-');
 
-                        // NET PAY        
-                        summaryChunks.push('-');
+                        // NET PAY   
+                        var netPay = totalAmountPartial - totalDeductions     
+                        summaryChunks.push(netPay > 0 ? (`<strong>₱` + this.toMoney(netPay) + `<strong>`) : '-');
 
                         this.summaries.push(summaryChunks)
 

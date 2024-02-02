@@ -178,6 +178,27 @@
                 <p>Generate Payroll</p>
             </a>
         </li>
+        <li class="nav-header">                
+            Loans
+        </li>
+        <li class="nav-item">
+            <a href="{{ route('loans.pag-ibig') }}" class="nav-link {{ Request::is('loans.pag-ibig*') ? 'active' : '' }}">
+                <i class="nav-icon fas fa-home"></i>
+                <p>Pag-Ibig</p>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="{{ route('loans.sss') }}" class="nav-link {{ Request::is('loans.sss*') ? 'active' : '' }}">
+                <i class="nav-icon fas fa-weight"></i>
+                <p>SSS</p>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="{{ route('loans.motorcycle') }}" class="nav-link {{ Request::is('loans.motorcycle*') ? 'active' : '' }}">
+                <i class="nav-icon fas fa-motorcycle"></i>
+                <p>Motorcycle</p>
+            </a>
+        </li>
     </ul>
 </li>
 @endcanany
@@ -318,8 +339,4 @@
     </ul>
 </li>
 @endcanany
-
-
-
-
 
