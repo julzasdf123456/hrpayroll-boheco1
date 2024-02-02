@@ -558,10 +558,18 @@ class PayrollIndexController extends AppBaseController
         $from = $request['From'];
         $to = $request['To'];
 
+        // period month
+        if (date('d', strtotime($salaryPeriod)) == '15') {
+            $loanPeriodMonth = date('Y-m-15', strtotime($salaryPeriod));
+        } else {
+            $loanPeriodMonth = date('Y-m-d', strtotime('last day of ' . $salaryPeriod));
+        }
+
         $employees = DB::table('Employees')
             ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
             ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
             ->leftJoin('PayrollSchedules', 'Employees.PayrollScheduleId', '=', 'PayrollSchedules.id')
+            ->leftJoin('EmployeePayrollSundries', 'Employees.id', '=', 'EmployeePayrollSundries.EmployeeId')
             ->select('Employees.FirstName',
                     'Employees.MiddleName',
                     'Employees.LastName',
@@ -578,6 +586,12 @@ class PayrollIndexController extends AppBaseController
                     'PayrollSchedules.BreakStart',
                     'PayrollSchedules.BreakEnd',
                     'PayrollSchedules.EndTime',
+                    'EmployeePayrollSundries.Longevity',
+                    'EmployeePayrollSundries.RiceAllowance',
+                    'EmployeePayrollSundries.Insurances',
+                    'EmployeePayrollSundries.PagIbigContribution',
+                    'EmployeePayrollSundries.SSSContribution',
+                    'EmployeePayrollSundries.PhilHealth',
             )
             ->where('EmployeesDesignations.Status', $employeeType)
             ->where('Positions.Department', $department)
@@ -635,6 +649,17 @@ class PayrollIndexController extends AppBaseController
                 ->whereRaw("EmployeeId='" . $item->id . "' AND Status='APPROVED' AND (DateOfOT BETWEEN '" . $from . "' AND '" . $to . "')")
                 ->select('Overtimes.*')
                 ->get();
+
+            $item->Loans = DB::table('LoanDetails')
+                    ->leftJoin('Loans', 'LoanDetails.LoanId', '=', 'Loans.id')
+                    ->whereRaw("LoanDetails.Month='" . $loanPeriodMonth . "' AND Loans.EmployeeId='" . $item->id . "'")
+                    ->select(
+                        'Loans.LoanFor',
+                        'Loans.PaymentTerm',
+                        'LoanDetails.Month',
+                        'LoanDetails.MonthlyAmmortization',
+                    )
+                    ->get();
         }
 
         $holidays = DB::table('HolidaysList')

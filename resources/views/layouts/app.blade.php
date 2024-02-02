@@ -605,6 +605,18 @@
         }
     }
 
+    function serializeEmployeeNameFormal(fName, lName, mName, suffix) {
+        if (jQuery.isEmptyObject(mName)) {
+            return lName + ", " + fName + " " + validateNulls(suffix)
+        } else {
+            return lName + ", " + fName + " " + validateNulls(mName) + " " + validateNulls(suffix)
+        }
+    }
+
+    function serializeEmployeeNameFormalNoMiddle(fName, lName, suffix) {
+        return lName + ", " + fName + " " + validateNulls(suffix)
+    }
+
     function validateNulls(regex) {
         if (jQuery.isEmptyObject(regex)) {
             return ''
@@ -620,6 +632,15 @@
             return false
         }
     }
+
+    function toMoney(value) {
+        return Number(parseFloat(value).toFixed(2)).toLocaleString("en-US", { maximumFractionDigits: 2, minimumFractionDigits: 2 })
+    }
+
+    function round(value) {
+        return Math.round((value + Number.EPSILON) * 100) / 100
+    }
+    
 </script>
 
 @yield('third_party_scripts')

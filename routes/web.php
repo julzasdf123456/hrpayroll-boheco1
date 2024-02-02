@@ -15,6 +15,7 @@ use App\Http\Controllers\AttendaneConfirmationsController;
 use App\Http\Controllers\OvertimesController;
 use App\Http\Controllers\PayrollIndexController;
 use App\Http\Controllers\EmployeePayrollSchedulesController;
+use App\Http\Controllers\LoansController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -60,8 +61,10 @@ Route::get('/employees/capture-image/{id}', [EmployeesController::class, 'captur
 Route::post('/employees/create-image', [EmployeesController::class, 'createImage'])->name('employees.create-image');
 Route::get('/employees/get-image/{id}', [EmployeesController::class, 'getImage'])->name('employees.get-image');
 Route::get('/employees/get-employee-ajax', [EmployeesController::class, 'getEmployeeAjax'])->name('employees.get-employee-ajax');
+Route::get('/employees/get-employees-ajax', [EmployeesController::class, 'getEmployeesAjax'])->name('employees.get-employees-ajax');
 Route::get('/employees/get-attendance-data-ajax', [EmployeesController::class, 'getAttendanceDataAjax'])->name('employees.get-attendance-data-ajax');
 Route::get('/employees/allow-no-attendance', [EmployeesController::class, 'allowNoAttendance'])->name('employees.allow-no-attendance');
+Route::get('/employees/save-payroll-sundries', [EmployeesController::class, 'savePayrollSundries'])->name('employees.save-payroll-sundries');
 Route::resource('employees', EmployeesController::class);
 
 Route::resource('permissions', App\Http\Controllers\PermissionController::class);
@@ -227,3 +230,16 @@ Route::resource('attendanceConfirmationSignatories', App\Http\Controllers\Attend
 Route::resource('overtimeSignatories', App\Http\Controllers\OvertimeSignatoriesController::class);
 Route::resource('dayOffSchedules', App\Http\Controllers\DayOffSchedulesController::class);
 Route::resource('specialDutyDays', App\Http\Controllers\SpecialDutyDaysController::class);
+
+Route::resource('employeePayrollSundries', App\Http\Controllers\EmployeePayrollSundriesController::class);
+
+Route::get('/loans/pag-ibig', [LoansController::class, 'pagIbig'])->name('loans.pag-ibig');
+Route::get('/loans/save-pag-ibig-loans', [LoansController::class, 'savePagIbigLoans'])->name('loans.save-pag-ibig-loans');
+Route::get('/loans/get-loan-details-ajax', [LoansController::class, 'getLoanDetailsAjax'])->name('loans.get-loan-details-ajax');
+Route::get('/loans/sss', [LoansController::class, 'sss'])->name('loans.sss');
+Route::get('/loans/save-sss-loans', [LoansController::class, 'saveSSSLoans'])->name('loans.save-sss-loans');
+Route::get('/loans/motorcycle', [LoansController::class, 'motorcycle'])->name('loans.motorcycle');
+Route::get('/loans/save-motorcycle-loans', [LoansController::class, 'saveMotorcycleLoans'])->name('loans.save-motorcycle-loans');
+Route::resource('loans', LoansController::class);
+
+Route::resource('loanDetails', App\Http\Controllers\LoanDetailsController::class);

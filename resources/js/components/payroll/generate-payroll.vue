@@ -15,7 +15,7 @@
                     <select v-model="department" class="form-control form-control-sm">
                         <option value="ESD">ESD</option>
                         <option value="ISD">ISD</option>
-                        <option value="OGM">OGM</option>
+                        <option value="OGM" selected>OGM</option>
                         <option value="OSD">OSD</option>
                         <option value="PGD">PGD</option>
                         <option value="SEEAD">SEEAD</option>
@@ -24,8 +24,8 @@
                 <div class="col-lg-2">
                     <span class="text-muted">Salary Period</span>
                     <select v-model="salaryPeriod" class="form-control form-control-sm">
-                        <option value="{{ fifteenth }}">{{ moment(fifteenth).format('MMMM DD, YYYY') }}</option>
-                        <option value="{{ thirtieth }}">{{ moment(thirtieth).format('MMMM DD, YYYY') }}</option>
+                        <option :value="fifteenth">{{ moment(fifteenth).format('MMMM DD, YYYY') }}</option>
+                        <option :value="thirtieth">{{ moment(thirtieth).format('MMMM DD, YYYY') }}</option>
                     </select>
                 </div>
                 <div class="col-lg-2">
@@ -38,7 +38,8 @@
                 </div>
                 <div class="col-lg-3">
                     <span class="text-muted">Action</span><br>
-                    <button class="btn btn-primary btn-sm" :disabled="isButtonDisabled" @click="generate()"><i class="fas fa-check-circle ico-tab-mini"></i>Generate Payroll</button>
+                    <button class="btn btn-default btn-sm ico-tab-mini" :disabled="isButtonDisabled" @click="generate()"><i class="fas fa-eye ico-tab-mini"></i>Preview</button>
+                    <button class="btn btn-primary btn-sm" ><i class="fas fa-check-circle ico-tab-mini"></i>Generate Payroll</button>
 
                     <div class="spinner-border text-primary float-right" :class="isDisplayed" role="status">
                         <span class="sr-only">Loading...</span>
@@ -55,19 +56,22 @@
         </div>
     </div>
 
+    
     <div class="legend" style="margin-bottom: 15px; margin-left: 20px;">
-        <span class="text-muted" style="margin-right: 15px;"><strong>Legend : </strong></span>
-        <span style="width: 10px !important; height: 10px !important; background-color: #f51836; display: inline-block; border-radius: 50%; margin-right: 5px;"></span> AWOL
-        <span style="width: 30px !important; height: 10px !important; background-color: #1d8fcc; display: inline-block; border-radius: 5px; margin-left: 20px; margin-right: 5px;"></span> Off Days
-        <span style="width: 30px !important; height: 10px !important; background-color: #f7076f; display: inline-block; border-radius: 5px; margin-left: 20px; margin-right: 5px;"></span> Holidays
-        <span style="width: 10px !important; height: 10px !important; background-color: #debe07; display: inline-block; border-radius: 50%; margin-left: 20px; margin-right: 5px;"></span> No Time In/Time Out
-        <span style="width: 10px !important; height: 10px !important; background-color: #05b05d; display: inline-block; border-radius: 50%; margin-left: 20px; margin-right: 5px;"></span> Okiesss
-        <span style="width: 10px !important; height: 10px !important; background-color: #e823ba; display: inline-block; border-radius: 50%; margin-left: 20px; margin-right: 5px;"></span> Trip Ticket
-        <span style="width: 10px !important; height: 10px !important; background-color: #f2780c; display: inline-block; border-radius: 50%; margin-left: 20px; margin-right: 5px;"></span> Offset
-        <span style="width: 10px !important; height: 10px !important; background-color: #0cf2c4; display: inline-block; border-radius: 50%; margin-left: 20px; margin-right: 5px;"></span> Leave
+        <span style="cursor: pointer;"><i @click="toggleView()" :class="legendIcon" class="fas ico-tab" title="Show/hide attendance columns"></i></span>
 
+        <span :class="isLegendDisplayed">
+            <span class="text-muted" style="margin-right: 15px;"><strong>Legend : </strong></span>
+            <span style="width: 10px !important; height: 10px !important; background-color: #f51836; display: inline-block; border-radius: 50%; margin-right: 5px;"></span> AWOL
+            <span style="width: 30px !important; height: 10px !important; background-color: #1d8fcc; display: inline-block; border-radius: 5px; margin-left: 20px; margin-right: 5px;"></span> Off Days
+            <span style="width: 30px !important; height: 10px !important; background-color: #f7076f; display: inline-block; border-radius: 5px; margin-left: 20px; margin-right: 5px;"></span> Holidays
+            <span style="width: 10px !important; height: 10px !important; background-color: #debe07; display: inline-block; border-radius: 50%; margin-left: 20px; margin-right: 5px;"></span> No Time In/Time Out
+            <span style="width: 10px !important; height: 10px !important; background-color: #05b05d; display: inline-block; border-radius: 50%; margin-left: 20px; margin-right: 5px;"></span> Okiesss
+            <span style="width: 10px !important; height: 10px !important; background-color: #e823ba; display: inline-block; border-radius: 50%; margin-left: 20px; margin-right: 5px;"></span> Trip Ticket
+            <span style="width: 10px !important; height: 10px !important; background-color: #f2780c; display: inline-block; border-radius: 50%; margin-left: 20px; margin-right: 5px;"></span> Offset
+            <span style="width: 10px !important; height: 10px !important; background-color: #0cf2c4; display: inline-block; border-radius: 50%; margin-left: 20px; margin-right: 5px;"></span> Leave
+        </span>
     </div>
-
     <div class="table-responsive">
         <table class="table table-hover table-sm table-bordered" id="response">
             <thead>
@@ -79,17 +83,37 @@
                     <th class='text-center' v-for="addCols in dateSubHeaders">{{ addCols }}</th>
                 </tr>                 -->
                 <th class='text-center' style="width: 240px;">Employees</th>
-                <th class='text-center' v-for="column in dateHeaders" :key="column.name">{{ column.label }}</th>
+                <th class='text-center' v-for="column in dateHeaders" :key="column.name" v-if="legendView">{{ column.label }}</th>
+                <th class='text-center' v-for="columnSummary in summaryHeaders" :key="columnSummary.name">{{ columnSummary.label }}</th>
             </thead>
             <tbody>
                 <tr v-for="(employee, index) in employees" :key="employee.id">
-                    <td><strong>{{ employee.name }}</strong></td>
-                    <td v-for="(attendance, colIndex) in attendances[index]" @click="showInfo(dateHeaders[colIndex].name, employee.id, employee.name)" v-html="attendance"></td> 
+                    <td style="min-width: 250px;"><strong>{{ employee.name }}</strong></td>
+                    <td :class="{widthClass}" v-for="(attendance, colIndex) in attendances[index]" v-if="legendView" @click="showInfo(dateHeaders[colIndex].name, employee.id, employee.name)" v-html="attendance"></td> 
+                    <td class="text-right" :class="{widthClass}" v-for="(summary, colIndex) in summaries[index]" v-html="summary"></td> 
                 </tr>
             </tbody>
         </table>
     </div>
 </template>
+
+<style>
+    .min-width-sm {
+        min-width: 50px;
+    }
+
+    .min-width-md {
+        min-width: 65px;
+    }
+
+    .min-width-xl {
+        min-width: 250px;
+    }
+
+    table {
+        font-size: .82em;
+    }
+</style>
 
 <script>
 import axios from 'axios';
@@ -117,18 +141,27 @@ export default {
                 // You can configure more options here as per Flatpickr documentation
             },
             // PAYROLL DATA
-            employeeType : '',
-            department : '',
+            employeeType : 'Regular',
+            department : 'OGM',
             salaryPeriod : '',
-            from : '',
-            to : '',
+            from : '2024-01-03',
+            to : '2024-01-18',
             // TABLE COLUMNS
-            dateHeaders: [],
+            dateHeaders : [],
+            summaryHeaders : [],
+            datesOnly : [],
             // TABLE DATA
             employees : [],
             attendances : [],
+            summaries : [],
             isDisplayed : 'gone',
             isButtonDisabled : false,
+            widthClass : '',
+            legendView : true,
+            legendIcon : 'fa-eye',
+            isLegendDisplayed : '',
+            totalDateColumns : 0,
+            areDateColumnsDisplayed : true,
         }
     },
     methods : {
@@ -142,57 +175,155 @@ export default {
         getInBetweenDates(from, to) {
             let startDate = moment(from);
             const lastDate = moment(to);
+            this.totalDateColumns = 0;
 
             // ADD DUTY DATES COLUMN
             while (startDate <= lastDate) {
+                this.datesOnly.push({
+                    date : moment(startDate).format('YYYY-MM-DD'),
+                })
                 this.dateHeaders.push({
                     name : moment(startDate).format('YYYY-MM-DD'),
                     label : moment(startDate).format('MMM-DD-YY ddd')
                 }); 
                 startDate = moment(startDate).add(1, 'days');
+                this.totalDateColumns++;
             }
 
             // ADD TOTAL HOURS RENDERED COLUMN
-            this.dateHeaders.push({
+            this.summaryHeaders.push({
                 name : 'Total Hours Rendered',
                 label : 'Total Hours Rendered'
             }); 
 
             // ADD TOTAL HOURS WORKABLE
-            this.dateHeaders.push({
+            this.summaryHeaders.push({
                 name : 'Total Working Hours',
                 label : 'Total Working Hours'
             }); 
-
-            // ADD TOTAL HOURS ABSENT LATE
-            this.dateHeaders.push({
-                name : 'Total Abs/Late Hours',
-                label : 'Total Abs/Late Hours'
-            });
-
-            // ADD OT HOURS COlUMN
-            this.dateHeaders.push({
-                name : 'Overtime Hours',
-                label : 'Overtime Hours'
-            });
-
-            // ADD OT AMOUNT COlUMN
-            this.dateHeaders.push({
-                name : 'Overtime Amount',
-                label : 'Overtime Amount'
-            });
-
+            
             // BASIC SALARY
-            this.dateHeaders.push({
+            this.summaryHeaders.push({
                 name : 'Monthly Wage',
                 label : 'Monthly Wage'
             });
 
             // REGULAR WAGE
-            this.dateHeaders.push({
+            this.summaryHeaders.push({
                 name : 'Term Wage',
                 label : 'Term Wage'
             });
+
+            // ADD OT HOURS COlUMN
+            this.summaryHeaders.push({
+                name : 'Overtime Hours',
+                label : 'Overtime Hours'
+            });
+
+            // ADD OT AMOUNT COlUMN
+            this.summaryHeaders.push({
+                name : 'Overtime Amount',
+                label : 'Overtime Amount'
+            });
+            
+            // ADD TOTAL HOURS ABSENT LATE
+            this.summaryHeaders.push({
+                name : 'Abs/Late/UT Hours',
+                label : 'Abs/Late/UT Hours'
+            });
+
+            // ADD TOTAL AMOUNT ABSENT LATE
+            this.summaryHeaders.push({
+                name : 'Abs/Late/UT Amount',
+                label : 'Abs/Late/UT Amount'
+            });
+
+            // LONGEVITY
+            this.summaryHeaders.push({
+                name : 'Longevity',
+                label : 'Longevity'
+            });
+
+            this.summaryHeaders.push({
+                name : 'Rice/Laundry',
+                label : 'Rice/Laundry'
+            });
+
+            this.summaryHeaders.push({
+                name : 'Others Adds.',
+                label : 'Others Adds.'
+            });
+
+            this.summaryHeaders.push({
+                name : 'Others Deducts.',
+                label : 'Others Deducts.'
+            });
+
+            this.summaryHeaders.push({
+                name : 'TOTAL AMOUNT',
+                label : 'TOTAL AMOUNT'
+            });
+
+            this.summaryHeaders.push({
+                name : 'MC Loan',
+                label : 'MC Loan'
+            });
+
+            this.summaryHeaders.push({
+                name : 'Pag-Ibig Cont.',
+                label : 'Pag-Ibig Cont.'
+            });
+
+            this.summaryHeaders.push({
+                name : 'Pag-Ibig Loan',
+                label : 'Pag-Ibig Loan'
+            });
+
+            this.summaryHeaders.push({
+                name : 'SSS Cont.',
+                label : 'SSS Cont.'
+            });
+
+            this.summaryHeaders.push({
+                name : 'SSS Loan',
+                label : 'SSS Loan'
+            });
+
+            this.summaryHeaders.push({
+                name : 'Phil Health',
+                label : 'Phil Health'
+            });
+
+            this.summaryHeaders.push({
+                name : 'Other Deducts.',
+                label : 'Other Deducts.'
+            });
+
+            this.summaryHeaders.push({
+                name : 'Tax Withheld',
+                label : 'Tax Withheld'
+            });
+
+            this.summaryHeaders.push({
+                name : 'Total Deducts.',
+                label : 'Total Deducts.'
+            });
+
+            this.summaryHeaders.push({
+                name : 'NET PAY',
+                label : 'NET PAY'
+            });
+        },
+        toggleView() {
+            if (this.legendView) {
+                this.legendView = false;
+                this.legendIcon = 'fa-eye-slash'
+                this.isLegendDisplayed = 'gone'
+            } else {
+                this.legendView = true;
+                this.legendIcon = 'fa-eye'
+                this.isLegendDisplayed = ''
+            }
         },
         isIn(timeToCheck, scheduleMedianTimestamp) {
             var from = moment(scheduleMedianTimestamp).subtract(2, 'hours').format('YYYY-MM-DD HH:mm:ss');
@@ -962,8 +1093,15 @@ export default {
 
             return this.round(((baseSalary * 12) / 302) / 8);
         },
+        isFifteenth(term) {
+            if (term.includes('15')) {
+                return true;
+            } else {
+                return false;
+            }
+        },
         toMoney(value) {
-            return Number(value).toLocaleString(2)
+            return Number(parseFloat(value).toFixed(2)).toLocaleString("en-US", { maximumFractionDigits: 2, minimumFractionDigits: 2 })
         },
         getTotalWorkingHours(date, dayOffDays, specialDutyDays, holidays) {
             var workingHours = 0;
@@ -994,6 +1132,17 @@ export default {
 
             return workingHours;
         },
+        getLoan(loans, type) {
+            var totalLoan = 0
+            
+            for(let i=0; i<loans.length; i++) {
+                if (loans[i].LoanFor == type) {
+                    totalLoan += this.isNull(loans[i].MonthlyAmmortization) ? 0 : parseFloat(loans[i].MonthlyAmmortization)
+                }
+            }
+
+            return totalLoan
+        },
         generate() {
             if (this.isNull(this.employeeType) | this.isNull(this.department) | this.isNull(this.salaryPeriod) | this.isNull(this.from) | this.isNull(this.to)) {
                 Swal.fire({
@@ -1005,9 +1154,11 @@ export default {
                 this.isButtonDisabled = true;
                 // SETUP HEADERS
                 this.dateHeaders = [];
+                this.summaryHeaders = [];
                 this.dateSubHeaders = [];
                 this.employees = [];
                 this.attendances = [];
+                this.summaries = [];
                 this.getInBetweenDates(this.from, this.to);
 
                 // GET EMPLOYEES DATA
@@ -1031,10 +1182,12 @@ export default {
                         // FILTER ATTENDANCE DATA
                         var attData = response.data['Employees'][i]['AttendanceData'];
                         var attendanceChunks = [];
+                        var summaryChunks = [];
                         var totalHoursRendered = 0.0;
                         var totalWorkingHours = 0;
                         // LOOP DATES
-                        for (var j=0; j<this.dateHeaders.length-7; j++) {
+                        for (var j=0; j<this.dateHeaders.length; j++) {
+                            this.widthClass = 'min-width-sm';
                             // GET DATES SUB ARRAY
                             // filters the attendance data that belongs to the current day in the loop
                             const subDatesArray = attData.filter(x => x.DateLogged==this.dateHeaders[j].name);
@@ -1074,23 +1227,94 @@ export default {
                                 response.data['Holidays']);
                         } 
 
-                        var overtimesData = this.getOvertimes(response.data['Employees'][i]['Overtimes'], response.data['Employees'][i]);
-                        attendanceChunks.push(this.round(totalHoursRendered));
-                        // INSERT TOTAL WORKING HOURS
-                        attendanceChunks.push(this.round(totalWorkingHours)); 
-                        // TOTAL HOURS ABSENT/LATE
-                        attendanceChunks.push(this.round(totalWorkingHours - totalHoursRendered)); 
-                        // UPDATE OT HOURS
-                        attendanceChunks.push(overtimesData['TotalHours'] > 0 ? overtimesData['TotalHours'] : ''); 
-                        // UPDATE OT AMOUNT
-                        attendanceChunks.push(overtimesData['TotalAmount'] > 0 ? (`₱ ` + this.toMoney(this.round(overtimesData['TotalAmount']))) : ''); 
-                        // BASIC SALARY
-                        attendanceChunks.push(this.isNull(response.data['Employees'][i]['SalaryAmount']) ? (`₱ ` + 0) : (`₱ ` + this.toMoney(this.round(parseFloat(response.data['Employees'][i]['SalaryAmount'])))));
-                        // TERM SALARY
-                        attendanceChunks.push(this.isNull(response.data['Employees'][i]['SalaryAmount']) ? (`₱ ` + 0) : (`₱ ` + this.toMoney(this.round(parseFloat(response.data['Employees'][i]['SalaryAmount'])/2))));
-
                         this.attendances.push(attendanceChunks);
+
+                        var overtimesData = this.getOvertimes(response.data['Employees'][i]['Overtimes'], response.data['Employees'][i]);
+                        summaryChunks.push(totalHoursRendered > 0 ? this.round(totalHoursRendered) : '-');
+                        // INSERT TOTAL WORKING HOURS
+                        summaryChunks.push(totalWorkingHours > 0 ? this.round(totalWorkingHours) : '-'); 
+                        // BASIC SALARY
+                        summaryChunks.push(this.isNull(response.data['Employees'][i]['SalaryAmount']) ? (`₱` + 0) : (`₱` + this.toMoney(this.round(parseFloat(response.data['Employees'][i]['SalaryAmount'])))));
+                        // TERM SALARY
+                        var termWage = this.round(parseFloat(response.data['Employees'][i]['SalaryAmount'])/2)
+                        summaryChunks.push(this.isNull(response.data['Employees'][i]['SalaryAmount']) ? (`₱` + 0) : (`₱` + this.toMoney(termWage)));
                         
+                        // UPDATE OT HOURS
+                        summaryChunks.push(overtimesData['TotalHours'] > 0 ? overtimesData['TotalHours'] : '-'); 
+                        // UPDATE OT AMOUNT
+                        var otAmount = this.round(overtimesData['TotalAmount']);
+                        summaryChunks.push(overtimesData['TotalAmount'] > 0 ? (`₱` + this.toMoney(otAmount)) : '-'); 
+
+                        // TOTAL HOURS ABSENT/LATE
+                        var lateHours = this.round(totalWorkingHours - totalHoursRendered);
+                        var lateAmount = this.round(parseFloat(lateHours) * this.getSalaryPerHour(parseFloat(response.data['Employees'][i]['SalaryAmount'])));
+                        summaryChunks.push(lateHours > 0 ? lateHours : '-'); 
+                        // TOTAL AMOUNT ABSENT/LATE
+                        summaryChunks.push(lateAmount > 0 ? `₱` + this.toMoney(lateAmount) : '-'); 
+                        // LONGEVITY
+                        var longevity = this.isNull(response.data['Employees'][i]['Longevity']) ? 0 : parseFloat(response.data['Employees'][i]['Longevity']);
+                        console.log(this.salaryPeriod)
+                        longevity = this.isFifteenth(this.salaryPeriod) ? 0 : longevity;
+                        summaryChunks.push(longevity > 0 ? `₱` + this.toMoney(longevity) : '-'); 
+
+                        // RICE ALLOWANCE/LAUNDRY
+                        var riceAllowance = this.isFifteenth(this.salaryPeriod) ? (this.isNull(response.data['Employees'][i]['RiceAllowance']) ? 0 : this.round(parseFloat(response.data['Employees'][i]['RiceAllowance']))) : 0;
+                        summaryChunks.push(riceAllowance > 0 ? `₱` + this.toMoney(riceAllowance) : '-'); 
+
+                        // OTHERS - ADDONS
+                        var otherAddonsPlus = 0 
+                        summaryChunks.push(otherAddonsPlus > 0 ? `₱` + this.toMoney(otherAddonsPlus) : '-'); 
+
+                        // OTHERS - DEDUCTIONS 
+                        var otherAddonsMinus = 0
+                        summaryChunks.push(otherAddonsMinus > 0 ? `₱` + this.toMoney(otherAddonsMinus) : '-'); 
+
+                        // TOTAL AMOUNT
+                        var totalAmountPartial = (termWage - lateAmount) + otAmount + longevity + riceAllowance + otherAddonsPlus - otherAddonsMinus;
+                        summaryChunks.push(totalAmountPartial > 0 ? `₱` + this.toMoney(totalAmountPartial) : '-'); 
+
+                        // MC LOAN   
+                        var mcLoan = this.getLoan(response.data['Employees'][i]['Loans'], 'Motorcycle')
+                        summaryChunks.push(mcLoan > 0 ? `₱` + this.toMoney(mcLoan) : '-'); 
+
+                        // PAG IBIG CONT  
+                        var pagIbigContribution = this.isFifteenth(this.salaryPeriod) ? (this.isNull(response.data['Employees'][i]['PagIbigContribution']) ? 0 : this.round(parseFloat(response.data['Employees'][i]['PagIbigContribution']))) : 0;
+                        summaryChunks.push(pagIbigContribution > 0 ? `₱` + this.toMoney(pagIbigContribution) : '-');
+                        
+                        // PAG IBIG LOAN  
+                        var pagIbigLoan = this.getLoan(response.data['Employees'][i]['Loans'], 'Pag-Ibig')
+                        summaryChunks.push(pagIbigLoan > 0 ? `₱` + this.toMoney(pagIbigLoan) : '-');
+
+                        // SSS CONT 
+                        var sssContribution = !this.isFifteenth(this.salaryPeriod) ? (this.isNull(response.data['Employees'][i]['SSSContribution']) ? 0 : this.round(parseFloat(response.data['Employees'][i]['SSSContribution']))) : 0;
+                        summaryChunks.push(sssContribution > 0 ? `₱` + this.toMoney(sssContribution) : '-');
+
+                        // SSS LOAN   
+                        var sssLoan = this.getLoan(response.data['Employees'][i]['Loans'], 'SSS')
+                        summaryChunks.push(sssLoan > 0 ? `₱` + this.toMoney(sssLoan) : '-');
+
+                        // PHIL HEALTH 
+                        var philHealth = !this.isFifteenth(this.salaryPeriod) ? (this.isNull(response.data['Employees'][i]['PhilHealth']) ? 0 : this.round(parseFloat(response.data['Employees'][i]['PhilHealth']))) : 0;       
+                        summaryChunks.push(philHealth > 0 ? `₱` + this.toMoney(philHealth) : '-');
+
+                        // OTHER DEDUCTIONS   
+                        var otherDeductions = 0     
+                        summaryChunks.push(otherDeductions > 0 ? `₱` + this.toMoney(otherDeductions) : '-');
+
+                        // TAX WITHHELD     
+                        var taxWheld = 0    
+                        summaryChunks.push(taxWheld > 0 ? `₱` + this.toMoney(taxWheld) : '-');
+
+                        // TOTAL DEDUCTIONS 
+                        var totalDeductions = taxWheld + otherDeductions + philHealth + sssLoan + sssContribution + pagIbigLoan + pagIbigContribution + mcLoan
+                        summaryChunks.push(totalDeductions > 0 ? `₱` + this.toMoney(totalDeductions) : '-');
+
+                        // NET PAY   
+                        var netPay = totalAmountPartial - totalDeductions     
+                        summaryChunks.push(netPay > 0 ? (`<strong>₱` + this.toMoney(netPay) + `<strong>`) : '-');
+
+                        this.summaries.push(summaryChunks)
+
                         this.isDisplayed = 'gone';
                         this.isButtonDisabled = false;
                     }

@@ -9,6 +9,7 @@
     <section class="content-header">
         <div class="container-fluid">
             <div class="row mb-2">
+                {{-- EMPLOYEE PROFILE TOP --}}
                 <div class="col-lg-8">
                     <div style="display: flex; padding-top: 15px; padding-bottom: 15px;">
                         <div style="width: 88px; display: inline;">
@@ -31,10 +32,19 @@
                     </div>
                     
                 </div>
-                <div class="col-lg-4">                    
-                    @if (count($employeeDesignations) < 1)
-                        <a href="{{ route('employees.create-designations', [$employees->id]) }}" class="btn btn-primary float-right {{ $colorProf != null ? 'text-white' : '' }}" style="margin-left: 15px;" title="Add job description to {{ Employees::getMergeName($employees) }}">Add Position</a>
-                    @endif
+                {{-- ACTIONS --}}
+                <div class="col-lg-4">  
+                    @canany('god permission', 'employees delete', 'create payroll')
+                        @if ($payrollSundries == null)
+                            <button onclick="showPayrollSundriesConfig()" class="btn btn-primary float-right {{ $colorProf != null ? 'text-white' : '' }}" style="margin-left: 15px;">Configure Payroll Deductions/Sundries</button>
+                        @endif
+                    @endcanany
+
+                    @canany('god permission', 'employees delete')
+                        @if (count($employeeDesignations) < 1)
+                            <a href="{{ route('employees.create-designations', [$employees->id]) }}" class="btn btn-primary float-right {{ $colorProf != null ? 'text-white' : '' }}" style="margin-left: 15px;" title="Add job description to {{ Employees::getMergeName($employees) }}">Add Position</a>
+                        @endif
+                    @endcanany
 
                     <div class="dropdown">
                         <a class="btn btn-link dropdown-toggle float-right {{ $colorProf != null ? 'text-white' : '' }}" href="#" role="button" data-toggle="dropdown" aria-expanded="false" style="margin-right: 15px;">
@@ -54,9 +64,14 @@
                                 @else
                                     <button class="dropdown-item" onclick="allowNoAttendance(`{{ $employees->id }}`)"><i class="fas fa-fingerprint ico-tab"></i>Allow No Attendance</button>
                                 @endif
-                                
                             @endcanany
                             <a class="dropdown-item" href="{{ route('employees.attendance', [$employees->id]) }}"><i class="fas fa-calendar-alt ico-tab"></i>View Attendance</a>
+
+                            @canany('god permission', 'employees delete', 'create payroll')
+                                @if ($payrollSundries != null)
+                                    <button onclick="showPayrollSundriesConfig()" class="dropdown-item"><i class="fas fa-receipt ico-tab"></i>Update Payroll Deductions/Sundries</button>
+                                @endif
+                            @endcanany
                             
                             @canany('god permission', 'employees delete')
                             <div class="dropdown-divider"></div>
@@ -184,6 +199,8 @@
     </div>
 @endsection
 
+@include('employee_payroll_sundries.modal_configure_payroll_sundries')
+
 @push('page_scripts')
     <script>
         $(document).ready(function() {
@@ -268,6 +285,21 @@
                     })
                 }
             })
+        }
+
+        function showPayrollSundriesConfig() {
+            $('#modal-payroll-sundries').modal('show')
+
+            var sundries = "{{ $payrollSundries }}"
+            if (!isNull(sundries)) {
+                $('#sundries-longevity').val("{{ $payrollSundries != null ? $payrollSundries->Longevity : '' }}")
+                $('#sundries-rice-allowance').val("{{ $payrollSundries != null ? $payrollSundries->RiceAllowance : '' }}")
+                $('#sundries-insurance').val("{{ $payrollSundries != null ? $payrollSundries->Insurances : '' }}")
+                $('#sundries-pag-ibig-contribution').val("{{ $payrollSundries != null ? $payrollSundries->PagIbigContribution : '' }}")
+                $('#sundries-sss-contribution').val("{{ $payrollSundries != null ? $payrollSundries->SSSContribution : '' }}")
+                $('#sundries-philhealth').val("{{ $payrollSundries != null ? $payrollSundries->PhilHealth : '' }}")
+                $('#sundries-notes').val("{{ $payrollSundries != null ? $payrollSundries->Notes : '' }}")
+            }
         }
     </script>
 @endpush

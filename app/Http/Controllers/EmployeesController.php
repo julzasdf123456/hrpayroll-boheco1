@@ -26,6 +26,7 @@ use App\Models\LeaveBalances;
 use App\Models\LeaveBalanceDetails;
 use App\Models\OffsetApplications;
 use App\Models\Overtimes;
+use App\Models\EmployeePayrollSundries;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -158,6 +159,7 @@ class EmployeesController extends AppBaseController
             $leaveApplications = null;
         }
         
+        $payrollSundries = EmployeePayrollSundries::where('EmployeeId', $id)->first();
 
         if (empty($employees)) {
             Flash::error('Employees not found');
@@ -179,6 +181,7 @@ class EmployeesController extends AppBaseController
                 'leaveBalanceDetails' => $leaveBalanceDetails,
                 'tripTickets' => $tripTickets,
                 'overtimes' => $overtimes,
+                'payrollSundries' => $payrollSundries,
             ]);
         } else {
             return abort(403, "You're not authorized view your profile.");
@@ -497,6 +500,16 @@ class EmployeesController extends AppBaseController
         }
     }
 
+    public function getEmployeesAjax(Request $request) {
+        $employees = Employees::orderBy('LastName')->get();
+
+        if ($employees != null) {
+            return response()->json($employees, 200);
+        } else {
+            return response()->json('Employee not found!', 404);
+        }
+    }
+
     public function getAttendanceDataAjax(Request $request) {
         $employeeId = $request['EmployeeId'];
 
@@ -557,5 +570,49 @@ class EmployeesController extends AppBaseController
         }
 
         return response()->json($employee, 200);
+    }
+
+    public function savePayrollSundries(Request $request) {
+        $employeeId = $request['EmployeeId'];
+        $longevity = $request['Longevity'];
+        $riceAllowance = $request['RiceAllowance'];
+        $insurance = $request['Insurance'];
+        $pagIbig = $request['PagIbigContribution'];
+        $sss = $request['SSSContribution'];
+        $philHealth = $request['PhilHealth'];
+        $notes = $request['Notes'];
+
+        $sundries = EmployeePayrollSundries::where('EmployeeId', $employeeId)->first();
+        $employee = Employees::find($employeeId);
+
+        if ($sundries != null) {
+            $sundries->Longevity = $longevity;
+            $sundries->RiceAllowance = $riceAllowance;
+            $sundries->Insurances = $insurance;
+            $sundries->PagIbigContribution = $pagIbig;
+            $sundries->SSSContribution = $sss;
+            $sundries->PhilHealth = $philHealth;
+            $sundries->Notes = $notes;
+            $sundries->save();
+        } else {
+            $sundries = new EmployeePayrollSundries;
+            $sundries->id = IDGenerator::generateIDandRandString();
+            $sundries->EmployeeId = $employeeId;
+            $sundries->Longevity = $longevity;
+            $sundries->RiceAllowance = $riceAllowance;
+            $sundries->Insurances = $insurance;
+            $sundries->PagIbigContribution = $pagIbig;
+            $sundries->SSSContribution = $sss;
+            $sundries->PhilHealth = $philHealth;
+            $sundries->Notes = $notes;
+            $sundries->save();
+        }
+
+        if ($employee != null) {
+            $employee->Longevity = $longevity;
+            $employee->save();
+        }
+
+        return response()->json($sundries, 200);
     }
 }
