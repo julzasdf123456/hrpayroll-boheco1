@@ -180,6 +180,13 @@
         </li>
         <div class="divider"></div>
         <li class="nav-item">
+            <a href="{{ route('employeePayrollSundries.contributions') }}" class="nav-link {{ Request::is('employeePayrollSundries.contributions*') ? 'active' : '' }}">
+                <i class="nav-icon fas fa-tags"></i>
+                <p>Contributions</p>
+            </a>
+        </li>
+        <div class="divider"></div>
+        <li class="nav-item">
             <a href="{{ route('loans.pag-ibig') }}" class="nav-link {{ Request::is('loans.pag-ibig*') ? 'active' : '' }}">
                 <i class="nav-icon fas fa-home"></i>
                 <p>Pag-Ibig Loans</p>

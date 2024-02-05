@@ -22,6 +22,7 @@
         "openai": "^4.0.0",
         "sweetalert2": "^11.10.4",
         "vue": "^3.2.36",
-        "vue-flatpickr-component": "^11.0.3"
+        "vue-flatpickr-component": "^11.0.3",
+        "vue-toasted": "^1.1.28"
     }
 }

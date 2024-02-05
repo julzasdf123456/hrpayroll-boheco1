@@ -19,7 +19,10 @@ class EmployeePayrollSundries extends Model
         'SSSContribution',
         'SSSLoan',
         'PhilHealth',
-        'Notes'
+        'Notes',
+        'PagIbigContributionEmployer',
+        'SSSContributionEmployer',
+        'PhilHealthContributionEmployer',
     ];
 
     protected $casts = [
@@ -33,7 +36,10 @@ class EmployeePayrollSundries extends Model
         'SSSContribution' => 'decimal:2',
         'SSSLoan' => 'decimal:2',
         'PhilHealth' => 'decimal:2',
-        'Notes' => 'string'
+        'Notes' => 'string',
+        'PagIbigContributionEmployer' => 'string',
+        'SSSContributionEmployer' => 'string',
+        'PhilHealthContributionEmployer' => 'string',
     ];
 
     public static array $rules = [
@@ -48,7 +54,10 @@ class EmployeePayrollSundries extends Model
         'PhilHealth' => 'nullable|numeric',
         'created_at' => 'nullable',
         'updated_at' => 'nullable',
-        'Notes' => 'nullable|string|max:2000'
+        'Notes' => 'nullable|string|max:2000',
+        'PagIbigContributionEmployer' => 'nullable|string',
+        'SSSContributionEmployer' => 'nullable|string',
+        'PhilHealthContributionEmployer' => 'nullable|string',
     ];
 
     
