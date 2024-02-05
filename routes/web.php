@@ -17,6 +17,7 @@ use App\Http\Controllers\PayrollIndexController;
 use App\Http\Controllers\EmployeePayrollSchedulesController;
 use App\Http\Controllers\LoansController;
 use App\Http\Controllers\OtherPayrollDeductionsController;
+use App\Http\Controllers\EmployeePayrollSundriesController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -232,7 +233,11 @@ Route::resource('overtimeSignatories', App\Http\Controllers\OvertimeSignatoriesC
 Route::resource('dayOffSchedules', App\Http\Controllers\DayOffSchedulesController::class);
 Route::resource('specialDutyDays', App\Http\Controllers\SpecialDutyDaysController::class);
 
-Route::resource('employeePayrollSundries', App\Http\Controllers\EmployeePayrollSundriesController::class);
+Route::get('/employee_payroll_sundries/contributions', [EmployeePayrollSundriesController::class, 'contributions'])->name('employeePayrollSundries.contributions');
+Route::get('/employee_payroll_sundries/get-contribution-data', [EmployeePayrollSundriesController::class, 'getContributionData'])->name('employeePayrollSundries.get-contribution-data');
+Route::get('/employee_payroll_sundries/insert-contribution-data', [EmployeePayrollSundriesController::class, 'insertContributionData'])->name('employeePayrollSundries.insert-contribution-data');
+Route::get('/employee_payroll_sundries/insert-all-contribution-data', [EmployeePayrollSundriesController::class, 'insertAllContributionData'])->name('employeePayrollSundries.insert-all-contribution-data');
+Route::resource('employeePayrollSundries', EmployeePayrollSundriesController::class);
 
 Route::get('/loans/pag-ibig', [LoansController::class, 'pagIbig'])->name('loans.pag-ibig');
 Route::get('/loans/save-pag-ibig-loans', [LoansController::class, 'savePagIbigLoans'])->name('loans.save-pag-ibig-loans');

@@ -7,6 +7,10 @@ use App\Http\Requests\UpdateEmployeePayrollSundriesRequest;
 use App\Http\Controllers\AppBaseController;
 use App\Repositories\EmployeePayrollSundriesRepository;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+use App\Models\IDGenerator;
+use App\Models\EmployeePayrollSundries;
 use Flash;
 
 class EmployeePayrollSundriesController extends AppBaseController
@@ -125,5 +129,121 @@ class EmployeePayrollSundriesController extends AppBaseController
         Flash::success('Employee Payroll Sundries deleted successfully.');
 
         return redirect(route('employeePayrollSundries.index'));
+    }
+
+    public function contributions(Request $request) {
+        return view('/employee_payroll_sundries/contributions', [
+
+        ]);
+    }
+
+    public function getContributionData(Request $request) {
+        $department = $request['Department'];
+
+        if ($department == 'All') {
+            $employees = DB::table('Employees')
+                ->leftJoin('EmployeePayrollSundries', 'EmployeePayrollSundries.EmployeeId', '=', 'Employees.id')
+                ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+                ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+                ->select(
+                    'Employees.id AS EmployeeIdNumber',
+                    'FirstName',
+                    'MiddleName',
+                    'LastName',
+                    'Suffix',
+                    'EmployeePayrollSundries.*'
+                )
+                ->orderBy('FirstName')
+                ->get();
+        } else {
+            $employees = DB::table('Employees')
+                ->leftJoin('EmployeePayrollSundries', 'EmployeePayrollSundries.EmployeeId', '=', 'Employees.id')
+                ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+                ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+                ->whereRaw("Positions.Department='" . $department . "'")
+                ->select(
+                    'Employees.id AS EmployeeIdNumber',
+                    'FirstName',
+                    'MiddleName',
+                    'LastName',
+                    'Suffix',
+                    'EmployeePayrollSundries.*'
+                )
+                ->orderBy('FirstName')
+                ->get();
+        }
+
+        return response()->json($employees, 200);
+    }
+
+    public function insertContributionData(Request $request) {
+        $employeeId = $request['EmployeeId'];
+        $amount = $request['Amount'];
+        $type = $request['Type'];
+
+        $sundry = EmployeePayrollSundries::where('EmployeeId', $employeeId)->first();
+        if ($sundry == null) {
+            $sundry = new EmployeePayrollSundries;
+            $sundry->id = IDGenerator::generateIDandRandString();
+            $sundry->EmployeeId = $employeeId;
+        }
+
+        if ($type == 'PagIbigEmployer') {
+            $sundry->PagIbigContributionEmployer = $amount;
+        } elseif ($type == 'PagIbigEmployee') {
+            $sundry->PagIbigContribution = $amount;
+        } elseif ($type == 'SSSEmployer') {
+            $sundry->SSSContributionEmployer = $amount;
+        } elseif ($type == 'SSSEmployee') {
+            $sundry->SSSContribution = $amount;
+        } elseif ($type == 'PhilHealthEmployer') {
+            $sundry->PhilHealth = $amount;
+        } elseif ($type == 'PhilHealthEmployee') {
+            $sundry->PhilHealthContributionEmployer = $amount;
+        }
+
+        $sundry->save();
+    }
+
+    public function insertAllContributionData(Request $request) {
+        $amount = $request['Amount'];
+        $type = $request['Type'];
+        $department = $request['Department'];
+
+        $employees = DB::table('Employees')
+                ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+                ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+                ->whereRaw("Positions.Department='" . $department . "'")
+                ->select(
+                    'Employees.id'
+                )
+                ->get();
+
+        foreach($employees as $item) {
+            $sundry = EmployeePayrollSundries::where('EmployeeId', $item->id)->first();
+            if ($sundry == null) {
+                $sundry = new EmployeePayrollSundries;
+                $sundry->id = IDGenerator::generateIDandRandString();
+                $sundry->EmployeeId = $item->id;
+            }
+
+            if ($type == 'PagIbigEmployer') {
+                $sundry->PagIbigContributionEmployer = $amount;
+            } elseif ($type == 'PagIbigEmployee') {
+                $sundry->PagIbigContribution = $amount;
+            } elseif ($type == 'SSSEmployer') {
+                $sundry->SSSContributionEmployer = $amount;
+            } elseif ($type == 'SSSEmployee') {
+                $sundry->SSSContribution = $amount;
+            } elseif ($type == 'PhilHealthEmployer') {
+                $sundry->PhilHealth = $amount;
+            } elseif ($type == 'PhilHealthEmployee') {
+                $sundry->PhilHealthContributionEmployer = $amount;
+            }
+
+            $sundry->save();
+        }
+
+        return response()->json('ok', 200);
     }
 }

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>{{ config('app.name') }}</title>
     <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
+    <meta name="color-profile" content="{{ Auth::user()->ColorProfile }}">
 
     <link rel="stylesheet" href="{{ URL::asset('css/source_sans_pro.css'); }} ">
 
