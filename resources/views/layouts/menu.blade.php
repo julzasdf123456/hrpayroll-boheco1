@@ -178,25 +178,35 @@
                 <p>Generate Payroll</p>
             </a>
         </li>
-        <li class="nav-header">                
-            Loans
-        </li>
+        <div class="divider"></div>
         <li class="nav-item">
             <a href="{{ route('loans.pag-ibig') }}" class="nav-link {{ Request::is('loans.pag-ibig*') ? 'active' : '' }}">
                 <i class="nav-icon fas fa-home"></i>
-                <p>Pag-Ibig</p>
+                <p>Pag-Ibig Loans</p>
             </a>
         </li>
         <li class="nav-item">
             <a href="{{ route('loans.sss') }}" class="nav-link {{ Request::is('loans.sss*') ? 'active' : '' }}">
                 <i class="nav-icon fas fa-weight"></i>
-                <p>SSS</p>
+                <p>SSS Loans</p>
             </a>
         </li>
         <li class="nav-item">
             <a href="{{ route('loans.motorcycle') }}" class="nav-link {{ Request::is('loans.motorcycle*') ? 'active' : '' }}">
                 <i class="nav-icon fas fa-motorcycle"></i>
-                <p>Motorcycle</p>
+                <p>Motorcycle Loans</p>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="{{ route('loans.other-loans') }}" class="nav-link {{ Request::is('loans.other-loans*') ? 'active' : '' }}">
+                <i class="nav-icon fas fa-list-ul"></i>
+                <p>Other Loans/Ammort.</p>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="{{ route('otherPayrollDeductions.index') }}" class="nav-link {{ Request::is('otherPayrollDeductions*') ? 'active' : '' }}">
+                <i class="nav-icon fas fa-minus"></i>
+                <p>Other Payroll Deductions</p>
             </a>
         </li>
     </ul>
@@ -339,4 +349,3 @@
     </ul>
 </li>
 @endcanany
-
