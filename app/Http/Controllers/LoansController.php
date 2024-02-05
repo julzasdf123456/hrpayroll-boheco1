@@ -186,6 +186,24 @@ class LoansController extends AppBaseController
         ]);
     }
 
+    public function otherLoans(Request $request) {
+        $data = DB::table('Loans')
+            ->leftJoin('Employees', 'Loans.EmployeeId', '=', 'Employees.id')
+            ->whereRaw("LoanFor NOT IN ('Motorcycle', 'SSS', 'Pag-Ibig')")
+            ->select(
+                'Employees.FirstName',
+                'Employees.MiddleName',
+                'Employees.LastName',
+                'Employees.Suffix',
+                'Loans.*')
+            ->orderByDesc('Loans.created_at')
+            ->get();
+
+        return view('/loans/other_loans', [
+            'data' => $data,
+        ]);
+    }
+
     public function savePagIbigLoans(Request $request) {
         $employeeId = $request['EmployeeId'];
         $monthlyAmmortization = $request['MonthlyAmmortization'];
@@ -319,6 +337,67 @@ class LoansController extends AppBaseController
         $loan->TermUnit = 'Monthly';
         $loan->EmployeeId = $employeeId;
         $loan->PaymentTerm = '15/30';
+        $loan->MonthlyAmmortization = $monthlyAmmortization;
+        $loan->save();
+
+        for($i=0; $i<$terms; $i++) {
+            if ($loan->PaymentTerm=='15') {
+                $loanDetails = new LoanDetails;
+                $loanDetails->id = IDGenerator::generateIDandRandString() . $i;
+                $loanDetails->LoanId = $loanId;
+                $loanDetails->MonthlyAmmortization = $monthlyAmmortization;
+                $loanDetails->Month = date('Y-m-15', strtotime($startingDate . ' +' . $i . ' months'));
+                $loanDetails->save();
+            } elseif ($loan->PaymentTerm=='30') {
+                $baseDate = date('Y-m-d', strtotime($startingDate . ' +' . $i . ' months'));
+                $month = date('Y-m-d', strtotime('last day of ' . $baseDate));
+
+                $loanDetails = new LoanDetails;
+                $loanDetails->id = IDGenerator::generateIDandRandString() . $i;
+                $loanDetails->LoanId = $loanId;
+                $loanDetails->MonthlyAmmortization = $monthlyAmmortization;
+                $loanDetails->Month = date('Y-m-d', strtotime($month));
+                $loanDetails->save();
+            } else {
+                $loanDetails = new LoanDetails;
+                $loanDetails->id = IDGenerator::generateIDandRandString() . $i;
+                $loanDetails->LoanId = $loanId;
+                $loanDetails->MonthlyAmmortization = round(floatval($monthlyAmmortization)/2, 2);
+                $loanDetails->Month = date('Y-m-15', strtotime($startingDate . ' +' . $i . ' months'));
+                $loanDetails->save();
+
+                $baseDate = date('Y-m-d', strtotime($startingDate . ' +' . $i . ' months'));
+                $month = date('Y-m-d', strtotime('last day of ' . $baseDate));
+
+                $loanDetails = new LoanDetails;
+                $loanDetails->id = IDGenerator::generateIDandRandString() . $i;
+                $loanDetails->LoanId = $loanId;
+                $loanDetails->MonthlyAmmortization = round(floatval($monthlyAmmortization)/2, 2);
+                $loanDetails->Month = date('Y-m-d', strtotime($month));
+                $loanDetails->save();
+            }
+        }
+
+        return response()->json($loan, 200);
+    }
+
+    public function saveOtherLoans(Request $request) {
+        $employeeId = $request['EmployeeId'];
+        $monthlyAmmortization = $request['MonthlyAmmortization'];
+        $terms = $request['Terms'];
+        $startingDate = $request['StartingDate'];
+        $loanFor = $request['LoanFor'];
+        $paymentTerm = $request['PaymentTerm'];
+
+        $loanId = IDGenerator::generateID();
+        $loan = new Loans;
+        $loan->id = $loanId;
+        $loan->LoanFor = $loanFor;
+        $loan->LoanName = $loanFor;
+        $loan->Terms = $terms;
+        $loan->TermUnit = 'Monthly';
+        $loan->EmployeeId = $employeeId;
+        $loan->PaymentTerm = $paymentTerm;
         $loan->MonthlyAmmortization = $monthlyAmmortization;
         $loan->save();
 

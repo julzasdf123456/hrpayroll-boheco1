@@ -660,6 +660,13 @@ class PayrollIndexController extends AppBaseController
                         'LoanDetails.MonthlyAmmortization',
                     )
                     ->get();
+
+            $item->OtherDeductions = DB::table('OtherPayrollDeductions')
+                    ->whereRaw("ScheduleDate='" . $loanPeriodMonth . "' AND EmployeeId='" . $item->id . "' AND Type='Others'")
+                    ->select(
+                        'Amount',
+                    )
+                    ->get();
         }
 
         $holidays = DB::table('HolidaysList')

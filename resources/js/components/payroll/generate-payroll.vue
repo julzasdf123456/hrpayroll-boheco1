@@ -1143,6 +1143,15 @@ export default {
 
             return totalLoan
         },
+        getOtherDeductions(deductions) {
+            var amount = 0
+
+            for(let i=0; i<deductions.length; i++) {
+                amount += this.isNull(deductions[i].Amount) ? 0 : parseFloat(deductions[i].Amount)
+            }
+
+            return this.round(amount)
+        },
         generate() {
             if (this.isNull(this.employeeType) | this.isNull(this.department) | this.isNull(this.salaryPeriod) | this.isNull(this.from) | this.isNull(this.to)) {
                 Swal.fire({
@@ -1298,7 +1307,7 @@ export default {
                         summaryChunks.push(philHealth > 0 ? `₱` + this.toMoney(philHealth) : '-');
 
                         // OTHER DEDUCTIONS   
-                        var otherDeductions = 0     
+                        var otherDeductions = this.getOtherDeductions(response.data['Employees'][i]['OtherDeductions'])     
                         summaryChunks.push(otherDeductions > 0 ? `₱` + this.toMoney(otherDeductions) : '-');
 
                         // TAX WITHHELD     

@@ -16,6 +16,7 @@ use App\Http\Controllers\OvertimesController;
 use App\Http\Controllers\PayrollIndexController;
 use App\Http\Controllers\EmployeePayrollSchedulesController;
 use App\Http\Controllers\LoansController;
+use App\Http\Controllers\OtherPayrollDeductionsController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -240,6 +241,9 @@ Route::get('/loans/sss', [LoansController::class, 'sss'])->name('loans.sss');
 Route::get('/loans/save-sss-loans', [LoansController::class, 'saveSSSLoans'])->name('loans.save-sss-loans');
 Route::get('/loans/motorcycle', [LoansController::class, 'motorcycle'])->name('loans.motorcycle');
 Route::get('/loans/save-motorcycle-loans', [LoansController::class, 'saveMotorcycleLoans'])->name('loans.save-motorcycle-loans');
+Route::get('/loans/other-loans', [LoansController::class, 'otherLoans'])->name('loans.other-loans');
+Route::get('/loans/save-other-loans', [LoansController::class, 'saveOtherLoans'])->name('loans.save-other-loans');
 Route::resource('loans', LoansController::class);
 
 Route::resource('loanDetails', App\Http\Controllers\LoanDetailsController::class);
+Route::resource('otherPayrollDeductions', OtherPayrollDeductionsController::class);
