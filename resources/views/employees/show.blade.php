@@ -130,8 +130,19 @@
                                             <td><i class="fas text-muted fa-tint"></i></td>
                                             <td>{{ $employees->BloodType }}</td>
                                         </tr>
+                                        <tr title="Date Hired">
+                                            <td><i class="fas text-muted fa-user-md"></i></td>
+                                            <td>
+                                                {{ $employees->DateHired != null ? date('F d, Y', strtotime($employees->DateHired)) : '-' }} 
+                                                @if ($employees->DateHired != null)
+                                                    ({{ Employees::getYearsFromDateHired($employees->DateHired) }} years)
+                                                @endif
+                                            </td>
+                                        </tr>
                                     </tbody>
                                 </table>
+
+                                {{ Employees::getTotalLongevityProjection($employees, 2024) }}
                             </div>
 
                             {{-- TABS --}}

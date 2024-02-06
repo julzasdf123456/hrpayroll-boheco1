@@ -9,6 +9,7 @@ use App\Repositories\OtherPayrollDeductionsRepository;
 use Illuminate\Http\Request;
 use App\Models\IDGenerator;
 use Illuminate\Support\Facades\DB;
+use App\Models\OtherPayrollDeductions;
 use Flash;
 
 class OtherPayrollDeductionsController extends AppBaseController
@@ -140,5 +141,91 @@ class OtherPayrollDeductionsController extends AppBaseController
         Flash::success('Other Payroll Deductions deleted successfully.');
 
         return redirect(route('otherPayrollDeductions.index'));
+    }
+
+    public function multiplePayrollDeductions(Request $request) {
+        return view('/other_payroll_deductions/multiple_payroll_deductions', [
+
+        ]);
+    }
+
+    public function getOtherDeductionMultipleData(Request $request) {
+        $department = $request['Department'];
+        $schedule = $request['Schedule'];
+
+        if ($department == 'All') {
+            $employees = DB::table('Employees')
+                ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+                ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+                ->select(
+                    'Employees.id',
+                    'FirstName',
+                    'MiddleName',
+                    'LastName',
+                    'Suffix',
+                    DB::raw("(SELECT SUM(Amount) AS Amount FROM OtherPayrollDeductions WHERE ScheduleDate='" . $schedule . "' AND EmployeeId=Employees.id GROUP BY ScheduleDate) AS Amount")
+                )
+                ->orderBy('LastName')
+                ->get();
+        } else {
+            if ($department == 'SUB-OFFICE') {
+                $employees = DB::table('Employees')
+                    ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+                    ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+                    ->whereRaw("Employees.OfficeDesignation='" . $department . "'")
+                    ->select(
+                        'Employees.id',
+                        'FirstName',
+                        'MiddleName',
+                        'LastName',
+                        'Suffix',
+                        DB::raw("(SELECT SUM(Amount) AS Amount FROM OtherPayrollDeductions WHERE ScheduleDate='" . $schedule . "' AND EmployeeId=Employees.id GROUP BY ScheduleDate) AS Amount")
+                    )
+                    ->orderBy('LastName')
+                    ->get();
+            } else {
+                $employees = DB::table('Employees')
+                    ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+                    ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+                    ->whereRaw("Positions.Department='" . $department . "' AND Employees.OfficeDesignation NOT IN ('SUB-OFFICE')")
+                    ->select(
+                        'Employees.id',
+                        'FirstName',
+                        'MiddleName',
+                        'LastName',
+                        'Suffix',
+                        DB::raw("(SELECT SUM(Amount) AS Amount FROM OtherPayrollDeductions WHERE ScheduleDate='" . $schedule . "' AND EmployeeId=Employees.id GROUP BY ScheduleDate) AS Amount")
+                    )
+                    ->orderBy('LastName')
+                    ->get();
+            }            
+        }
+
+        return response()->json($employees, 200);
+    }
+
+    public function updateOtherDeductionData(Request $request) {
+        $employeeId = $request['EmployeeId'];
+        $schedule = $request['Schedule'];
+        $amount = $request['Amount'];
+
+        // DELETE EXISTING FIRST
+        OtherPayrollDeductions::where('EmployeeId', $employeeId)
+            ->where('ScheduleDate', $schedule)
+            ->delete();
+
+        if ($amount != null) {
+            // CREATE NEW
+            $others = new OtherPayrollDeductions;
+            $others->id = IDGenerator::generateIDandRandString();
+            $others->EmployeeId = $employeeId;
+            $others->DeductionName = 'AR - Others';
+            $others->ScheduleDate = $schedule;
+            $others->Type = 'Others';
+            $others->Amount = $amount;
+
+            $others->save();
+        }
+        return response()->json('ok', 200);
     }
 }

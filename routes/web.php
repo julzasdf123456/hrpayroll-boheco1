@@ -18,6 +18,8 @@ use App\Http\Controllers\EmployeePayrollSchedulesController;
 use App\Http\Controllers\LoansController;
 use App\Http\Controllers\OtherPayrollDeductionsController;
 use App\Http\Controllers\EmployeePayrollSundriesController;
+use App\Http\Controllers\IncentivesAnnualProjectionController;
+use App\Http\Controllers\EmployeeIncentiveAnnualProjectionsController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -67,6 +69,8 @@ Route::get('/employees/get-employees-ajax', [EmployeesController::class, 'getEmp
 Route::get('/employees/get-attendance-data-ajax', [EmployeesController::class, 'getAttendanceDataAjax'])->name('employees.get-attendance-data-ajax');
 Route::get('/employees/allow-no-attendance', [EmployeesController::class, 'allowNoAttendance'])->name('employees.allow-no-attendance');
 Route::get('/employees/save-payroll-sundries', [EmployeesController::class, 'savePayrollSundries'])->name('employees.save-payroll-sundries');
+Route::get('/employees/update-office', [EmployeesController::class, 'updateOffice'])->name('employees.update-office');
+Route::get('/employees/update-date-hired', [EmployeesController::class, 'updateDateHired'])->name('employees.update-date-hired');
 Route::resource('employees', EmployeesController::class);
 
 Route::resource('permissions', App\Http\Controllers\PermissionController::class);
@@ -251,4 +255,17 @@ Route::get('/loans/save-other-loans', [LoansController::class, 'saveOtherLoans']
 Route::resource('loans', LoansController::class);
 
 Route::resource('loanDetails', App\Http\Controllers\LoanDetailsController::class);
+
+Route::get('/other_payroll_deductions/multiple-payroll-deductions', [OtherPayrollDeductionsController::class, 'multiplePayrollDeductions'])->name('otherPayrollDeductions.multiple-payroll-deductions');
+Route::get('/other_payroll_deductions/get-other-deduction-multiple-data', [OtherPayrollDeductionsController::class, 'getOtherDeductionMultipleData'])->name('otherPayrollDeductions.get-other-deduction-multiple-data');
+Route::get('/other_payroll_deductions/update-other-deduction-data', [OtherPayrollDeductionsController::class, 'updateOtherDeductionData'])->name('otherPayrollDeductions.update-other-deduction-data');
 Route::resource('otherPayrollDeductions', OtherPayrollDeductionsController::class);
+
+Route::get('/incentives_annual_projections/insert-datas', [IncentivesAnnualProjectionController::class, 'insertDatas'])->name('incentivesAnnualProjections.insert-datas');
+Route::get('/incentives_annual_projections/get-incentives-per-year', [IncentivesAnnualProjectionController::class, 'getIncentivesPerYear'])->name('incentivesAnnualProjections.get-incentives-per-year');
+Route::get('/incentives_annual_projections/update-data', [IncentivesAnnualProjectionController::class, 'updateData'])->name('incentivesAnnualProjections.update-data');
+Route::get('/incentives_annual_projections/remove', [IncentivesAnnualProjectionController::class, 'remove'])->name('incentivesAnnualProjections.remove');
+Route::resource('incentivesAnnualProjections', IncentivesAnnualProjectionController::class);
+
+Route::get('/employee_incentive_annual_projections/project-all', [EmployeeIncentiveAnnualProjectionsController::class, 'projectAll'])->name('employeeIncentiveAnnualProjections.project-all');
+Route::resource('employeeIncentiveAnnualProjections', EmployeeIncentiveAnnualProjectionsController::class);

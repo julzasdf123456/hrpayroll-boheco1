@@ -19,6 +19,8 @@ import EmployeesSearch from "./components/employees/search.vue"
 import Reeve from "./components/reeve/reeve.vue"
 import GeneratePayroll from "./components/payroll/generate-payroll.vue"
 import Contributions from "./components/payroll-sundries/contributions.vue"
+import MultiplePayrollDeductions from "./components/payroll/multiple-payroll-deductions.vue"
+import IncentivesAnnualProjection from "./components/bonuses/incentives-annual-projection.vue"
 
 const app = createApp({
     
@@ -30,5 +32,7 @@ app.component('employees-search', EmployeesSearch);
 app.component('reeve', Reeve);
 app.component('generate-payroll', GeneratePayroll);
 app.component('contributions', Contributions);
+app.component('multiple-payroll-deductions', MultiplePayrollDeductions);
+app.component('incentives-annual-projection', IncentivesAnnualProjection);
 
 app.mount("#app");

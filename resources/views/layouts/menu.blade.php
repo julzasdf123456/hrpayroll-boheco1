@@ -28,8 +28,8 @@
         <li class="nav-item">
             <a href="{{ route('employeePayrollSchedules.index') }}"
                class="nav-link {{ Request::is('employeePayrollSchedules.index*') ? 'active' : '' }}">
-               <i class="fas fa-circle nav-icon"></i>
-                <p>Work Scheduler</p>
+               <i class="fas fa-cogs nav-icon"></i>
+                <p>Employee Configurations</p>
             </a>
         </li>  
     </ul>
@@ -221,6 +221,27 @@
 @endcanany
 
 @canany('god permission')
+{{-- INCENTIVES SIDE --}}
+<li class="nav-item">
+    <a href="#" class="nav-link">
+        <i class="nav-icon fas fa-coins"></i>
+        <p>
+            Incentives & Bonuses
+            <i class="right fas fa-angle-left"></i>
+        </p>
+    </a>
+    <ul class="nav nav-treeview">
+        <li class="nav-item">
+            <a href="{{ route('incentivesAnnualProjections.index') }}" class="nav-link {{ Request::is('incentivesAnnualProjections*') ? 'active' : '' }}">
+                <i class="nav-icon fas fa-funnel-dollar"></i>
+                <p>Incentives Annual Projection</p>
+            </a>
+        </li>
+    </ul>
+</li>
+@endcanany
+
+@canany('god permission')
 {{-- SETTINGS SIDE --}}
 <li class="nav-item">
     <a href="#" class="nav-link">
@@ -356,3 +377,12 @@
     </ul>
 </li>
 @endcanany
+
+
+
+<li class="nav-item">
+    <a href="{{ route('employeeIncentiveAnnualProjections.index') }}" class="nav-link {{ Request::is('employeeIncentiveAnnualProjections*') ? 'active' : '' }}">
+        <i class="nav-icon fas fa-home"></i>
+        <p>Employee Incentive Annual Projections</p>
+    </a>
+</li>

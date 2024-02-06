@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Barangays;
 use App\Models\Towns;
 use Illuminate\Support\Facades\DB;
+use \DateTime;
 
 /**
  * Class Employees
@@ -82,6 +83,9 @@ class Employees extends Model
         'NoAttendanceAllowed',
         'DayOffDates',
         'Longevity',
+        'OfficeDesignation',
+        'DateHired',
+        'EmploymentStatus',
     ];
 
     /**
@@ -118,6 +122,9 @@ class Employees extends Model
         'NoAttendanceAllowed' => 'string',
         'DayOffDates' => 'string',
         'Longevity' => 'string',
+        'OfficeDesignation' => 'string',
+        'DateHired' => 'string',
+        'EmploymentStatus' => 'string',
     ];
 
     /**
@@ -155,6 +162,9 @@ class Employees extends Model
         'NoAttendanceAllowed' => 'nullable|string',
         'DayOffDates' => 'nullable|string',
         'Longevity' => 'nullable|string',
+        'OfficeDesignation' => 'nullable|string',
+        'DateHired' => 'nullable|string',
+        'EmploymentStatus' => 'nullable|string',
     ];
 
     public static function getMergeName($employee) {
@@ -269,5 +279,60 @@ class Employees extends Model
         }
 
         return $signatories;
+    }
+
+    public static function getYearsFromDateHired($dateHired) {
+        $now = new DateTime();
+        $dateHired = new DateTime($dateHired);
+
+        $interval = $dateHired->diff($now);
+
+        return $interval->y;
+    }
+
+    public static function getWholeYearLongevity($employee, $year) {
+        $dateHired = new DateTime($employee->DateHired);
+        $startDate = date('Y-m-d', strtotime('January ' . date('d', strtotime($employee->DateHired)) . ', ' . $year));
+
+        $longevityData = [];
+
+        for($i=0; $i<12; $i++) {
+            $runningDate = date('Y-m-d', strtotime($startDate . ' +' . $i . ' months'));
+            $endDate = new DateTime($runningDate);
+
+            $interval = $dateHired->diff($endDate);
+
+            $noOfYears = $interval->y;
+
+            $longevity = 0;
+            if ($noOfYears == 5) {
+                $longevity = 100;
+            } elseif ($noOfYears < 5) {
+                $longevity = 0;
+            } else {
+                $excessYears = $noOfYears - 5;
+
+                $longevity = 100 + ($excessYears * 50);
+            }
+
+            array_push($longevityData, [
+                "Month" => $runningDate,
+                "Years" => $noOfYears,
+                "Longevity" => $longevity,
+            ]);
+        }
+
+        return $longevityData;
+    }
+
+    public static function getTotalLongevityProjection($employee, $year) {
+        $data = Employees::getWholeYearLongevity($employee, $year);
+        $longevityProjection = 0;
+
+        foreach($data as $item) {
+            $longevityProjection += $item['Longevity'] != null ? floatval($item['Longevity']) : 0;
+        }
+
+        return $longevityProjection;
     }
 }
