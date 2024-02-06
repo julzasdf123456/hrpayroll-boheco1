@@ -10,7 +10,8 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
-                    <h4>Employee's Work Scheduler</h4>
+                    <h4>Employee Quick Configuration</h4>
+                    <span class="text-muted">Fast configuration of employees' shifts, day-offs, etc.</span>
                 </div>
                 <div class="col-sm-6">
                     {{-- <a class="btn btn-primary float-right"
@@ -25,6 +26,7 @@
                             @foreach ($departments as $item)
                                 <option value="{{ $item->Department }}" {{ isset($_GET['Department']) && $item->Department==$_GET['Department'] ? 'selected' : '' }}>{{ $item->Department }}</option>
                             @endforeach
+                            <option value="SUB-OFFICE" {{ isset($_GET['Department']) && $item->Department==$_GET['Department'] ? 'selected' : '' }}>SUB-OFFICE</option>
                         </select>
                     </form>
                 </div>
@@ -45,8 +47,10 @@
                         <th>Employee Name</th>
                         <th>Department</th>
                         <th>Designation</th>
-                        <th>Schedule</th>
+                        <th>Shift Schedule</th>
                         <th>Day Offs</th>
+                        <th>Office</th>
+                        <th>Date Hired</th>
                     </thead>
                     <tbody>
                         @foreach ($employees as $item)
@@ -70,6 +74,15 @@
                                         @endforeach
                                     </select>
                                 </td>
+                                <td>
+                                    <select id="office-{{ $item->id }}" class="form-control form-control-sm" onchange="updateOffice('{{ $item->id }}')">
+                                        <option value="MAIN OFFICE" {{ $item->OfficeDesignation == 'MAIN OFFICE' ? 'selected' : '' }}>MAIN OFFICE</option>
+                                        <option value="SUB-OFFICE" {{ $item->OfficeDesignation == 'SUB-OFFICE' ? 'selected' : '' }}>SUB-OFFICE</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <input id="date-hired-{{ $item->id }}" type="date" class="form-control form-control-sm" value="{{ $item->DateHired != null ? $item->DateHired : '' }}" onchange="updateDateHired(`{{ $item->id }}`)">
+                                </td>
                             </tr>
                         @endforeach
                     </tbody>
@@ -83,7 +96,7 @@
 @push('page_scripts')
     <script>
         $(document).ready(function() {
-
+            $('body').addClass('sidebar-collapse')
         })
 
         function update(id) {
@@ -138,6 +151,56 @@
                     }
                 })
             }            
+        }
+
+        function updateOffice(id) {
+            var office = $('#office-' + id).val()
+
+            $.ajax({
+                url : "{{ route('employees.update-office') }}",
+                type : "GET",
+                data : {
+                    id : id,
+                    Office : office,
+                },
+                success : function (res) {  
+                    Toast.fire({
+                        icon : 'success',
+                        text : 'Office updated!'
+                    })
+                },
+                error : function(err) {
+                    Toast.fire({
+                        icon : 'error',
+                        text : 'Error updating office!'
+                    })
+                }
+            })
+        }
+
+        function updateDateHired(id) {
+            var date = $('#date-hired-' + id).val()
+
+            $.ajax({
+                url : "{{ route('employees.update-date-hired') }}",
+                type : "GET",
+                data : {
+                    id : id,
+                    DateHired : date,
+                },
+                success : function (res) {  
+                    Toast.fire({
+                        icon : 'success',
+                        text : 'Date hired updated!'
+                    })
+                },
+                error : function(err) {
+                    Toast.fire({
+                        icon : 'error',
+                        text : 'Error updating date hired!'
+                    })
+                }
+            })
         }
     </script>
 @endpush

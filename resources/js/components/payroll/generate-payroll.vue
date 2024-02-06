@@ -19,6 +19,7 @@
                         <option value="OSD">OSD</option>
                         <option value="PGD">PGD</option>
                         <option value="SEEAD">SEEAD</option>
+                        <option value="SUB-OFFICE">SUB-OFFICE</option>
                     </select>
                 </div>
                 <div class="col-lg-2">
@@ -132,7 +133,7 @@ export default {
     data() {
         return {
             fifteenth : moment().format('YYYY-MM-15'),
-            thirtieth : moment().month()==1 ? moment().format('YYYY-MM-28') : moment().format('YYYY-MM-30'),
+            thirtieth : moment().month()==1 ? moment().endOf('month').format('YYYY-MM-DD') : moment().format('YYYY-MM-30'),
             moment : moment,
             selectedDate: null,
             pickerOptions: {

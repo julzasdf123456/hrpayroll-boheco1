@@ -153,24 +153,42 @@ class EmployeePayrollSundriesController extends AppBaseController
                     'Suffix',
                     'EmployeePayrollSundries.*'
                 )
-                ->orderBy('FirstName')
+                ->orderBy('LastName')
                 ->get();
         } else {
-            $employees = DB::table('Employees')
-                ->leftJoin('EmployeePayrollSundries', 'EmployeePayrollSundries.EmployeeId', '=', 'Employees.id')
-                ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
-                ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
-                ->whereRaw("Positions.Department='" . $department . "'")
-                ->select(
-                    'Employees.id AS EmployeeIdNumber',
-                    'FirstName',
-                    'MiddleName',
-                    'LastName',
-                    'Suffix',
-                    'EmployeePayrollSundries.*'
-                )
-                ->orderBy('FirstName')
-                ->get();
+            if ($department == 'SUB-OFFICE') {
+                $employees = DB::table('Employees')
+                    ->leftJoin('EmployeePayrollSundries', 'EmployeePayrollSundries.EmployeeId', '=', 'Employees.id')
+                    ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+                    ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+                    ->whereRaw("Employees.OfficeDesignation='" . $department . "'")
+                    ->select(
+                        'Employees.id AS EmployeeIdNumber',
+                        'FirstName',
+                        'MiddleName',
+                        'LastName',
+                        'Suffix',
+                        'EmployeePayrollSundries.*'
+                    )
+                    ->orderBy('LastName')
+                    ->get();
+            } else {
+                $employees = DB::table('Employees')
+                    ->leftJoin('EmployeePayrollSundries', 'EmployeePayrollSundries.EmployeeId', '=', 'Employees.id')
+                    ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+                    ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+                    ->whereRaw("Positions.Department='" . $department . "' AND Employees.OfficeDesignation NOT IN ('SUB-OFFICE')")
+                    ->select(
+                        'Employees.id AS EmployeeIdNumber',
+                        'FirstName',
+                        'MiddleName',
+                        'LastName',
+                        'Suffix',
+                        'EmployeePayrollSundries.*'
+                    )
+                    ->orderBy('LastName')
+                    ->get();
+            }            
         }
 
         return response()->json($employees, 200);

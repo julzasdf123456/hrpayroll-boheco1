@@ -8,7 +8,8 @@
                     <h4>Upcoming Payroll Deductions</h4>
                 </div>
                 <div class="col-lg-6">
-                    <button onclick="showOtherDeductions()" class="btn btn-primary float-right">Create New Deduction</button>
+                    <a href="{{ route('otherPayrollDeductions.multiple-payroll-deductions') }}" class="btn btn-sm btn-warning float-right"><i class="fas fa-stream ico-tab-mini"></i>Create Multiple Deduction</a>
+                    {{-- <button onclick="showOtherDeductions()" class="btn btn-sm btn-primary float-right ico-tab-mini"><i class="fas fa-minus ico-tab-mini"></i>Create Single Deduction</button> --}}
                 </div>
             </div>
         </div>

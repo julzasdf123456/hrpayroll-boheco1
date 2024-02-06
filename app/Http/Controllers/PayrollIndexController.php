@@ -565,38 +565,74 @@ class PayrollIndexController extends AppBaseController
             $loanPeriodMonth = date('Y-m-d', strtotime('last day of ' . $salaryPeriod));
         }
 
-        $employees = DB::table('Employees')
-            ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
-            ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
-            ->leftJoin('PayrollSchedules', 'Employees.PayrollScheduleId', '=', 'PayrollSchedules.id')
-            ->leftJoin('EmployeePayrollSundries', 'Employees.id', '=', 'EmployeePayrollSundries.EmployeeId')
-            ->select('Employees.FirstName',
-                    'Employees.MiddleName',
-                    'Employees.LastName',
-                    'Employees.Suffix',
-                    'Employees.id',
-                    'Employees.BiometricsUserId',
-                    'Employees.PayrollScheduleId',
-                    'Employees.NoAttendanceAllowed',
-                    'Employees.DayOffDates',
-                    'Positions.BasicSalary AS SalaryAmount',
-                    'Positions.Level',
-                    'EmployeesDesignations.Status',
-                    'PayrollSchedules.StartTime',
-                    'PayrollSchedules.BreakStart',
-                    'PayrollSchedules.BreakEnd',
-                    'PayrollSchedules.EndTime',
-                    'EmployeePayrollSundries.Longevity',
-                    'EmployeePayrollSundries.RiceAllowance',
-                    'EmployeePayrollSundries.Insurances',
-                    'EmployeePayrollSundries.PagIbigContribution',
-                    'EmployeePayrollSundries.SSSContribution',
-                    'EmployeePayrollSundries.PhilHealth',
-            )
-            ->where('EmployeesDesignations.Status', $employeeType)
-            ->where('Positions.Department', $department)
-            ->orderBy('Employees.LastName')
-            ->get();
+        if ($department == 'SUB-OFFICE') {
+            $employees = DB::table('Employees')
+                ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+                ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+                ->leftJoin('PayrollSchedules', 'Employees.PayrollScheduleId', '=', 'PayrollSchedules.id')
+                ->leftJoin('EmployeePayrollSundries', 'Employees.id', '=', 'EmployeePayrollSundries.EmployeeId')
+                ->select('Employees.FirstName',
+                        'Employees.MiddleName',
+                        'Employees.LastName',
+                        'Employees.Suffix',
+                        'Employees.id',
+                        'Employees.BiometricsUserId',
+                        'Employees.PayrollScheduleId',
+                        'Employees.NoAttendanceAllowed',
+                        'Employees.DayOffDates',
+                        'Positions.BasicSalary AS SalaryAmount',
+                        'Positions.Level',
+                        'EmployeesDesignations.Status',
+                        'PayrollSchedules.StartTime',
+                        'PayrollSchedules.BreakStart',
+                        'PayrollSchedules.BreakEnd',
+                        'PayrollSchedules.EndTime',
+                        'EmployeePayrollSundries.Longevity',
+                        'EmployeePayrollSundries.RiceAllowance',
+                        'EmployeePayrollSundries.Insurances',
+                        'EmployeePayrollSundries.PagIbigContribution',
+                        'EmployeePayrollSundries.SSSContribution',
+                        'EmployeePayrollSundries.PhilHealth',
+                )
+                ->where('EmployeesDesignations.Status', $employeeType)
+                ->where('Employees.OfficeDesignation', $department)
+                ->orderBy('Employees.LastName')
+                ->get();
+        } else {
+            $employees = DB::table('Employees')
+                ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+                ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+                ->leftJoin('PayrollSchedules', 'Employees.PayrollScheduleId', '=', 'PayrollSchedules.id')
+                ->leftJoin('EmployeePayrollSundries', 'Employees.id', '=', 'EmployeePayrollSundries.EmployeeId')
+                ->select('Employees.FirstName',
+                        'Employees.MiddleName',
+                        'Employees.LastName',
+                        'Employees.Suffix',
+                        'Employees.id',
+                        'Employees.BiometricsUserId',
+                        'Employees.PayrollScheduleId',
+                        'Employees.NoAttendanceAllowed',
+                        'Employees.DayOffDates',
+                        'Positions.BasicSalary AS SalaryAmount',
+                        'Positions.Level',
+                        'EmployeesDesignations.Status',
+                        'PayrollSchedules.StartTime',
+                        'PayrollSchedules.BreakStart',
+                        'PayrollSchedules.BreakEnd',
+                        'PayrollSchedules.EndTime',
+                        'EmployeePayrollSundries.Longevity',
+                        'EmployeePayrollSundries.RiceAllowance',
+                        'EmployeePayrollSundries.Insurances',
+                        'EmployeePayrollSundries.PagIbigContribution',
+                        'EmployeePayrollSundries.SSSContribution',
+                        'EmployeePayrollSundries.PhilHealth',
+                )
+                ->where('EmployeesDesignations.Status', $employeeType)
+                ->where('Positions.Department', $department)
+                ->whereRaw("Employees.OfficeDesignation NOT IN ('SUB-OFFICE')")
+                ->orderBy('Employees.LastName')
+                ->get();
+        }
 
         $defaultSched = PayrollSchedules::where('Name', 'Default')->orderByDesc('created_at')->first();
 

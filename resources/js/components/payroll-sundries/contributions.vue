@@ -19,6 +19,7 @@
                         <option value="OSD">OSD</option>
                         <option value="PGD">PGD</option>
                         <option value="SEEAD">SEEAD</option>
+                        <option value="SUB-OFFICE">SUB-OFFICE</option>
                     </select>
                 </div>
                 <div class="col-lg-3">

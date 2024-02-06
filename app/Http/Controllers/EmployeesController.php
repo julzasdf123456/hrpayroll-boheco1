@@ -615,4 +615,24 @@ class EmployeesController extends AppBaseController
 
         return response()->json($sundries, 200);
     }
+
+    public function updateOffice(Request $request) {
+        $office = $request['Office'];
+        $id = $request['id'];
+
+        Employees::where('id', $id)
+            ->update(['OfficeDesignation' => $office]);
+
+        return response()->json('ok', 200);
+    }
+
+    public function updateDateHired(Request $request) {
+        $dateHired = $request['DateHired'];
+        $id = $request['id'];
+
+        Employees::where('id', $id)
+            ->update(['DateHired' => $dateHired]);
+
+        return response()->json('ok', 200);
+    }
 }
