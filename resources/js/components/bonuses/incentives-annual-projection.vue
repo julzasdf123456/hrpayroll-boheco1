@@ -30,7 +30,7 @@
                         <tbody>
                             <tr v-for="projection in projections" :key="projection.id">
                                 <td>
-                                    <input class="table-input" :class="tableInputTextColor" v-model="projection.Incentive" @keyup.enter="inputEnter(projection.Incentive, projection.id, 'Incentive')" @blur="inputEnter(projection.Incentive, projection.id, 'Incentive')" type="text"/>
+                                    <input class="table-input" :readonly="projection.ReadOnly" :class="tableInputTextColor" v-model="projection.Incentive" @keyup.enter="inputEnter(projection.Incentive, projection.id, 'Incentive')" @blur="inputEnter(projection.Incentive, projection.id, 'Incentive')" type="text"/>
                                 </td>
                                 <td class="text-right">
                                     <input class="table-input text-right" :class="tableInputTextColor" v-model="projection.Amount" @keyup.enter="inputEnter(projection.Amount, projection.id, 'Amount')" @blur="inputEnter(projection.Amount, projection.id, 'Amount')" type="number" step="any"/>
@@ -104,7 +104,7 @@ export default {
         return {
             moment : moment,
             yearsData : [],
-            years : null, /* moment().format("YYYY") */
+            years : moment().format("YYYY"), /* moment().format("YYYY") */
             colorProfile : document.querySelector("meta[name='color-profile']").getAttribute('content'),
             tableInputTextColor : this.isNull(document.querySelector("meta[name='color-profile']").getAttribute('content')) ? 'text-dark' : 'text-white',
             defaultProjections : [
@@ -162,6 +162,7 @@ export default {
             isAddNewShown : false,
             hasNew : false,
             isProjectToAllShown : false,
+            readOnlyData : [ 'Rice and Laundry', 'Medical Allowance', 'Uniform Allowance' ],
         }
     },
     methods : {
@@ -206,7 +207,8 @@ export default {
                             Incentive : datas['Incentive'],
                             Amount : datas['Amount'],
                             Taxable : datas['IsTaxable'],
-                            MaxUntaxableThreshold : datas['MaxUntaxableAmount'] 
+                            MaxUntaxableThreshold : datas['MaxUntaxableAmount'],
+                            ReadOnly : this.readOnlyData.includes(datas['Incentive'])
                         })
                     }
                 }                
@@ -250,7 +252,8 @@ export default {
                             Incentive : datas['Incentive'],
                             Amount : datas['Amount'],
                             Taxable : datas['IsTaxable'],
-                            MaxUntaxableThreshold : datas['MaxUntaxableAmount'] 
+                            MaxUntaxableThreshold : datas['MaxUntaxableAmount'],
+                            ReadOnly : this.readOnlyData.includes(datas['Incentive'])
                         })
                     }
 
@@ -399,6 +402,8 @@ export default {
         for(let i=0; i<10; i++) {
             this.yearsData.push(moment().subtract(i, 'year').format("YYYY"))
         }
+
+        this.getIncentives()
     }
 }
 

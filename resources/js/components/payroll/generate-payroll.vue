@@ -40,7 +40,7 @@
                 <div class="col-lg-3">
                     <span class="text-muted">Action</span><br>
                     <button class="btn btn-default btn-sm ico-tab-mini" :disabled="isButtonDisabled" @click="generate()"><i class="fas fa-eye ico-tab-mini"></i>Preview</button>
-                    <button class="btn btn-primary btn-sm" ><i class="fas fa-check-circle ico-tab-mini"></i>Generate Payroll</button>
+                    <button class="btn btn-primary btn-sm" :disabled="isGenerateButtonDisabled" @click="savePayroll()"><i class="fas fa-check-circle ico-tab-mini"></i>Submit Payroll</button>
 
                     <div class="spinner-border text-primary float-right" :class="isDisplayed" role="status">
                         <span class="sr-only">Loading...</span>
@@ -123,6 +123,7 @@ import FlatPickr from 'vue-flatpickr-component';
 import 'flatpickr/dist/flatpickr.css';
 import jquery from 'jquery';
 import Swal from 'sweetalert2';
+import { Toast } from 'bootstrap';
 
 export default {
     name : 'GeneratePayroll.generate-payroll',
@@ -141,6 +142,12 @@ export default {
                 dateFormat: 'Y-m-d', // Date format
                 // You can configure more options here as per Flatpickr documentation
             },
+            toast : Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000
+            }),
             // PAYROLL DATA
             employeeType : 'Regular',
             department : 'OGM',
@@ -163,6 +170,8 @@ export default {
             isLegendDisplayed : '',
             totalDateColumns : 0,
             areDateColumnsDisplayed : true,
+            isGenerateButtonDisabled : true,
+            payrollData : [],
         }
     },
     methods : {
@@ -177,6 +186,8 @@ export default {
             let startDate = moment(from);
             const lastDate = moment(to);
             this.totalDateColumns = 0;
+            this.isGenerateButtonDisabled = true;
+            this.payrollData = []
 
             // ADD DUTY DATES COLUMN
             while (startDate <= lastDate) {
@@ -301,8 +312,18 @@ export default {
             });
 
             this.summaryHeaders.push({
-                name : 'Tax Withheld',
-                label : 'Tax Withheld'
+                name : 'Salary/OT/ Abs. WT',
+                label : 'Salary/OT/ Abs. WT'
+            });
+
+            this.summaryHeaders.push({
+                name : 'Taxable Incentives',
+                label : 'Taxable Incentives'
+            });
+
+            this.summaryHeaders.push({
+                name : 'Total Tax WHeld',
+                label : 'Total Tax WHeld'
             });
 
             this.summaryHeaders.push({
@@ -1153,12 +1174,70 @@ export default {
 
             return this.round(amount)
         },
+        getTaxByBracket(amount) {
+            if (amount <= 250000) {
+                return 0;
+            } else if (amount > 250000 && amount <= 400000) {
+                // 15% of the excess of 250,000
+                var excess = amount - 250000
+                return this.round(excess * .15)
+            } else if (amount > 400000 && amount <= 800000) {
+                // 22,500 + 20% of the excess of 400,000
+                var excess = amount - 400000
+                return this.round(22500 + (excess * .2))
+            } else if (amount > 800000 && amount <= 2000000) {
+                // 102,500 + 25% of the excess of 800,000
+                var excess = amount - 800000
+                return this.round(102500 + (excess * .25))
+            } else if (amount > 2000000 && amount <= 8000000) {
+                // 402,500 + 30% of the excess of 2,000,000
+                var excess = amount - 2000000
+                return this.round(402500 + (excess * .30))
+            } else {
+                // 2,202,500 + 35% of the excess of 8,000,000
+                var excess = amount - 8000000
+                return this.round(2202500 + (excess * .35))
+            }
+        },
+        getSalaryWithOTAndAbsences(salary, totalAbsencesAmount, totalOTsAmount) {
+            salary = parseFloat(salary)
+            var base = ((salary*12) + totalOTsAmount) - totalAbsencesAmount
+            return base
+        },
+        getSalaryWT(salary, totalAbsencesAmount, totalOTsAmount) {
+            salary = parseFloat(salary)
+            var base = ((salary*12) + totalOTsAmount) - totalAbsencesAmount
+            var taxInBracket = this.getTaxByBracket(base)
+            return taxInBracket <= 0 ? 0 : (taxInBracket/12/2)
+        },
+        getTaxableIncentivesProjection(incentivesArr) {
+            var size = incentivesArr.length
+            var total = 0
+            var totalUntaxable = 0
+            var totalTaxable = 0
+            var riceAllowance = 0
+            for(let i=0; i<size; i++) {
+                if (incentivesArr[i]['DeductMonthly'] == 'Yes') {
+                    if (incentivesArr[i]['Incentive'].includes('Rice and Laundry')) {
+
+                    }
+                    total += parseFloat(incentivesArr[i]['Amount'])
+                    totalUntaxable += parseFloat(incentivesArr[i]['MaxUntaxableAmount'])
+                }                
+            }
+
+            totalUntaxable += ((total-riceAllowance) >= 90000 ? 90000 : (total-riceAllowance))
+            totalTaxable = total - totalUntaxable
+
+            return totalTaxable < 1 ? 0 : totalTaxable
+        },
         generate() {
             if (this.isNull(this.employeeType) | this.isNull(this.department) | this.isNull(this.salaryPeriod) | this.isNull(this.from) | this.isNull(this.to)) {
                 Swal.fire({
                     icon : 'warning',
                     text : 'Please fill in all fields!',
                 });
+                this.isGenerateButtonDisabled = true;
             } else {
                 this.isDisplayed = null;
                 this.isButtonDisabled = true;
@@ -1182,6 +1261,8 @@ export default {
                     }
                 })
                 .then(response => {
+                    this.isGenerateButtonDisabled = false;
+
                     var size = response.data['Employees'].length;
                     for (let i=0; i<size; i++) {
                         this.employees.push({
@@ -1311,8 +1392,19 @@ export default {
                         var otherDeductions = this.getOtherDeductions(response.data['Employees'][i]['OtherDeductions'])     
                         summaryChunks.push(otherDeductions > 0 ? `₱` + this.toMoney(otherDeductions) : '-');
 
-                        // TAX WITHHELD     
-                        var taxWheld = 0    
+                        // SALARY/OT/LATE/UT/ABS WT   
+                        var baseSalaryWT = this.getSalaryWT(response.data['Employees'][i]['SalaryAmount'], lateAmount, otAmount)    
+                        summaryChunks.push(baseSalaryWT > 0 ? `₱` + this.toMoney(baseSalaryWT) : '-');
+
+                        // INCENTIVES WT   
+                        var taxableIncentives = this.getTaxableIncentivesProjection(response.data['Employees'][i]['ProjectedIncentives'])    
+                        summaryChunks.push(taxableIncentives > 0 ? `₱` + this.toMoney(taxableIncentives) : '-');
+
+                        // TAX WITHHELD  
+                        var baseSalaryTaxable = this.getSalaryWithOTAndAbsences(response.data['Employees'][i]['SalaryAmount'], lateAmount, otAmount)
+                        var totalTaxableAmount = baseSalaryTaxable + taxableIncentives - (pagIbigContribution + sssContribution + philHealth)
+                        var taxWheld = this.getTaxByBracket(totalTaxableAmount)
+                        taxWheld = taxWheld > 0 ? (taxWheld/12/2) : 0
                         summaryChunks.push(taxWheld > 0 ? `₱` + this.toMoney(taxWheld) : '-');
 
                         // TOTAL DEDUCTIONS 
@@ -1320,16 +1412,54 @@ export default {
                         summaryChunks.push(totalDeductions > 0 ? `₱` + this.toMoney(totalDeductions) : '-');
 
                         // NET PAY   
-                        var netPay = totalAmountPartial - totalDeductions     
+                        var netPay = totalAmountPartial - totalDeductions
+                        netPay = netPay < 1 ? 0 : netPay
                         summaryChunks.push(netPay > 0 ? (`<strong>₱` + this.toMoney(netPay) + `<strong>`) : '-');
 
                         this.summaries.push(summaryChunks)
+
+                        // FEED DATA FOR SAVING
+                        this.payrollData.push({
+                            EmployeeId : response.data['Employees'][i]['id'],
+                            SalaryPeriod : this.salaryPeriod,
+                            From : this.from,
+                            To : this.to,
+                            TotalHoursRendered : totalHoursRendered,
+                            TotalWorkedHours : totalWorkingHours,
+                            MonthlyWage : response.data['Employees'][i]['SalaryAmount'],
+                            TermWage : termWage,
+                            OvertimeHours : overtimesData['TotalHours'],
+                            OvertimeAmount : otAmount,
+                            AbsentHours : lateHours,
+                            AbsentAmount : lateAmount,
+                            Longevity : longevity,
+                            RiceLaundry : riceAllowance,
+                            OtherSalaryAdditions : otherAddonsPlus,
+                            OtherSalaryDeductions : otherAddonsMinus,
+                            TotalPartialAmount : totalAmountPartial,
+                            MotorycleLoan : mcLoan,
+                            PagIbigContribution : pagIbigContribution,
+                            PagIbigLoan : pagIbigLoan,
+                            SSSContribution : sssContribution,
+                            SSSLoan : sssLoan,
+                            PhilHealthContribution : philHealth,
+                            OtherDeductions : otherDeductions,
+                            SalaryWithholdingTax : baseSalaryWT,
+                            TotalWithholdingTax : taxWheld,
+                            TotalDeductions : totalDeductions,
+                            NetPay : netPay,
+                            Status : 'Generated',
+                            Department : this.department,
+                            EmployeeType : this.employeeType,
+                        })
 
                         this.isDisplayed = 'gone';
                         this.isButtonDisabled = false;
                     }
                 })
                 .catch(error => {
+                    this.isGenerateButtonDisabled = true;
+
                     Swal.fire({
                         icon : 'error',
                         title : 'Error getting employee data!',
@@ -1380,6 +1510,49 @@ export default {
             });
             
         },
+        savePayroll() {
+            Swal.fire({
+                title: "Submit for Audit?",
+                text : 'Submit this payroll draft for audit? You can always regenerate this anytime as long as it has not yet been approved for finalization.',
+                showCancelButton: true,
+                confirmButtonText: "Submit",
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    this.isDisplayed = ''
+                    this.isGenerateButtonDisabled = true;
+                    this.isButtonDisabled = true;
+
+                    axios.post(`${ axios.defaults.baseURL }/payroll_expanded_details/bulk-save-payroll`, {
+                            EmployeeType : this.employeeType,
+                            Department : this.department,
+                            SalaryPeriod : this.salaryPeriod,
+                            Data : this.payrollData,
+                    })
+                    .then(response => {
+                        this.isDisplayed = 'gone';
+                        this.isGenerateButtonDisabled = false;
+                        this.isButtonDisabled = false;
+                        this.toast.fire({
+                            icon : 'success',
+                            text : 'Payroll generated and forwarded for auditing!'
+                        })
+
+                        window.location.href = `${ axios.defaults.baseURL }`
+                    })
+                    .catch(error => {
+                        this.isGenerateButtonDisabled = true;
+
+                        Swal.fire({
+                            icon : 'error',
+                            title : 'Error submitting payroll data!',
+                        });
+                        console.log(error)
+                        this.isDisplayed = 'gone';
+                        this.isButtonDisabled = false;
+                    });
+                }
+            });
+        }
     },
     created() {
         

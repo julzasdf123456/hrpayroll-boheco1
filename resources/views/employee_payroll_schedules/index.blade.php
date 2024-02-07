@@ -51,6 +51,7 @@
                         <th>Day Offs</th>
                         <th>Office</th>
                         <th>Date Hired</th>
+                        <th>Biometrics ID</th>
                     </thead>
                     <tbody>
                         @foreach ($employees as $item)
@@ -82,6 +83,9 @@
                                 </td>
                                 <td>
                                     <input id="date-hired-{{ $item->id }}" type="date" class="form-control form-control-sm" value="{{ $item->DateHired != null ? $item->DateHired : '' }}" onchange="updateDateHired(`{{ $item->id }}`)">
+                                </td>
+                                <td style="width: 160px;">
+                                    <input id="biometric-id-{{ $item->id }}" onchange="updateBiometricId(`{{ $item->id }}`)" type="number" class="form-control form-control-sm" value="{{ $item->BiometricsUserId }}">
                                 </td>
                             </tr>
                         @endforeach
@@ -201,6 +205,35 @@
                     })
                 }
             })
+        }
+
+        function updateBiometricId(id) {
+            var bioId = $('#biometric-id-' + id).val()
+
+            if (isNull(bioId)) {
+
+            } else {
+                $.ajax({
+                    url : "{{ route('employees.update-biometrics-id') }}",
+                    type : "GET",
+                    data : {
+                        id : id,
+                        BiometricsId : bioId
+                    },
+                    success : function(res) {
+                        Toast.fire({
+                            icon : 'success',
+                            text : 'Biometrics ID updated!'
+                        })
+                    },
+                    error : function(err) {
+                        Toast.fire({
+                            icon : 'error',
+                            text : 'Error updating biometrics ID!'
+                        })
+                    }
+                })
+            }            
         }
     </script>
 @endpush
