@@ -635,4 +635,25 @@ class EmployeesController extends AppBaseController
 
         return response()->json('ok', 200);
     }
+
+    public function updateEnd(Request $request) {
+        $dateEnded = $request['DateEnded'];
+        $type = $request['Type'];
+        $id = $request['id'];
+
+        Employees::where('id', $id)
+            ->update(['DateEnded' => $dateEnded, 'EmploymentStatus' => $type]);
+
+        return response()->json('ok', 200);
+    }
+
+    public function updateBiometricsId(Request $request) {
+        $biometricsId = $request['BiometricsId'];
+        $id = $request['id'];
+
+        Employees::where('id', $id)
+            ->update(['BiometricsUserId' => $biometricsId]);
+
+        return response()->json('ok', 200);
+    }
 }

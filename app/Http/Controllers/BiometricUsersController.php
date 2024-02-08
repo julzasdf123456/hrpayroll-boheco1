@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateBiometricUsersRequest;
 use App\Repositories\BiometricUsersRepository;
 use App\Http\Controllers\AppBaseController;
 use Illuminate\Http\Request;
+use App\Models\BiometricUsers;
 use Flash;
 use Response;
 
@@ -30,10 +31,12 @@ class BiometricUsersController extends AppBaseController
      */
     public function index(Request $request)
     {
-        $biometricUsers = $this->biometricUsersRepository->all();
+        $biometricUsers = BiometricUsers::orderBy('Name')
+            ->paginate(30);
 
-        return view('biometric_users.index')
-            ->with('biometricUsers', $biometricUsers);
+        return view('biometric_users.index', [
+            'biometricUsers' => $biometricUsers,
+        ]);
     }
 
     /**

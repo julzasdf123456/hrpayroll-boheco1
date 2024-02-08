@@ -229,4 +229,76 @@ class EmployeeIncentiveAnnualProjectionsController extends AppBaseController
 
         return response()->json('ok', 200);
     }
+
+    public function incentiveWithholdingTaxes(Request $request) {
+        $department = $request['Department'];
+
+        $departments = DB::table('Positions')
+            ->select('Department')
+            ->groupBy('Department')
+            ->get();
+
+        if ($department == 'SUB-OFFICE') {
+            $employees = DB::table('Employees')
+                ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+                ->leftJoin('Positions', 'EmployeesDesignations.PositionId', '=', 'Positions.id')
+                ->whereRaw("(EmploymentStatus IS NULL OR EmploymentStatus NOT IN ('Retired', 'Resigned')) AND OfficeDesignation='" . $department . "'")
+                ->select('Employees.*', 'Positions.Department', 'Positions.Position', 'Positions.BasicSalary',
+                    DB::raw("(SELECT SUM(Amount) FROM EmployeeIncentiveAnnualProjections WHERE EmployeeId=Employees.id AND Year='" . date('Y') . "') AS ProjectedIncentives")
+                )
+                ->orderBy("Employees.LastName")
+                ->get();
+        } else {
+            if ($department == 'All') {
+                $employees = DB::table('Employees')
+                    ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+                    ->leftJoin('Positions', 'EmployeesDesignations.PositionId', '=', 'Positions.id')
+                    ->whereRaw("(EmploymentStatus IS NULL OR EmploymentStatus NOT IN ('Retired', 'Resigned'))")
+                    ->select('Employees.*', 'Positions.Department', 'Positions.Position', 'Positions.BasicSalary',
+                        DB::raw("(SELECT SUM(Amount) FROM EmployeeIncentiveAnnualProjections WHERE EmployeeId=Employees.id AND Year='" . date('Y') . "') AS ProjectedIncentives")
+                    )
+                    ->orderBy("Employees.LastName")
+                    ->get();
+            } else {
+                $employees = DB::table('Employees')
+                    ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+                    ->leftJoin('Positions', 'EmployeesDesignations.PositionId', '=', 'Positions.id')
+                    ->whereRaw("Positions.Department='" . $department . "' AND (EmploymentStatus IS NULL OR EmploymentStatus NOT IN ('Retired', 'Resigned')) AND OfficeDesignation='MAIN OFFICE'")
+                    ->select('Employees.*', 'Positions.Department', 'Positions.Position', 'Positions.BasicSalary',
+                        DB::raw("(SELECT SUM(Amount) FROM EmployeeIncentiveAnnualProjections WHERE EmployeeId=Employees.id AND Year='" . date('Y') . "') AS ProjectedIncentives")
+                    )
+                    ->orderBy("Employees.LastName")
+                    ->get();
+            }
+        }
+        
+
+        return view('/employee_incentive_annual_projections/incentive_withholding_taxes', [
+            'departments' => $departments,
+            'employees' => $employees,
+        ]);
+    }
+
+    public function getEmployeeProjection(Request $request) {
+        $year = $request['Year'];
+        $employeeId = $request['EmployeeId'];
+
+        $data = EmployeeIncentiveAnnualProjections::where('EmployeeId', $employeeId)
+            ->where('Year', $year)
+            ->orderBy('Incentive')
+            ->get();
+
+        return response()->json($data, 200);
+    }
+
+    public function updateAllDeductMonthly(Request $request) {
+        $data = $request['Data'];
+
+        foreach($data as $item) {
+            EmployeeIncentiveAnnualProjections::where('id', $item['id'])
+                ->update(['DeductMonthly' => $item['DeductMonthly']]);
+        }
+
+        return response()->json('ok', 200);
+    }
 }

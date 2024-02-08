@@ -8,6 +8,7 @@ use App\Repositories\PayrollIndexRepository;
 use App\Http\Controllers\AppBaseController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use App\Models\Employees;
 use App\Models\PayrollIndex;
 use App\Models\LeaveAttendanceDates;
@@ -21,6 +22,7 @@ use App\Models\EmployeesDesignations;
 use App\Models\ProfessionalIDs;
 use App\Models\AttendanceData;
 use App\Models\HolidaysList;
+use App\Models\PayrollExpandedDetails;
 use Flash;
 use Response;
 
@@ -596,6 +598,7 @@ class PayrollIndexController extends AppBaseController
                 )
                 ->where('EmployeesDesignations.Status', $employeeType)
                 ->where('Employees.OfficeDesignation', $department)
+                ->whereRaw("(EmploymentStatus IS NULL OR EmploymentStatus NOT IN ('Resigned', 'Retired'))")
                 ->orderBy('Employees.LastName')
                 ->get();
         } else {
@@ -629,7 +632,7 @@ class PayrollIndexController extends AppBaseController
                 )
                 ->where('EmployeesDesignations.Status', $employeeType)
                 ->where('Positions.Department', $department)
-                ->whereRaw("Employees.OfficeDesignation NOT IN ('SUB-OFFICE')")
+                ->whereRaw("Employees.OfficeDesignation NOT IN ('SUB-OFFICE') AND (EmploymentStatus IS NULL OR EmploymentStatus NOT IN ('Resigned', 'Retired'))")
                 ->orderBy('Employees.LastName')
                 ->get();
         }
@@ -703,6 +706,9 @@ class PayrollIndexController extends AppBaseController
                         'Amount',
                     )
                     ->get();
+            $item->ProjectedIncentives = DB::table('EmployeeIncentiveAnnualProjections')
+                    ->whereRaw("EmployeeId='" . $item->id . "' AND Year='" . date('Y') . "'")
+                    ->get();
         }
 
         $holidays = DB::table('HolidaysList')
@@ -739,5 +745,56 @@ class PayrollIndexController extends AppBaseController
         } else {
             return response()->json('Employee not found', 404);
         }
+    }
+
+    public function payrollAudit(Request $request) {
+        $data = DB::table('PayrollExpandedDetails')
+            ->whereRaw("Status='Generated'")
+            ->select(
+                'SalaryPeriod',
+                DB::raw("SUM(NetPay) AS NetPay"),
+                DB::raw("COUNT(id) AS TotalCount"),
+                DB::raw("TRY_CAST(GeneratedDate AS DATE) AS GeneratedDate")
+            )
+            ->groupByRaw("TRY_CAST(GeneratedDate AS DATE)")
+            ->groupBy('SalaryPeriod')
+            ->get();
+
+        return view('/payroll_indices/payroll_audit', [
+            'data' => $data,
+        ]);
+    }
+
+    public function payrollAuditReview($salaryPeriod) {
+        $departments = DB::table('PayrollExpandedDetails')
+            ->whereRaw("Status='Generated' AND SalaryPeriod='" . $salaryPeriod . "'")
+            ->select(
+                'Department',
+            )
+            ->groupBy('Department')
+            ->get();
+
+        $datas = [];
+        foreach($departments as $item) {
+            array_push($datas, [
+                'Department' => $item->Department,
+                'Data' => DB::table('PayrollExpandedDetails')
+                    ->leftJoin('Employees', 'PayrollExpandedDetails.EmployeeId', '=', 'Employees.id')
+                    ->whereRaw("PayrollExpandedDetails.Status='Generated' AND PayrollExpandedDetails.Department='" . $item->Department . "' AND PayrollExpandedDetails.SalaryPeriod='" . $salaryPeriod . "'")
+                    ->select(
+                        'FirstName',
+                        'LastName',
+                        'MiddleName',
+                        'Suffix',
+                        'PayrollExpandedDetails.*'
+                    )
+                    ->get(),
+            ]);
+        }
+
+        return view('/payroll_indices/payroll_audit_review', [
+            'datas' => $datas,
+            'salaryPeriod' => $salaryPeriod,
+        ]);
     }
 }

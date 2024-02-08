@@ -17,7 +17,11 @@
                         </div>
                         <div>
                             <span>
-                                <span style="font-size: 1.85em;"><strong>{{ Employees::getMergeName($employees) }}</strong></span><br>
+                                <span style="font-size: 1.85em;"><strong>{{ Employees::getMergeName($employees) }}</strong></span>
+                                @if (in_array($employees->EmploymentStatus, ['Resigned', 'Retired']))
+                                    <span class="badge bg-danger" style="font-size: 1em;">{{ $employees->EmploymentStatus }}</span>
+                                @endif
+                                <br>
                                 <span class="text-muted">
                                     @if (count($employeeDesignations) > 0)
                                         <i class="fas fa-lightbulb ico-tab-mini"></i>{{ $employeeDesignations{0}->Position }}
@@ -75,6 +79,9 @@
                             
                             @canany('god permission', 'employees delete')
                             <div class="dropdown-divider"></div>
+                            @if (!in_array($employees->EmploymentStatus, ['Resigned', 'Retired']))
+                                <button onclick="retire()" class="dropdown-item"><i class="fas fa-stop-circle ico-tab"></i>Retire/Resign</button>
+                            @endif                            
                             {!! Form::open(['route' => ['employees.destroy', $employees->id], 'method' => 'delete', 'style' => 'display: inline;']) !!}
                                 {!! Form::button('<i class="fas fa-trash-alt ico-tab text-danger" title="Delete this employee"></i>Trash Employee Data', ['type' => 'submit', 'class' => 'dropdown-item text-danger', 'onclick' => "return confirm('Are you sure?')"]) !!}
                             {!! Form::close() !!}
@@ -141,8 +148,6 @@
                                         </tr>
                                     </tbody>
                                 </table>
-
-                                {{ Employees::getTotalLongevityProjection($employees, 2024) }}
                             </div>
 
                             {{-- TABS --}}
@@ -212,6 +217,8 @@
 
 @include('employee_payroll_sundries.modal_configure_payroll_sundries')
 
+@include('employees.modal_retire')
+
 @push('page_scripts')
     <script>
         $(document).ready(function() {
@@ -226,6 +233,44 @@
                 },
                 error : function(error) {
                     console.log(error);
+                }
+            })
+
+            // RESIGN/RETIRE BUTTON
+            $('#submit-retire').on('click', function(e) {
+                e.preventDefault()
+
+                var type = $('#end-type').val()
+                var effectiveDate = $('#effective-date').val()
+
+                if (isNull(type) | isNull(effectiveDate)) {
+                    Toast.fire({
+                        icon : 'info',
+                        text : 'Please fill in all fields!'
+                    })
+                } else {
+                    $.ajax({
+                        url : "{{ route('employees.update-end') }}",
+                        type : "GET",
+                        data : {
+                            id : "{{ $employees->id }}",
+                            Type : type,
+                            DateEnded : effectiveDate,
+                        },
+                        success : function(res) {
+                            Toast.fire({
+                                icon : 'success',
+                                text : 'Employment status updated!'
+                            })
+                            location.reload()
+                        },
+                        error : function(err) {
+                            Swal.fire({
+                                icon : 'error',
+                                text : 'Error updating employment status!'
+                            })
+                        }
+                    })
                 }
             })
         });
@@ -311,6 +356,19 @@
                 $('#sundries-philhealth').val("{{ $payrollSundries != null ? $payrollSundries->PhilHealth : '' }}")
                 $('#sundries-notes').val("{{ $payrollSundries != null ? $payrollSundries->Notes : '' }}")
             }
+        }
+
+        function retire() {
+            Swal.fire({
+                title: "Resign/Retire Confirmation",
+                text : `By continuing, you will be ending this employees' company history, payroll data, etc.`,
+                showCancelButton: true,
+                confirmButtonText: "Proceed",
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $('#modal-retire').modal('show')
+                }
+            });
         }
     </script>
 @endpush

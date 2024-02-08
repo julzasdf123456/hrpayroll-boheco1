@@ -178,6 +178,13 @@
                 <p>Generate Payroll</p>
             </a>
         </li>
+        <li class="nav-item">
+            <a href="{{ route('payrollIndices.payroll-audit') }}"
+               class="nav-link {{ Request::is('payrollIndices.payroll-audit*') ? 'active' : '' }}">
+               <i class="fas fa-search-dollar nav-icon"></i>
+                <p>Audit Payroll</p>
+            </a>
+        </li>
         <div class="divider"></div>
         <li class="nav-item">
             <a href="{{ route('employeePayrollSundries.contributions') }}" class="nav-link {{ Request::is('employeePayrollSundries.contributions*') ? 'active' : '' }}">
@@ -237,6 +244,18 @@
                 <p>Incentives Annual Projection</p>
             </a>
         </li>
+        <li class="nav-item">
+            <a href="{{ route('employeeIncentiveAnnualProjections.incentive-withholding-taxes') }}" class="nav-link {{ Request::is('employeeIncentiveAnnualProjections.incentive-withholding-taxes*') ? 'active' : '' }}">
+                <i class="nav-icon fas fa-file-invoice-dollar"></i>
+                <p>Employees Incentive WTs</p>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="{{ route('employeeBonuses.index') }}" class="nav-link {{ Request::is('employeeBonuses*') ? 'active' : '' }}">
+                <i class="nav-icon fas fa-hand-holding-usd"></i>
+                <p>Employee Bonuses</p>
+            </a>
+        </li>
     </ul>
 </li>
 @endcanany
@@ -269,26 +288,18 @@
             </a>
         </li>
 
-        <li class="nav-item">
-            <a href="{{ route('rankingRepositories.index') }}"
-               class="nav-link {{ Request::is('rankingRepositories*') ? 'active' : '' }}">
-               <i class="fas fa-sort-amount-down nav-icon"></i>
-                <p>Rankings</p>
-            </a>
-        </li>
+        <div class="divider"></div>
 
         <li class="nav-item">
             <a href="{{ route('holidaysLists.index') }}" class="nav-link {{ Request::is('holidaysLists*') ? 'active' : '' }}">
                 <i class="nav-icon fas fa-circle"></i>
                 <p>Holidays Lists</p>
             </a>
-        </li>
-
+        </li> 
         <li class="nav-item">
-            <a href="{{ route('positions.index') }}"
-               class="nav-link {{ Request::is('positions*') ? 'active' : '' }}">
-               <i class="fas fa-circle nav-icon"></i>
-                <p>Positions</p>
+            <a href="{{ route('dayOffSchedules.index') }}" class="nav-link {{ Request::is('dayOffSchedules*') ? 'active' : '' }}">
+                <i class="nav-icon fas fa-calendar-times"></i>
+                <p>Day Off Schedules</p>
             </a>
         </li>
         
@@ -298,19 +309,32 @@
                <i class="fas fa-circle nav-icon"></i>
                 <p>Payroll Schedules</p>
             </a>
-        </li>    
-        <li class="nav-item">
-            <a href="{{ route('dayOffSchedules.index') }}" class="nav-link {{ Request::is('dayOffSchedules*') ? 'active' : '' }}">
-                <i class="nav-icon fas fa-calendar-times"></i>
-                <p>Day Off Schedules</p>
-            </a>
-        </li>
+        </li>  
         <li class="nav-item">
             <a href="{{ route('specialDutyDays.index') }}" class="nav-link {{ Request::is('specialDutyDays*') ? 'active' : '' }}">
                 <i class="nav-icon fas fa-calendar-day"></i>
                 <p>Special Duty Days</p>
             </a>
         </li>
+
+        <div class="divider"></div>
+
+        <li class="nav-item">
+            <a href="{{ route('positions.index') }}"
+               class="nav-link {{ Request::is('positions*') ? 'active' : '' }}">
+               <i class="fas fa-circle nav-icon"></i>
+                <p>Positions</p>
+            </a>
+        </li> 
+
+        <li class="nav-item">
+            <a href="{{ route('biometricUsers.index') }}"
+               class="nav-link {{ Request::is('biometricUsers.index*') ? 'active' : '' }}">
+               <i class="fas fa-fingerprint nav-icon"></i>
+                <p>Biometric Users</p>
+            </a>
+        </li> 
+
         <li class="nav-item">
             <a href="{{ route('vehicles.index') }}" class="nav-link {{ Request::is('vehicles*') ? 'active' : '' }}">
                 <i class="nav-icon fas fa-car"></i>
@@ -378,11 +402,3 @@
 </li>
 @endcanany
 
-
-
-<li class="nav-item">
-    <a href="{{ route('employeeIncentiveAnnualProjections.index') }}" class="nav-link {{ Request::is('employeeIncentiveAnnualProjections*') ? 'active' : '' }}">
-        <i class="nav-icon fas fa-home"></i>
-        <p>Employee Incentive Annual Projections</p>
-    </a>
-</li>

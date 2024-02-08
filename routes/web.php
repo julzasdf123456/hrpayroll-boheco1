@@ -20,6 +20,8 @@ use App\Http\Controllers\OtherPayrollDeductionsController;
 use App\Http\Controllers\EmployeePayrollSundriesController;
 use App\Http\Controllers\IncentivesAnnualProjectionController;
 use App\Http\Controllers\EmployeeIncentiveAnnualProjectionsController;
+use App\Http\Controllers\EmployeeBonusesController;
+use App\Http\Controllers\PayrollExpandedDetailsController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -71,6 +73,8 @@ Route::get('/employees/allow-no-attendance', [EmployeesController::class, 'allow
 Route::get('/employees/save-payroll-sundries', [EmployeesController::class, 'savePayrollSundries'])->name('employees.save-payroll-sundries');
 Route::get('/employees/update-office', [EmployeesController::class, 'updateOffice'])->name('employees.update-office');
 Route::get('/employees/update-date-hired', [EmployeesController::class, 'updateDateHired'])->name('employees.update-date-hired');
+Route::get('/employees/update-end', [EmployeesController::class, 'updateEnd'])->name('employees.update-end');
+Route::get('/employees/update-biometrics-id', [EmployeesController::class, 'updateBiometricsId'])->name('employees.update-biometrics-id');
 Route::resource('employees', EmployeesController::class);
 
 Route::resource('permissions', App\Http\Controllers\PermissionController::class);
@@ -144,6 +148,8 @@ Route::get('/payroll_indices/payslip/{id}', [PayrollIndexController::class, 'pay
 Route::get('/payroll_indices/payroll', [PayrollIndexController::class, 'payroll'])->name('payrollIndices.payroll');
 Route::get('/payroll_indices/get-payroll-data', [PayrollIndexController::class, 'getPayrollData'])->name('payrollIndices.get-payroll-data');
 Route::get('/payroll_indices/get-payroll-date-information', [PayrollIndexController::class, 'getPayrollDateInformation'])->name('payrollIndices.get-payroll-date-information');
+Route::get('/payroll_indices/payroll-audit', [PayrollIndexController::class, 'payrollAudit'])->name('payrollIndices.payroll-audit');
+Route::get('/payroll_indices/payroll-audit-review/{salaryPeriod}', [PayrollIndexController::class, 'payrollAuditReview'])->name('payrollIndices.payroll-audit-review');
 Route::resource('payrollIndices', PayrollIndexController::class);
 
 
@@ -268,4 +274,11 @@ Route::get('/incentives_annual_projections/remove', [IncentivesAnnualProjectionC
 Route::resource('incentivesAnnualProjections', IncentivesAnnualProjectionController::class);
 
 Route::get('/employee_incentive_annual_projections/project-all', [EmployeeIncentiveAnnualProjectionsController::class, 'projectAll'])->name('employeeIncentiveAnnualProjections.project-all');
+Route::get('/employee_incentive_annual_projections/incentive-withholding-taxes', [EmployeeIncentiveAnnualProjectionsController::class, 'incentiveWithholdingTaxes'])->name('employeeIncentiveAnnualProjections.incentive-withholding-taxes');
+Route::get('/employee_incentive_annual_projections/get-employee-projection', [EmployeeIncentiveAnnualProjectionsController::class, 'getEmployeeProjection'])->name('employeeIncentiveAnnualProjections.get-employee-projection');
+Route::get('/employee_incentive_annual_projections/update-all-deduct-monthly', [EmployeeIncentiveAnnualProjectionsController::class, 'updateAllDeductMonthly'])->name('employeeIncentiveAnnualProjections.update-all-deduct-monthly');
 Route::resource('employeeIncentiveAnnualProjections', EmployeeIncentiveAnnualProjectionsController::class);
+Route::resource('employeeBonuses', EmployeeBonusesController::class);
+
+Route::post('/payroll_expanded_details/bulk-save-payroll', [PayrollExpandedDetailsController::class, 'bulkSavePayroll'])->name('payrollExpandedDetails.bulk-save-payroll');
+Route::resource('payrollExpandedDetails', PayrollExpandedDetailsController::class);

@@ -1,36 +1,32 @@
 <div class="table-responsive">
-    <table class="table" id="biometricUsers-table">
+    <table class="table table-sm table-hover" id="biometricUsers-table">
         <thead>
             <tr>
-                <th>Uid</th>
-        <th>Name</th>
-        <th>Userid</th>
-        <th>Role</th>
-        <th>Notes</th>
-                <th colspan="3">Action</th>
+                <th>UID</th>
+                <th>Name</th>
+                <th>Biometrics User ID</th>
+                {{-- <th colspan="3">Action</th> --}}
             </tr>
         </thead>
         <tbody>
-        @foreach($biometricUsers as $biometricUsers)
+        @foreach($biometricUsers as $biometricUser)
             <tr>
-                <td>{{ $biometricUsers->UID }}</td>
-            <td>{{ $biometricUsers->Name }}</td>
-            <td>{{ $biometricUsers->UserId }}</td>
-            <td>{{ $biometricUsers->Role }}</td>
-            <td>{{ $biometricUsers->Notes }}</td>
-                <td width="120">
-                    {!! Form::open(['route' => ['biometricUsers.destroy', $biometricUsers->id], 'method' => 'delete']) !!}
+                <td>{{ $biometricUser->UID }}</td>
+                <td>{{ $biometricUser->Name }}</td>
+                <td>{{ $biometricUser->UserId }}</td>
+                {{-- <td width="120">
+                    {!! Form::open(['route' => ['biometricUsers.destroy', $biometricUser->id], 'method' => 'delete']) !!}
                     <div class='btn-group'>
-                        <a href="{{ route('biometricUsers.show', [$biometricUsers->id]) }}" class='btn btn-default btn-xs'>
+                        <a href="{{ route('biometricUsers.show', [$biometricUser->id]) }}" class='btn btn-default btn-xs'>
                             <i class="far fa-eye"></i>
                         </a>
-                        <a href="{{ route('biometricUsers.edit', [$biometricUsers->id]) }}" class='btn btn-default btn-xs'>
+                        <a href="{{ route('biometricUsers.edit', [$biometricUser->id]) }}" class='btn btn-default btn-xs'>
                             <i class="far fa-edit"></i>
                         </a>
                         {!! Form::button('<i class="far fa-trash-alt"></i>', ['type' => 'submit', 'class' => 'btn btn-danger btn-xs', 'onclick' => "return confirm('Are you sure?')"]) !!}
                     </div>
                     {!! Form::close() !!}
-                </td>
+                </td> --}}
             </tr>
         @endforeach
         </tbody>
