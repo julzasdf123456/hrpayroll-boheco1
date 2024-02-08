@@ -247,6 +247,7 @@ Route::get('/employee_payroll_sundries/contributions', [EmployeePayrollSundriesC
 Route::get('/employee_payroll_sundries/get-contribution-data', [EmployeePayrollSundriesController::class, 'getContributionData'])->name('employeePayrollSundries.get-contribution-data');
 Route::get('/employee_payroll_sundries/insert-contribution-data', [EmployeePayrollSundriesController::class, 'insertContributionData'])->name('employeePayrollSundries.insert-contribution-data');
 Route::get('/employee_payroll_sundries/insert-all-contribution-data', [EmployeePayrollSundriesController::class, 'insertAllContributionData'])->name('employeePayrollSundries.insert-all-contribution-data');
+Route::post('/employee_payroll_sundries/insert-all-contribution-array-data', [EmployeePayrollSundriesController::class, 'insertAllContributionArrayData'])->name('employeePayrollSundries.insert-all-contribution-array-data');
 Route::resource('employeePayrollSundries', EmployeePayrollSundriesController::class);
 
 Route::get('/loans/pag-ibig', [LoansController::class, 'pagIbig'])->name('loans.pag-ibig');

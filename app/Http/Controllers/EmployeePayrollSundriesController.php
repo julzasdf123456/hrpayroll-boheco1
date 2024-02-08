@@ -151,7 +151,8 @@ class EmployeePayrollSundriesController extends AppBaseController
                     'MiddleName',
                     'LastName',
                     'Suffix',
-                    'EmployeePayrollSundries.*'
+                    'EmployeePayrollSundries.*',
+                    'Positions.BasicSalary'
                 )
                 ->orderBy('LastName')
                 ->get();
@@ -168,7 +169,8 @@ class EmployeePayrollSundriesController extends AppBaseController
                         'MiddleName',
                         'LastName',
                         'Suffix',
-                        'EmployeePayrollSundries.*'
+                        'EmployeePayrollSundries.*',
+                        'Positions.BasicSalary'
                     )
                     ->orderBy('LastName')
                     ->get();
@@ -184,7 +186,8 @@ class EmployeePayrollSundriesController extends AppBaseController
                         'MiddleName',
                         'LastName',
                         'Suffix',
-                        'EmployeePayrollSundries.*'
+                        'EmployeePayrollSundries.*',
+                        'Positions.BasicSalary'
                     )
                     ->orderBy('LastName')
                     ->get();
@@ -257,6 +260,34 @@ class EmployeePayrollSundriesController extends AppBaseController
                 $sundry->PhilHealth = $amount;
             } elseif ($type == 'PhilHealthEmployee') {
                 $sundry->PhilHealthContributionEmployer = $amount;
+            }
+
+            $sundry->save();
+        }
+
+        return response()->json('ok', 200);
+    }
+
+    public function insertAllContributionArrayData(Request $request) {
+        $data = $request['Data'];
+        $type = $request['Type'];
+
+        foreach($data as $item) {
+            $sundry = EmployeePayrollSundries::where('EmployeeId', $item['id'])->first();
+            if ($sundry == null) {
+                $sundry = new EmployeePayrollSundries;
+                $sundry->id = IDGenerator::generateIDandRandString();
+                $sundry->EmployeeId = $item['id'];
+            }
+
+            if ($type == 'SSSEmployer') {
+                $sundry->SSSContributionEmployer = $item['SSSEmployer'];
+            } elseif ($type == 'SSSEmployee') {
+                $sundry->SSSContribution = $item['SSSEmployee'];
+            } elseif ($type == 'PhilHealthEmployer') {
+                $sundry->PhilHealth = $item['PhilHealthEmployer'];
+            } elseif ($type == 'PhilHealthEmployee') {
+                $sundry->PhilHealthContributionEmployer = $item['PhilHealthEmployee'];
             }
 
             $sundry->save();

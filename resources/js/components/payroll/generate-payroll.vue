@@ -1537,7 +1537,16 @@ export default {
                             text : 'Payroll generated and forwarded for auditing!'
                         })
 
-                        window.location.href = `${ axios.defaults.baseURL }`
+                        // window.location.href = `${ axios.defaults.baseURL }`
+                        this.totalDateColumns = 0;
+                        this.isGenerateButtonDisabled = true;
+                        this.payrollData = []
+                        this.dateHeaders = [];
+                        this.summaryHeaders = [];
+                        this.dateSubHeaders = [];
+                        this.employees = [];
+                        this.attendances = [];
+                        this.summaries = [];
                     })
                     .catch(error => {
                         this.isGenerateButtonDisabled = true;
