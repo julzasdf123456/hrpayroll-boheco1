@@ -210,6 +210,67 @@
         .gone {
             display: none;
         }
+
+        /**
+         * BOTTOM BUTTONS FLOATING
+         */
+        .right-bottom {
+            position: fixed;
+            bottom: 15px;
+            right: 20px;
+        }
+
+        .left-bottom {
+            position: fixed;
+            bottom: 15px;
+            margin-left: 20px;
+        }
+
+        .btn-floating {
+            height: 40px;
+            border-radius: 20px;
+            outline: none;
+            border: 0px;
+            padding-left: 20px;
+            padding-right: 20px;
+            transition: background-color 0.3s ease;
+        }
+
+        .shadow {
+            box-shadow: 0 2px 2px rgba(0, 0, 0, 0.16); /* Adjust shadow values as needed */
+        }
+
+        /**
+         * BOTTOM NAV
+         */
+        .bottom-nav-tabs {
+            padding: 8px 24px 8px 24px;
+            border-radius: 20px;
+        }
+
+        .bottom-nav-pill-container {
+            border-right: 1px solid #9ca0a8;
+            display: inline;
+            margin-left: 3px;
+            margin-right: 3px;
+        }
+
+        .bottom-nav-pills {
+            padding: 8px 12px 8px 12px;
+            color: #757575;
+            transition: background-color 0.3s ease;
+            border-radius: 18px;
+            text-decoration: none;
+        }
+
+        .bottom-nav-pills:hover {
+            color: #323436 !important;
+            background-color: #e8eaee;
+        }
+
+        .bottom-nav-pill-container:last-child {
+            border-right: none;
+        }
     </style>
 </head>
 @php
