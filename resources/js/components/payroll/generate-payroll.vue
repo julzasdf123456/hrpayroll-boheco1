@@ -77,13 +77,13 @@
     <!-- SHOW IF EXISTS -->
     <div v-if="payrollExists">
         <div class="exists">
-            <span><i class="fas fa-exclamation-triangle ico-tab-mini"></i>Payroll data already exists (Status: "<strong>{{ existStatus }}</strong>")</span>
+            <span style="color: aliceblue;"><i class="fas fa-exclamation-triangle ico-tab-mini"></i>Payroll data already exists (Status: "<strong>{{ existStatus }}</strong>")</span>
         </div>
         <a :href="baseURL + '/payroll_indices/view-payroll/' + salaryPeriod" class="btn btn-default btn-sm" style="margin-left: 10px;"><i class="fas fa-eye ico-tab-mini"></i>View Payroll Instead</a>
     </div>
 
     <div class="table-responsive">
-        <table class="table table-hover table-sm table-bordered" id="response">
+        <table class="table table-hover table-sm table-xs table-bordered" id="response">
             <thead>
                 <!-- <tr>
                     <th class='text-center' rowspan="2">Employees</th>
@@ -120,7 +120,7 @@
         min-width: 250px;
     }
 
-    table {
+    .table-xs {
         font-size: .82em;
     }
 
@@ -1252,6 +1252,20 @@ export default {
 
             return totalTaxable < 1 ? 0 : totalTaxable
         },
+        getAddonsAndDeductions(data, type) {
+            var amount = 0
+
+            for(let i=0; i<data.length; i++) {
+                if (type === 'Addons') {
+                    amount += this.isNull(data[i].AddonAmount) ? 0 : parseFloat(data[i].AddonAmount)
+                } else {
+                    amount += this.isNull(data[i].DeductionAmount) ? 0 : parseFloat(data[i].DeductionAmount)
+                }
+                
+            }
+
+            return this.round(amount)
+        },
         generate() {
             if (this.isNull(this.employeeType) | this.isNull(this.department) | this.isNull(this.salaryPeriod) | this.isNull(this.from) | this.isNull(this.to)) {
                 Swal.fire({
@@ -1388,11 +1402,11 @@ export default {
                         summaryChunks.push(riceAllowance > 0 ? `₱` + this.toMoney(riceAllowance) : '-'); 
 
                         // OTHERS - ADDONS
-                        var otherAddonsPlus = 0 
+                        var otherAddonsPlus = this.getAddonsAndDeductions(response.data['Employees'][i]['OtherAddonsAndDeductions'], 'Addons') 
                         summaryChunks.push(otherAddonsPlus > 0 ? `₱` + this.toMoney(otherAddonsPlus) : '-'); 
 
                         // OTHERS - DEDUCTIONS 
-                        var otherAddonsMinus = 0
+                        var otherAddonsMinus = this.getAddonsAndDeductions(response.data['Employees'][i]['OtherAddonsAndDeductions'], 'Deductions') 
                         summaryChunks.push(otherAddonsMinus > 0 ? `₱` + this.toMoney(otherAddonsMinus) : '-'); 
 
                         // TOTAL AMOUNT

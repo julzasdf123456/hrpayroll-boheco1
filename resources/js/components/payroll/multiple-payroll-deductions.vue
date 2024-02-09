@@ -44,7 +44,7 @@
     <div class="row">
         <div class="col-lg-10 offset-lg-1 col-md-12">
             <div class="table-responsive">
-                <table class="table table-hover table-sm table-bordered" id="response">
+                <table class="table table-hover table-sm table-xs table-bordered" id="response">
                     <thead>
                         <th class='text-center'>Employees</th>
                         <th class='text-center'>Deduction Description/Remarks</th>
@@ -72,7 +72,7 @@
 </template>
 
 <style>
-    table {
+    .table-xs {
         font-size: .82em;
     }
 

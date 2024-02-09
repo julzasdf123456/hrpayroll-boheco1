@@ -263,6 +263,8 @@ class EmployeePayrollSundriesController extends AppBaseController
                 $sundry->PhilHealth = $amount;
             } elseif ($type == 'PhilHealthEmployee') {
                 $sundry->PhilHealthContributionEmployer = $amount;
+            } elseif ($type == 'RiceAndLaundry') {
+                $sundry->RiceAllowance = $amount;
             }
 
             $sundry->save();

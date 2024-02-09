@@ -5,7 +5,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="row" style="margin: 10px 10px 15px 10px;">
+<div class="row" style="padding-top: 15px; margin-left: 10px">
     <div class="col-lg-8">
         <h4>Employees' Incentive/Bonuses Withholding Taxes Configuration</h4>
     </div>

@@ -27,6 +27,8 @@
     <link rel="stylesheet" href="{{ URL::asset('css/sweetalert2.min.css'); }}">
 
     <link rel="stylesheet" href="{{ URL::asset('css/daterangepicker.min.css'); }}">
+    
+    <link rel="stylesheet" href="{{ URL::asset('css/style.css'); }}">
 
     {{-- <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&amp;display=fallback"> --}}
 

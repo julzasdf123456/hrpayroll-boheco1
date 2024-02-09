@@ -1,5 +1,5 @@
 <template>
-    <div class="row" style="margin-top: 10px; margin-left: 10px;">
+    <div class="row" style="padding-top: 15px; margin-left: 10px;">
         <div class="col-lg-8">
             <h4>Incentives Annual Projection</h4>
             <span class="text-muted">Projects future possible benefits and incentives for the computation of withholding taxes.</span>
@@ -19,7 +19,7 @@
                     </div>
                 </div>
                 <div class="card-body table-responsive p-0">
-                    <table class="table table-hover table-sm">
+                    <table class="table table-hover table-sm table-xs">
                         <thead>
                             <th>Incentive/Benefit</th>
                             <th class="text-right">Amount</th>
@@ -87,6 +87,10 @@
 
     .table-input:focus  {
         outline: none;
+    }
+
+    .table-xs {
+        font-size: .82em;
     }
 </style>
 

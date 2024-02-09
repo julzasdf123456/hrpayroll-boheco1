@@ -725,6 +725,13 @@ class PayrollIndexController extends AppBaseController
                         'Amount',
                     )
                     ->get();
+            $item->OtherAddonsAndDeductions = DB::table('OtherAddonsDeductions')
+                    ->whereRaw("ScheduleDate='" . $loanPeriodMonth . "' AND EmployeeId='" . $item->id . "'")
+                    ->select(
+                        'DeductionAmount',
+                        'AddonAmount'
+                    )
+                    ->get();
             $item->ProjectedIncentives = DB::table('EmployeeIncentiveAnnualProjections')
                     ->whereRaw("EmployeeId='" . $item->id . "' AND Year='" . date('Y') . "'")
                     ->get();
@@ -864,6 +871,7 @@ class PayrollIndexController extends AppBaseController
                         'Suffix',
                         'PayrollExpandedDetails.*'
                     )
+                    ->orderBy('LastName')
                     ->get(),
             ]);
         }

@@ -13,7 +13,7 @@
     <!-- results -->
     <div class="row">
         <div class="col-lg-12 p-3">
-            <table class="table table-hover table-sm">
+            <table class="table table-hover table-borderless">
                 <thead>
                     <th>ID</th>
                     <th>Employee Name</th>
@@ -30,7 +30,7 @@
                         <td>{{ employee.Town }}</td>
                         <td>{{ employee.Designation }}</td>
                         <td class="text-right">
-                            <a :href="baseURL + '/employees/' + employee.id" class="btn btn-primary btn-xs"><i class="fas fa-eye ico-tab-mini"></i>View</a>    <!-- IF PORT 80 -->                         
+                            <a :href="baseURL + '/employees/' + employee.id" class="btn btn-primary btn-sm"><i class="fas fa-eye ico-tab-mini"></i>View</a>    <!-- IF PORT 80 -->                         
                             <!-- <a :href="'/serviceAccounts/' + account.id" class="btn btn-primary btn-xs"><i class="fas fa-eye ico-tab-mini"></i>View</a>  --> <!-- IF PORT 8000 -->
                         </td>
                     </tr>

@@ -1,0 +1,160 @@
+@font-face {
+    font-family: 'Poppins';
+    src: url("/public/fonts/Poppins-Regular.ttf");
+}
+
+html, body {
+    font-family: 'Poppins' !important;
+}
+
+/**
+ * BRAND
+ */
+.brand-text-light {
+    color: aliceblue;
+    opacity: .6 !important;
+    transition: opacity 0.3s ease !important;
+}
+
+.brand-text-light:hover {
+    opacity: 1 !important;
+}
+
+.brand-text-dark {
+    color: rgb(39, 46, 51);
+    opacity: .7 !important;
+    transition: opacity 0.3s ease !important;
+}
+
+.brand-text-dark:hover {
+    opacity: 1 !important;
+}
+
+.brand-link {
+    padding-top: 18px !important;
+}
+
+/**
+ * SIDEBAR
+ */ 
+.nav-item a {
+    padding-top: 12px !important;
+    padding-bottom: 12px !important;
+}
+
+/**
+ * NAVBAR
+ */
+ .nav-treeview {
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
+}
+
+.navbar {
+    border: 0px !important;
+    outline: none !important;
+    background-color: transparent !important;    
+    padding-top: 15px !important;
+    padding-bottom: 15px !important;
+}
+
+.navbar-light {
+    background-color: #f4f6f9 !important;
+}
+
+.brand-link {
+    border: 0px !important;
+    outline: none !important;
+}
+
+.sidebar-search {
+    border-radius: 18px !important;
+    outline: none !important;
+    border: 1px solid rgba(0, 0, 0, .08) !important;
+}
+
+.navbar-nav .nav-item {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+}
+
+/**
+ * SIDEBAR CUSTOMIZATION
+ */
+.sidebar-light,
+.sidebar-dark,
+.sidebar-dark-primary {
+    box-shadow: none !important;
+}
+
+.sidebar nav ul li a i.right,
+.sidebar nav ul li ul li a i.right {
+    padding-top: 5px !important;
+}
+
+.sidebar-dark-primary .sidebar nav ul li a,
+.sidebar-dark-primary .sidebar nav ul li ul li a
+.sidebar-light .sidebar nav ul li a,
+.sidebar-light .sidebar nav ul li ul li a {
+    transition: background-color 0.3s ease !important;
+}
+
+/**
+ * SIDEBAR DARK CUSTOMIZATION
+ */
+.sidebar-dark-primary {
+    background-color: #3f464d !important;
+}
+
+.sidebar-dark-primary .sidebar nav ul li a.nav-link.active {
+    border-radius: 20px !important;
+    background-color: rgba(255, 255, 255, .9) !important;
+    border: 0px !important;
+    box-shadow: none !important;
+    color: #3f464d !important;
+}
+
+.sidebar-dark-primary .sidebar nav ul li ul li a.nav-link.active {
+    border-radius: 20px !important;
+    background-color: rgba(0, 0, 0, .1) !important;
+    border: 0px !important;
+    color: aliceblue !important;
+}
+
+.sidebar-dark-primary .sidebar nav ul li ul.nav-treeview li a{
+    border: 0px !important;
+}
+
+/**
+ * SIDEBAR LIGHT CUSTOMIZATION
+ */
+.sidebar-light {
+    background-color: #ffffff !important;
+}
+
+.sidebar-light .sidebar nav ul li a.nav-link.active {
+    border-radius: 20px !important;
+    background-color: #5e6469 !important;
+    border: 0px !important;
+    box-shadow: none !important;
+    color: #fafafa !important;
+}
+
+.sidebar-light .sidebar nav ul li ul li a.nav-link.active {
+    border-radius: 20px !important;
+    background-color: rgba(0, 0, 0, .15) !important;
+    border: 0px !important;
+    color: #383e42 !important;
+}
+
+.sidebar-light .sidebar nav ul li ul.nav-treeview li a{
+    border: 0px !important;
+}
+
+.sidebar-light .sidebar nav ul li a:hover,
+.sidebar-light .sidebar nav ul li ul li a:hover {
+    color: #42494d !important;
+    background-color: rgba(0, 0, 0, .05) !important;
+}
+
+
