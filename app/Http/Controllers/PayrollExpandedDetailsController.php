@@ -8,6 +8,7 @@ use App\Http\Controllers\AppBaseController;
 use App\Repositories\PayrollExpandedDetailsRepository;
 use Illuminate\Http\Request;
 use App\Models\IDGenerator;
+use App\Models\UserFootprints;
 use App\Models\PayrollExpandedDetails;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -181,6 +182,8 @@ class PayrollExpandedDetailsController extends AppBaseController
             $payrollDraft->EmployeeType = $item['EmployeeType'];
             $payrollDraft->save();
         }
+
+        UserFootprints::log('Generated Payroll Draft', "Submitted " . $department . " payroll draft for salary period " . date('F d, Y', strtotime($salaryPeriod)) . " for auditing.");  
 
         return response()->json('ok', 200);
     }

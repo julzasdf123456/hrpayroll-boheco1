@@ -58,6 +58,10 @@
             </div>
         </div>
     </div>
+
+    <div class="right-bottom" style="bottom: 0px !important;">
+        <p id="msg-display" class="msg-display shadow" style="font-size: .8em;"><i class="fas fa-check-circle ico-tab-mini text-success"></i>saved!</p>
+    </div>
 </template>
 
 <style>
@@ -297,6 +301,7 @@ export default {
             }).then(response => {                
                 // FIND EMPTY IDs TO BE REPLACED BY A NEW ID IF NEW ENTRY
                 this.isProjectToAllShown = true
+                this.showSaveFader()
             })
             .catch(error => {
                 Swal.fire({
@@ -394,6 +399,18 @@ export default {
                 }
             });
         },
+        showSaveFader() {
+            var message = document.getElementById('msg-display');
+
+            // Show the message
+            message.style.opacity = 1;
+
+            // Wait for 3 seconds
+            setTimeout(function() {
+                // Fade out the message
+                message.style.opacity = 0;
+            }, 1500);
+        }
     },
     created() {
         

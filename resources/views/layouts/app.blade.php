@@ -271,6 +271,18 @@
         .bottom-nav-pill-container:last-child {
             border-right: none;
         }
+
+        /**
+         * BOTTOM FADER ON SAVE
+         */
+        .msg-display {
+            opacity: 0;
+            transition: opacity 1s ease;
+            padding: 5px 10px 5px 10px;
+            border-radius: 10px;
+            background-color: #f5f5f5;
+            color: #323436;
+        }
     </style>
 </head>
 @php

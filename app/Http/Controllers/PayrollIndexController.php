@@ -23,6 +23,7 @@ use App\Models\ProfessionalIDs;
 use App\Models\AttendanceData;
 use App\Models\HolidaysList;
 use App\Models\PayrollExpandedDetails;
+use App\Models\UserFootprints;
 use Flash;
 use Response;
 
@@ -46,10 +47,22 @@ class PayrollIndexController extends AppBaseController
      */
     public function index(Request $request)
     {
-        $payrollIndices = $this->payrollIndexRepository->all();
+        $data = DB::table('PayrollExpandedDetails')
+            ->select(
+                'SalaryPeriod',
+                DB::raw("SUM(NetPay) AS NetPay"),
+                DB::raw("COUNT(id) AS TotalCount"),
+                DB::raw("TRY_CAST(GeneratedDate AS DATE) AS GeneratedDate"),
+                DB::raw("(SELECT TOP 1 x.Status FROM PayrollExpandedDetails x WHERE x.SalaryPeriod=PayrollExpandedDetails.SalaryPeriod ORDER BY x.updated_at DESC) AS Status")
+            )
+            ->groupByRaw("TRY_CAST(GeneratedDate AS DATE)")
+            ->groupBy('SalaryPeriod')
+            ->orderByRaw("TRY_CAST(GeneratedDate AS DATE) DESC")
+            ->get();
 
-        return view('payroll_indices.index')
-            ->with('payrollIndices', $payrollIndices);
+        return view('/payroll_indices/index', [
+            'data' => $data,
+        ]);
     }
 
     /**
@@ -567,6 +580,12 @@ class PayrollIndexController extends AppBaseController
             $loanPeriodMonth = date('Y-m-d', strtotime('last day of ' . $salaryPeriod));
         }
 
+        $checkPayrollData = DB::table('PayrollExpandedDetails')
+            ->whereRaw("SalaryPeriod='" . $loanPeriodMonth . "' AND Department='" . $department . "' AND EmployeeType='" . $employeeType . "'")
+            ->groupBy('Status')
+            ->select('Status')
+            ->first();
+
         if ($department == 'SUB-OFFICE') {
             $employees = DB::table('Employees')
                 ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
@@ -718,7 +737,8 @@ class PayrollIndexController extends AppBaseController
 
         $dataSets = [
             'Employees' => $employees,
-            'Holidays' => $holidays,            
+            'Holidays' => $holidays,
+            'CheckPayroll' => $checkPayrollData != null ? [ 'Exists' => 'true', 'Status' => $checkPayrollData->Status ] : [ 'Exists' => 'false', 'Status' => null ],            
         ];
 
         return response()->json($dataSets, 200);
@@ -796,5 +816,78 @@ class PayrollIndexController extends AppBaseController
             'datas' => $datas,
             'salaryPeriod' => $salaryPeriod,
         ]);
+    }
+
+    public function auditRejectPayroll(Request $request) {
+        $salaryPeriod = $request['SalaryPeriod'];
+        $remarks = $request['Remarks'];
+
+        PayrollExpandedDetails::where("SalaryPeriod", $salaryPeriod)
+            ->update(['Notes' => $remarks, 'Status' => 'Rejected by Audit', 'AuditedBy' => Auth::id(), 'AuditedDate' => date('Y-m-d H:i:s')]);
+
+        UserFootprints::log('Rejected Payroll Draft', "Rejected payroll draft for salary period " . date('F d, Y', strtotime($salaryPeriod)) . " due to the following reasons: " . $remarks);  
+
+        return response()->json('ok', 200);
+    }
+
+    public function auditApprovePayroll(Request $request) {
+        $salaryPeriod = $request['SalaryPeriod'];
+
+        PayrollExpandedDetails::where("SalaryPeriod", $salaryPeriod)
+            ->update(['Status' => 'Approved By Audit', 'AuditedBy' => Auth::id(), 'AuditedDate' => date('Y-m-d H:i:s')]);
+
+        UserFootprints::log('Payroll Draft Audi Approved', "Payroll draft approved by Audit for salary period " . date('F d, Y', strtotime($salaryPeriod)));  
+
+        return response()->json('ok', 200);
+    }
+
+    public function viewPayroll($salaryPeriod) {
+        $departments = DB::table('PayrollExpandedDetails')
+            ->whereRaw("SalaryPeriod='" . $salaryPeriod . "'")
+            ->select(
+                'Department',
+            )
+            ->groupBy('Department')
+            ->get();
+
+        $datas = [];
+        foreach($departments as $item) {
+            array_push($datas, [
+                'Department' => $item->Department,
+                'Data' => DB::table('PayrollExpandedDetails')
+                    ->leftJoin('Employees', 'PayrollExpandedDetails.EmployeeId', '=', 'Employees.id')
+                    ->whereRaw("PayrollExpandedDetails.Department='" . $item->Department . "' AND PayrollExpandedDetails.SalaryPeriod='" . $salaryPeriod . "'")
+                    ->select(
+                        'FirstName',
+                        'LastName',
+                        'MiddleName',
+                        'Suffix',
+                        'PayrollExpandedDetails.*'
+                    )
+                    ->get(),
+            ]);
+        }
+
+        $stats = DB::table('PayrollExpandedDetails')
+            ->whereRaw("SalaryPeriod='" . $salaryPeriod . "'")
+            ->orderByDesc('updated_at')
+            ->first();
+
+        return view('/payroll_indices/view_payroll', [
+            'datas' => $datas,
+            'salaryPeriod' => $salaryPeriod,
+            'stats' => $stats,
+        ]);
+    }
+
+    public function removePayroll(Request $request) {
+        $salaryPeriod = $request['SalaryPeriod'];
+
+        PayrollExpandedDetails::where("SalaryPeriod", $salaryPeriod)
+            ->delete();
+
+        UserFootprints::log('Deleted Payroll Data', 'Deleted payroll data for salary period ' . date('F d, Y', strtotime($salaryPeriod)));
+
+        return response()->json('ok', 200);
     }
 }

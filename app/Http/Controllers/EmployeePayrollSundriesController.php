@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Models\IDGenerator;
 use App\Models\EmployeePayrollSundries;
+use App\Models\UserFootprints;
 use Flash;
 
 class EmployeePayrollSundriesController extends AppBaseController
@@ -222,6 +223,8 @@ class EmployeePayrollSundriesController extends AppBaseController
         } elseif ($type == 'PhilHealthEmployee') {
             $sundry->PhilHealthContributionEmployer = $amount;
         }
+        
+        UserFootprints::log('Updated Employee Contribution Data', "Updated " . $type . " contributions data for Employee ID " . $employeeId . ", amounting to " . $amount);
 
         $sundry->save();
     }
@@ -264,6 +267,8 @@ class EmployeePayrollSundriesController extends AppBaseController
 
             $sundry->save();
         }
+        
+        UserFootprints::log('Updated Employee Contributions Data', "Updated " . $department . " contributions data for " . $type);
 
         return response()->json('ok', 200);
     }
@@ -292,6 +297,8 @@ class EmployeePayrollSundriesController extends AppBaseController
 
             $sundry->save();
         }
+
+        UserFootprints::log('Updated Employee Contributions Data', "Updated contributions data for " . $type);
 
         return response()->json('ok', 200);
     }

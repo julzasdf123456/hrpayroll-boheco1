@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use App\Models\IDGenerator;
 use Illuminate\Support\Facades\DB;
 use App\Models\OtherPayrollDeductions;
+use App\Models\UserFootprints;
 use Flash;
 
 class OtherPayrollDeductionsController extends AppBaseController
@@ -163,7 +164,8 @@ class OtherPayrollDeductionsController extends AppBaseController
                     'MiddleName',
                     'LastName',
                     'Suffix',
-                    DB::raw("(SELECT SUM(Amount) AS Amount FROM OtherPayrollDeductions WHERE ScheduleDate='" . $schedule . "' AND EmployeeId=Employees.id GROUP BY ScheduleDate) AS Amount")
+                    DB::raw("(SELECT TOP 1 Amount FROM OtherPayrollDeductions WHERE ScheduleDate='" . $schedule . "' AND EmployeeId=Employees.id ORDER BY ScheduleDate DESC) AS Amount"),
+                    DB::raw("(SELECT TOP 1 DeductionDescription FROM OtherPayrollDeductions WHERE ScheduleDate='" . $schedule . "' AND EmployeeId=Employees.id ORDER BY ScheduleDate DESC) AS DeductionDescription"),
                 )
                 ->orderBy('LastName')
                 ->get();
@@ -179,7 +181,8 @@ class OtherPayrollDeductionsController extends AppBaseController
                         'MiddleName',
                         'LastName',
                         'Suffix',
-                        DB::raw("(SELECT SUM(Amount) AS Amount FROM OtherPayrollDeductions WHERE ScheduleDate='" . $schedule . "' AND EmployeeId=Employees.id GROUP BY ScheduleDate) AS Amount")
+                        DB::raw("(SELECT TOP 1 Amount FROM OtherPayrollDeductions WHERE ScheduleDate='" . $schedule . "' AND EmployeeId=Employees.id ORDER BY ScheduleDate DESC) AS Amount"),
+                        DB::raw("(SELECT TOP 1 DeductionDescription FROM OtherPayrollDeductions WHERE ScheduleDate='" . $schedule . "' AND EmployeeId=Employees.id ORDER BY ScheduleDate DESC) AS DeductionDescription"),
                     )
                     ->orderBy('LastName')
                     ->get();
@@ -194,7 +197,8 @@ class OtherPayrollDeductionsController extends AppBaseController
                         'MiddleName',
                         'LastName',
                         'Suffix',
-                        DB::raw("(SELECT SUM(Amount) AS Amount FROM OtherPayrollDeductions WHERE ScheduleDate='" . $schedule . "' AND EmployeeId=Employees.id GROUP BY ScheduleDate) AS Amount")
+                        DB::raw("(SELECT TOP 1 Amount FROM OtherPayrollDeductions WHERE ScheduleDate='" . $schedule . "' AND EmployeeId=Employees.id ORDER BY ScheduleDate DESC) AS Amount"),
+                        DB::raw("(SELECT TOP 1 DeductionDescription FROM OtherPayrollDeductions WHERE ScheduleDate='" . $schedule . "' AND EmployeeId=Employees.id ORDER BY ScheduleDate DESC) AS DeductionDescription"),
                     )
                     ->orderBy('LastName')
                     ->get();
@@ -208,6 +212,7 @@ class OtherPayrollDeductionsController extends AppBaseController
         $employeeId = $request['EmployeeId'];
         $schedule = $request['Schedule'];
         $amount = $request['Amount'];
+        $description = $request['Description'];
 
         // DELETE EXISTING FIRST
         OtherPayrollDeductions::where('EmployeeId', $employeeId)
@@ -221,11 +226,20 @@ class OtherPayrollDeductionsController extends AppBaseController
             $others->EmployeeId = $employeeId;
             $others->DeductionName = 'AR - Others';
             $others->ScheduleDate = $schedule;
+            $others->DeductionDescription = $description;
             $others->Type = 'Others';
             $others->Amount = $amount;
 
             $others->save();
+
+            UserFootprints::log('Added AR-Others', "Updated AR-Others amount for payroll schedule " . date('F d, Y', strtotime($schedule)) . " amounting to " . $amount);
         }
         return response()->json('ok', 200);
+    }
+
+    public function addOnsAndDeductions(Request $request) {
+        return view('/other_payroll_deductions/addons_and_deductions', [
+
+        ]);
     }
 }

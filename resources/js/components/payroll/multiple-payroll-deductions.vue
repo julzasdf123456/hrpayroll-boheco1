@@ -42,24 +42,32 @@
     </div>
 
     <div class="row">
-        <div class="col-lg-8 offset-lg-2 col-md-12">
+        <div class="col-lg-10 offset-lg-1 col-md-12">
             <div class="table-responsive">
                 <table class="table table-hover table-sm table-bordered" id="response">
                     <thead>
                         <th class='text-center'>Employees</th>
+                        <th class='text-center'>Deduction Description/Remarks</th>
                         <th class='text-center'>Deductible Amount</th>              
                     </thead>
                     <tbody>
                         <tr v-for="(employee, index) in employees" :key="employee.id">
                             <td style="min-width: 250px;"><strong>{{ employee.name }}</strong></td>
                             <td>
-                                <input class="table-input text-right" :class="tableInputTextColor" v-model="employee.DeductionAmount" @keyup.enter="inputEnter(employee.DeductionAmount, employee.id)" @blur="inputEnter(employee.DeductionAmount, employee.id)" type="number" step="any"/>
+                                <input class="table-input" :class="tableInputTextColor" v-model="employee.DeductionDescription" @keyup.enter="inputEnter(employee.DeductionAmount, employee.id, employee.DeductionDescription)" @blur="inputEnter(employee.DeductionAmount, employee.id, employee.DeductionDescription)" type="text"/>
+                            </td>
+                            <td>
+                                <input class="table-input text-right" :class="tableInputTextColor" v-model="employee.DeductionAmount" @keyup.enter="inputEnter(employee.DeductionAmount, employee.id, employee.DeductionDescription)" @blur="inputEnter(employee.DeductionAmount, employee.id, employee.DeductionDescription)" type="number" step="any"/>
                             </td>
                         </tr>
                     </tbody>
                 </table>
             </div>
         </div>
+    </div>
+
+    <div class="right-bottom" style="bottom: 0px !important;">
+        <p id="msg-display" class="msg-display shadow" style="font-size: .8em;"><i class="fas fa-check-circle ico-tab-mini text-success"></i>saved!</p>
     </div>
 </template>
 
@@ -159,6 +167,7 @@ export default {
                             DeductionFor : response.data[i]['DeductionName'],
                             DeductionAmount : response.data[i]['Amount'],
                             DeductionSchedule : response.data[i]['ScheduleDate'],
+                            DeductionDescription : response.data[i]['DeductionDescription'],
                         });
                         
                         this.isDisplayed = 'gone';
@@ -178,7 +187,7 @@ export default {
                 });
             }            
         },
-        inputEnter(value, employeeId) {
+        inputEnter(value, employeeId, description) {
             if (this.isNull(this.schedule)) {
                 this.toast.fire({
                     icon : 'warning',
@@ -190,12 +199,14 @@ export default {
                         EmployeeId : employeeId,
                         Amount : value,
                         Schedule : this.schedule,
+                        Description : description,
                     }
                 }).then(response => {
                     // this.toast.fire({
                     //     icon : 'success',
                     //     text : 'Deduction saved!'
                     // })
+                    this.showSaveFader()
                 })
                 .catch(error => {
                     Swal.fire({
@@ -206,6 +217,18 @@ export default {
                 });
             }
         },
+        showSaveFader() {
+            var message = document.getElementById('msg-display');
+
+            // Show the message
+            message.style.opacity = 1;
+
+            // Wait for 3 seconds
+            setTimeout(function() {
+                // Fade out the message
+                message.style.opacity = 0;
+            }, 1500);
+        }
     },
     created() {
         

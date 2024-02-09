@@ -150,6 +150,10 @@ Route::get('/payroll_indices/get-payroll-data', [PayrollIndexController::class, 
 Route::get('/payroll_indices/get-payroll-date-information', [PayrollIndexController::class, 'getPayrollDateInformation'])->name('payrollIndices.get-payroll-date-information');
 Route::get('/payroll_indices/payroll-audit', [PayrollIndexController::class, 'payrollAudit'])->name('payrollIndices.payroll-audit');
 Route::get('/payroll_indices/payroll-audit-review/{salaryPeriod}', [PayrollIndexController::class, 'payrollAuditReview'])->name('payrollIndices.payroll-audit-review');
+Route::get('/payroll_indices/audit-reject-payroll', [PayrollIndexController::class, 'auditRejectPayroll'])->name('payrollIndices.audit-reject-payroll');
+Route::get('/payroll_indices/audit-approve-payroll', [PayrollIndexController::class, 'auditApprovePayroll'])->name('payrollIndices.audit-approve-payroll');
+Route::get('/payroll_indices/view-payroll/{salaryPeriod}', [PayrollIndexController::class, 'viewPayroll'])->name('payrollIndices.view-payroll');
+Route::get('/payroll_indices/remove-payroll', [PayrollIndexController::class, 'removePayroll'])->name('payrollIndices.remove-payroll');
 Route::resource('payrollIndices', PayrollIndexController::class);
 
 
@@ -283,3 +287,4 @@ Route::resource('employeeBonuses', EmployeeBonusesController::class);
 
 Route::post('/payroll_expanded_details/bulk-save-payroll', [PayrollExpandedDetailsController::class, 'bulkSavePayroll'])->name('payrollExpandedDetails.bulk-save-payroll');
 Route::resource('payrollExpandedDetails', PayrollExpandedDetailsController::class);
+Route::resource('user-footprints', App\Http\Controllers\UserFootprintsController::class);

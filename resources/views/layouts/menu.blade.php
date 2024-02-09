@@ -40,7 +40,7 @@
 {{-- LEAVE --}}
 <li class="nav-item">
     <a href="#" class="nav-link">
-        <i class="nav-icon fas fa-user-circle"></i>
+        <i class="nav-icon fas fa-sign-out-alt"></i>
         <p>
             Leave Applications
             <i class="right fas fa-angle-left"></i>
@@ -220,7 +220,13 @@
         <li class="nav-item">
             <a href="{{ route('otherPayrollDeductions.index') }}" class="nav-link {{ Request::is('otherPayrollDeductions*') ? 'active' : '' }}">
                 <i class="nav-icon fas fa-minus"></i>
-                <p>Other Payroll Deductions</p>
+                <p>Deductions (AR - Others)</p>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="{{ route('otherPayrollDeductions.index') }}" class="nav-link {{ Request::is('otherPayrollDeductions*') ? 'active' : '' }}">
+                <i class="nav-icon fas fa-minus-circle"></i>
+                <p>Addons/Other Deductions</p>
             </a>
         </li>
     </ul>

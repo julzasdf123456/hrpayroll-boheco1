@@ -10,13 +10,55 @@
         .table {
             font-size: .70em;
         }
+
+        .hr-timeline {
+            display: flex;
+            flex-direction: row;
+            overflow-x: auto;
+            overflow-y: hidden;
+            white-space: nowrap;
+            width: 100%; /* Occupy entire width */
+            margin-top: 20px;
+            border-top: 3px solid #686c72;
+        }
+
+        .hr-timeline-item {
+            flex: 1; /* Each item occupies equal width */
+            margin-right: 20px;
+            position: relative;
+        }
+
+        .bullet {
+            width: 20px;
+            height: 20px;
+            background-color: #686c72; /* Adjust bullet color as needed */
+            border-radius: 50%; /* Create a circular bullet */
+            position: absolute;
+            top: 9%;
+            left: 0px;
+            transform: translate(0, -100%);
+        }
+
+        .content {
+            padding: 10px 10px 10px 0px;
+            border-radius: 5px;
+        }
+
+        .hr-timeline-item:last-child {
+            margin-right: 0;
+            align-self: flex-end;
+        }
+
     </style>
 @endpush
 <section class="content-header">
     <div class="container-fluid">
         <div class="row mb-2">
-            <div class="col-lg-6">
-                <h4><span class="text-muted">Payroll Audit Review for</span> {{ date('F d, Y', strtotime($salaryPeriod)) }}</h4>
+            <div class="col-lg-8">
+                <h4><span class="text-muted">Payroll for</span> {{ date('F d, Y', strtotime($salaryPeriod)) }}</h4>
+            </div>
+            <div class="col-lg-4">
+                
             </div>
         </div>
     </div>
@@ -287,10 +329,11 @@
     </div> 
 </div>
 
+@canany('god permission')
 <div class="right-bottom">
-    <button onclick="approve()" class="btn-floating shadow bg-success"><i class="fas fa-check-circle ico-tab-mini"></i>Approve</button>
-    <button onclick="reject()" class="btn-floating shadow bg-danger" title="Reject"><i class="fas fa-times"></i></button>
+    <button onclick="trash()" class="btn-floating shadow bg-danger" title="Delete Payroll Entry"><i class="fas fa-trash ico-tab-mini"></i>Delete This Payroll</button>
 </div>
+@endcanany
 
 @endsection
 
@@ -314,78 +357,38 @@
             });
         })
 
-        function reject() {
-            (async () => {
-                const { value: text } = await Swal.fire({
-                    input: 'textarea',
-                    inputLabel: 'Remarks/Notes',
-                    inputPlaceholder: 'Type your remarks here...',
-                    inputAttributes: {
-                        'aria-label': 'Type your remarks here'
-                    },
-                    title: 'Reject This Payroll?',
-                    text : 'You are about to reject and return this payroll to the finance department for re-checking. Please provide any remarks or notes below for their reference.',
-                    showCancelButton: true
-                })
-
-                if (text) {
-                    $.ajax({
-                        url : "{{ route('payrollIndices.audit-reject-payroll') }}",
-                        type : "GET",
-                        data : {
-                            SalaryPeriod : "{{ $salaryPeriod }}",
-                            Remarks : text,
-                        },
-                        success : function(res) {
-                            Toast.fire({
-                                icon : 'info',
-                                text : 'Payroll forwarded back to finance.'
-                            })
-                            window.location.href = "{{ route('payrollIndices.payroll-audit') }}"
-                        },
-                        error : function(err) {
-                            Swal.fire({
-                                icon : 'error',
-                                text : 'Error rejecting payroll!'
-                            })
-                        }
-                    })
-                }
-            })()
-        }
-
-        function approve() {
+        function trash() {
             Swal.fire({
-                title: "Approve Payroll?",
-                text: "By approving, these data will be marked for finalization.",
-                icon: "info",
+                icon : 'warning',
+                title: "Delete this Payroll Data?",
+                text : 'You cannot undo this.',
                 showCancelButton: true,
-                confirmButtonColor: "#13946b",
-                confirmButtonText: "Approve"
+                confirmButtonText: "Proceed Delete",
             }).then((result) => {
                 if (result.isConfirmed) {
                     $.ajax({
-                        url : "{{ route('payrollIndices.audit-approve-payroll') }}",
-                        type : "GET",
+                        url : "{{ route('payrollIndices.remove-payroll') }}",
+                        type : 'GET',
                         data : {
-                            SalaryPeriod : "{{ $salaryPeriod }}",
+                            SalaryPeriod : "{{ $salaryPeriod }}"
                         },
                         success : function(res) {
                             Toast.fire({
                                 icon : 'success',
-                                text : 'Payroll approved by audit.'
+                                text : 'Payroll deleted!'
                             })
-                            window.location.href = "{{ route('payrollIndices.payroll-audit') }}"
+                            window.location.href = "{{ route('payrollIndices.index') }}"
                         },
                         error : function(err) {
-                            Swal.fire({
+                            Toast.fire({
                                 icon : 'error',
-                                text : 'Error approving payroll!'
+                                text : 'Error deleting payroll!'
                             })
                         }
                     })
                 }
-            });
+            })
+            
         }
     </script>
 @endpush

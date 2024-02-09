@@ -153,6 +153,10 @@
             </tbody>
         </table>
     </div>
+
+    <div class="right-bottom" style="bottom: 0px !important;">
+        <p id="msg-display" class="msg-display shadow" style="font-size: .8em;"><i class="fas fa-check-circle ico-tab-mini text-success"></i>saved!</p>
+    </div>
 </template>
 
 <style>
@@ -293,6 +297,7 @@ export default {
                 //     icon : 'success',
                 //     text : 'Saved!'
                 // })
+                this.showSaveFader()
             })
             .catch(error => {
                 Swal.fire({
@@ -544,10 +549,7 @@ export default {
                 this.isButtonDisabled = false;
                 this.fillInputsDisabled = false
 
-                this.toast.fire({
-                    icon : 'success',
-                    text : 'Saved!'
-                })
+                this.showSaveFader()
                 for(let i=0; i<this.employees.length; i++) {
                     if (type == 'PagIbigEmployer') {
                         this.employees[i].PagIbigEmployer = value
@@ -601,10 +603,7 @@ export default {
                 this.isButtonDisabled = false;
                 this.fillInputsDisabled = false
 
-                this.toast.fire({
-                    icon : 'success',
-                    text : 'Saved!'
-                })
+                this.showSaveFader()
             })
             .catch(error => {
                 this.isDisplayed = 'gone';
@@ -642,10 +641,7 @@ export default {
                 this.isButtonDisabled = false;
                 this.fillInputsDisabled = false
 
-                this.toast.fire({
-                    icon : 'success',
-                    text : 'Saved!'
-                })
+                this.showSaveFader()
             })
             .catch(error => {
                 this.isDisplayed = 'gone';
@@ -658,6 +654,18 @@ export default {
                 });
                 console.log(error)
             });
+        },
+        showSaveFader() {
+            var message = document.getElementById('msg-display');
+
+            // Show the message
+            message.style.opacity = 1;
+
+            // Wait for 3 seconds
+            setTimeout(function() {
+                // Fade out the message
+                message.style.opacity = 0;
+            }, 1500);
         }
     },
     created() {

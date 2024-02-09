@@ -5,10 +5,10 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
-                    <h4>Upcoming Payroll Deductions</h4>
+                    <h4>Upcoming Payroll Deductions (AR - Others)</h4>
                 </div>
                 <div class="col-lg-6">
-                    <a href="{{ route('otherPayrollDeductions.multiple-payroll-deductions') }}" class="btn btn-sm btn-warning float-right"><i class="fas fa-stream ico-tab-mini"></i>Create Multiple Deduction</a>
+                    <a href="{{ route('otherPayrollDeductions.multiple-payroll-deductions') }}" class="btn btn-sm btn-primary float-right"><i class="fas fa-stream ico-tab-mini"></i>New Deduction</a>
                     {{-- <button onclick="showOtherDeductions()" class="btn btn-sm btn-primary float-right ico-tab-mini"><i class="fas fa-minus ico-tab-mini"></i>Create Single Deduction</button> --}}
                 </div>
             </div>

@@ -21,6 +21,7 @@ import GeneratePayroll from "./components/payroll/generate-payroll.vue"
 import Contributions from "./components/payroll-sundries/contributions.vue"
 import MultiplePayrollDeductions from "./components/payroll/multiple-payroll-deductions.vue"
 import IncentivesAnnualProjection from "./components/bonuses/incentives-annual-projection.vue"
+import AddonsAndDeductions from "./components/payroll/addons-and-deductions.vue"
 
 const app = createApp({
     
@@ -34,5 +35,6 @@ app.component('generate-payroll', GeneratePayroll);
 app.component('contributions', Contributions);
 app.component('multiple-payroll-deductions', MultiplePayrollDeductions);
 app.component('incentives-annual-projection', IncentivesAnnualProjection);
+app.component('addons-and-deductions', AddonsAndDeductions);
 
 app.mount("#app");
