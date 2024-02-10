@@ -7,7 +7,7 @@
 @section('content')
 @push('page_css')
     <style>
-        .table {
+        .table-xs {
             font-size: .70em;
         }
 
@@ -106,7 +106,7 @@
                     $dataSets = $item['Data'];
                 @endphp
                 <div class="card-body table-responsive p-0">
-                    <table class="table table-sm table-bordered table-hover">
+                    <table class="table table-xs table-sm table-bordered table-hover">
                         <thead>
                             <tr>
                                 <th rowspan="2">Employee</th>

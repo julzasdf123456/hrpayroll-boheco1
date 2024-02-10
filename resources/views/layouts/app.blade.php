@@ -213,78 +213,6 @@
             display: none;
         }
 
-        /**
-         * BOTTOM BUTTONS FLOATING
-         */
-        .right-bottom {
-            position: fixed;
-            bottom: 15px;
-            right: 20px;
-        }
-
-        .left-bottom {
-            position: fixed;
-            bottom: 15px;
-            margin-left: 20px;
-        }
-
-        .btn-floating {
-            height: 40px;
-            border-radius: 20px;
-            outline: none;
-            border: 0px;
-            padding-left: 20px;
-            padding-right: 20px;
-            transition: background-color 0.3s ease;
-        }
-
-        .shadow {
-            box-shadow: 0 2px 2px rgba(0, 0, 0, 0.16); /* Adjust shadow values as needed */
-        }
-
-        /**
-         * BOTTOM NAV
-         */
-        .bottom-nav-tabs {
-            padding: 8px 24px 8px 24px;
-            border-radius: 20px;
-        }
-
-        .bottom-nav-pill-container {
-            border-right: 1px solid #9ca0a8;
-            display: inline;
-            margin-left: 3px;
-            margin-right: 3px;
-        }
-
-        .bottom-nav-pills {
-            padding: 8px 12px 8px 12px;
-            color: #757575;
-            transition: background-color 0.3s ease;
-            border-radius: 18px;
-            text-decoration: none;
-        }
-
-        .bottom-nav-pills:hover {
-            color: #323436 !important;
-            background-color: #e8eaee;
-        }
-
-        .bottom-nav-pill-container:last-child {
-            border-right: none;
-        }
-
-        /**
-         * BOTTOM FADER ON SAVE
-         */
-        .msg-display {
-            opacity: 0;
-            transition: opacity 1s ease;
-            padding: 5px 10px 5px 10px;
-            border-radius: 10px;
-            background-color: #f5f5f5;
-            color: #323436;
-        }
     </style>
 </head>
 @php
@@ -338,15 +266,15 @@
             <li class="nav-item dropdown user-menu">
                 <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
                     <img src="{{ URL::asset('imgs/logo.png'); }}"
-                         class="user-image img-circle elevation-2" alt="User Image"> 
+                         class="user-image img-circle" alt="User Image"> 
                     <span class="d-none d-md-inline">{{ Auth::user()->name }}</span>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
                     <!-- User image -->
-                    <li class="user-header {{ $userCache->ColorProfile != null ? 'bg-light' : 'bg-dark' }}">
+                    <li class="user-header">
                         {{-- <img src="https://boheco1.com/wp-content/uploads/2018/06/boheco-1-1024x1012.png" class="user-image img-circle elevation-2" alt="User Image"> --}}
                         <img src="{{ URL::asset('imgs/logo.png'); }}"
-                             class="img-circle elevation-2"
+                             class="img-circle"
                              alt="User Image"> 
                         <br>
                         <h4 style="margin-top: 10px;"> {{ Auth::check() ? Auth::user()->name : '' }} </h4>

@@ -1,5 +1,5 @@
 <aside class="main-sidebar {{ $userCache->ColorProfile != null ? 'sidebar-dark-primary' : 'sidebar-light' }} elevation-4">
-    <a href="{{ route('home') }}" class="brand-link">
+    <a href="{{ route('home') }}" class="brand-link" title="{{ env('APP_FULLNAME') }}">
         <img src="{{ URL::asset('imgs/logo.png'); }}"
              alt="{{ config('app.name') }} Logo"
              class="brand-image img-circle">
