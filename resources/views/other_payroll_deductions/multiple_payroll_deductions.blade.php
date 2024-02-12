@@ -3,7 +3,7 @@
 @section('content')
 <div class="row">
     <div class="col-sm-12">
-        <h4 style="margin-top: 10px; margin-left: 10px;">Setup Upcoming Payroll Deductions</h4>
+        <h4 style="margin-top: 10px; margin-left: 10px;">Create Deductions (AR - Others)</h4>
     </div>
 
     <div class="col-lg-12">

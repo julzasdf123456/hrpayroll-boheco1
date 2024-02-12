@@ -8,7 +8,10 @@ use App\Http\Controllers\AppBaseController;
 use App\Repositories\PayrollExpandedDetailsRepository;
 use Illuminate\Http\Request;
 use App\Models\IDGenerator;
+use App\Models\UserFootprints;
 use App\Models\PayrollExpandedDetails;
+use App\Models\EmployeeIncntvsProjectionTaxMark;
+use App\Models\EmployeeIncentiveAnnualProjections;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Flash;
@@ -143,6 +146,12 @@ class PayrollExpandedDetailsController extends AppBaseController
             ->where('EmployeeType', $employeeType)
             ->delete();
 
+        // DELETE EmployeeIncntvsProjectionTaxMark FIRST
+        EmployeeIncntvsProjectionTaxMark::where('Department', $department)
+            ->where('SalaryPeriod', $salaryPeriod)
+            ->where('EmployeeType', $employeeType)
+            ->delete();
+
         foreach($data as $item) {
             $payrollDraft = new PayrollExpandedDetails;
             $payrollDraft->id = IDGenerator::generateIDandRandString();
@@ -180,7 +189,27 @@ class PayrollExpandedDetailsController extends AppBaseController
             $payrollDraft->Department = $item['Department'];
             $payrollDraft->EmployeeType = $item['EmployeeType'];
             $payrollDraft->save();
+
+            // ADD INCENTIVE PROJECTION TAX COMPUTATION
+            $incentiveProjections = EmployeeIncentiveAnnualProjections::where('EmployeeId', $item['EmployeeId'])
+                ->where('Year', date('Y', strtotime($salaryPeriod)))
+                ->where('DeductMonthly', 'Yes')
+                ->get();
+            foreach($incentiveProjections as $incentive) {
+                $incentiveTax = new EmployeeIncntvsProjectionTaxMark;
+                $incentiveTax->id = IDGenerator::generateIDandRandString();
+                $incentiveTax->EmployeeId = $item['EmployeeId'];
+                $incentiveTax->Incentive = $incentive->Incentive;
+                $incentiveTax->Amount = $incentive->Amount;
+                $incentiveTax->SalaryPeriod = $item['SalaryPeriod'];
+                $incentiveTax->Deducted = 'Yes';
+                $incentiveTax->Department = $item['Department'];
+                $incentiveTax->EmployeeType = $item['EmployeeType'];
+                $incentiveTax->save();
+            }
         }
+
+        UserFootprints::log('Generated Payroll Draft', "Submitted " . $department . " payroll draft for salary period " . date('F d, Y', strtotime($salaryPeriod)) . " for auditing.");  
 
         return response()->json('ok', 200);
     }

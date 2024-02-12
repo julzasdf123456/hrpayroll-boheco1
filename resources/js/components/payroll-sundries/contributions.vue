@@ -35,13 +35,14 @@
     </div>
 
     <div class="table-responsive">
-        <table class="table table-hover table-sm table-bordered" id="response">
+        <table class="table table-hover table-sm table-xs table-bordered" id="response">
             <thead>
                 <tr>
                     <th class='text-center' rowspan="2">Employees</th>
                     <th class='text-center' colspan="2">Pag-Ibig Contribution</th>
                     <th class='text-center' colspan="2">SSS Contribution</th>
                     <th class='text-center' colspan="2">PhilHealth Contribution</th>
+                    <th class="text-center">Rice & Laundry</th>
                 </tr>
                 <tr>
                     <th>
@@ -126,6 +127,17 @@
                         > -->
                         <button @click="autoFillPhilHealth('PhilHealthEmployee')" :disabled="fillInputsDisabled" class="btn btn-sm float-right btn-default"><i class="fas fa-arrow-down ico-tab-mini"></i>Auto-Fill</button>
                     </th>
+                    <th>
+                        <input title="Enter a fixed amount to all employees" 
+                        type="number" step="any" 
+                        class="form-control form-control-sm" 
+                        style="height: 28px;" 
+                        placeholder="Fill Amount"
+                        v-model="riceAndLaundry"
+                        @keyup.enter="fillAmount('RiceAndLaundry', riceAndLaundry)"
+                        :disabled="fillInputsDisabled"
+                        >
+                    </th>
                 </tr>                
             </thead>
             <tbody>
@@ -149,14 +161,21 @@
                     <td>
                         <input class="table-input text-right" :class="tableInputTextColor" v-model="employee.PhilHealthEmployee" @keyup.enter="inputEnter(employee.PhilHealthEmployee, employee.id, 'PhilHealthEmployee')" @blur="inputEnter(employee.PhilHealthEmployee, employee.id, 'PhilHealthEmployee')" type="number" step="any"/>
                     </td>
+                    <td>
+                        <input class="table-input text-right" :class="tableInputTextColor" v-model="employee.RiceAndLaundry" @keyup.enter="inputEnter(employee.RiceAndLaundry, employee.id, 'RiceAndLaundry')" @blur="inputEnter(employee.RiceAndLaundry, employee.id, 'RiceAndLaundry')" type="number" step="any"/>
+                    </td>
                 </tr>
             </tbody>
         </table>
     </div>
+
+    <div class="right-bottom" style="bottom: 0px !important;">
+        <p id="msg-display" class="msg-display shadow" style="font-size: .8em;"><i class="fas fa-check-circle ico-tab-mini text-success"></i>saved!</p>
+    </div>
 </template>
 
 <style>
-    table {
+    .table-xs {
         font-size: .82em;
     }
 
@@ -257,6 +276,7 @@ export default {
                         PhilHealthEmployer : response.data[i]['PhilHealthContributionEmployer'],
                         PhilHealthEmployee : response.data[i]['PhilHealth'],
                         Salary : response.data[i]['BasicSalary'],
+                        RiceAndLaundry : response.data[i]['RiceAllowance'],
                     });
                     
                     this.isDisplayed = 'gone';
@@ -293,6 +313,7 @@ export default {
                 //     icon : 'success',
                 //     text : 'Saved!'
                 // })
+                this.showSaveFader()
             })
             .catch(error => {
                 Swal.fire({
@@ -544,10 +565,7 @@ export default {
                 this.isButtonDisabled = false;
                 this.fillInputsDisabled = false
 
-                this.toast.fire({
-                    icon : 'success',
-                    text : 'Saved!'
-                })
+                this.showSaveFader()
                 for(let i=0; i<this.employees.length; i++) {
                     if (type == 'PagIbigEmployer') {
                         this.employees[i].PagIbigEmployer = value
@@ -561,6 +579,8 @@ export default {
                         this.employees[i].PhilHealthEmployer = value
                     } else if (type == 'PhilHealthEmployee') {
                         this.employees[i].PhilHealthEmployee = value
+                    }  else if (type == 'RiceAndLaundry') {
+                        this.employees[i].RiceAndLaundry = value
                     }                
                 }
             })
@@ -601,10 +621,7 @@ export default {
                 this.isButtonDisabled = false;
                 this.fillInputsDisabled = false
 
-                this.toast.fire({
-                    icon : 'success',
-                    text : 'Saved!'
-                })
+                this.showSaveFader()
             })
             .catch(error => {
                 this.isDisplayed = 'gone';
@@ -642,10 +659,7 @@ export default {
                 this.isButtonDisabled = false;
                 this.fillInputsDisabled = false
 
-                this.toast.fire({
-                    icon : 'success',
-                    text : 'Saved!'
-                })
+                this.showSaveFader()
             })
             .catch(error => {
                 this.isDisplayed = 'gone';
@@ -658,6 +672,18 @@ export default {
                 });
                 console.log(error)
             });
+        },
+        showSaveFader() {
+            var message = document.getElementById('msg-display');
+
+            // Show the message
+            message.style.opacity = 1;
+
+            // Wait for 3 seconds
+            setTimeout(function() {
+                // Fade out the message
+                message.style.opacity = 0;
+            }, 1500);
         }
     },
     created() {

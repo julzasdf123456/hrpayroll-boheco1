@@ -10,6 +10,8 @@ use Illuminate\Http\Request;
 use App\Models\IDGenerator;
 use Illuminate\Support\Facades\DB;
 use App\Models\OtherPayrollDeductions;
+use App\Models\OtherAddonsDeductions;
+use App\Models\UserFootprints;
 use Flash;
 
 class OtherPayrollDeductionsController extends AppBaseController
@@ -157,13 +159,15 @@ class OtherPayrollDeductionsController extends AppBaseController
             $employees = DB::table('Employees')
                 ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
                 ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+                ->whereRaw("(EmploymentStatus IS NULL OR EmploymentStatus NOT IN ('Resigned', 'Retired'))")
                 ->select(
                     'Employees.id',
                     'FirstName',
                     'MiddleName',
                     'LastName',
                     'Suffix',
-                    DB::raw("(SELECT SUM(Amount) AS Amount FROM OtherPayrollDeductions WHERE ScheduleDate='" . $schedule . "' AND EmployeeId=Employees.id GROUP BY ScheduleDate) AS Amount")
+                    DB::raw("(SELECT TOP 1 Amount FROM OtherPayrollDeductions WHERE ScheduleDate='" . $schedule . "' AND EmployeeId=Employees.id ORDER BY ScheduleDate DESC) AS Amount"),
+                    DB::raw("(SELECT TOP 1 DeductionDescription FROM OtherPayrollDeductions WHERE ScheduleDate='" . $schedule . "' AND EmployeeId=Employees.id ORDER BY ScheduleDate DESC) AS DeductionDescription"),
                 )
                 ->orderBy('LastName')
                 ->get();
@@ -173,13 +177,15 @@ class OtherPayrollDeductionsController extends AppBaseController
                     ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
                     ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
                     ->whereRaw("Employees.OfficeDesignation='" . $department . "'")
+                    ->whereRaw("(EmploymentStatus IS NULL OR EmploymentStatus NOT IN ('Resigned', 'Retired'))")
                     ->select(
                         'Employees.id',
                         'FirstName',
                         'MiddleName',
                         'LastName',
                         'Suffix',
-                        DB::raw("(SELECT SUM(Amount) AS Amount FROM OtherPayrollDeductions WHERE ScheduleDate='" . $schedule . "' AND EmployeeId=Employees.id GROUP BY ScheduleDate) AS Amount")
+                        DB::raw("(SELECT TOP 1 Amount FROM OtherPayrollDeductions WHERE ScheduleDate='" . $schedule . "' AND EmployeeId=Employees.id ORDER BY ScheduleDate DESC) AS Amount"),
+                        DB::raw("(SELECT TOP 1 DeductionDescription FROM OtherPayrollDeductions WHERE ScheduleDate='" . $schedule . "' AND EmployeeId=Employees.id ORDER BY ScheduleDate DESC) AS DeductionDescription"),
                     )
                     ->orderBy('LastName')
                     ->get();
@@ -188,13 +194,15 @@ class OtherPayrollDeductionsController extends AppBaseController
                     ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
                     ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
                     ->whereRaw("Positions.Department='" . $department . "' AND Employees.OfficeDesignation NOT IN ('SUB-OFFICE')")
+                    ->whereRaw("(EmploymentStatus IS NULL OR EmploymentStatus NOT IN ('Resigned', 'Retired'))")
                     ->select(
                         'Employees.id',
                         'FirstName',
                         'MiddleName',
                         'LastName',
                         'Suffix',
-                        DB::raw("(SELECT SUM(Amount) AS Amount FROM OtherPayrollDeductions WHERE ScheduleDate='" . $schedule . "' AND EmployeeId=Employees.id GROUP BY ScheduleDate) AS Amount")
+                        DB::raw("(SELECT TOP 1 Amount FROM OtherPayrollDeductions WHERE ScheduleDate='" . $schedule . "' AND EmployeeId=Employees.id ORDER BY ScheduleDate DESC) AS Amount"),
+                        DB::raw("(SELECT TOP 1 DeductionDescription FROM OtherPayrollDeductions WHERE ScheduleDate='" . $schedule . "' AND EmployeeId=Employees.id ORDER BY ScheduleDate DESC) AS DeductionDescription"),
                     )
                     ->orderBy('LastName')
                     ->get();
@@ -208,6 +216,7 @@ class OtherPayrollDeductionsController extends AppBaseController
         $employeeId = $request['EmployeeId'];
         $schedule = $request['Schedule'];
         $amount = $request['Amount'];
+        $description = $request['Description'];
 
         // DELETE EXISTING FIRST
         OtherPayrollDeductions::where('EmployeeId', $employeeId)
@@ -221,11 +230,118 @@ class OtherPayrollDeductionsController extends AppBaseController
             $others->EmployeeId = $employeeId;
             $others->DeductionName = 'AR - Others';
             $others->ScheduleDate = $schedule;
+            $others->DeductionDescription = $description;
             $others->Type = 'Others';
             $others->Amount = $amount;
 
             $others->save();
+
+            UserFootprints::log('Added AR-Others', "Updated AR-Others amount for payroll schedule " . date('F d, Y', strtotime($schedule)) . " amounting to " . $amount);
         }
+        return response()->json('ok', 200);
+    }
+
+    public function addOnsAndDeductions(Request $request) {
+        return view('/other_payroll_deductions/addons_and_deductions', [
+
+        ]);
+    }
+
+    public function getAddonsAndDeductions(Request $request) {
+        $department = $request['Department'];
+        $schedule = $request['Schedule'];
+
+        if ($department == 'All') {
+            $employees = DB::table('Employees')
+                ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+                ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+                ->whereRaw("(EmploymentStatus IS NULL OR EmploymentStatus NOT IN ('Resigned', 'Retired'))")
+                ->select(
+                    'Employees.id',
+                    'FirstName',
+                    'MiddleName',
+                    'LastName',
+                    'Suffix',
+                    DB::raw("(SELECT TOP 1 AddonAmount FROM OtherAddonsDeductions WHERE ScheduleDate='" . $schedule . "' AND EmployeeId=Employees.id ORDER BY ScheduleDate DESC) AS AddonAmount"),
+                    DB::raw("(SELECT TOP 1 AddonName FROM OtherAddonsDeductions WHERE ScheduleDate='" . $schedule . "' AND EmployeeId=Employees.id ORDER BY ScheduleDate DESC) AS AddonName"),
+                    DB::raw("(SELECT TOP 1 DeductionAmount FROM OtherAddonsDeductions WHERE ScheduleDate='" . $schedule . "' AND EmployeeId=Employees.id ORDER BY ScheduleDate DESC) AS DeductionAmount"),
+                    DB::raw("(SELECT TOP 1 DeductionName FROM OtherAddonsDeductions WHERE ScheduleDate='" . $schedule . "' AND EmployeeId=Employees.id ORDER BY ScheduleDate DESC) AS DeductionName"),
+                )
+                ->orderBy('LastName')
+                ->get();
+        } else {
+            if ($department == 'SUB-OFFICE') {
+                $employees = DB::table('Employees')
+                    ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+                    ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+                    ->whereRaw("Employees.OfficeDesignation='" . $department . "'")
+                    ->whereRaw("(EmploymentStatus IS NULL OR EmploymentStatus NOT IN ('Resigned', 'Retired'))")
+                    ->select(
+                        'Employees.id',
+                        'FirstName',
+                        'MiddleName',
+                        'LastName',
+                        'Suffix',
+                        DB::raw("(SELECT TOP 1 AddonAmount FROM OtherAddonsDeductions WHERE ScheduleDate='" . $schedule . "' AND EmployeeId=Employees.id ORDER BY ScheduleDate DESC) AS AddonAmount"),
+                        DB::raw("(SELECT TOP 1 AddonName FROM OtherAddonsDeductions WHERE ScheduleDate='" . $schedule . "' AND EmployeeId=Employees.id ORDER BY ScheduleDate DESC) AS AddonName"),
+                        DB::raw("(SELECT TOP 1 DeductionAmount FROM OtherAddonsDeductions WHERE ScheduleDate='" . $schedule . "' AND EmployeeId=Employees.id ORDER BY ScheduleDate DESC) AS DeductionAmount"),
+                        DB::raw("(SELECT TOP 1 DeductionName FROM OtherAddonsDeductions WHERE ScheduleDate='" . $schedule . "' AND EmployeeId=Employees.id ORDER BY ScheduleDate DESC) AS DeductionName"),
+                    )
+                    ->orderBy('LastName')
+                    ->get();
+            } else {
+                $employees = DB::table('Employees')
+                    ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+                    ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+                    ->whereRaw("Positions.Department='" . $department . "' AND Employees.OfficeDesignation NOT IN ('SUB-OFFICE')")
+                    ->whereRaw("(EmploymentStatus IS NULL OR EmploymentStatus NOT IN ('Resigned', 'Retired'))")
+                    ->select(
+                        'Employees.id',
+                        'FirstName',
+                        'MiddleName',
+                        'LastName',
+                        'Suffix',
+                        DB::raw("(SELECT TOP 1 AddonAmount FROM OtherAddonsDeductions WHERE ScheduleDate='" . $schedule . "' AND EmployeeId=Employees.id ORDER BY ScheduleDate DESC) AS AddonAmount"),
+                        DB::raw("(SELECT TOP 1 AddonName FROM OtherAddonsDeductions WHERE ScheduleDate='" . $schedule . "' AND EmployeeId=Employees.id ORDER BY ScheduleDate DESC) AS AddonName"),
+                        DB::raw("(SELECT TOP 1 DeductionAmount FROM OtherAddonsDeductions WHERE ScheduleDate='" . $schedule . "' AND EmployeeId=Employees.id ORDER BY ScheduleDate DESC) AS DeductionAmount"),
+                        DB::raw("(SELECT TOP 1 DeductionName FROM OtherAddonsDeductions WHERE ScheduleDate='" . $schedule . "' AND EmployeeId=Employees.id ORDER BY ScheduleDate DESC) AS DeductionName"),
+                    )
+                    ->orderBy('LastName')
+                    ->get();
+            }            
+        }
+
+        return response()->json($employees, 200);
+    }
+
+    public function updateAddonsAndDeductions(Request $request) {
+        $employeeId = $request['EmployeeId'];
+        $schedule = $request['Schedule'];
+        $addonName = $request['AddonName'];
+        $addonAmount = $request['AddonAmount'];
+        $deductionName = $request['DeductionName'];
+        $deductionAmount = $request['DeductionAmount'];
+
+        // DELETE EXISTING FIRST
+        OtherAddonsDeductions::where('EmployeeId', $employeeId)
+            ->where('ScheduleDate', $schedule)
+            ->delete();
+
+        if ($addonAmount != null || $deductionAmount != null) {
+            // CREATE NEW
+            $others = new OtherAddonsDeductions;
+            $others->id = IDGenerator::generateIDandRandString();
+            $others->EmployeeId = $employeeId;
+            $others->ScheduleDate = $schedule;
+            $others->DeductionName = $deductionName;
+            $others->DeductionAmount = $deductionAmount;
+            $others->AddonName = $addonName;
+            $others->AddonAmount = $addonAmount;
+
+            $others->save();
+        }
+
+        UserFootprints::log('Added Salary-Related Addons/Deductions', "Updated Salary-Related addons/deductions for payroll schedule " . date('F d, Y', strtotime($schedule)));
         return response()->json('ok', 200);
     }
 }

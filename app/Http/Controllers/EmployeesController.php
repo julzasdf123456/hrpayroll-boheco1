@@ -277,6 +277,10 @@ class EmployeesController extends AppBaseController
         if ($request['search'] != null) {
             $param = $request['search'];
             $results = DB::table('Employees')
+                ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+                ->leftJoin('Towns', 'Employees.TownCurrent', '=', 'Towns.id')
+                ->leftJoin('Barangays', 'Employees.BarangayCurrent', '=', 'Barangays.id')
+                ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
                 ->where('Employees.FirstName', 'LIKE', '%' . $param . '%')
                 ->orWhere('Employees.MiddleName', 'LIKE', '%' . $param . '%')
                 ->orWhere('Employees.LastName', 'LIKE', '%' . $param . '%')
@@ -288,11 +292,19 @@ class EmployeesController extends AppBaseController
                     'Employees.TownCurrent',
                     'Employees.ProvinceCurrent',
                     'Employees.ContactNumbers',
-                    'Employees.EmailAddress')
+                    'Positions.Position as Designation',
+                    'Employees.EmailAddress',
+                    'Towns.Town',
+                    'Barangays.Barangays'   
+                )
                 ->orderBy('Employees.LastName')
                 ->paginate(20);
         } else {
             $results = DB::table('Employees')
+                ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+                ->leftJoin('Towns', 'Employees.TownCurrent', '=', 'Towns.id')
+                ->leftJoin('Barangays', 'Employees.BarangayCurrent', '=', 'Barangays.id')
+                ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
                 ->select('Employees.id', 
                     DB::raw("CONCAT(LastName, ' ,', FirstName, ' ', MiddleName, ' ', Suffix) AS EmployeeName"),
                     'Employees.StreetCurrent',
@@ -300,7 +312,11 @@ class EmployeesController extends AppBaseController
                     'Employees.TownCurrent',
                     'Employees.ProvinceCurrent',
                     'Employees.ContactNumbers',
-                    'Employees.EmailAddress')
+                    'Positions.Position as Designation',
+                    'Employees.EmailAddress',
+                    'Towns.Town',
+                    'Barangays.Barangays' 
+                )
                 ->orderByDesc('Employees.created_at')
                 ->paginate(20);
         }

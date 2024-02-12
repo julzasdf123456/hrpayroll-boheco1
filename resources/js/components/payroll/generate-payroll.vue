@@ -25,6 +25,8 @@
                 <div class="col-lg-2">
                     <span class="text-muted">Salary Period</span>
                     <select v-model="salaryPeriod" class="form-control form-control-sm">
+                        <option value="2024-01-15">{{ moment('2024-01-15').format('MMMM DD, YYYY') }}</option>
+                        <option value="2024-01-31">{{ moment('2024-01-31').format('MMMM DD, YYYY') }}</option>
                         <option :value="fifteenth">{{ moment(fifteenth).format('MMMM DD, YYYY') }}</option>
                         <option :value="thirtieth">{{ moment(thirtieth).format('MMMM DD, YYYY') }}</option>
                     </select>
@@ -40,9 +42,9 @@
                 <div class="col-lg-3">
                     <span class="text-muted">Action</span><br>
                     <button class="btn btn-default btn-sm ico-tab-mini" :disabled="isButtonDisabled" @click="generate()"><i class="fas fa-eye ico-tab-mini"></i>Preview</button>
-                    <button class="btn btn-primary btn-sm" :disabled="isGenerateButtonDisabled" @click="savePayroll()"><i class="fas fa-check-circle ico-tab-mini"></i>Submit Payroll</button>
+                    <button class="btn btn-primary btn-sm" :disabled="isGenerateButtonDisabled" @click="validateSavePayroll()"><i class="fas fa-check-circle ico-tab-mini"></i>Submit Payroll</button>
 
-                    <div class="spinner-border text-primary float-right" :class="isDisplayed" role="status">
+                    <div class="spinner-border text-success float-right" :class="isDisplayed" role="status">
                         <span class="sr-only">Loading...</span>
                     </div>
                 </div>
@@ -56,8 +58,8 @@
             <button id="go-btn" class="btn btn-primary btn-sm float-right" @click="ask()" style="margin-top: 5px;"><i class="fas fa-check-circle ico-tab-mini"></i>Go Ask Reeve</button> -->
         </div>
     </div>
-
     
+    <!-- LEGEND -->
     <div class="legend" style="margin-bottom: 15px; margin-left: 20px;">
         <span style="cursor: pointer;"><i @click="toggleView()" :class="legendIcon" class="fas ico-tab" title="Show/hide attendance columns"></i></span>
 
@@ -73,8 +75,17 @@
             <span style="width: 10px !important; height: 10px !important; background-color: #0cf2c4; display: inline-block; border-radius: 50%; margin-left: 20px; margin-right: 5px;"></span> Leave
         </span>
     </div>
+
+    <!-- SHOW IF EXISTS -->
+    <div v-if="payrollExists">
+        <div class="exists">
+            <span style="color: aliceblue;"><i class="fas fa-exclamation-triangle ico-tab-mini"></i>Payroll data already exists (Status: "<strong>{{ existStatus }}</strong>")</span>
+        </div>
+        <a :href="baseURL + '/payroll_indices/view-payroll/' + salaryPeriod" class="btn btn-default btn-sm" style="margin-left: 10px;"><i class="fas fa-eye ico-tab-mini"></i>View Payroll Instead</a>
+    </div>
+
     <div class="table-responsive">
-        <table class="table table-hover table-sm table-bordered" id="response">
+        <table class="table table-hover table-sm table-xs table-bordered" id="response">
             <thead>
                 <!-- <tr>
                     <th class='text-center' rowspan="2">Employees</th>
@@ -111,8 +122,17 @@
         min-width: 250px;
     }
 
-    table {
+    .table-xs {
         font-size: .82em;
+    }
+
+    .exists {
+        background-color: #ca5666; 
+        display: inline-block; 
+        margin-bottom: 15px; 
+        margin-left: 20px; 
+        padding: 5px 12px 5px 12px;
+        border-radius: 5px;
     }
 </style>
 
@@ -133,6 +153,7 @@ export default {
     },
     data() {
         return {
+            baseURL : axios.defaults.baseURL,
             fifteenth : moment().format('YYYY-MM-15'),
             thirtieth : moment().month()==1 ? moment().endOf('month').format('YYYY-MM-DD') : moment().format('YYYY-MM-30'),
             moment : moment,
@@ -152,8 +173,8 @@ export default {
             employeeType : 'Regular',
             department : 'OGM',
             salaryPeriod : '',
-            from : '2024-01-03',
-            to : '2024-01-18',
+            from : '2024-01-26',
+            to : '2024-02-10',
             // TABLE COLUMNS
             dateHeaders : [],
             summaryHeaders : [],
@@ -172,6 +193,8 @@ export default {
             areDateColumnsDisplayed : true,
             isGenerateButtonDisabled : true,
             payrollData : [],
+            payrollExists : false,
+            existStatus : '',
         }
     },
     methods : {
@@ -307,8 +330,8 @@ export default {
             });
 
             this.summaryHeaders.push({
-                name : 'Other Deducts.',
-                label : 'Other Deducts.'
+                name : 'AR-Others',
+                label : 'AR-Others'
             });
 
             this.summaryHeaders.push({
@@ -1165,6 +1188,17 @@ export default {
 
             return totalLoan
         },
+        getAROtherLoans(loans) {
+            var totalLoan = 0
+            
+            for(let i=0; i<loans.length; i++) {
+                if (loans[i].LoanFor !== 'SSS' && loans[i].LoanFor !== 'Pag-Ibig' && loans[i].LoanFor !== 'Motorcycle') {
+                    totalLoan += this.isNull(loans[i].MonthlyAmmortization) ? 0 : parseFloat(loans[i].MonthlyAmmortization)
+                }
+            }
+
+            return totalLoan
+        },
         getOtherDeductions(deductions) {
             var amount = 0
 
@@ -1231,6 +1265,20 @@ export default {
 
             return totalTaxable < 1 ? 0 : totalTaxable
         },
+        getAddonsAndDeductions(data, type) {
+            var amount = 0
+
+            for(let i=0; i<data.length; i++) {
+                if (type === 'Addons') {
+                    amount += this.isNull(data[i].AddonAmount) ? 0 : parseFloat(data[i].AddonAmount)
+                } else {
+                    amount += this.isNull(data[i].DeductionAmount) ? 0 : parseFloat(data[i].DeductionAmount)
+                }
+                
+            }
+
+            return this.round(amount)
+        },
         generate() {
             if (this.isNull(this.employeeType) | this.isNull(this.department) | this.isNull(this.salaryPeriod) | this.isNull(this.from) | this.isNull(this.to)) {
                 Swal.fire({
@@ -1248,6 +1296,8 @@ export default {
                 this.employees = [];
                 this.attendances = [];
                 this.summaries = [];
+                this.payrollExists = false
+                this.existStatus = ''
                 this.getInBetweenDates(this.from, this.to);
 
                 // GET EMPLOYEES DATA
@@ -1261,7 +1311,19 @@ export default {
                     }
                 })
                 .then(response => {
-                    this.isGenerateButtonDisabled = false;
+                    if (this.existStatus === 'Approved' || this.existStatus === 'Approved By Audit') {
+                        this.isGenerateButtonDisabled = true;
+                    } else {
+                        this.isGenerateButtonDisabled = false;
+                    }
+
+                    if (response.data['CheckPayroll'].Exists === 'true') {
+                        this.existStatus = response.data['CheckPayroll'].Status
+                        this.payrollExists = true
+                    } else {
+                        this.existStatus = ''
+                        this.payrollExists = false
+                    }
 
                     var size = response.data['Employees'].length;
                     for (let i=0; i<size; i++) {
@@ -1353,11 +1415,11 @@ export default {
                         summaryChunks.push(riceAllowance > 0 ? `₱` + this.toMoney(riceAllowance) : '-'); 
 
                         // OTHERS - ADDONS
-                        var otherAddonsPlus = 0 
+                        var otherAddonsPlus = this.getAddonsAndDeductions(response.data['Employees'][i]['OtherAddonsAndDeductions'], 'Addons') 
                         summaryChunks.push(otherAddonsPlus > 0 ? `₱` + this.toMoney(otherAddonsPlus) : '-'); 
 
                         // OTHERS - DEDUCTIONS 
-                        var otherAddonsMinus = 0
+                        var otherAddonsMinus = this.getAddonsAndDeductions(response.data['Employees'][i]['OtherAddonsAndDeductions'], 'Deductions') 
                         summaryChunks.push(otherAddonsMinus > 0 ? `₱` + this.toMoney(otherAddonsMinus) : '-'); 
 
                         // TOTAL AMOUNT
@@ -1388,8 +1450,10 @@ export default {
                         var philHealth = !this.isFifteenth(this.salaryPeriod) ? (this.isNull(response.data['Employees'][i]['PhilHealth']) ? 0 : this.round(parseFloat(response.data['Employees'][i]['PhilHealth']))) : 0;       
                         summaryChunks.push(philHealth > 0 ? `₱` + this.toMoney(philHealth) : '-');
 
-                        // OTHER DEDUCTIONS   
-                        var otherDeductions = this.getOtherDeductions(response.data['Employees'][i]['OtherDeductions'])     
+                        // OTHER DEDUCTIONS - AR OTHERS
+                        var arOtherLoans = this.getAROtherLoans(response.data['Employees'][i]['Loans'])
+                        var otherDeductions = this.getOtherDeductions(response.data['Employees'][i]['OtherDeductions'])  
+                        otherDeductions += arOtherLoans 
                         summaryChunks.push(otherDeductions > 0 ? `₱` + this.toMoney(otherDeductions) : '-');
 
                         // SALARY/OT/LATE/UT/ABS WT   
@@ -1459,6 +1523,8 @@ export default {
                 })
                 .catch(error => {
                     this.isGenerateButtonDisabled = true;
+                    this.existStatus = ''
+                    this.payrollExists = false
 
                     Swal.fire({
                         icon : 'error',
@@ -1510,56 +1576,82 @@ export default {
             });
             
         },
-        savePayroll() {
-            Swal.fire({
-                title: "Submit for Audit?",
-                text : 'Submit this payroll draft for audit? You can always regenerate this anytime as long as it has not yet been approved for finalization.',
-                showCancelButton: true,
-                confirmButtonText: "Submit",
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    this.isDisplayed = ''
-                    this.isGenerateButtonDisabled = true;
-                    this.isButtonDisabled = true;
-
-                    axios.post(`${ axios.defaults.baseURL }/payroll_expanded_details/bulk-save-payroll`, {
-                            EmployeeType : this.employeeType,
-                            Department : this.department,
-                            SalaryPeriod : this.salaryPeriod,
-                            Data : this.payrollData,
+        validateSavePayroll() {
+            if (this.payrollExists) {
+                if (this.existStatus === 'Approved' || this.existStatus === 'Approved By Audit' || this.existStatus === 'Locked') {
+                    Swal.fire({
+                        icon : 'warning',
+                        title : 'Unauthorized!',
+                        text : 'There is already an approved payroll data for this salary period.'
                     })
-                    .then(response => {
-                        this.isDisplayed = 'gone';
-                        this.isGenerateButtonDisabled = false;
-                        this.isButtonDisabled = false;
-                        this.toast.fire({
-                            icon : 'success',
-                            text : 'Payroll generated and forwarded for auditing!'
-                        })
-
-                        // window.location.href = `${ axios.defaults.baseURL }`
-                        this.totalDateColumns = 0;
-                        this.isGenerateButtonDisabled = true;
-                        this.payrollData = []
-                        this.dateHeaders = [];
-                        this.summaryHeaders = [];
-                        this.dateSubHeaders = [];
-                        this.employees = [];
-                        this.attendances = [];
-                        this.summaries = [];
-                    })
-                    .catch(error => {
-                        this.isGenerateButtonDisabled = true;
-
-                        Swal.fire({
-                            icon : 'error',
-                            title : 'Error submitting payroll data!',
-                        });
-                        console.log(error)
-                        this.isDisplayed = 'gone';
-                        this.isButtonDisabled = false;
+                } else {
+                    Swal.fire({
+                        title: "Re-submit for Audit?",
+                        text : 'Do you want to override and replace current payroll and re-submit this instance for auditing?',
+                        showCancelButton: true,
+                        confirmButtonText: "Confirm Re-Submit",
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            this.savePayroll()
+                        }
                     });
                 }
+            } else {
+                Swal.fire({
+                    title: "Submit for Audit?",
+                    text : 'Submit this payroll draft for audit? You can always regenerate this anytime as long as it has not yet been approved for finalization.',
+                    showCancelButton: true,
+                    confirmButtonText: "Submit",
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        this.savePayroll()
+                    }
+                });
+            }            
+        },
+        savePayroll() {
+            this.isDisplayed = ''
+            this.isGenerateButtonDisabled = true;
+            this.isButtonDisabled = true;
+
+            axios.post(`${ axios.defaults.baseURL }/payroll_expanded_details/bulk-save-payroll`, {
+                    EmployeeType : this.employeeType,
+                    Department : this.department,
+                    SalaryPeriod : this.salaryPeriod,
+                    Data : this.payrollData,
+            })
+            .then(response => {
+                this.isDisplayed = 'gone';
+                this.isGenerateButtonDisabled = false;
+                this.isButtonDisabled = false;
+                this.toast.fire({
+                    icon : 'success',
+                    text : 'Payroll generated and forwarded for auditing!'
+                })
+
+                // window.location.href = `${ axios.defaults.baseURL }`
+                this.totalDateColumns = 0;
+                this.isGenerateButtonDisabled = true;
+                this.payrollData = []
+                this.dateHeaders = [];
+                this.summaryHeaders = [];
+                this.dateSubHeaders = [];
+                this.employees = [];
+                this.attendances = [];
+                this.summaries = [];
+                this.payrollExists = false
+                this.existStatus = ''
+            })
+            .catch(error => {
+                this.isGenerateButtonDisabled = true;
+
+                Swal.fire({
+                    icon : 'error',
+                    title : 'Error submitting payroll data!',
+                });
+                console.log(error)
+                this.isDisplayed = 'gone';
+                this.isButtonDisabled = false;
             });
         }
     },

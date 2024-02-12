@@ -68,7 +68,7 @@
                                                     @if ($leaveApplication->Status == 'APPROVED' | $leaveApplication->Status == 'FOR REVIEW')
                                                         
                                                     @else
-                                                        <button class="btn btn-xs btn-danger" style="margin-left: 20px;"><i class="fas fa-trash"></i></button>
+                                                        <button class="btn btn-xs btn-link text-danger" style="margin-left: 20px;"><i class="fas fa-trash"></i></button>
                                                     @endif                                
                                                 </li>
                                             @endforeach

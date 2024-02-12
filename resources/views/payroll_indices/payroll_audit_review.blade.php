@@ -7,7 +7,7 @@
 @section('content')
 @push('page_css')
     <style>
-        .table {
+        .table-xs {
             font-size: .70em;
         }
     </style>
@@ -64,7 +64,7 @@
                     $dataSets = $item['Data'];
                 @endphp
                 <div class="card-body table-responsive p-0">
-                    <table class="table table-sm table-bordered table-hover">
+                    <table class="table table-sm table-xs table-bordered table-hover">
                         <thead>
                             <tr>
                                 <th rowspan="2">Employee</th>
@@ -287,10 +287,9 @@
     </div> 
 </div>
 
-
 <div class="right-bottom">
-    <button class="btn-floating shadow bg-success"><i class="fas fa-check-circle ico-tab-mini"></i>Approve</button>
-    <button class="btn-floating shadow bg-danger" title="Reject"><i class="fas fa-times"></i></button>
+    <button onclick="approve()" class="btn-floating shadow bg-success"><i class="fas fa-check-circle ico-tab-mini"></i>Approve</button>
+    <button onclick="reject()" class="btn-floating shadow bg-danger" title="Reject"><i class="fas fa-times"></i></button>
 </div>
 
 @endsection
@@ -314,5 +313,79 @@
                 });
             });
         })
+
+        function reject() {
+            (async () => {
+                const { value: text } = await Swal.fire({
+                    input: 'textarea',
+                    inputLabel: 'Remarks/Notes',
+                    inputPlaceholder: 'Type your remarks here...',
+                    inputAttributes: {
+                        'aria-label': 'Type your remarks here'
+                    },
+                    title: 'Reject This Payroll?',
+                    text : 'You are about to reject and return this payroll to the finance department for re-checking. Please provide any remarks or notes below for their reference.',
+                    showCancelButton: true
+                })
+
+                if (text) {
+                    $.ajax({
+                        url : "{{ route('payrollIndices.audit-reject-payroll') }}",
+                        type : "GET",
+                        data : {
+                            SalaryPeriod : "{{ $salaryPeriod }}",
+                            Remarks : text,
+                        },
+                        success : function(res) {
+                            Toast.fire({
+                                icon : 'info',
+                                text : 'Payroll forwarded back to finance.'
+                            })
+                            window.location.href = "{{ route('payrollIndices.payroll-audit') }}"
+                        },
+                        error : function(err) {
+                            Swal.fire({
+                                icon : 'error',
+                                text : 'Error rejecting payroll!'
+                            })
+                        }
+                    })
+                }
+            })()
+        }
+
+        function approve() {
+            Swal.fire({
+                title: "Approve Payroll?",
+                text: "By approving, these data will be marked for finalization.",
+                icon: "info",
+                showCancelButton: true,
+                confirmButtonColor: "#13946b",
+                confirmButtonText: "Approve"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url : "{{ route('payrollIndices.audit-approve-payroll') }}",
+                        type : "GET",
+                        data : {
+                            SalaryPeriod : "{{ $salaryPeriod }}",
+                        },
+                        success : function(res) {
+                            Toast.fire({
+                                icon : 'success',
+                                text : 'Payroll approved by audit.'
+                            })
+                            window.location.href = "{{ route('payrollIndices.payroll-audit') }}"
+                        },
+                        error : function(err) {
+                            Swal.fire({
+                                icon : 'error',
+                                text : 'Error approving payroll!'
+                            })
+                        }
+                    })
+                }
+            });
+        }
     </script>
 @endpush

@@ -11,39 +11,35 @@
     </div>
 
     <!-- results -->
-    <div class="row">
-        <div class="col-lg-12 p-3">
-            <table class="table table-hover table-sm">
-                <thead>
-                    <th>ID</th>
-                    <th>Employee Name</th>
-                    <th>Barangay</th>
-                    <th>Town</th>
-                    <th>Designation</th>
-                    <th></th>
-                </thead>
-                <tbody>
-                    <tr v-for="employee in employees.data" :key="employee.id">
-                        <td><a :href="baseURL + '/employees/' + employee.id"><strong>{{ employee.id }}</strong></a></td>
-                        <td>{{ employee.EmployeeName }}</td>
-                        <td>{{ employee.Barangay }}</td>
-                        <td>{{ employee.Town }}</td>
-                        <td>{{ employee.Designation }}</td>
-                        <td class="text-right">
-                            <a :href="baseURL + '/employees/' + employee.id" class="btn btn-primary btn-xs"><i class="fas fa-eye ico-tab-mini"></i>View</a>    <!-- IF PORT 80 -->                         
-                            <!-- <a :href="'/serviceAccounts/' + account.id" class="btn btn-primary btn-xs"><i class="fas fa-eye ico-tab-mini"></i>View</a>  --> <!-- IF PORT 8000 -->
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+    <div class="row" style="margin-top: 24px; padding-left: 24px; padding-right: 24px;">
+        <div class="col-lg-4 col-md-6" v-for="employee in employees.data" :key="employee.id">
+            <div class="card shadow-none card-widget widget-user-2">
+                <div class="widget-user-header">
+                    <div class="widget-user-image">
+                        <img class="img-circle elevation-2" src="../../../../public/imgs/prof-img.png" alt="User Avatar">
+                    </div>
+                    <h3 class="widget-user-username" style="padding-left: 10px;"><strong>{{ employee.EmployeeName }}</strong></h3>
+                    <span class="text-muted" style="margin-left: 20px;">{{ employee.Designation }}</span>
+                </div>
 
-            <pagination :data="employees" :limit="10" @pagination-change-page="view"></pagination>
+                <div class="card-body" style="padding: 8px 16px 4px 48px;">
+                    <p class="text-muted" style="margin-top: 5px !important; margin-bottom: 5px !important;"><i class="fas fa-hashtag ico-tab"></i>{{ employee.id }}</p>
+                    <p class="text-muted" style="margin-top: 5px !important; margin-bottom: 5px !important;"><i class="fas fa-map-marker-alt ico-tab"></i>{{ employee.Town + (isNull(employee.Barangays) ? '' : ', ' + employee.Barangays) }}</p>
+                    <p class="text-muted" style="margin-top: 5px !important; margin-bottom: 5px !important;"><i class="fas fa-phone ico-tab"></i>{{ employee.ContactNumbers }}</p>
+                    <p class="text-muted" style="margin-top: 5px !important; margin-bottom: 5px !important;"><i class="fas fa-at ico-tab"></i>{{ employee.EmailAddress }}</p>
+                </div>
+
+                <div class="card-footer">
+                    <a :href="baseURL + '/employees/' + employee.id" class="btn btn-primary-skinny float-right"><i class="fas fa-eye ico-tab-mini"></i>View</a>
+                </div>
+            </div>
         </div>
     </div>
 </template>
 <script>
 import axios from 'axios';
 import { Bootstrap4Pagination } from 'laravel-vue-pagination'
+import jquery from 'jquery';
 
 export default {
     name : 'EmployeesSearch.search',
@@ -59,6 +55,13 @@ export default {
         }
     },
     methods : {
+        isNull (item) {
+            if (jquery.isEmptyObject(item)) {
+                return true;
+            } else {
+                return false;
+            }
+        },
         view (page = 1) {
             // axios.get(`/service_accounts/search-account-ajax?page=${page}&search=${this.search}`) // IF PORT 8000
             axios.get(`${ axios.defaults.baseURL }/employees/get-search-results?page=${page}&search=${this.search}`) // IF PORT 80 DIRECT FROM APACHE

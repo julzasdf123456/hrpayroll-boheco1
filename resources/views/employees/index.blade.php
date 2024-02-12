@@ -78,3 +78,10 @@
     </div>
 </div>
 @endsection
+@push('page_scripts')
+    <script>
+        $(document).ready(function() {
+            $('body').addClass('sidebar-collapse')
+        })
+    </script>
+@endpush

@@ -5,7 +5,7 @@
         <i class="nav-icon fas fa-user-circle"></i>
         <p>
             Employees
-            <i class="right fas fa-angle-left"></i>
+            <i class="right fas fa-caret-left"></i>
         </p>
     </a>
     <ul class="nav nav-treeview">
@@ -40,10 +40,10 @@
 {{-- LEAVE --}}
 <li class="nav-item">
     <a href="#" class="nav-link">
-        <i class="nav-icon fas fa-user-circle"></i>
+        <i class="nav-icon fas fa-sign-out-alt"></i>
         <p>
             Leave Applications
-            <i class="right fas fa-angle-left"></i>
+            <i class="right fas fa-caret-left"></i>
         </p>
     </a>
     <ul class="nav nav-treeview">
@@ -53,15 +53,6 @@
                 <i class="fas fa-file-export nav-icon"></i><p>File Leave</p>
             </a>
         </li>
-
-        @canany('god permission')
-        <li class="nav-item">
-            <a href="{{ route('leaveSignatoriesRepositories.index') }}"
-               class="nav-link {{ Request::is('leaveSignatoriesRepositories*') ? 'active' : '' }}">
-               <i class="fas fa-list nav-icon"></i><p>Leave Signatories</p>
-            </a>
-        </li>
-        @endcanany
     </ul>
 </li>
 
@@ -71,7 +62,7 @@
         <i class="nav-icon fas fa-car"></i>
         <p>
             Trip Tickets
-            <i class="right fas fa-angle-left"></i>
+            <i class="right fas fa-caret-left"></i>
         </p>
     </a>
     <ul class="nav nav-treeview">
@@ -112,7 +103,7 @@
         <i class="nav-icon fas fa-check-circle"></i>
         <p>
             Approvals
-            <i class="right fas fa-angle-left"></i>
+            <i class="right fas fa-caret-left"></i>
         </p>
     </a>
     <ul class="nav nav-treeview">
@@ -158,7 +149,7 @@
         <i class="nav-icon fas fa-receipt"></i>
         <p>
             Payroll
-            <i class="right fas fa-angle-left"></i>
+            <i class="right fas fa-caret-left"></i>
         </p>
     </a>
     <ul class="nav nav-treeview">
@@ -186,10 +177,10 @@
             </a>
         </li>
         <div class="divider"></div>
-        <li class="nav-item">
+        <li class="nav-item" title="Contributions and allowances">
             <a href="{{ route('employeePayrollSundries.contributions') }}" class="nav-link {{ Request::is('employeePayrollSundries.contributions*') ? 'active' : '' }}">
                 <i class="nav-icon fas fa-tags"></i>
-                <p>Contributions</p>
+                <p>Contributions & Allws.</p>
             </a>
         </li>
         <div class="divider"></div>
@@ -220,7 +211,20 @@
         <li class="nav-item">
             <a href="{{ route('otherPayrollDeductions.index') }}" class="nav-link {{ Request::is('otherPayrollDeductions*') ? 'active' : '' }}">
                 <i class="nav-icon fas fa-minus"></i>
-                <p>Other Payroll Deductions</p>
+                <p>Deductions (AR-Others)</p>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="{{ route('otherPayrollDeductions.addons-and-deductions') }}" class="nav-link {{ Request::is('otherPayrollDeductions.addons-and-deductions*') ? 'active' : '' }}">
+                <i class="nav-icon fas fa-minus-circle"></i>
+                <p>Other Adds./Deducts.</p>
+            </a>
+        </li>
+        <div class="divider"></div>
+        <li class="nav-item" title="Contributions and allowances">
+            <a href="{{ route('payrollIndices.withholding-taxes') }}" class="nav-link {{ Request::is('payrollIndices.withholding-taxes*') ? 'active' : '' }}">
+                <i class="nav-icon fas fa-file-invoice-dollar"></i>
+                <p>Withholding Taxes</p>
             </a>
         </li>
     </ul>
@@ -234,20 +238,20 @@
         <i class="nav-icon fas fa-coins"></i>
         <p>
             Incentives & Bonuses
-            <i class="right fas fa-angle-left"></i>
+            <i class="right fas fa-caret-left"></i>
         </p>
     </a>
     <ul class="nav nav-treeview">
         <li class="nav-item">
             <a href="{{ route('incentivesAnnualProjections.index') }}" class="nav-link {{ Request::is('incentivesAnnualProjections*') ? 'active' : '' }}">
                 <i class="nav-icon fas fa-funnel-dollar"></i>
-                <p>Incentives Annual Projection</p>
+                <p>Incntvs Annual Projection</p>
             </a>
         </li>
         <li class="nav-item">
             <a href="{{ route('employeeIncentiveAnnualProjections.incentive-withholding-taxes') }}" class="nav-link {{ Request::is('employeeIncentiveAnnualProjections.incentive-withholding-taxes*') ? 'active' : '' }}">
                 <i class="nav-icon fas fa-file-invoice-dollar"></i>
-                <p>Employees Incentive WTs</p>
+                <p>Employees Incntv WTs</p>
             </a>
         </li>
         <li class="nav-item">
@@ -267,7 +271,7 @@
         <i class="nav-icon fas fa-cogs"></i>
         <p>
             Settings
-            <i class="right fas fa-angle-left"></i>
+            <i class="right fas fa-caret-left"></i>
         </p>
     </a>
     <ul class="nav nav-treeview">
@@ -363,7 +367,7 @@
         <i class="nav-icon fas fa-shield-alt"></i>
         <p>
             Administrative
-            <i class="right fas fa-angle-left"></i>
+            <i class="right fas fa-caret-left"></i>
         </p>
     </a>
     <ul class="nav nav-treeview">

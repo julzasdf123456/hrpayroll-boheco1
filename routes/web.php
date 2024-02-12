@@ -150,6 +150,14 @@ Route::get('/payroll_indices/get-payroll-data', [PayrollIndexController::class, 
 Route::get('/payroll_indices/get-payroll-date-information', [PayrollIndexController::class, 'getPayrollDateInformation'])->name('payrollIndices.get-payroll-date-information');
 Route::get('/payroll_indices/payroll-audit', [PayrollIndexController::class, 'payrollAudit'])->name('payrollIndices.payroll-audit');
 Route::get('/payroll_indices/payroll-audit-review/{salaryPeriod}', [PayrollIndexController::class, 'payrollAuditReview'])->name('payrollIndices.payroll-audit-review');
+Route::get('/payroll_indices/audit-reject-payroll', [PayrollIndexController::class, 'auditRejectPayroll'])->name('payrollIndices.audit-reject-payroll');
+Route::get('/payroll_indices/audit-approve-payroll', [PayrollIndexController::class, 'auditApprovePayroll'])->name('payrollIndices.audit-approve-payroll');
+Route::get('/payroll_indices/view-payroll/{salaryPeriod}', [PayrollIndexController::class, 'viewPayroll'])->name('payrollIndices.view-payroll');
+Route::get('/payroll_indices/remove-payroll', [PayrollIndexController::class, 'removePayroll'])->name('payrollIndices.remove-payroll');
+Route::get('/payroll_indices/withholding-taxes', [PayrollIndexController::class, 'withholdingTaxes'])->name('payrollIndices.withholding-taxes');
+Route::get('/payroll_indices/get-withholding-taxes-report-data', [PayrollIndexController::class, 'getWithholdingTaxesReportData'])->name('payrollIndices.get-withholding-taxes-report-data');
+Route::get('/payroll_indices/view-payroll-without-deduction/{salaryPeriod}', [PayrollIndexController::class, 'viewPayrollWithoutDeduction'])->name('payrollIndices.view-payroll-without-deduction');
+Route::get('/payroll_indices/view-payroll-deductions-only/{salaryPeriod}', [PayrollIndexController::class, 'viewPayrollDeductionsOnly'])->name('payrollIndices.view-payroll-deductions-only');
 Route::resource('payrollIndices', PayrollIndexController::class);
 
 
@@ -266,6 +274,9 @@ Route::resource('loanDetails', App\Http\Controllers\LoanDetailsController::class
 Route::get('/other_payroll_deductions/multiple-payroll-deductions', [OtherPayrollDeductionsController::class, 'multiplePayrollDeductions'])->name('otherPayrollDeductions.multiple-payroll-deductions');
 Route::get('/other_payroll_deductions/get-other-deduction-multiple-data', [OtherPayrollDeductionsController::class, 'getOtherDeductionMultipleData'])->name('otherPayrollDeductions.get-other-deduction-multiple-data');
 Route::get('/other_payroll_deductions/update-other-deduction-data', [OtherPayrollDeductionsController::class, 'updateOtherDeductionData'])->name('otherPayrollDeductions.update-other-deduction-data');
+Route::get('/other_payroll_deductions/addons-and-deductions', [OtherPayrollDeductionsController::class, 'addOnsAndDeductions'])->name('otherPayrollDeductions.addons-and-deductions');
+Route::get('/other_payroll_deductions/get-addons-and-deductions', [OtherPayrollDeductionsController::class, 'getAddonsAndDeductions'])->name('otherPayrollDeductions.get-addons-and-deductions');
+Route::get('/other_payroll_deductions/update-addons-and-deductions', [OtherPayrollDeductionsController::class, 'updateAddonsAndDeductions'])->name('otherPayrollDeductions.update-addons-and-deductions');
 Route::resource('otherPayrollDeductions', OtherPayrollDeductionsController::class);
 
 Route::get('/incentives_annual_projections/insert-datas', [IncentivesAnnualProjectionController::class, 'insertDatas'])->name('incentivesAnnualProjections.insert-datas');
@@ -278,8 +289,11 @@ Route::get('/employee_incentive_annual_projections/project-all', [EmployeeIncent
 Route::get('/employee_incentive_annual_projections/incentive-withholding-taxes', [EmployeeIncentiveAnnualProjectionsController::class, 'incentiveWithholdingTaxes'])->name('employeeIncentiveAnnualProjections.incentive-withholding-taxes');
 Route::get('/employee_incentive_annual_projections/get-employee-projection', [EmployeeIncentiveAnnualProjectionsController::class, 'getEmployeeProjection'])->name('employeeIncentiveAnnualProjections.get-employee-projection');
 Route::get('/employee_incentive_annual_projections/update-all-deduct-monthly', [EmployeeIncentiveAnnualProjectionsController::class, 'updateAllDeductMonthly'])->name('employeeIncentiveAnnualProjections.update-all-deduct-monthly');
-Route::resource('employeeIncentiveAnnualProjections', EmployeeIncentiveAnnualProjectionsController::class);
+Route::resource('employeeIncntvAnnualProjections', EmployeeIncentiveAnnualProjectionsController::class);
 Route::resource('employeeBonuses', EmployeeBonusesController::class);
 
 Route::post('/payroll_expanded_details/bulk-save-payroll', [PayrollExpandedDetailsController::class, 'bulkSavePayroll'])->name('payrollExpandedDetails.bulk-save-payroll');
 Route::resource('payrollExpandedDetails', PayrollExpandedDetailsController::class);
+Route::resource('user-footprints', App\Http\Controllers\UserFootprintsController::class);
+Route::resource('other-addons-deductions', App\Http\Controllers\OtherAddonsDeductionsController::class);
+Route::resource('employee-incntvs-projection-tax-marks', App\Http\Controllers\EmployeeIncntvsProjectionTaxMarkController::class);

@@ -1,5 +1,5 @@
 <template>
-    <div class="row" style="margin-top: 10px; margin-left: 10px;">
+    <div class="row" style="padding-top: 15px; margin-left: 10px;">
         <div class="col-lg-8">
             <h4>Incentives Annual Projection</h4>
             <span class="text-muted">Projects future possible benefits and incentives for the computation of withholding taxes.</span>
@@ -19,7 +19,7 @@
                     </div>
                 </div>
                 <div class="card-body table-responsive p-0">
-                    <table class="table table-hover table-sm">
+                    <table class="table table-hover table-sm table-xs">
                         <thead>
                             <th>Incentive/Benefit</th>
                             <th class="text-right">Amount</th>
@@ -58,6 +58,10 @@
             </div>
         </div>
     </div>
+
+    <div class="right-bottom" style="bottom: 0px !important;">
+        <p id="msg-display" class="msg-display shadow" style="font-size: .8em;"><i class="fas fa-check-circle ico-tab-mini text-success"></i>saved!</p>
+    </div>
 </template>
 
 <style>
@@ -83,6 +87,10 @@
 
     .table-input:focus  {
         outline: none;
+    }
+
+    .table-xs {
+        font-size: .82em;
     }
 </style>
 
@@ -162,7 +170,8 @@ export default {
             isAddNewShown : false,
             hasNew : false,
             isProjectToAllShown : false,
-            readOnlyData : [ 'Rice and Laundry', 'Medical Allowance', 'Uniform Allowance' ],
+            readOnlyData : [ 'Rice and Laundry', 'Medical Allowance', 'Uniform Allowance', 
+                'Productivity Scheme (Performance Bonus)', 'Cash Gift', 'Award Incentive', 'Anniversary Incentives' ],
         }
     },
     methods : {
@@ -297,6 +306,7 @@ export default {
             }).then(response => {                
                 // FIND EMPTY IDs TO BE REPLACED BY A NEW ID IF NEW ENTRY
                 this.isProjectToAllShown = true
+                this.showSaveFader()
             })
             .catch(error => {
                 Swal.fire({
@@ -323,8 +333,9 @@ export default {
         remove(id) {            
             Swal.fire({
                 title: "Remove this incentive projection?",
+                text: 'NOTE that you will also delete the employees projection data. Kindly proceed with caution.',
                 showCancelButton: true,
-                confirmButtonText: "Save",
+                confirmButtonText: "Proceed Remove",
             }).then((result) => {
                 /* Read more about isConfirmed, isDenied below */
                 if (result.isConfirmed) {
@@ -394,6 +405,18 @@ export default {
                 }
             });
         },
+        showSaveFader() {
+            var message = document.getElementById('msg-display');
+
+            // Show the message
+            message.style.opacity = 1;
+
+            // Wait for 3 seconds
+            setTimeout(function() {
+                // Fade out the message
+                message.style.opacity = 0;
+            }, 1500);
+        }
     },
     created() {
         

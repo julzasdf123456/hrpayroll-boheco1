@@ -5,7 +5,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="row" style="margin: 10px 10px 15px 10px;">
+<div class="row" style="padding-top: 15px; margin-left: 10px">
     <div class="col-lg-8">
         <h4>Employees' Incentive/Bonuses Withholding Taxes Configuration</h4>
     </div>
@@ -23,7 +23,7 @@
         </form>
     </div>
 
-    <div class="col-lg-10 offset-lg-1 col-md-12" style="margin-top: 15px;">
+    <div class="col-lg-12" style="margin-top: 15px;">
         <div class="card shadow-none">
             <div class="card-header">
                 <div class="card-title">WT Tax Configuration for Year {{ date('Y') }}</div>

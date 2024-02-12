@@ -9,6 +9,7 @@
             <tr>
                 <th>Employee</th>
                 <th>Deduction Name</th>
+                <th>Deduction Details/Remarks</th>
                 <th>Paryoll Deduction Schedule</th>
                 <th>Amount</th>
                 <th>Action</th>
@@ -19,6 +20,7 @@
                 <tr>
                     <td>{{ Employees::getMergeName($otherPayrollDeduction) }}</td>
                     <td>{{ $otherPayrollDeduction->DeductionName }}</td>
+                    <td>{{ $otherPayrollDeduction->DeductionDescription }}</td>
                     <td>{{ date('F d, Y', strtotime($otherPayrollDeduction->ScheduleDate)) }}</td>
                     <td class="text-right">{{ number_format($otherPayrollDeduction->Amount, 2) }}</td>
                     <td  style="width: 120px" class="text-right">
