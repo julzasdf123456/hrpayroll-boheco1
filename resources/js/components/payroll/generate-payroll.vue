@@ -25,6 +25,8 @@
                 <div class="col-lg-2">
                     <span class="text-muted">Salary Period</span>
                     <select v-model="salaryPeriod" class="form-control form-control-sm">
+                        <option value="2024-01-15">{{ moment('2024-01-15').format('MMMM DD, YYYY') }}</option>
+                        <option value="2024-01-31">{{ moment('2024-01-31').format('MMMM DD, YYYY') }}</option>
                         <option :value="fifteenth">{{ moment(fifteenth).format('MMMM DD, YYYY') }}</option>
                         <option :value="thirtieth">{{ moment(thirtieth).format('MMMM DD, YYYY') }}</option>
                     </select>
@@ -42,7 +44,7 @@
                     <button class="btn btn-default btn-sm ico-tab-mini" :disabled="isButtonDisabled" @click="generate()"><i class="fas fa-eye ico-tab-mini"></i>Preview</button>
                     <button class="btn btn-primary btn-sm" :disabled="isGenerateButtonDisabled" @click="validateSavePayroll()"><i class="fas fa-check-circle ico-tab-mini"></i>Submit Payroll</button>
 
-                    <div class="spinner-border text-primary float-right" :class="isDisplayed" role="status">
+                    <div class="spinner-border text-success float-right" :class="isDisplayed" role="status">
                         <span class="sr-only">Loading...</span>
                     </div>
                 </div>
@@ -171,8 +173,8 @@ export default {
             employeeType : 'Regular',
             department : 'OGM',
             salaryPeriod : '',
-            from : '2024-01-03',
-            to : '2024-01-18',
+            from : '2024-01-26',
+            to : '2024-02-10',
             // TABLE COLUMNS
             dateHeaders : [],
             summaryHeaders : [],
@@ -328,8 +330,8 @@ export default {
             });
 
             this.summaryHeaders.push({
-                name : 'Other Deducts.',
-                label : 'Other Deducts.'
+                name : 'AR-Others',
+                label : 'AR-Others'
             });
 
             this.summaryHeaders.push({
@@ -1186,6 +1188,17 @@ export default {
 
             return totalLoan
         },
+        getAROtherLoans(loans) {
+            var totalLoan = 0
+            
+            for(let i=0; i<loans.length; i++) {
+                if (loans[i].LoanFor !== 'SSS' && loans[i].LoanFor !== 'Pag-Ibig' && loans[i].LoanFor !== 'Motorcycle') {
+                    totalLoan += this.isNull(loans[i].MonthlyAmmortization) ? 0 : parseFloat(loans[i].MonthlyAmmortization)
+                }
+            }
+
+            return totalLoan
+        },
         getOtherDeductions(deductions) {
             var amount = 0
 
@@ -1437,8 +1450,10 @@ export default {
                         var philHealth = !this.isFifteenth(this.salaryPeriod) ? (this.isNull(response.data['Employees'][i]['PhilHealth']) ? 0 : this.round(parseFloat(response.data['Employees'][i]['PhilHealth']))) : 0;       
                         summaryChunks.push(philHealth > 0 ? `₱` + this.toMoney(philHealth) : '-');
 
-                        // OTHER DEDUCTIONS   
-                        var otherDeductions = this.getOtherDeductions(response.data['Employees'][i]['OtherDeductions'])     
+                        // OTHER DEDUCTIONS - AR OTHERS
+                        var arOtherLoans = this.getAROtherLoans(response.data['Employees'][i]['Loans'])
+                        var otherDeductions = this.getOtherDeductions(response.data['Employees'][i]['OtherDeductions'])  
+                        otherDeductions += arOtherLoans 
                         summaryChunks.push(otherDeductions > 0 ? `₱` + this.toMoney(otherDeductions) : '-');
 
                         // SALARY/OT/LATE/UT/ABS WT   

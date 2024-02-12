@@ -154,6 +154,10 @@ Route::get('/payroll_indices/audit-reject-payroll', [PayrollIndexController::cla
 Route::get('/payroll_indices/audit-approve-payroll', [PayrollIndexController::class, 'auditApprovePayroll'])->name('payrollIndices.audit-approve-payroll');
 Route::get('/payroll_indices/view-payroll/{salaryPeriod}', [PayrollIndexController::class, 'viewPayroll'])->name('payrollIndices.view-payroll');
 Route::get('/payroll_indices/remove-payroll', [PayrollIndexController::class, 'removePayroll'])->name('payrollIndices.remove-payroll');
+Route::get('/payroll_indices/withholding-taxes', [PayrollIndexController::class, 'withholdingTaxes'])->name('payrollIndices.withholding-taxes');
+Route::get('/payroll_indices/get-withholding-taxes-report-data', [PayrollIndexController::class, 'getWithholdingTaxesReportData'])->name('payrollIndices.get-withholding-taxes-report-data');
+Route::get('/payroll_indices/view-payroll-without-deduction/{salaryPeriod}', [PayrollIndexController::class, 'viewPayrollWithoutDeduction'])->name('payrollIndices.view-payroll-without-deduction');
+Route::get('/payroll_indices/view-payroll-deductions-only/{salaryPeriod}', [PayrollIndexController::class, 'viewPayrollDeductionsOnly'])->name('payrollIndices.view-payroll-deductions-only');
 Route::resource('payrollIndices', PayrollIndexController::class);
 
 
@@ -292,3 +296,4 @@ Route::post('/payroll_expanded_details/bulk-save-payroll', [PayrollExpandedDetai
 Route::resource('payrollExpandedDetails', PayrollExpandedDetailsController::class);
 Route::resource('user-footprints', App\Http\Controllers\UserFootprintsController::class);
 Route::resource('other-addons-deductions', App\Http\Controllers\OtherAddonsDeductionsController::class);
+Route::resource('employee-incntvs-projection-tax-marks', App\Http\Controllers\EmployeeIncntvsProjectionTaxMarkController::class);

@@ -53,15 +53,6 @@
                 <i class="fas fa-file-export nav-icon"></i><p>File Leave</p>
             </a>
         </li>
-
-        @canany('god permission')
-        <li class="nav-item">
-            <a href="{{ route('leaveSignatoriesRepositories.index') }}"
-               class="nav-link {{ Request::is('leaveSignatoriesRepositories*') ? 'active' : '' }}">
-               <i class="fas fa-list nav-icon"></i><p>Leave Signatories</p>
-            </a>
-        </li>
-        @endcanany
     </ul>
 </li>
 
@@ -227,6 +218,13 @@
             <a href="{{ route('otherPayrollDeductions.addons-and-deductions') }}" class="nav-link {{ Request::is('otherPayrollDeductions.addons-and-deductions*') ? 'active' : '' }}">
                 <i class="nav-icon fas fa-minus-circle"></i>
                 <p>Other Adds./Deducts.</p>
+            </a>
+        </li>
+        <div class="divider"></div>
+        <li class="nav-item" title="Contributions and allowances">
+            <a href="{{ route('payrollIndices.withholding-taxes') }}" class="nav-link {{ Request::is('payrollIndices.withholding-taxes*') ? 'active' : '' }}">
+                <i class="nav-icon fas fa-file-invoice-dollar"></i>
+                <p>Withholding Taxes</p>
             </a>
         </li>
     </ul>
@@ -407,3 +405,4 @@
     </ul>
 </li>
 @endcanany
+

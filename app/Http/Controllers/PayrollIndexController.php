@@ -24,6 +24,7 @@ use App\Models\AttendanceData;
 use App\Models\HolidaysList;
 use App\Models\PayrollExpandedDetails;
 use App\Models\UserFootprints;
+use App\Models\LoanDetails;
 use Flash;
 use Response;
 
@@ -719,12 +720,14 @@ class PayrollIndexController extends AppBaseController
                     )
                     ->get();
 
+            // AR OTHERS
             $item->OtherDeductions = DB::table('OtherPayrollDeductions')
                     ->whereRaw("ScheduleDate='" . $loanPeriodMonth . "' AND EmployeeId='" . $item->id . "' AND Type='Others'")
                     ->select(
                         'Amount',
                     )
                     ->get();
+
             $item->OtherAddonsAndDeductions = DB::table('OtherAddonsDeductions')
                     ->whereRaw("ScheduleDate='" . $loanPeriodMonth . "' AND EmployeeId='" . $item->id . "'")
                     ->select(
@@ -845,6 +848,22 @@ class PayrollIndexController extends AppBaseController
 
         UserFootprints::log('Payroll Draft Audi Approved', "Payroll draft approved by Audit for salary period " . date('F d, Y', strtotime($salaryPeriod)));  
 
+
+        /*
+         * UPDATE LOANS
+         */
+        $loans = DB::table('LoanDetails')
+            ->leftJoin('Loans', 'LoanDetails.LoanId', '=', 'Loans.id')
+            ->whereRaw("LoanDetails.Paid IS NULL AND Loans.EmployeeId IN 
+                (SELECT EmployeeId FROM PayrollExpandedDetails WHERE EmployeeId=Loans.EmployeeId AND SalaryPeriod='" . $salaryPeriod . "' AND Status='Approved By Audit')
+                AND LoanDetails.Month='" . $salaryPeriod . "'")
+            ->select('LoanDetails.id', 'Loans.EmployeeId')
+            ->get();
+        foreach($loans as $item) {
+            LoanDetails::where('id', $item->id)
+                ->update(['Paid' => 'Paid']);
+        }
+
         return response()->json('ok', 200);
     }
 
@@ -897,5 +916,184 @@ class PayrollIndexController extends AppBaseController
         UserFootprints::log('Deleted Payroll Data', 'Deleted payroll data for salary period ' . date('F d, Y', strtotime($salaryPeriod)));
 
         return response()->json('ok', 200);
+    }
+
+    public function withholdingTaxes(Request $request) {
+        return view('/payroll_indices/withholding_taxes', [
+
+        ]);
+    }
+
+    public function getWithholdingTaxesReportData(Request $request) {
+        $year = $request['Year'];
+        $department = $request['Department'];
+
+        $from = date('Y-m-d', strtotime('January 1, ' . $year));
+        $to = date('Y-m-d', strtotime('December 31, ' . $year));
+
+        if ($department == 'All') {
+            $employees = DB::table('Employees')
+            ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+            ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+            ->select('Employees.FirstName',
+                    'Employees.MiddleName',
+                    'Employees.LastName',
+                    'Employees.Suffix',
+                    'Employees.id',
+                    'Employees.BiometricsUserId',
+                    'Employees.PayrollScheduleId',
+                    'Employees.NoAttendanceAllowed',
+                    'Employees.DayOffDates',
+                    'Positions.BasicSalary AS SalaryAmount',
+                    'Positions.Level',
+                    'Positions.Position',
+                    'EmployeesDesignations.Status',
+            )
+            // ->where('EmployeesDesignations.Status', $employeeType)
+            ->whereRaw("(EmploymentStatus IS NULL OR EmploymentStatus NOT IN ('Resigned', 'Retired'))")
+            ->orderBy('Employees.LastName')
+            ->get();
+        } else {
+            if ($department == 'SUB-OFFICE') {
+                $employees = DB::table('Employees')
+                    ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+                    ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+                    ->select('Employees.FirstName',
+                            'Employees.MiddleName',
+                            'Employees.LastName',
+                            'Employees.Suffix',
+                            'Employees.id',
+                            'Employees.BiometricsUserId',
+                            'Employees.PayrollScheduleId',
+                            'Employees.NoAttendanceAllowed',
+                            'Employees.DayOffDates',
+                            'Positions.BasicSalary AS SalaryAmount',
+                            'Positions.Level',
+                            'Positions.Position',
+                            'EmployeesDesignations.Status',
+                    )
+                    // ->where('EmployeesDesignations.Status', $employeeType)
+                    ->where('Employees.OfficeDesignation', $department)
+                    ->whereRaw("(EmploymentStatus IS NULL OR EmploymentStatus NOT IN ('Resigned', 'Retired'))")
+                    ->orderBy('Employees.LastName')
+                    ->get();
+            } else {
+                $employees = DB::table('Employees')
+                    ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+                    ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+                    ->select('Employees.FirstName',
+                            'Employees.MiddleName',
+                            'Employees.LastName',
+                            'Employees.Suffix',
+                            'Employees.id',
+                            'Employees.BiometricsUserId',
+                            'Employees.PayrollScheduleId',
+                            'Employees.NoAttendanceAllowed',
+                            'Employees.DayOffDates',
+                            'Positions.BasicSalary AS SalaryAmount',
+                            'Positions.Level',
+                            'Positions.Position',
+                            'EmployeesDesignations.Status',
+                    )
+                    // ->where('EmployeesDesignations.Status', $employeeType)
+                    ->where('Positions.Department', $department)
+                    ->whereRaw("Employees.OfficeDesignation NOT IN ('SUB-OFFICE') AND (EmploymentStatus IS NULL OR EmploymentStatus NOT IN ('Resigned', 'Retired'))")
+                    ->orderBy('Employees.LastName')
+                    ->get();
+            }
+        }
+
+        foreach($employees as $item) {
+            $item->ReportData = DB::table('PayrollExpandedDetails')
+                ->whereRaw("EmployeeId='" . $item->id . "' AND (SalaryPeriod BETWEEN '" . $from . "' AND '" . $to . "')")
+                ->select(
+                    'SalaryPeriod',
+                    'TotalWithholdingTax'
+                )
+                ->orderBy('SalaryPeriod')
+                ->get();
+        }
+
+        return response()->json($employees, 200);
+    }
+
+    public function viewPayrollWithoutDeduction($salaryPeriod) {
+        $departments = DB::table('PayrollExpandedDetails')
+            ->whereRaw("SalaryPeriod='" . $salaryPeriod . "'")
+            ->select(
+                'Department',
+            )
+            ->groupBy('Department')
+            ->get();
+
+        $datas = [];
+        foreach($departments as $item) {
+            array_push($datas, [
+                'Department' => $item->Department,
+                'Data' => DB::table('PayrollExpandedDetails')
+                    ->leftJoin('Employees', 'PayrollExpandedDetails.EmployeeId', '=', 'Employees.id')
+                    ->whereRaw("PayrollExpandedDetails.Department='" . $item->Department . "' AND PayrollExpandedDetails.SalaryPeriod='" . $salaryPeriod . "'")
+                    ->select(
+                        'FirstName',
+                        'LastName',
+                        'MiddleName',
+                        'Suffix',
+                        'PayrollExpandedDetails.*'
+                    )
+                    ->orderBy('LastName')
+                    ->get(),
+            ]);
+        }
+
+        $stats = DB::table('PayrollExpandedDetails')
+            ->whereRaw("SalaryPeriod='" . $salaryPeriod . "'")
+            ->orderByDesc('updated_at')
+            ->first();
+
+        return view('/payroll_indices/view_payroll_without_deduction', [
+            'datas' => $datas,
+            'salaryPeriod' => $salaryPeriod,
+            'stats' => $stats,
+        ]);
+    }
+
+    public function viewPayrollDeductionsOnly($salaryPeriod) {
+        $departments = DB::table('PayrollExpandedDetails')
+            ->whereRaw("SalaryPeriod='" . $salaryPeriod . "'")
+            ->select(
+                'Department',
+            )
+            ->groupBy('Department')
+            ->get();
+
+        $datas = [];
+        foreach($departments as $item) {
+            array_push($datas, [
+                'Department' => $item->Department,
+                'Data' => DB::table('PayrollExpandedDetails')
+                    ->leftJoin('Employees', 'PayrollExpandedDetails.EmployeeId', '=', 'Employees.id')
+                    ->whereRaw("PayrollExpandedDetails.Department='" . $item->Department . "' AND PayrollExpandedDetails.SalaryPeriod='" . $salaryPeriod . "'")
+                    ->select(
+                        'FirstName',
+                        'LastName',
+                        'MiddleName',
+                        'Suffix',
+                        'PayrollExpandedDetails.*'
+                    )
+                    ->orderBy('LastName')
+                    ->get(),
+            ]);
+        }
+
+        $stats = DB::table('PayrollExpandedDetails')
+            ->whereRaw("SalaryPeriod='" . $salaryPeriod . "'")
+            ->orderByDesc('updated_at')
+            ->first();
+
+        return view('/payroll_indices/view_payroll_deduction_only', [
+            'datas' => $datas,
+            'salaryPeriod' => $salaryPeriod,
+            'stats' => $stats,
+        ]);
     }
 }

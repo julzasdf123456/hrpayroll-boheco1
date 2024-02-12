@@ -144,84 +144,126 @@ class EmployeeIncentiveAnnualProjectionsController extends AppBaseController
             ->select('Employees.*',
                     'Positions.BasicSalary AS SalaryAmount',
                     'Positions.Level',
+                    'Positions.Position',
             )
             ->get();
 
         // DELETE EXISTING Incentives FIRST
-        EmployeeIncentiveAnnualProjections::where('Year', $year)
-            ->delete();
+        // EmployeeIncentiveAnnualProjections::where('Year', $year)
+        //     ->delete();
 
         // LOOP ALL EMPLOYEES
         foreach($employees as $employee) {
             // LOOP EACH INCENTIVE
             foreach($data as $item) {
-                // CHECK IF ALREADY EXISTS IN EmployeeIncentiveAnnualProjections
-                $incentive = new EmployeeIncentiveAnnualProjections;
-                $incentive->id = IDGenerator::generateIDandRandString();
-                $incentive->Year = $year;
-                $incentive->EmployeeId = $employee->id;
-                $incentive->DeductMonthly = 'Yes';
-                $incentive->Incentive = $item['Incentive'];
-                $incentive->Amount = $item['Amount'];
-                $incentive->MaxUntaxableAmount = $item['MaxUntaxableThreshold'];
-                $incentive->IsTaxable = $item['Taxable'];
+                $incentive = EmployeeIncentiveAnnualProjections::where('Incentive', $item['Incentive'])
+                    ->where('EmployeeId', $employee->id)
+                    ->first();
+
+                if ($incentive != null) {
+                    $incentive->Amount = $item['Amount'];
+                    $incentive->MaxUntaxableAmount = $item['MaxUntaxableThreshold'];
+                    $incentive->IsTaxable = $item['Taxable'];
+                } else {
+                    $incentive = new EmployeeIncentiveAnnualProjections;
+                    $incentive->id = IDGenerator::generateIDandRandString();
+                    $incentive->Year = $year;
+                    $incentive->EmployeeId = $employee->id;
+                    $incentive->DeductMonthly = 'Yes';
+                    $incentive->Incentive = $item['Incentive'];
+                    $incentive->Amount = $item['Amount'];
+                    $incentive->MaxUntaxableAmount = $item['MaxUntaxableThreshold'];
+                    $incentive->IsTaxable = $item['Taxable'];
+                }
+                
                 $incentive->save();
             }
 
             // ADD OTHER INCENTIVE PROJECTIONS
             $basicSalary = $employee->SalaryAmount != null ? floatval($employee->SalaryAmount) : 0;
             // 13th MONTH PAY
-            $incentive = new EmployeeIncentiveAnnualProjections;
-            $incentive->id = IDGenerator::generateIDandRandString();
-            $incentive->Year = $year;
-            $incentive->EmployeeId = $employee->id;
-            $incentive->DeductMonthly = 'Yes';           
-            $incentive->Incentive = '13th Month Pay';
-            $incentive->Amount = $basicSalary;
-            $incentive->MaxUntaxableAmount = 0;
-            $incentive->IsTaxable = 'true';
+            $incentive = EmployeeIncentiveAnnualProjections::where('Incentive', '13th Month Pay')
+                    ->where('EmployeeId', $employee->id)
+                    ->first();
+
+            if ($incentive != null) {
+                $incentive->Amount = $basicSalary;
+            } else {
+                $incentive = new EmployeeIncentiveAnnualProjections;
+                $incentive->id = IDGenerator::generateIDandRandString();
+                $incentive->Year = $year;
+                $incentive->EmployeeId = $employee->id;
+                $incentive->DeductMonthly = 'Yes';           
+                $incentive->Incentive = '13th Month Pay';
+                $incentive->Amount = $basicSalary;
+                $incentive->MaxUntaxableAmount = 0;
+                $incentive->IsTaxable = 'true';
+            }            
             $incentive->save();
 
             // 14th MONTH PAY
-            $incentive = new EmployeeIncentiveAnnualProjections;
-            $incentive->id = IDGenerator::generateIDandRandString();
-            $incentive->Year = $year;
-            $incentive->EmployeeId = $employee->id;
-            $incentive->DeductMonthly = 'Yes';
-            $incentive->Incentive = '14th Month Pay';
-            $incentive->Amount = $basicSalary;
-            $incentive->MaxUntaxableAmount = 0;
-            $incentive->IsTaxable = 'true';
-            $incentive->save();
+            $incentive = EmployeeIncentiveAnnualProjections::where('Incentive', '14th Month Pay')
+                    ->where('EmployeeId', $employee->id)
+                    ->first();
 
-            // Representation Allowances
-            if (in_array($employee->Level, ['Chief', 'Manager', 'General Manager'])) {
+            if ($incentive != null) {
+                $incentive->Amount = $basicSalary;
+            } else {
                 $incentive = new EmployeeIncentiveAnnualProjections;
                 $incentive->id = IDGenerator::generateIDandRandString();
                 $incentive->Year = $year;
                 $incentive->EmployeeId = $employee->id;
                 $incentive->DeductMonthly = 'Yes';
-                $incentive->Incentive = 'Representation Allowances';
-                $incentive->Amount = 8000;
+                $incentive->Incentive = '14th Month Pay';
+                $incentive->Amount = $basicSalary;
                 $incentive->MaxUntaxableAmount = 0;
                 $incentive->IsTaxable = 'true';
-                $incentive->save();
             }
-            
+            $incentive->save();
 
-            // LONGEVITY
-            if ($employee->DateHired != null) {
-                $longevity = Employees::getTotalLongevityProjection($employee, $year);
-                if ($longevity > 0) {
+            // Representation Allowances
+            if (in_array($employee->Level, ['Chief', 'Manager', 'General Manager'])) {
+                $incentive = EmployeeIncentiveAnnualProjections::where('Incentive', 'Representation Allowances')
+                        ->where('EmployeeId', $employee->id)
+                        ->first();
+
+                if ($incentive != null) {
+                    $incentive->Amount = EmployeeIncentiveAnnualProjections::getRepresentationAllowance($employee->Level);
+                } else {
                     $incentive = new EmployeeIncentiveAnnualProjections;
                     $incentive->id = IDGenerator::generateIDandRandString();
                     $incentive->Year = $year;
                     $incentive->EmployeeId = $employee->id;
                     $incentive->DeductMonthly = 'Yes';
-                    $incentive->Incentive = 'Longevity';
-                    $incentive->Amount = $longevity;
+                    $incentive->Incentive = 'Representation Allowances';
+                    $incentive->Amount = EmployeeIncentiveAnnualProjections::getRepresentationAllowance($employee->Level);
                     $incentive->MaxUntaxableAmount = 0;
                     $incentive->IsTaxable = 'true';
+                }
+                $incentive->save();
+            }
+
+            // LONGEVITY
+            if ($employee->DateHired != null) {
+                $longevity = Employees::getTotalLongevityProjection($employee, $year);
+                if ($longevity > 0) {
+                    $incentive = EmployeeIncentiveAnnualProjections::where('Incentive', 'Longevity')
+                        ->where('EmployeeId', $employee->id)
+                        ->first();
+
+                    if ($incentive != null) {
+                        $incentive->Amount = $longevity;
+                    } else {
+                        $incentive = new EmployeeIncentiveAnnualProjections;
+                        $incentive->id = IDGenerator::generateIDandRandString();
+                        $incentive->Year = $year;
+                        $incentive->EmployeeId = $employee->id;
+                        $incentive->DeductMonthly = 'Yes';
+                        $incentive->Incentive = 'Longevity';
+                        $incentive->Amount = $longevity;
+                        $incentive->MaxUntaxableAmount = 0;
+                        $incentive->IsTaxable = 'true';
+                    }                    
                     $incentive->save();
                 }
             }            

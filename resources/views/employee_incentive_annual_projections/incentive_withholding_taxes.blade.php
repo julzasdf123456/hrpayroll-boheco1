@@ -23,7 +23,7 @@
         </form>
     </div>
 
-    <div class="col-lg-10 offset-lg-1 col-md-12" style="margin-top: 15px;">
+    <div class="col-lg-12" style="margin-top: 15px;">
         <div class="card shadow-none">
             <div class="card-header">
                 <div class="card-title">WT Tax Configuration for Year {{ date('Y') }}</div>

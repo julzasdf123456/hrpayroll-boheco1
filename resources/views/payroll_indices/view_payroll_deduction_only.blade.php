@@ -56,6 +56,7 @@
         <div class="row mb-2">
             <div class="col-lg-8">
                 <h4><span class="text-muted">Payroll for</span> {{ date('F d, Y', strtotime($salaryPeriod)) }}</h4>
+                <span class="text-muted">Only deductions are displayed</span>
             </div>
              {{-- ACTIONS --}}
              <div class="col-lg-4">  
@@ -65,8 +66,8 @@
                     </a>
                   
                     <div class="dropdown-menu">
+                        <a href="{{ route('payrollIndices.view-payroll', [$salaryPeriod]) }}" class="dropdown-item" style="padding-top: 12px; padding-bottom: 12px;" href="">Original View</a>
                         <a href="{{ route('payrollIndices.view-payroll-without-deduction', [$salaryPeriod]) }}" class="dropdown-item" style="padding-top: 12px; padding-bottom: 12px;" href="">View Payroll Without Deductions</a>
-                        <a href="{{ route('payrollIndices.view-payroll-deductions-only', [$salaryPeriod]) }}" class="dropdown-item" style="padding-top: 12px; padding-bottom: 12px;" href="">View Payroll Deductions Only</a>
                     </div>
                 </div>
             </div>
@@ -82,15 +83,6 @@
         $OverallTotalWorkedHours = 0;
         $OverallMonthlyWage = 0;
         $OverallTermWage = 0;
-        $OverallOvertimeHours = 0;
-        $OverallOvertimeAmount = 0;
-        $OverallAbsentHours = 0;
-        $OverallAbsentAmount = 0;
-        $OverallLongevity = 0;
-        $OverallRiceLaundry = 0;
-        $OverallOtherSalaryAdditions = 0;
-        $OverallOtherSalaryDeductions = 0;
-        $OverallTotalPartialAmount = 0;
         $OverallMotorycleLoan = 0;
         $OverallPagIbigContribution = 0;
         $OverallPagIbigLoan = 0;
@@ -124,12 +116,6 @@
                                 <th rowspan="2" class="text-center">Total Working Hours</th>
                                 <th rowspan="2" class="text-center">Monthly Wage</th>
                                 <th rowspan="2" class="text-center">Term Wage</th>
-                                <th colspan="2" class="text-center">Overtime</th>
-                                <th colspan="2" class="text-center">Abs/Late/UT</th>
-                                <th rowspan="2"  class="text-center">Longevity</th>
-                                <th rowspan="2"  class="text-center">Rice/Laundry</th>
-                                <th colspan="2"  class="text-center">Other Salary Adj.</th>
-                                <th rowspan="2"  class="text-center">TOTAL AMOUNT</th>
                                 <th rowspan="2"  class="text-center">MC Loan</th>
                                 <th colspan="2"  class="text-center">Pag-Ibig</th>
                                 <th colspan="2"  class="text-center">SSS</th>
@@ -141,12 +127,6 @@
                                 <th rowspan="2"  class="text-center">Net Pay</th>
                             </tr>
                             <tr>
-                                <th class="text-center">Hours</th>
-                                <th class="text-center">Amount</th>
-                                <th class="text-center">Hours</th>
-                                <th class="text-center">Amount</th>
-                                <th class="text-center">Addons</th>
-                                <th class="text-center">Deductions</th>
                                 <th class="text-center">Cont.</th>
                                 <th class="text-center">Loan</th>
                                 <th class="text-center">Cont.</th>
@@ -159,15 +139,6 @@
                                 $TotalWorkedHours = 0;
                                 $MonthlyWage = 0;
                                 $TermWage = 0;
-                                $OvertimeHours = 0;
-                                $OvertimeAmount = 0;
-                                $AbsentHours = 0;
-                                $AbsentAmount = 0;
-                                $Longevity = 0;
-                                $RiceLaundry = 0;
-                                $OtherSalaryAdditions = 0;
-                                $OtherSalaryDeductions = 0;
-                                $TotalPartialAmount = 0;
                                 $MotorycleLoan = 0;
                                 $PagIbigContribution = 0;
                                 $PagIbigLoan = 0;
@@ -187,15 +158,6 @@
                                     <td class="text-right">{{ $itemx->TotalWorkedHours > 0 ? round($itemx->TotalWorkedHours, 2) : '-' }}</td>
                                     <td class="text-right">{{ $itemx->MonthlyWage > 0 ? '₱'.number_format($itemx->MonthlyWage, 2) : '-' }}</td>
                                     <td class="text-right">{{ $itemx->TermWage > 0 ? '₱'.number_format($itemx->TermWage, 2) : '-' }}</td>
-                                    <td class="text-right">{{ $itemx->OvertimeHours > 0 ? round($itemx->OvertimeHours, 2) : '-' }}</td>
-                                    <td class="text-right">{{ $itemx->OvertimeAmount > 0 ? '₱'.number_format($itemx->OvertimeAmount, 2) : '-' }}</td>
-                                    <td class="text-right">{{ $itemx->AbsentHours > 0 ? round($itemx->AbsentHours, 2) : '-' }}</td>
-                                    <td class="text-right">{{ $itemx->AbsentAmount > 0 ? '₱'.number_format($itemx->AbsentAmount, 2) : '-' }}</td>
-                                    <td class="text-right">{{ $itemx->Longevity > 0 ? '₱'.number_format($itemx->Longevity, 2) : '-' }}</td>
-                                    <td class="text-right">{{ $itemx->RiceLaundry > 0 ? '₱'.number_format($itemx->RiceLaundry, 2) : '-' }}</td>
-                                    <td class="text-right">{{ $itemx->OtherSalaryAdditions > 0 ? '₱'.number_format($itemx->OtherSalaryAdditions, 2) : '-' }}</td>
-                                    <td class="text-right">{{ $itemx->OtherSalaryDeductions > 0 ? '₱'.number_format($itemx->OtherSalaryDeductions, 2) : '-' }}</td>
-                                    <td class="text-right">{{ $itemx->TotalPartialAmount > 0 ? '₱'.number_format($itemx->TotalPartialAmount, 2) : '-' }}</td>
                                     <td class="text-right">{{ $itemx->MotorycleLoan > 0 ? '₱'.number_format($itemx->MotorycleLoan, 2) : '-' }}</td>
                                     <td class="text-right">{{ $itemx->PagIbigContribution > 0 ? '₱'.number_format($itemx->PagIbigContribution, 2) : '-' }}</td>
                                     <td class="text-right">{{ $itemx->PagIbigLoan > 0 ? '₱'.number_format($itemx->PagIbigLoan, 2) : '-' }}</td>
@@ -213,15 +175,6 @@
                                     $TotalWorkedHours += $itemx->TotalWorkedHours;
                                     $MonthlyWage += $itemx->MonthlyWage;
                                     $TermWage += $itemx->TermWage;
-                                    $OvertimeHours += $itemx->OvertimeHours;
-                                    $OvertimeAmount += $itemx->OvertimeAmount;
-                                    $AbsentHours += $itemx->AbsentHours;
-                                    $AbsentAmount += $itemx->AbsentAmount;
-                                    $Longevity += $itemx->Longevity;
-                                    $RiceLaundry += $itemx->RiceLaundry;
-                                    $OtherSalaryAdditions += $itemx->OtherSalaryAdditions;
-                                    $OtherSalaryDeductions += $itemx->OtherSalaryDeductions;
-                                    $TotalPartialAmount += $itemx->TotalPartialAmount;
                                     $MotorycleLoan += $itemx->MotorycleLoan;
                                     $PagIbigContribution += $itemx->PagIbigContribution;
                                     $PagIbigLoan += $itemx->PagIbigLoan;
@@ -242,15 +195,6 @@
                                 <th class="text-right">{{ $TotalWorkedHours > 0 ? round($TotalWorkedHours, 2) : '-' }}</th>
                                 <th class="text-right">{{ $MonthlyWage > 0 ? '₱'.number_format($MonthlyWage, 2) : '-' }}</th>
                                 <th class="text-right">{{ $TermWage > 0 ? '₱'.number_format($TermWage, 2) : '-' }}</th>
-                                <th class="text-right">{{ $OvertimeHours > 0 ? round($OvertimeHours, 2) : '-' }}</th>
-                                <th class="text-right">{{ $OvertimeAmount > 0 ? '₱'.number_format($OvertimeAmount, 2) : '-' }}</th>
-                                <th class="text-right">{{ $AbsentHours > 0 ? round($AbsentHours, 2) : '-' }}</th>
-                                <th class="text-right">{{ $AbsentAmount > 0 ? '₱'.number_format($AbsentAmount, 2) : '-' }}</th>
-                                <th class="text-right">{{ $Longevity > 0 ? '₱'.number_format($Longevity, 2) : '-' }}</th>
-                                <th class="text-right">{{ $RiceLaundry > 0 ? '₱'.number_format($RiceLaundry, 2) : '-' }}</th>
-                                <th class="text-right">{{ $OtherSalaryAdditions > 0 ? '₱'.number_format($OtherSalaryAdditions, 2) : '-' }}</th>
-                                <th class="text-right">{{ $OtherSalaryDeductions > 0 ? '₱'.number_format($OtherSalaryDeductions, 2) : '-' }}</th>
-                                <th class="text-right">{{ $TotalPartialAmount > 0 ? '₱'.number_format($TotalPartialAmount, 2) : '-' }}</th>
                                 <th class="text-right">{{ $MotorycleLoan > 0 ? '₱'.number_format($MotorycleLoan, 2) : '-' }}</th>
                                 <th class="text-right">{{ $PagIbigContribution > 0 ? '₱'.number_format($PagIbigContribution, 2) : '-' }}</th>
                                 <th class="text-right">{{ $PagIbigLoan > 0 ? '₱'.number_format($PagIbigLoan, 2) : '-' }}</th>
@@ -269,15 +213,6 @@
                                 $OverallTotalWorkedHours += $TotalWorkedHours;
                                 $OverallMonthlyWage += $MonthlyWage;
                                 $OverallTermWage += $TermWage;
-                                $OverallOvertimeHours += $OvertimeHours;
-                                $OverallOvertimeAmount += $OvertimeAmount;
-                                $OverallAbsentHours += $AbsentHours;
-                                $OverallAbsentAmount += $AbsentAmount;
-                                $OverallLongevity += $Longevity;
-                                $OverallRiceLaundry += $RiceLaundry;
-                                $OverallOtherSalaryAdditions += $OtherSalaryAdditions;
-                                $OverallOtherSalaryDeductions += $OtherSalaryDeductions;
-                                $OverallTotalPartialAmount += $TotalPartialAmount;
                                 $OverallMotorycleLoan += $MotorycleLoan;
                                 $OverallPagIbigContribution += $PagIbigContribution;
                                 $OverallPagIbigLoan += $PagIbigLoan;
@@ -297,15 +232,6 @@
                                     <th class="text-right">{{ $OverallTotalWorkedHours > 0 ? round($OverallTotalWorkedHours, 2) : '-' }}</th>
                                     <th class="text-right">{{ $OverallMonthlyWage > 0 ? '₱'.number_format($OverallMonthlyWage, 2) : '-' }}</th>
                                     <th class="text-right">{{ $OverallTermWage > 0 ? '₱'.number_format($OverallTermWage, 2) : '-' }}</th>
-                                    <th class="text-right">{{ $OverallOvertimeHours > 0 ? round($OverallOvertimeHours, 2) : '-' }}</th>
-                                    <th class="text-right">{{ $OverallOvertimeAmount > 0 ? '₱'.number_format($OverallOvertimeAmount, 2) : '-' }}</th>
-                                    <th class="text-right">{{ $OverallAbsentHours > 0 ? round($OverallAbsentHours, 2) : '-' }}</th>
-                                    <th class="text-right">{{ $OverallAbsentAmount > 0 ? '₱'.number_format($OverallAbsentAmount, 2) : '-' }}</th>
-                                    <th class="text-right">{{ $OverallLongevity > 0 ? '₱'.number_format($OverallLongevity, 2) : '-' }}</th>
-                                    <th class="text-right">{{ $OverallRiceLaundry > 0 ? '₱'.number_format($OverallRiceLaundry, 2) : '-' }}</th>
-                                    <th class="text-right">{{ $OverallOtherSalaryAdditions > 0 ? '₱'.number_format($OverallOtherSalaryAdditions, 2) : '-' }}</th>
-                                    <th class="text-right">{{ $OverallOtherSalaryDeductions > 0 ? '₱'.number_format($OverallOtherSalaryDeductions, 2) : '-' }}</th>
-                                    <th class="text-right">{{ $OverallTotalPartialAmount > 0 ? '₱'.number_format($OverallTotalPartialAmount, 2) : '-' }}</th>
                                     <th class="text-right">{{ $OverallMotorycleLoan > 0 ? '₱'.number_format($OverallMotorycleLoan, 2) : '-' }}</th>
                                     <th class="text-right">{{ $OverallPagIbigContribution > 0 ? '₱'.number_format($OverallPagIbigContribution, 2) : '-' }}</th>
                                     <th class="text-right">{{ $OverallPagIbigLoan > 0 ? '₱'.number_format($OverallPagIbigLoan, 2) : '-' }}</th>
@@ -341,7 +267,7 @@
 
 @canany('god permission')
 <div class="right-bottom">
-    <button onclick="trash()" class="btn-floating shadow bg-danger" title="Delete Payroll Entry"><i class="fas fa-trash ico-tab-mini"></i>Delete This Payroll</button>
+    <a href="{{ route('payrollIndices.view-payroll', [$salaryPeriod]) }}" class="btn-floating shadow bg-success" title="Delete Payroll Entry"><i class="fas fa-arrow-left ico-tab-mini"></i>Original View</a>
 </div>
 @endcanany
 

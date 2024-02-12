@@ -44,5 +44,19 @@ class EmployeeIncentiveAnnualProjections extends Model
         'DeductMonthly' => 'nullable|string|max:50'
     ];
 
-    
+    public static function getRepresentationAllowance($level) {
+        if ($level != null) {
+            if ($level === 'Chief') {
+                return 10000;
+            } elseif ($level === 'Manager') {
+                return 15000;
+            } elseif ($level === 'General Manager') {
+                return 22000;
+            } else {
+                return 0;
+            }
+        } else {
+            return 0;
+        }
+    }
 }

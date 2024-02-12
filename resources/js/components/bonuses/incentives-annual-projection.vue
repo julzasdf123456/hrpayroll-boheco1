@@ -170,7 +170,8 @@ export default {
             isAddNewShown : false,
             hasNew : false,
             isProjectToAllShown : false,
-            readOnlyData : [ 'Rice and Laundry', 'Medical Allowance', 'Uniform Allowance' ],
+            readOnlyData : [ 'Rice and Laundry', 'Medical Allowance', 'Uniform Allowance', 
+                'Productivity Scheme (Performance Bonus)', 'Cash Gift', 'Award Incentive', 'Anniversary Incentives' ],
         }
     },
     methods : {
@@ -332,8 +333,9 @@ export default {
         remove(id) {            
             Swal.fire({
                 title: "Remove this incentive projection?",
+                text: 'NOTE that you will also delete the employees projection data. Kindly proceed with caution.',
                 showCancelButton: true,
-                confirmButtonText: "Save",
+                confirmButtonText: "Proceed Remove",
             }).then((result) => {
                 /* Read more about isConfirmed, isDenied below */
                 if (result.isConfirmed) {

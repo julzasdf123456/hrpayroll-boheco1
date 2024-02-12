@@ -8,6 +8,7 @@ use App\Http\Controllers\AppBaseController;
 use App\Repositories\IncentivesAnnualProjectionRepository;
 use Illuminate\Http\Request;
 use App\Models\IncentivesAnnualProjection;
+use App\Models\EmployeeIncentiveAnnualProjections;
 use App\Models\IDGenerator;
 use Flash;
 
@@ -230,7 +231,14 @@ class IncentivesAnnualProjectionController extends AppBaseController
     }
 
     public function remove(Request $request) {
-        IncentivesAnnualProjection::where('id', $request['id'])->delete();
+        $projection = IncentivesAnnualProjection::find($request['id']);
+
+        // REMOVE Employe Projections as well
+        EmployeeIncentiveAnnualProjections::where('Incentive', $projection->Incentive)
+            ->where('Year', $projection->Year)
+            ->delete();
+        
+        $projection->delete();
 
         return response()->json('ok', 200);
     }
