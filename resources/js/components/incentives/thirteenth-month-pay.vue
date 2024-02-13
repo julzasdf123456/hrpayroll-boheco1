@@ -72,6 +72,9 @@
                             <th colspan="2" class='text-center' v-if="isSecondTermShown">{{ monthHeaders['11'] }}</th>
                             <!-- TOTAL -->
                             <th rowspan="2" class="text-center">Sub-Total</th>
+                            <th rowspan="2" class="text-center">AR-Others</th>
+                            <th rowspan="2" class="text-center">BEMPC</th>
+                            <th rowspan="2" class="text-center">NET PAY</th>
                         </tr>
                         <tr>
                             <!-- 1st Term -->
@@ -136,6 +139,11 @@
                             <td class='text-right' v-if="isSecondTermShown">{{ toMoney(employee.DecemberSecond) }}</td>
                             <!-- TOTALS -->
                             <td class='text-right'>{{ toMoney(employee.SubTotal) }}</td>
+                            <td>
+                                <input class="table-input-sm text-right" :class="tableInputTextColor" v-model="employee.AROthers" @keyup.enter="inputEnter(employee.AROthers, employee.id)" @blur="inputEnter(employee.AROthers, employee.id)" type="number" step="any"/>
+                            </td>
+                            <td class='text-right'>{{ toMoney(employee.BEMPC) }}</td>
+                            <td class='text-right'>{{ toMoney(employee.NetPay) }}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -163,13 +171,24 @@
         font-size: 1.1em;
     }
 
+    .table-input-sm {
+        margin: 0px;
+        background-color: transparent;
+        width: 100%;
+        border: 0px;
+        height: 22px;
+        font-weight: bold;
+        font-size: 1em;
+    }
+
     .table-input::-webkit-outer-spin-button,
     .table-input::-webkit-outer-spin-button {
         -webkit-appearance: none;
         margin: 0;
     }
 
-    .table-input:focus  {
+    .table-input:focus,
+    .table-input-sm:focus  {
         outline: none;
     }
 
@@ -346,27 +365,43 @@ export default {
         generateUniqueId() {
             return moment().valueOf() + "-" + this.generateRandomString(32);
         },
-        inputEnter(value, iddata, colToUpdate) {
-            this.hasNew = false
-            axios.get(`${ axios.defaults.baseURL }/incentives_annual_projections/update-data`, {
+        inputEnter(value, employeeId) {
+            var type = this.term === moment().format('YYYY-05-01') ? '13th Month Pay - 1st Half' : '13th Month Pay - 2nd Half'
+            axios.get(`${ axios.defaults.baseURL }/other_payroll_deductions/update-data`, {
                 params: {
-                    id : iddata,
-                    Data : value,
-                    ColumnToUpdate : colToUpdate,
-                    Year : this.years,
+                    EmployeeId : employeeId,
+                    Amount : value,
+                    ScheduleDate : this.term,
+                    Type : type,
+                    Description : type
                 }
             }).then(response => {                
                 // FIND EMPTY IDs TO BE REPLACED BY A NEW ID IF NEW ENTRY
-                this.isProjectToAllShown = true
+                // UPDATE VALUE REAL TIME
+                var newValue = 0
+                const empArray = this.employees.filter(obj => obj.id === employeeId)
+
+                if (!this.isNull(empArray)) {
+                    var subTotal = empArray[0].SubTotal
+
+                    subTotal = parseFloat(subTotal)
+                    newValue = subTotal - parseFloat(value)
+                }
+                this.employees = this.employees.map(obj => {
+                    if (obj.id === employeeId) {
+                        return { ...obj, NetPay: newValue }; // Update the name property
+                    } else {
+                        return obj;
+                    }
+                })
                 this.showSaveFader()
             })
             .catch(error => {
                 Swal.fire({
                     icon : 'error',
-                    title : 'Error updating projection data!',
+                    title : 'Error adding AR-Others!',
                 });
                 console.log(error)
-                this.isProjectToAllShown = false
             });
         },
         getBiMonthlyWage(salaryData, basicSalary) {
@@ -392,6 +427,20 @@ export default {
                     return 0
                 } else {
                     return this.round(dif / 12)
+                }
+            }
+        },
+        getAROthers(arOthersData, employeeId) {
+            var arObj = arOthersData.filter(obj => obj.EmployeeId === employeeId)
+
+            if (this.isNull(arObj)) {
+                return 0
+            } else {
+                var amount = arObj[0].Amount
+                if (this.isNull(amount)) {
+                    return 0
+                } else {
+                    return parseFloat(amount)
                 }
             }
         },
@@ -463,8 +512,13 @@ export default {
                         subTotal += this.getBiMonthlyWage(foundData, basicSalary)
                     }
 
-                    console.log(subTotal)
                     datasets['SubTotal'] = subTotal
+
+                    var arOtherAmnt = this.getAROthers(response.data['Employees'][i]['AROthers'], response.data['Employees'][i]['id'])
+                    datasets['AROthers'] = arOtherAmnt > 0 ? arOtherAmnt : ''
+
+                    var netPay = subTotal - (arOtherAmnt)
+                    datasets['NetPay'] = netPay > 0 ? parseFloat(netPay) : '-'
 
                     this.employees.push(datasets);
                 }

@@ -278,6 +278,7 @@ Route::get('/other_payroll_deductions/update-other-deduction-data', [OtherPayrol
 Route::get('/other_payroll_deductions/addons-and-deductions', [OtherPayrollDeductionsController::class, 'addOnsAndDeductions'])->name('otherPayrollDeductions.addons-and-deductions');
 Route::get('/other_payroll_deductions/get-addons-and-deductions', [OtherPayrollDeductionsController::class, 'getAddonsAndDeductions'])->name('otherPayrollDeductions.get-addons-and-deductions');
 Route::get('/other_payroll_deductions/update-addons-and-deductions', [OtherPayrollDeductionsController::class, 'updateAddonsAndDeductions'])->name('otherPayrollDeductions.update-addons-and-deductions');
+Route::get('/other_payroll_deductions/update-data', [OtherPayrollDeductionsController::class, 'updateData'])->name('otherPayrollDeductions.update-data');
 Route::resource('otherPayrollDeductions', OtherPayrollDeductionsController::class);
 
 Route::get('/incentives_annual_projections/insert-datas', [IncentivesAnnualProjectionController::class, 'insertDatas'])->name('incentivesAnnualProjections.insert-datas');
