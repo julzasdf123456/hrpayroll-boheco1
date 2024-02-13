@@ -16,7 +16,9 @@ class EmployeeIncentiveAnnualProjections extends Model
         'Amount',
         'IsTaxable',
         'MaxUntaxableAmount',
-        'DeductMonthly'
+        'DeductMonthly',
+        'ActualAmountReceived',
+        'ActualBatchId',
     ];
 
     protected $casts = [
@@ -28,7 +30,9 @@ class EmployeeIncentiveAnnualProjections extends Model
         'Amount' => 'decimal:2',
         'IsTaxable' => 'string',
         'MaxUntaxableAmount' => 'decimal:2',
-        'DeductMonthly' => 'string'
+        'DeductMonthly' => 'string',
+        'ActualAmountReceived' => 'string',
+        'ActualBatchId' => 'string',
     ];
 
     public static array $rules = [
@@ -41,7 +45,9 @@ class EmployeeIncentiveAnnualProjections extends Model
         'MaxUntaxableAmount' => 'nullable|numeric',
         'created_at' => 'nullable',
         'updated_at' => 'nullable',
-        'DeductMonthly' => 'nullable|string|max:50'
+        'DeductMonthly' => 'nullable|string|max:50',
+        'ActualAmountReceived' => 'nullable|string',
+        'ActualBatchId' => 'nullable|string',
     ];
 
     public static function getRepresentationAllowance($level) {

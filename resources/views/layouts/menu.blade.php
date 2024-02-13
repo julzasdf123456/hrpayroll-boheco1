@@ -243,6 +243,13 @@
     </a>
     <ul class="nav nav-treeview">
         <li class="nav-item">
+            <a href="{{ route('incentives.thirteenth-month-pay') }}" class="nav-link {{ Request::is('incentives.thirteenth-month-pay*') ? 'active' : '' }}">
+                <i class="nav-icon fas fa-comments-dollar"></i>
+                <p>New 13th Month</p>
+            </a>
+        </li>
+        <div class="divider"></div>
+        <li class="nav-item">
             <a href="{{ route('incentivesAnnualProjections.index') }}" class="nav-link {{ Request::is('incentivesAnnualProjections*') ? 'active' : '' }}">
                 <i class="nav-icon fas fa-funnel-dollar"></i>
                 <p>Incntvs Annual Projection</p>

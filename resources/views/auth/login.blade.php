@@ -5,6 +5,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>{{ config('app.name') }}</title>
 
+    <link rel="stylesheet" href="{{ URL::asset('css/style.css'); }}">
+
     <!-- Tell the browser to be responsive to screen width -->
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
 
@@ -23,6 +25,7 @@
           integrity="sha512-8vq2g5nHE062j3xor4XxPeZiPjmRDh6wlufQlfC6pdQ/9urJkU07NM0tEREeymP++NczacJ/Q59ul+/K2eYvcg=="
           crossorigin="anonymous"/>
 
+
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -34,14 +37,15 @@
 <body class="hold-transition login-page">
 <div class="login-box">
     <div class="login-logo">
-        <a href="{{ url('/home') }}"><b>{{ config('app.name') }}</b></a>
+        <a href="{{ url('/home') }}" style="width: 100%; text-align: center; font-size: 1.4em;"><strong>{{ config('app.name') }}</strong></a>
+        <p class="text-center text-muted" style="font-size: .4em;">{{ env('APP_FULLNAME') }}</p>
     </div>
 
     <!-- /.login-logo -->
 
     <!-- /.login-box-body -->
-    <div class="card">
-        <div class="card-body login-card-body">
+    <div class="card shadow-none shadow-soft">
+        <div class="card-body">
             <p class="login-box-msg">Sign in to start your session</p>
 
             <form method="post" action="{{ url('/login') }}">
@@ -52,10 +56,7 @@
                            name="username"
                            value="{{ old('username') }}"
                            placeholder="Username"
-                           class="form-control @error('username') is-invalid @enderror">
-                    <div class="input-group-append">
-                        <div class="input-group-text"><span class="fas fa-envelope"></span></div>
-                    </div>
+                           class="form-control @error('username') is-invalid @enderror" autofocus>
                     @error('username')
                     <span class="error invalid-feedback">{{ $message }}</span>
                     @enderror
@@ -66,11 +67,6 @@
                            name="password"
                            placeholder="Password"
                            class="form-control @error('password') is-invalid @enderror">
-                    <div class="input-group-append">
-                        <div class="input-group-text">
-                            <span class="fas fa-lock"></span>
-                        </div>
-                    </div>
                     @error('password')
                     <span class="error invalid-feedback">{{ $message }}</span>
                     @enderror
@@ -91,12 +87,12 @@
 
                 </div>
             </form>
-
-            <p class="mb-1">
-                <a href="{{ route('password.request') }}">I forgot my password</a>
+            <p class="text-center text-muted" style="margin-top: 12px;">or</p>
+            <p class="text-center">
+                <a href="{{ route('register') }}">Create a New Account</a>
             </p>
-            <p class="mb-0">
-                <a href="{{ route('register') }}" class="text-center">Register a new membership</a>
+            <p class="mb-1 text-center" style="margin-top: 18px;">
+                <a class="text-muted" href="{{ route('password.request') }}" style="font-size: .85em;">I forgot my password</a>
             </p>
         </div>
         <!-- /.login-card-body -->
