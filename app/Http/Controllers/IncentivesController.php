@@ -199,6 +199,16 @@ class IncentivesController extends AppBaseController
                 )
                 ->orderBy('SalaryPeriod')
                 ->get();
+
+                if ($term == date('Y-m-d', strtotime('first day of May ' . date('Y')))) {
+                    $item->AROthers = DB::table('OtherPayrollDeductions')
+                        ->whereRaw("Type='13th Month Pay - 1st Half' AND ScheduleDate='" . date('Y-m-d', strtotime('first day of May ' . date('Y'))) . "'")
+                        ->get();
+                } else {
+                    $item->AROthers = DB::table('OtherPayrollDeductions')
+                        ->whereRaw("Type='13th Month Pay - 2nd Half' AND ScheduleDate='" . date('Y-m-d', strtotime('first day of October ' . date('Y'))) . "'")
+                        ->get();
+                }
         }
 
         $data = [

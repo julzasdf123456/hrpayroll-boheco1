@@ -344,4 +344,36 @@ class OtherPayrollDeductionsController extends AppBaseController
         UserFootprints::log('Added Salary-Related Addons/Deductions', "Updated Salary-Related addons/deductions for payroll schedule " . date('F d, Y', strtotime($schedule)));
         return response()->json('ok', 200);
     }
+
+    public function updateData(Request $request) {
+        $employeeId = $request['EmployeeId'];
+        $scheduleDate = $request['ScheduleDate'];
+        $amount = $request['Amount'];
+        $type = $request['Type'];
+        $description = $request['Description'];
+
+        if ($employeeId != null && $amount != null && $type != null && $scheduleDate != null) {
+            $arOthers = OtherPayrollDeductions::where('EmployeeId', $employeeId)
+                ->where('Type', $type)
+                ->where('ScheduleDate', $scheduleDate)
+                ->first();
+
+            if ($arOthers != null) {
+                $arOthers->Amount = $amount;
+            } else {
+                $arOthers = new OtherPayrollDeductions;
+                $arOthers->id = IDGenerator::generateIDandRandString();
+                $arOthers->EmployeeId = $employeeId;
+                $arOthers->DeductionName = 'AR - Others';
+                $arOthers->DeductionDescription = $description;
+                $arOthers->ScheduleDate = $scheduleDate;
+                $arOthers->Amount = $amount;
+                $arOthers->Type = $type;
+            }
+
+            $arOthers->save();
+        }
+        
+        return response()->json('ok', 200);
+    }
 }

@@ -211,7 +211,7 @@
         <li class="nav-item">
             <a href="{{ route('otherPayrollDeductions.index') }}" class="nav-link {{ Request::is('otherPayrollDeductions*') ? 'active' : '' }}">
                 <i class="nav-icon fas fa-minus"></i>
-                <p>Deductions (AR-Others)</p>
+                <p>Payroll AR-Others</p>
             </a>
         </li>
         <li class="nav-item">
@@ -259,12 +259,6 @@
             <a href="{{ route('employeeIncentiveAnnualProjections.incentive-withholding-taxes') }}" class="nav-link {{ Request::is('employeeIncentiveAnnualProjections.incentive-withholding-taxes*') ? 'active' : '' }}">
                 <i class="nav-icon fas fa-file-invoice-dollar"></i>
                 <p>Employees Incntv WTs</p>
-            </a>
-        </li>
-        <li class="nav-item">
-            <a href="{{ route('employeeBonuses.index') }}" class="nav-link {{ Request::is('employeeBonuses*') ? 'active' : '' }}">
-                <i class="nav-icon fas fa-hand-holding-usd"></i>
-                <p>Employee Bonuses</p>
             </a>
         </li>
     </ul>
