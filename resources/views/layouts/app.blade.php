@@ -227,7 +227,12 @@
             <li class="nav-item">
                 <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
             </li>
+            <li class="nav-item">
+                <p class="title-text" id="page-title"></p>
+            </li>         
+        </ul>
 
+        <ul class="navbar-nav ml-auto">
             {{-- FILE SHORTCUT --}}
             @if (!in_array(Route::currentRouteName(), ['tripTickets.log-vehicle-trips', 'tripTickets.log-vehicle-arrivals']))
                 <li class="nav-item dropdown">
@@ -240,10 +245,8 @@
                         <a href="{{ route('attendanceConfirmations.create') }}" class="dropdown-item" title="File for an attendance confirmation">Attendance Confirmation</a>
                     </div>
                 </li>
-            @endif            
-        </ul>
+            @endif
 
-        <ul class="navbar-nav ml-auto">
             <li class="nav-item">
                 <a class="nav-link text-warning" href="{{ route('home.reeve') }}" title="Ask Reeve for Help">
                     <i class="fas fa-poo"></i>

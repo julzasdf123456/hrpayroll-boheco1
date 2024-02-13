@@ -8,6 +8,8 @@
     <!-- Tell the browser to be responsive to screen width -->
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
 
+    <link rel="stylesheet" href="{{ URL::asset('css/style.css'); }}">
+
     <!-- Font Awesome -->
     <link rel="stylesheet" href="{{ URL::asset('css/source_sans_pro.css'); }} ">
 
@@ -35,9 +37,9 @@
         <a href="{{ url('/home') }}"><b>{{ config('app.name') }}</b></a>
     </div>
 
-    <div class="card">
-        <div class="card-body register-card-body">
-            <p class="login-box-msg">Register a new membership</p>
+    <div class="card shadow-soft">
+        <div class="card-body">
+            <p class="login-box-msg text-muted">Sign Up</p>
 
             <form method="post" action="{{ route('register') }}">
                 @csrf
@@ -49,16 +51,13 @@
                            class="form-control @error('employee_id') is-invalid @enderror"
                            value="{{ old('employee_id') }}"
                            placeholder="Type Your Employee ID">
-                    <div class="input-group-append">
-                        <div class="input-group-text"><span class="fas fa-user"></span></div>
-                    </div>
                     @error('employee_id')
                     <span class="error invalid-feedback">{{ $message }}</span>
                     @enderror
                 </div>
 
                 <div class="input-group mb-3">
-                    <button id="verify-id" class="btn btn-primary" style="width: 100%;">VERIFY EMPLOYEE ID</button>
+                    <button id="verify-id" class="btn btn-primary" style="width: 100%;"> <i class="fas fa-shield-alt" style="margin-right: 10px;"></i>Verify Employee ID</button>
                 </div>
 
                 <div style="width: 100%; height: 1px; background-color: #adadad; margin-bottom: 10px;"></div>
@@ -70,9 +69,6 @@
                            class="form-control @error('name') is-invalid @enderror"
                            value="{{ old('name') }}"
                            placeholder="Full name" readonly>
-                    <div class="input-group-append">
-                        <div class="input-group-text"><span class="fas fa-user"></span></div>
-                    </div>
                     @error('name')
                     <span class="error invalid-feedback">{{ $message }}</span>
                     @enderror
@@ -85,9 +81,6 @@
                            class="form-control @error('username') is-invalid @enderror"
                            value="{{ old('username') }}"
                            placeholder="Username" disabled>
-                    <div class="input-group-append">
-                        <div class="input-group-text"><span class="fas fa-user"></span></div>
-                    </div>
                     @error('username')
                     <span class="error invalid-feedback">{{ $message }}</span>
                     @enderror
@@ -100,9 +93,6 @@
                            value="{{ old('email') }}"
                            class="form-control @error('email') is-invalid @enderror"
                            placeholder="Email" disabled>
-                    <div class="input-group-append">
-                        <div class="input-group-text"><span class="fas fa-envelope"></span></div>
-                    </div>
                     @error('email')
                     <span class="error invalid-feedback">{{ $message }}</span>
                     @enderror
@@ -114,9 +104,6 @@
                            id="password"
                            class="form-control @error('password') is-invalid @enderror"
                            placeholder="Password" disabled>
-                    <div class="input-group-append">
-                        <div class="input-group-text"><span class="fas fa-lock"></span></div>
-                    </div>
                     @error('password')
                     <span class="error invalid-feedback">{{ $message }}</span>
                     @enderror
@@ -128,9 +115,6 @@
                            id="password_confirmation"
                            class="form-control"
                            placeholder="Retype password" disabled>
-                    <div class="input-group-append">
-                        <div class="input-group-text"><span class="fas fa-lock"></span></div>
-                    </div>
                 </div>
 
                 <div class="row">
@@ -143,14 +127,16 @@
                         </div>
                     </div> --}}
                     <!-- /.col -->
-                    <div class="col-4">
-                        <button type="submit" class="btn btn-primary btn-block btn-sm"><i class="fas fa-check-circle" style="margin-right: 10px;"></i>Register</button>
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary btn-block"><i class="fas fa-check-circle" style="margin-right: 10px;"></i>Register</button>
                     </div>
                     <!-- /.col -->
                 </div>
             </form>
 
-            <a href="{{ route('login') }}" class="text-center">I already have a membership</a>
+            <p class="text-center" style="margin-top: 16px;">
+                <a href="{{ route('login') }}" class="text-muted">Go back to Login</a>
+            </p>
         </div>
         <!-- /.form-box -->
     </div><!-- /.card -->

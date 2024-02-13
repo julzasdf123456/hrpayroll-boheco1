@@ -22,6 +22,7 @@ use App\Http\Controllers\IncentivesAnnualProjectionController;
 use App\Http\Controllers\EmployeeIncentiveAnnualProjectionsController;
 use App\Http\Controllers\EmployeeBonusesController;
 use App\Http\Controllers\PayrollExpandedDetailsController;
+use App\Http\Controllers\IncentivesController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -294,6 +295,10 @@ Route::resource('employeeBonuses', EmployeeBonusesController::class);
 
 Route::post('/payroll_expanded_details/bulk-save-payroll', [PayrollExpandedDetailsController::class, 'bulkSavePayroll'])->name('payrollExpandedDetails.bulk-save-payroll');
 Route::resource('payrollExpandedDetails', PayrollExpandedDetailsController::class);
-Route::resource('user-footprints', App\Http\Controllers\UserFootprintsController::class);
-Route::resource('other-addons-deductions', App\Http\Controllers\OtherAddonsDeductionsController::class);
-Route::resource('employee-incntvs-projection-tax-marks', App\Http\Controllers\EmployeeIncntvsProjectionTaxMarkController::class);
+Route::resource('userFootprints', App\Http\Controllers\UserFootprintsController::class);
+Route::resource('otherAddonsDeductions', App\Http\Controllers\OtherAddonsDeductionsController::class);
+Route::resource('employeeIncntvsProjectionTaxMarks', App\Http\Controllers\EmployeeIncntvsProjectionTaxMarkController::class);
+
+Route::get('/incentives/thirteenth-month-pay', [IncentivesController::class, 'thirteenthMonthPay'])->name('incentives.thirteenth-month-pay');
+Route::get('/incentives/get-thirteenth-month-data', [IncentivesController::class, 'getThirteenthMonthData'])->name('incentives.get-thirteenth-month-data');
+Route::resource('incentives', IncentivesController::class);

@@ -87,6 +87,8 @@ class Employees extends Model
         'DateHired',
         'EmploymentStatus',
         'DateEnded',
+        'PrimaryBankNumber',
+        'PrimaryBank',
     ];
 
     /**
@@ -127,6 +129,8 @@ class Employees extends Model
         'DateHired' => 'string',
         'EmploymentStatus' => 'string',
         'DateEnded' => 'string',
+        'PrimaryBankNumber' => 'string',
+        'PrimaryBank' => 'string',
     ];
 
     /**
@@ -168,6 +172,8 @@ class Employees extends Model
         'DateHired' => 'nullable|string',
         'EmploymentStatus' => 'nullable|string',
         'DateEnded' => 'nullable|string',
+        'PrimaryBankNumber' => 'nullable|string',
+        'PrimaryBank' => 'nullable|string',
     ];
 
     public static function getMergeName($employee) {

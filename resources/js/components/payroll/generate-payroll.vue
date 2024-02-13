@@ -25,8 +25,6 @@
                 <div class="col-lg-2">
                     <span class="text-muted">Salary Period</span>
                     <select v-model="salaryPeriod" class="form-control form-control-sm">
-                        <option value="2024-01-15">{{ moment('2024-01-15').format('MMMM DD, YYYY') }}</option>
-                        <option value="2024-01-31">{{ moment('2024-01-31').format('MMMM DD, YYYY') }}</option>
                         <option :value="fifteenth">{{ moment(fifteenth).format('MMMM DD, YYYY') }}</option>
                         <option :value="thirtieth">{{ moment(thirtieth).format('MMMM DD, YYYY') }}</option>
                     </select>
@@ -49,13 +47,6 @@
                     </div>
                 </div>
             </div>
-            <!-- <span class="text-muted"><strong>Ask Reeve about Something</strong></span>
-            <input id="prompt" v-model="prompt" v-on:keyup.enter="ask()" class="form-control" autofocus placeholder="Type anything..."/>
-
-            <div id="loader" class="spinner-border text-success gone" role="status">
-                <span class="sr-only">Loading...</span>
-            </div>
-            <button id="go-btn" class="btn btn-primary btn-sm float-right" @click="ask()" style="margin-top: 5px;"><i class="fas fa-check-circle ico-tab-mini"></i>Go Ask Reeve</button> -->
         </div>
     </div>
     
