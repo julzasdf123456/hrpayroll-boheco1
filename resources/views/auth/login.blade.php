@@ -38,7 +38,6 @@
 <div class="login-box">
     <div class="login-logo">
         <a href="{{ url('/home') }}" style="width: 100%; text-align: center; font-size: 1.4em;"><strong>{{ config('app.name') }}</strong></a>
-        <p class="text-center text-muted" style="font-size: .4em;">{{ env('APP_FULLNAME') }}</p>
     </div>
 
     <!-- /.login-logo -->
@@ -99,6 +98,9 @@
     </div>
 
 </div>
+
+
+<p class="text-center text-muted" style="font-size: .9em; position: fixed; bottom: 10px;">{{ env('APP_FULLNAME') }} <br> All Rights Reserved @ {{ date('Y') }} </p>
 <!-- /.login-box -->
 
 <!-- AdminLTE App -->

@@ -12,14 +12,18 @@ class Incentives extends Model
         'id',
         'IncentiveName',
         'Notes',
-        'UserId'
+        'UserId',
+        'Year',
+        'Status',
     ];
 
     protected $casts = [
         'id' => 'string',
         'IncentiveName' => 'string',
         'Notes' => 'string',
-        'UserId' => 'string'
+        'UserId' => 'string',
+        'Year' => 'string',
+        'Status' => 'string',
     ];
 
     public static array $rules = [
@@ -27,7 +31,9 @@ class Incentives extends Model
         'Notes' => 'nullable|string|max:1000',
         'UserId' => 'nullable|string|max:50',
         'created_at' => 'nullable',
-        'updated_at' => 'nullable'
+        'updated_at' => 'nullable',
+        'Year' => 'nullable|string',
+        'Status' => 'nullable|string',
     ];
 
     

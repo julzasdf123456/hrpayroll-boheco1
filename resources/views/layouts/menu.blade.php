@@ -183,7 +183,61 @@
                 <p>Contributions & Allws.</p>
             </a>
         </li>
+    </ul>
+</li>
+@endcanany
+
+@canany('god permission')
+{{-- INCENTIVES SIDE --}}
+<li class="nav-item">
+    <a href="#" class="nav-link">
+        <i class="nav-icon fas fa-coins"></i>
+        <p>
+            Incentives & Bonuses
+            <i class="right fas fa-caret-left"></i>
+        </p>
+    </a>
+    <ul class="nav nav-treeview">
+        <li class="nav-item">
+            <a href="{{ route('incentives.index') }}" class="nav-link {{ Request::is('incentives.index*') ? 'active' : '' }}">
+                <i class="nav-icon fas fa-eye"></i>
+                <p>View All Incentives</p>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="{{ route('incentives.thirteenth-month-pay') }}" class="nav-link {{ Request::is('incentives.thirteenth-month-pay*') ? 'active' : '' }}">
+                <i class="nav-icon fas fa-comments-dollar"></i>
+                <p>New 13th Month</p>
+            </a>
+        </li>
         <div class="divider"></div>
+        <li class="nav-item">
+            <a href="{{ route('incentivesAnnualProjections.index') }}" class="nav-link {{ Request::is('incentivesAnnualProjections*') ? 'active' : '' }}">
+                <i class="nav-icon fas fa-funnel-dollar"></i>
+                <p>Incntvs Annual Projection</p>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="{{ route('employeeIncentiveAnnualProjections.incentive-withholding-taxes') }}" class="nav-link {{ Request::is('employeeIncentiveAnnualProjections.incentive-withholding-taxes*') ? 'active' : '' }}">
+                <i class="nav-icon fas fa-file-invoice-dollar"></i>
+                <p>Employees Incntv WTs</p>
+            </a>
+        </li>
+    </ul>
+</li>
+@endcanany
+
+{{-- DEDUCTIONS AND LOANS --}}
+@canany('god permission')
+<li class="nav-item">
+    <a href="#" class="nav-link">
+        <i class="nav-icon fas fa-minus-circle"></i>
+        <p>
+            Loans & Deductions
+            <i class="right fas fa-caret-left"></i>
+        </p>
+    </a>
+    <ul class="nav nav-treeview">
         <li class="nav-item">
             <a href="{{ route('loans.pag-ibig') }}" class="nav-link {{ Request::is('loans.pag-ibig*') ? 'active' : '' }}">
                 <i class="nav-icon fas fa-home"></i>
@@ -208,6 +262,7 @@
                 <p>Other Loans/Ammort.</p>
             </a>
         </li>
+        <div class="divider"></div>
         <li class="nav-item">
             <a href="{{ route('otherPayrollDeductions.index') }}" class="nav-link {{ Request::is('otherPayrollDeductions*') ? 'active' : '' }}">
                 <i class="nav-icon fas fa-minus"></i>
@@ -220,45 +275,17 @@
                 <p>Other Adds./Deducts.</p>
             </a>
         </li>
+        <li class="nav-item">
+            <a href="{{ route('bempcs.index') }}" class="nav-link {{ Request::is('bempcs*') ? 'active' : '' }}">
+                <i class="nav-icon fas fa-handshake"></i>
+                <p>BEMPC</p>
+            </a>
+        </li>
         <div class="divider"></div>
         <li class="nav-item" title="Contributions and allowances">
             <a href="{{ route('payrollIndices.withholding-taxes') }}" class="nav-link {{ Request::is('payrollIndices.withholding-taxes*') ? 'active' : '' }}">
                 <i class="nav-icon fas fa-file-invoice-dollar"></i>
                 <p>Withholding Taxes</p>
-            </a>
-        </li>
-    </ul>
-</li>
-@endcanany
-
-@canany('god permission')
-{{-- INCENTIVES SIDE --}}
-<li class="nav-item">
-    <a href="#" class="nav-link">
-        <i class="nav-icon fas fa-coins"></i>
-        <p>
-            Incentives & Bonuses
-            <i class="right fas fa-caret-left"></i>
-        </p>
-    </a>
-    <ul class="nav nav-treeview">
-        <li class="nav-item">
-            <a href="{{ route('incentives.thirteenth-month-pay') }}" class="nav-link {{ Request::is('incentives.thirteenth-month-pay*') ? 'active' : '' }}">
-                <i class="nav-icon fas fa-comments-dollar"></i>
-                <p>New 13th Month</p>
-            </a>
-        </li>
-        <div class="divider"></div>
-        <li class="nav-item">
-            <a href="{{ route('incentivesAnnualProjections.index') }}" class="nav-link {{ Request::is('incentivesAnnualProjections*') ? 'active' : '' }}">
-                <i class="nav-icon fas fa-funnel-dollar"></i>
-                <p>Incntvs Annual Projection</p>
-            </a>
-        </li>
-        <li class="nav-item">
-            <a href="{{ route('employeeIncentiveAnnualProjections.incentive-withholding-taxes') }}" class="nav-link {{ Request::is('employeeIncentiveAnnualProjections.incentive-withholding-taxes*') ? 'active' : '' }}">
-                <i class="nav-icon fas fa-file-invoice-dollar"></i>
-                <p>Employees Incntv WTs</p>
             </a>
         </li>
     </ul>
@@ -406,4 +433,3 @@
     </ul>
 </li>
 @endcanany
-

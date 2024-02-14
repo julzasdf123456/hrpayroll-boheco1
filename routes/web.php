@@ -23,6 +23,7 @@ use App\Http\Controllers\EmployeeIncentiveAnnualProjectionsController;
 use App\Http\Controllers\EmployeeBonusesController;
 use App\Http\Controllers\PayrollExpandedDetailsController;
 use App\Http\Controllers\IncentivesController;
+use App\Http\Controllers\BempcController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -302,4 +303,16 @@ Route::resource('employeeIncntvsProjectionTaxMarks', App\Http\Controllers\Employ
 
 Route::get('/incentives/thirteenth-month-pay', [IncentivesController::class, 'thirteenthMonthPay'])->name('incentives.thirteenth-month-pay');
 Route::get('/incentives/get-thirteenth-month-data', [IncentivesController::class, 'getThirteenthMonthData'])->name('incentives.get-thirteenth-month-data');
+Route::post('/incentives/save-thirteenth-month', [IncentivesController::class, 'saveThirteenthMonth'])->name('incentives.save-thirteenth-month');
+Route::get('/incentives/view-incentives/{id}', [IncentivesController::class, 'viewIncentives'])->name('incentives.view-incentives');
+Route::get('/incentives/delete', [IncentivesController::class, 'delete'])->name('incentives.delete');
+Route::get('/incentives/lock', [IncentivesController::class, 'lock'])->name('incentives.lock');
 Route::resource('incentives', IncentivesController::class);
+
+Route::get('/bempcs/upload', [BempcController::class, 'upload'])->name('bempcs.upload');
+Route::post('/bempcs/upload', [BempcController::class, 'processUpload'])->name('bempcs.process-upload');
+Route::get('/bempcs/view-upload/{for}/{date}', [BempcController::class, 'viewUploads'])->name('bempcs.view-upload');
+Route::get('/bempcs/delete', [BempcController::class, 'delete'])->name('bempcs.delete');
+Route::resource('bempcs', BempcController::class);
+
+Route::resource('incentiveDetails', App\Http\Controllers\IncentiveDetailsController::class);

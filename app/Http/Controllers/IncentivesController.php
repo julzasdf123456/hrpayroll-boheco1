@@ -10,6 +10,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Employees;
+use App\Models\Incentives;
+use App\Models\IncentiveDetails;
+use App\Models\IDGenerator;
 use Flash;
 
 class IncentivesController extends AppBaseController
@@ -28,10 +31,18 @@ class IncentivesController extends AppBaseController
      */
     public function index(Request $request)
     {
-        $incentives = $this->incentivesRepository->paginate(10);
+        $years = DB::table('Incentives')
+            ->select('Year')
+            ->groupBy('Year')
+            ->get();
 
-        return view('incentives.index')
-            ->with('incentives', $incentives);
+        foreach($years as $year) {
+            $year->Data = Incentives::where('Year', $year->Year)->orderBy('created_at')->get();
+        }
+
+        return view('incentives.index', [
+            'data' => $years
+        ]);
     }
 
     /**
@@ -139,12 +150,14 @@ class IncentivesController extends AppBaseController
         $employeeType = $request['EmployeeType'];
         $term = $request['Term'];
 
-        if ($term == date('Y-m-d', strtotime('first day of May ' . date('Y')))) {
+        if ($term == date('Y-m-d', strtotime('May 1, ' . date('Y')))) {
             $from = date('Y-m-d', strtotime('January 1 ' . date('Y')));
             $to = date('Y-m-d', strtotime('Last day of June ' . date('Y')));
+            $termName = '13th Month Pay - 1st Half';
         } else {
             $from = date('Y-m-d', strtotime('January 1 ' . date('Y')));
             $to = date('Y-m-d', strtotime('Last day of December ' . date('Y')));
+            $termName = '13th Month Pay - 2nd Half';
         }
 
         if ($department == 'SUB-OFFICE') {
@@ -159,7 +172,7 @@ class IncentivesController extends AppBaseController
                         'Positions.BasicSalary AS SalaryAmount',
                         'Positions.Level',
                         'Positions.Position',
-                        'EmployeesDesignations.Status',
+                        'EmployeesDesignations.Status'
                 )
                 ->where('EmployeesDesignations.Status', $employeeType)
                 ->where('Employees.OfficeDesignation', $department)
@@ -187,6 +200,11 @@ class IncentivesController extends AppBaseController
                 ->get();
         }
 
+        $incentiveCheck = DB::table('IncentiveDetails')
+            ->leftJoin('Incentives', 'IncentiveDetails.IncentivesId', '=', 'Incentives.id')
+            ->whereRaw("IncentiveName='" . $termName . "' AND Department='" . $department . "' AND EmployeeType='" . $employeeType . "' AND Year='" . date('Y') . "'")
+            ->first();
+
         foreach($employees as $item) {
             $item->SalaryData = DB::table('PayrollExpandedDetails')
                 ->whereRaw("EmployeeId='" . $item->id . "' AND (SalaryPeriod BETWEEN '" . $from . "' AND '" . $to . "')")
@@ -194,26 +212,149 @@ class IncentivesController extends AppBaseController
                     'SalaryPeriod',
                     'MonthlyWage',
                     'TermWage',
-                    'MonthlyWage',
                     'AbsentAmount',
                 )
                 ->orderBy('SalaryPeriod')
                 ->get();
 
-                if ($term == date('Y-m-d', strtotime('first day of May ' . date('Y')))) {
-                    $item->AROthers = DB::table('OtherPayrollDeductions')
-                        ->whereRaw("Type='13th Month Pay - 1st Half' AND ScheduleDate='" . date('Y-m-d', strtotime('first day of May ' . date('Y'))) . "'")
-                        ->get();
-                } else {
-                    $item->AROthers = DB::table('OtherPayrollDeductions')
-                        ->whereRaw("Type='13th Month Pay - 2nd Half' AND ScheduleDate='" . date('Y-m-d', strtotime('first day of October ' . date('Y'))) . "'")
-                        ->get();
-                }
+            if ($term == date('Y-m-d', strtotime('May 1, ' . date('Y')))) {
+                $item->AROthers = DB::table('OtherPayrollDeductions')
+                    ->whereRaw("Type='13th Month Pay - 1st Half' AND ScheduleDate='" . date('Y-m-d', strtotime('first day of May ' . date('Y'))) . "'")
+                    ->get();
+
+                $item->BEMPC = DB::table('BEMPC')
+                    ->select('Amount')
+                    ->whereRaw("EmployeeId='" . $item->id . "' AND DeductionFor='13th Month Pay - 1st Half' AND 
+                        (created_at BETWEEN '" . date('Y-m-d', strtotime('January 1 ' . date('Y'))) . "' AND '" . date('Y-m-d', strtotime('last day of December ' . date('Y'))) . "')")
+                    ->get();
+            } else {
+                $item->AROthers = DB::table('OtherPayrollDeductions')
+                    ->whereRaw("Type='13th Month Pay - 2nd Half' AND ScheduleDate='" . date('Y-m-d', strtotime('first day of October ' . date('Y'))) . "'")
+                    ->get();
+
+                $item->BEMPC = DB::table('BEMPC')
+                    ->select('Amount')
+                    ->whereRaw("EmployeeId='" . $item->id . "' AND DeductionFor='13th Month Pay - 2nd Half' AND 
+                        (created_at BETWEEN '" . date('Y-m-d', strtotime('January 1 ' . date('Y'))) . "' AND '" . date('Y-m-d', strtotime('last day of December ' . date('Y'))) . "')")
+                    ->get();
+            }
         }
 
         $data = [
             'Employees' => $employees,
+            'IncentiveCheck' => $incentiveCheck,
         ];
         return response()->json($data, 200);
+    }
+
+    public function saveThirteenthMonth(Request $request) {
+        $data = $request['Data'];
+        $department = $request['Department'];
+        $term = $request['Term'];
+        $employeeType = $request['EmployeeType'];
+
+
+        if ($term == date('Y-m-d', strtotime('May 1, ' . date('Y')))) {
+            $incentiveName = '13th Month Pay - 1st Half';
+        } else {
+            $incentiveName = '13th Month Pay - 2nd Half';
+        }
+
+        $incentive = Incentives::where('IncentiveName', $incentiveName)
+            ->where('Year', date('Y'))
+            ->first();
+
+        if ($incentive != null) {
+            $id = $incentive->id;
+
+            $incentive->UserId = Auth::id();
+        } else {
+            $id = IDGenerator::generateID();
+
+            $incentive = new Incentives;
+            $incentive->id = $id;
+            $incentive->IncentiveName = $incentiveName;
+            $incentive->UserId = Auth::id();
+            $incentive->Year = date('Y');
+        }
+        $incentive->save();
+
+        // DELETE EXISTING DETAILS FIRST
+        IncentiveDetails::where('IncentivesId', $id)
+            ->where('EmployeeType', $employeeType)
+            ->where('Department', $department)
+            ->delete();
+        // SAVE ALL DATA
+        foreach($data as $item) {
+            $details = new IncentiveDetails;
+            $details->id = IDGenerator::generateIDandRandString();
+            $details->IncentivesId = $id;
+            $details->EmployeeId = $item['id'];
+            $details->SubTotal = $item['SubTotal'] != null && is_numeric(str_replace(",", "", $item['SubTotal'])) ? str_replace(",", "", $item['SubTotal']) : 0;
+            $details->BasicSalary = $item['SalaryAmount'] != null && is_numeric(str_replace(",", "", $item['SalaryAmount'])) ? str_replace(",", "", $item['SalaryAmount']) : 0;
+            $details->TermWage = $item['TermWage'] != null && is_numeric(str_replace(",", "", $item['TermWage'])) ? str_replace(",", "", $item['TermWage']) : 0;
+            $details->OtherDeductions = $item['AROthers'] != null && is_numeric(str_replace(",", "", $item['AROthers'])) ? str_replace(",", "", $item['AROthers']) : 0;
+            $details->BEMPC = $item['BEMPC'] != null && is_numeric(str_replace(",", "", $item['BEMPC'])) ? str_replace(",", "", $item['BEMPC']) : 0;
+            $details->NetPay = $item['NetPay'] != null && is_numeric(str_replace(",", "", $item['NetPay'])) ? str_replace(",", "", $item['NetPay']) : 0;
+            $details->EmployeeType = $employeeType;
+            $details->Department = $department;
+            $details->save();
+        }
+
+        return response()->json('ok', 200);
+    }
+
+    public function viewIncentives($id) {
+        $incentive = Incentives::find($id);
+
+        $departments = DB::table('IncentiveDetails')
+            ->whereRaw("IncentivesId='" . $id . "'")
+            ->select(
+                'Department',
+            )
+            ->groupBy('Department')
+            ->get();
+
+        $datas = [];
+        foreach($departments as $item) {
+            array_push($datas, [
+                'Department' => $item->Department,
+                'Data' => DB::table('IncentiveDetails')
+                    ->leftJoin('Employees', 'IncentiveDetails.EmployeeId', '=', 'Employees.id')
+                    ->whereRaw("IncentiveDetails.Department='" . $item->Department . "' AND IncentiveDetails.IncentivesId='" . $id . "'")
+                    ->select(
+                        'FirstName',
+                        'LastName',
+                        'MiddleName',
+                        'Suffix',
+                        'IncentiveDetails.*'
+                    )
+                    ->orderBy('LastName')
+                    ->get(),
+            ]);
+        }
+
+        return view('/incentives/view_incentives', [
+            'incentive' => $incentive,
+            'datas' => $datas,
+        ]);
+    }
+
+    public function delete(Request $request) {
+        $id = $request['id'];
+
+        Incentives::where('id', $id)->delete();
+        IncentiveDetails::where('IncentivesId', $id)->delete();
+
+        return response()->json('ok', 200);
+    }
+
+    public function lock(Request $request) {
+        $id = $request['id'];
+
+        Incentives::where('id', $id)
+            ->update(['Status' => 'Locked']);
+
+        return response()->json('ok', 200);
     }
 }
