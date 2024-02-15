@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use App\Models\Bempc;
 use App\Imports\BEMPCUploads;
 use App\Models\IncentivesAnnualProjection;
+use App\Models\UserFootprints;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
@@ -154,16 +155,19 @@ class BempcController extends AppBaseController
         $for = $request['For'];
         $incentives = $request['Incentives'];
         $payrollSchedule = $request['PayrollSchedule'];
+        $releasingType = $request['ReleasingType'];
 
         if ($for === 'Bonus') {
             $deductionFor = $incentives;
             $payrollSchedule = null;
         } else {
-            $deductionFor = 'Payroll';
+            $deductionFor = 'Payroll (' . date('Y-m-d', strtotime($payrollSchedule)) . ')';
         }
 
-        $fileUpload = new BEMPCUploads($deductionFor, Auth::id(), $payrollSchedule);
+        $fileUpload = new BEMPCUploads($deductionFor, Auth::id(), $payrollSchedule, $releasingType);
         Excel::import($fileUpload, $file);
+
+        UserFootprints::log('BEMPC Data Uploaded', "Uploaded BEMPC deductions for " . $deductionFor . " (" . date('Y') . ")."); 
 
         Flash::success('File uploaded succcessfully!');
 
@@ -196,6 +200,8 @@ class BempcController extends AppBaseController
         Bempc::where('DeductionFor', $for)
             ->whereRaw("TRY_CAST(created_at AS DATE)='" . $date . "'")
             ->delete();
+
+        UserFootprints::log('BEMPC Data Deleted', "Deleted BEMPC deductions for " . $for . " (" . date('Y', strtotime($date)) . ").");
 
         return response()->json('ok', 200);
     }

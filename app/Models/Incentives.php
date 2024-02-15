@@ -15,6 +15,7 @@ class Incentives extends Model
         'UserId',
         'Year',
         'Status',
+        'ReleaseType',
     ];
 
     protected $casts = [
@@ -24,6 +25,7 @@ class Incentives extends Model
         'UserId' => 'string',
         'Year' => 'string',
         'Status' => 'string',
+        'ReleaseType' => 'string',
     ];
 
     public static array $rules = [
@@ -34,6 +36,7 @@ class Incentives extends Model
         'updated_at' => 'nullable',
         'Year' => 'nullable|string',
         'Status' => 'nullable|string',
+        'ReleaseType' => 'nullable|string',
     ];
 
     

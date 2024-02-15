@@ -35,6 +35,15 @@
                             <option value="{{ $item->Incentive }}">{{ $item->Incentive }}</option>
                         @endforeach
                     </select>
+                    <br>
+                    <span class="text-muted">In what releasing mode?</span>
+                    <div class="input-group-radio">
+                        <input type="radio" id="Partial" name="ReleasingType" value="Partial" class="custom-radio" required>
+                        <label for="Partial" class="custom-radio-label">Partial</label>
+
+                        <input type="radio" id="Full" name="ReleasingType" value="Full" class="custom-radio" required>
+                        <label for="Full" class="custom-radio-label">Full</label>
+                    </div>
                 </div>
 
                 <div id="payroll" class="gone" style="margin-top: 16px;">
@@ -68,6 +77,11 @@
                     $('#bonus').removeClass('gone')
                     $('#payroll').addClass('gone')
                 } else {
+                    const radioButtons = document.querySelectorAll('input[name="ReleasingType"]');
+                    radioButtons.forEach(function(radioButton) {
+                        radioButton.checked = false;
+                    });
+
                     $('#bonus').addClass('gone')
                     $('#payroll').removeClass('gone')
                 }

@@ -352,26 +352,34 @@ class OtherPayrollDeductionsController extends AppBaseController
         $type = $request['Type'];
         $description = $request['Description'];
 
-        if ($employeeId != null && $amount != null && $type != null && $scheduleDate != null) {
-            $arOthers = OtherPayrollDeductions::where('EmployeeId', $employeeId)
-                ->where('Type', $type)
-                ->where('ScheduleDate', $scheduleDate)
-                ->first();
+        if ($amount == null) {
+            OtherPayrollDeductions::where('EmployeeId', $employeeId)
+                    ->where('Type', $type)
+                    ->where('ScheduleDate', $scheduleDate)
+                    ->whereBetween('created_at', [date('Y-m-d', strtotime('January 1, ' . date('Y'))), date('Y-m-d', strtotime('December 31, ' . date('Y')))])
+                    ->delete();
+        } else {
+            if ($employeeId != null && $amount != null && $type != null) {
+                $arOthers = OtherPayrollDeductions::where('EmployeeId', $employeeId)
+                    ->where('Type', $type)
+                    ->where('ScheduleDate', $scheduleDate)
+                    ->first();
 
-            if ($arOthers != null) {
-                $arOthers->Amount = $amount;
-            } else {
-                $arOthers = new OtherPayrollDeductions;
-                $arOthers->id = IDGenerator::generateIDandRandString();
-                $arOthers->EmployeeId = $employeeId;
-                $arOthers->DeductionName = 'AR - Others';
-                $arOthers->DeductionDescription = $description;
-                $arOthers->ScheduleDate = $scheduleDate;
-                $arOthers->Amount = $amount;
-                $arOthers->Type = $type;
+                if ($arOthers != null) {
+                    $arOthers->Amount = $amount;
+                } else {
+                    $arOthers = new OtherPayrollDeductions;
+                    $arOthers->id = IDGenerator::generateIDandRandString();
+                    $arOthers->EmployeeId = $employeeId;
+                    $arOthers->DeductionName = 'AR - Others';
+                    $arOthers->DeductionDescription = $description;
+                    $arOthers->ScheduleDate = $scheduleDate;
+                    $arOthers->Amount = $amount;
+                    $arOthers->Type = $type;
+                }
+
+                $arOthers->save();
             }
-
-            $arOthers->save();
         }
         
         return response()->json('ok', 200);

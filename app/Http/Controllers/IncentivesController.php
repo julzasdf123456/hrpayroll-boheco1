@@ -13,6 +13,9 @@ use App\Models\Employees;
 use App\Models\Incentives;
 use App\Models\IncentiveDetails;
 use App\Models\IDGenerator;
+use App\Models\UserFootprints;
+use App\Models\EmployeeIncentiveAnnualProjections;
+use App\Models\IncentivesAnnualProjection;
 use Flash;
 
 class IncentivesController extends AppBaseController
@@ -206,6 +209,17 @@ class IncentivesController extends AppBaseController
             ->first();
 
         foreach($employees as $item) {
+            // IF October, get May Incentive to be deducted
+            if ($termName == '13th Month Pay - 2nd Half') {
+                $item->FirstTerm = DB::table('IncentiveDetails')
+                    ->leftJoin('Incentives', 'IncentiveDetails.IncentivesId', '=', 'Incentives.id')
+                    ->whereRaw("Incentives.Year='" . date('Y') . "' AND IncentiveDetails.EmployeeId='" . $item->id . "' AND Incentives.IncentiveName='13th Month Pay - 1st Half'")
+                    ->select('IncentiveDetails.id', 'IncentiveDetails.NetPay')
+                    ->first();
+            } else {
+                $item->FirstTerm = null;
+            }
+            
             $item->SalaryData = DB::table('PayrollExpandedDetails')
                 ->whereRaw("EmployeeId='" . $item->id . "' AND (SalaryPeriod BETWEEN '" . $from . "' AND '" . $to . "')")
                 ->select(
@@ -219,23 +233,21 @@ class IncentivesController extends AppBaseController
 
             if ($term == date('Y-m-d', strtotime('May 1, ' . date('Y')))) {
                 $item->AROthers = DB::table('OtherPayrollDeductions')
-                    ->whereRaw("Type='13th Month Pay - 1st Half' AND ScheduleDate='" . date('Y-m-d', strtotime('first day of May ' . date('Y'))) . "'")
+                    ->whereRaw("EmployeeId='" . $item->id . "' AND Type='13th Month Pay - 1st Half' AND ScheduleDate='" . date('Y-m-d', strtotime('first day of May ' . date('Y'))) . "'")
                     ->get();
 
                 $item->BEMPC = DB::table('BEMPC')
                     ->select('Amount')
-                    ->whereRaw("EmployeeId='" . $item->id . "' AND DeductionFor='13th Month Pay - 1st Half' AND 
-                        (created_at BETWEEN '" . date('Y-m-d', strtotime('January 1 ' . date('Y'))) . "' AND '" . date('Y-m-d', strtotime('last day of December ' . date('Y'))) . "')")
+                    ->whereRaw("EmployeeId='" . $item->id . "' AND DeductionFor='13th Month Pay - 1st Half' AND Year='" . date('Y') . "'")
                     ->get();
             } else {
                 $item->AROthers = DB::table('OtherPayrollDeductions')
-                    ->whereRaw("Type='13th Month Pay - 2nd Half' AND ScheduleDate='" . date('Y-m-d', strtotime('first day of October ' . date('Y'))) . "'")
+                    ->whereRaw("EmployeeId='" . $item->id . "' AND Type='13th Month Pay - 2nd Half' AND ScheduleDate='" . date('Y-m-d', strtotime('first day of October ' . date('Y'))) . "'")
                     ->get();
 
                 $item->BEMPC = DB::table('BEMPC')
                     ->select('Amount')
-                    ->whereRaw("EmployeeId='" . $item->id . "' AND DeductionFor='13th Month Pay - 2nd Half' AND 
-                        (created_at BETWEEN '" . date('Y-m-d', strtotime('January 1 ' . date('Y'))) . "' AND '" . date('Y-m-d', strtotime('last day of December ' . date('Y'))) . "')")
+                    ->whereRaw("EmployeeId='" . $item->id . "' AND DeductionFor='13th Month Pay - 2nd Half' AND Year='" . date('Y') . "'")
                     ->get();
             }
         }
@@ -276,6 +288,7 @@ class IncentivesController extends AppBaseController
             $incentive->IncentiveName = $incentiveName;
             $incentive->UserId = Auth::id();
             $incentive->Year = date('Y');
+            $incentive->ReleaseType = 'Partial';
         }
         $incentive->save();
 
@@ -300,6 +313,8 @@ class IncentivesController extends AppBaseController
             $details->Department = $department;
             $details->save();
         }
+
+        UserFootprints::log('Generated ' . $incentiveName, "Submitted " . $department . " " . $incentiveName . " draft for " . date('Y') . " for auditing."); 
 
         return response()->json('ok', 200);
     }
@@ -343,8 +358,12 @@ class IncentivesController extends AppBaseController
     public function delete(Request $request) {
         $id = $request['id'];
 
-        Incentives::where('id', $id)->delete();
+        $incentive = Incentives::where('id', $id)->first();
         IncentiveDetails::where('IncentivesId', $id)->delete();
+
+        UserFootprints::log('Deleted ' . $incentive->IncentiveName, "Deleted " . $incentive->IncentiveName . " data for " . $incentive->Year . "."); 
+
+        $incentive->delete();
 
         return response()->json('ok', 200);
     }
@@ -352,8 +371,175 @@ class IncentivesController extends AppBaseController
     public function lock(Request $request) {
         $id = $request['id'];
 
-        Incentives::where('id', $id)
-            ->update(['Status' => 'Locked']);
+        $incentive = Incentives::find($id);
+        if ($incentive != null) {
+            $incentive->Status = 'Locked';
+            $incentive->save();
+
+            UserFootprints::log('Locked ' . $incentive->IncentiveName, "Locked " . $incentive->IncentiveName . " data for " . $incentive->Year . "."); 
+
+            // UPDATE ActualAmountReceived in EmployeeProjections
+            $iDetails = IncentiveDetails::where('IncentivesId', $id)->get();
+            foreach($iDetails as $item) {
+                if ($incentive->IncentiveName == '13th Month Pay - 1st Half') {
+                    EmployeeIncentiveAnnualProjections::where('Year', $incentive->Year)
+                        ->where('EmployeeId', $item->EmployeeId)
+                        ->where('Incentive', '13th Month Pay')
+                        ->update(['ActualAmountPartialReceived' => $item->NetPay]);
+                } elseif ($incentive->IncentiveName == '13th Month Pay - 2nd Half') {
+                    EmployeeIncentiveAnnualProjections::where('Year', $incentive->Year)
+                        ->where('EmployeeId', $item->EmployeeId)
+                        ->where('Incentive', '13th Month Pay')
+                        ->update(['ActualAmountReceived' => $item->NetPay]);
+                }
+            }
+        }
+
+        return response()->json('ok', 200);
+    }
+
+    public function otherBonuses(Request $request) {
+        return view('/incentives/other_bonuses', [
+
+        ]);
+    }
+
+    public function getIncentivesList(Request $request) {
+        $incentives  = IncentivesAnnualProjection::where('Year', date('Y'))
+            ->whereNotIn('Incentive', ['Rice and Laundry', 'Productivity Scheme (Performance Bonus)'])
+            ->get();
+
+        return response()->json($incentives, 200);
+    }
+
+    public function getCustomIncentivesData(Request $request) {
+        $department = $request['Department'];
+        $employeeType = $request['EmployeeType'];
+        $incentive = $request['Incentive'];
+        $releaseType = $request['ReleaseType'];
+
+        if ($department == 'SUB-OFFICE') {
+            $employees = DB::table('Employees')
+                ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+                ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+                ->select('Employees.FirstName',
+                        'Employees.MiddleName',
+                        'Employees.LastName',
+                        'Employees.Suffix',
+                        'Employees.id',
+                        'Positions.BasicSalary AS SalaryAmount',
+                        'Positions.Level',
+                        'Positions.Position',
+                        'EmployeesDesignations.Status'
+                )
+                ->where('EmployeesDesignations.Status', $employeeType)
+                ->where('Employees.OfficeDesignation', $department)
+                ->whereRaw("(EmploymentStatus IS NULL OR EmploymentStatus NOT IN ('Resigned', 'Retired'))")
+                ->orderBy('Employees.LastName')
+                ->get();
+        } else {
+            $employees = DB::table('Employees')
+                ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+                ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+                ->select('Employees.FirstName',
+                        'Employees.MiddleName',
+                        'Employees.LastName',
+                        'Employees.Suffix',
+                        'Employees.id',
+                        'Positions.BasicSalary AS SalaryAmount',
+                        'Positions.Level',
+                        'Positions.Position',
+                        'EmployeesDesignations.Status',
+                )
+                ->where('EmployeesDesignations.Status', $employeeType)
+                ->where('Positions.Department', $department)
+                ->whereRaw("Employees.OfficeDesignation NOT IN ('SUB-OFFICE') AND (EmploymentStatus IS NULL OR EmploymentStatus NOT IN ('Resigned', 'Retired'))")
+                ->orderBy('Employees.LastName')
+                ->get();
+        }
+
+        $incentiveCheck = DB::table('IncentiveDetails')
+            ->leftJoin('Incentives', 'IncentiveDetails.IncentivesId', '=', 'Incentives.id')
+            ->whereRaw("IncentiveName='" . $incentive . "' AND Department='" . $department . "' AND EmployeeType='" . $employeeType . "' AND Year='" . date('Y') . "' AND Incentives.ReleaseType='" . $releaseType . "'")
+            ->first();
+
+        foreach($employees as $item) {
+            $item->AROthers = DB::table('OtherPayrollDeductions')
+                ->whereRaw("EmployeeId='" . $item->id . "' AND Type='" . $incentive . "' AND (created_at BETWEEN '" . date('Y-m-d', strtotime('January 1, ' . date('Y'))) . "' AND '" . date('Y-m-d', strtotime('December 31, ' . date('Y'))) . "')")
+                ->get();
+
+            $item->BEMPC = DB::table('BEMPC')
+                ->select('Amount')
+                ->whereRaw("EmployeeId='" . $item->id . "' AND DeductionFor='" . $incentive . "' AND Year='" . date('Y') . "' AND ReleaseType='" . $releaseType . "'")
+                ->get();
+
+            $item->ExistingIncentive = DB::table('IncentiveDetails')
+                ->leftJoin('Incentives', 'IncentiveDetails.IncentivesId', '=', 'Incentives.id')
+                ->whereRaw("Incentives.Year='" . date('Y') . "' AND IncentiveDetails.EmployeeId='" . $item->id . "' AND Incentives.IncentiveName='" . $incentive . "' AND Incentives.ReleaseType='" . $releaseType . "'")
+                ->select('IncentiveDetails.id', 'IncentiveDetails.NetPay', 'IncentiveDetails.SubTotal')
+                ->first();
+        }
+
+        $data = [
+            'Employees' => $employees,
+            'IncentiveCheck' => $incentiveCheck,
+        ];
+
+        return response()->json($data, 200);
+    }
+
+    public function saveCustomBonus(Request $request) {
+        $data = $request['Data'];
+        $department = $request['Department'];
+        $incentiveName = $request['Incentive'];
+        $employeeType = $request['EmployeeType'];
+        $notes = $request['Notes'];
+        $releaseType = $request['ReleaseType'];
+
+        $incentive = Incentives::where('IncentiveName', $incentiveName)
+            ->where('Year', date('Y'))
+            ->first();
+
+        if ($incentive != null) {
+            $id = $incentive->id;
+
+            $incentive->UserId = Auth::id();
+            $incentive->Notes = $notes;
+        } else {
+            $id = IDGenerator::generateID();
+
+            $incentive = new Incentives;
+            $incentive->id = $id;
+            $incentive->IncentiveName = $incentiveName;
+            $incentive->UserId = Auth::id();
+            $incentive->Year = date('Y');
+            $incentive->Notes = $notes;
+            $incentive->ReleaseType = $releaseType;
+        }
+        $incentive->save();
+
+        // DELETE EXISTING DETAILS FIRST
+        IncentiveDetails::where('IncentivesId', $id)
+            ->where('EmployeeType', $employeeType)
+            ->where('Department', $department)
+            ->delete();
+        // SAVE ALL DATA
+        foreach($data as $item) {
+            $details = new IncentiveDetails;
+            $details->id = IDGenerator::generateIDandRandString();
+            $details->IncentivesId = $id;
+            $details->EmployeeId = $item['id'];
+            $details->SubTotal = $item['BonusAmount'] != null && is_numeric(str_replace(",", "", $item['BonusAmount'])) ? str_replace(",", "", $item['BonusAmount']) : 0;
+            $details->BasicSalary = $item['SalaryAmount'] != null && is_numeric(str_replace(",", "", $item['SalaryAmount'])) ? str_replace(",", "", $item['SalaryAmount']) : 0;
+            $details->OtherDeductions = $item['AROthers'] != null && is_numeric(str_replace(",", "", $item['AROthers'])) ? str_replace(",", "", $item['AROthers']) : 0;
+            $details->BEMPC = $item['BEMPC'] != null && is_numeric(str_replace(",", "", $item['BEMPC'])) ? str_replace(",", "", $item['BEMPC']) : 0;
+            $details->NetPay = $item['NetPay'] != null && is_numeric(str_replace(",", "", $item['NetPay'])) ? str_replace(",", "", $item['NetPay']) : 0;
+            $details->EmployeeType = $employeeType;
+            $details->Department = $department;
+            $details->save();
+        }
+
+        UserFootprints::log('Generated ' . $incentiveName, "Submitted " . $department . " " . $incentiveName . " draft for " . date('Y') . " for auditing."); 
 
         return response()->json('ok', 200);
     }

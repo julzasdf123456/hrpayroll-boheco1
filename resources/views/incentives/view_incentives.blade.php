@@ -58,6 +58,7 @@
                 <h4>{{ $incentive->IncentiveName }} 
                     <span class="text-muted">({{ $incentive->Year }})</span>
                     @if ($incentive->Status == 'Locked')
+                        <i class="fas fa-check-circle ico-tab-left-mini text-primary" title="This data is locked"></i>
                         <i class="fas fa-lock ico-tab-left-mini" title="This data is locked"></i>
                     @endif
                 </h4>
@@ -66,7 +67,7 @@
             <div class="col-lg-4">
                 <button class="btn btn-primary-skinny float-right" style="margin-left: 10px;"><i class="fas fa-print ico-tab-mini"></i>Print</button>
                 @if ($incentive->Status != 'Locked')
-                    <button onclick="lock()" class="btn btn-primary float-right"><i class="fas fa-lock ico-tab-mini"></i>Lock</button>
+                    <button onclick="lock()" class="btn btn-primary float-right"><i class="fas fa-lock ico-tab-mini"></i>Lock and Finalize</button>
                 @endif
             </div>
         </div>
@@ -102,7 +103,7 @@
                             <th>Employee</th>
                             <th class="text-center">Basic Salary</th>
                             <th class="text-center">Term Wage</th>
-                            <th class="text-center">Total Amount</th>
+                            <th class="text-center">Total Incentive</th>
                             <th class="text-center">AR Others</th>
                             <th class="text-center">BEMPC</th>
                             <th class="text-center">Net Pay</th>
@@ -266,6 +267,14 @@
                 confirmButtonColor : "#3a9971"
             }).then((result) => {
                 if (result.isConfirmed) {
+                    Swal.fire({
+                        title : 'Locking Data',
+                        text : 'This may take a few seconds. Please wait...',
+                        allowOutsideClick : false,
+                        didOpen : () => {
+                            Swal.showLoading()
+                        }
+                    })
                     $.ajax({
                         url : "{{ route('incentives.lock') }}",
                         type : 'GET',
@@ -273,6 +282,7 @@
                             id : "{{ $incentive->id }}"
                         },
                         success : function(res) {
+                            Swal.close()
                             Toast.fire({
                                 icon : 'success',
                                 text : 'Incentive locked!'
@@ -280,6 +290,7 @@
                             location.reload()
                         },
                         error : function(err) {
+                            Swal.close()
                             Toast.fire({
                                 icon : 'error',
                                 text : 'Error locking incentive!'

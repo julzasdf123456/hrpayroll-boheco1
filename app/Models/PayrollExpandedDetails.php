@@ -50,6 +50,7 @@ class PayrollExpandedDetails extends Model
         'Notes',
         'Department',
         'EmployeeType',
+        'BEMPC',
     ];
 
     protected $casts = [
@@ -94,6 +95,7 @@ class PayrollExpandedDetails extends Model
         'Notes' => 'string',
         'Department' => 'string',
         'EmployeeType' => 'string',
+        'BEMPC' => 'string',
     ];
 
     public static array $rules = [
@@ -139,6 +141,7 @@ class PayrollExpandedDetails extends Model
         'updated_at' => 'nullable',
         'Department' => 'nullable|string',
         'EmployeeType' => 'nullable|string',
+        'BEMPC' => 'nullable|string',
     ];
 
     
