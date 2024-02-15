@@ -66,3 +66,8 @@ You can also check out our other paid products on [CodeCanyon](https://codecanyo
 
 ### GENERATE MODELS FROM TABLE
 - php artisan infyom:scaffold Post --fromTable --table=posts --connection=server_name
+
+
+### COLORS
+- Red - #e03822
+- Green - #3a9971

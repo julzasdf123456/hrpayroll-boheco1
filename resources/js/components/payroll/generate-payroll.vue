@@ -134,7 +134,6 @@ import FlatPickr from 'vue-flatpickr-component';
 import 'flatpickr/dist/flatpickr.css';
 import jquery from 'jquery';
 import Swal from 'sweetalert2';
-import { Toast } from 'bootstrap';
 
 export default {
     name : 'GeneratePayroll.generate-payroll',

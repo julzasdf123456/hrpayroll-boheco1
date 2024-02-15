@@ -35,7 +35,7 @@
                         <div class="col-lg-7">
                             <span class="text-muted">Action</span><br>
                             <button class="btn btn-default btn-sm ico-tab-mini" :disabled="isPreviewButtonDisabled" @click="getData()"><i class="fas fa-eye ico-tab-mini"></i>Preview</button>
-                            <button class="btn btn-primary btn-sm" :disabled="isGenerateButtonDisabled" @click="validateSavePayroll()"><i class="fas fa-check-circle ico-tab-mini"></i>Submit 13th Month</button>
+                            <button class="btn btn-primary btn-sm" :disabled="isGenerateButtonDisabled" @click="submit13thMonth()"><i class="fas fa-check-circle ico-tab-mini"></i>Submit 13th Month</button>
         
                             <div class="spinner-border text-success float-right" :class="loaderDisplay" role="status">
                                 <span class="sr-only">Loading...</span>
@@ -44,6 +44,14 @@
                     </div>
                 </div>
             </div>
+        </div>
+
+        <!-- SHOW IF EXISTS -->
+        <div class="col-lg-12" v-if="incentiveExists">
+            <div class="exists">
+                <span style="color: aliceblue;"><i class="fas fa-exclamation-triangle ico-tab-mini"></i>13th Month Pay data already exists</span>
+            </div>
+            <a :href="baseURL + '/payroll_indices/view-payroll/' + salaryPeriod" class="btn btn-default btn-sm" style="margin-left: 10px;"><i class="fas fa-eye ico-tab-mini"></i>View 13th Month Data Instead</a>
         </div>
 
         <!-- TABLE -->
@@ -328,6 +336,13 @@ export default {
                 },
             ],
             isSecondTermShown : false,
+            incentiveExists : false,
+            toast : Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000
+            }),
         }
     },
     methods : {
@@ -383,9 +398,12 @@ export default {
 
                 if (!this.isNull(empArray)) {
                     var subTotal = empArray[0].SubTotal
+                    var bempc = empArray[0].BEMPC
 
+                    value = (this.isNumber(value) ? value : 0)
                     subTotal = parseFloat(subTotal)
-                    newValue = subTotal - parseFloat(value)
+                    bempc = parseFloat(bempc)
+                    newValue = subTotal - (parseFloat(value) + parseFloat(bempc))
                 }
                 this.employees = this.employees.map(obj => {
                     if (obj.id === employeeId) {
@@ -404,18 +422,30 @@ export default {
                 console.log(error)
             });
         },
-        getBiMonthlyWage(salaryData, basicSalary) {
+        isBeforeAbs(timeToCheck, baseTime) {
+            baseTime = moment(baseTime).format('YYYY-MM-DD HH:mm:ss');
+
+            timeToCheck = moment(timeToCheck).format('YYYY-MM-DD HH:mm:ss');
+
+            return moment(timeToCheck).isBefore(baseTime);
+        },
+        getBiMonthlyWage(salaryData, basicSalary, term, month) {
             salaryData = salaryData[0]
             if (this.isNull(salaryData)) {
-                // GET PROJECTION VIA SALARY DATA
-                if (basicSalary < 1) {
+                if (moment(month).isBefore(moment().format('YYYY-MM-DD'))) {
+                    // IF THERE ARE NO PAYROLL RECORDED BEFORE May or October TERMS
                     return 0
                 } else {
-                    var bi = basicSalary / 2
-                    if (bi < 1) {
+                    // GET PROJECTION VIA SALARY DATA
+                    if (basicSalary < 1) {
                         return 0
                     } else {
-                        return this.round(bi / 12)
+                        var bi = basicSalary / 2
+                        if (bi < 1) {
+                            return 0
+                        } else {
+                            return this.round(bi / 12)
+                        }
                     }
                 }
             } else {
@@ -444,9 +474,25 @@ export default {
                 }
             }
         },
+        getBempcDeduction(data) {
+            if (this.isNull(data)) {
+                return 0
+            } else {
+                var amnt = data[0].Amount
+
+                if (this.isNull(amnt)) {
+                    return 0
+                } else {
+                    return parseFloat(amnt)
+                }
+            }
+        },
         getData() {
             this.employees = []
             this.loaderDisplay = ''
+            this.incentiveExists = false
+            this.isGenerateButtonDisabled = true
+            this.isPreviewButtonDisabled = true
 
             if (this.term === moment().format('YYYY-05-01')) {
                 // MAY HEADERS
@@ -488,6 +534,14 @@ export default {
             .then(response => {
                 this.loaderDisplay = 'gone'
                 this.isGenerateButtonDisabled = false
+                this.isPreviewButtonDisabled = false
+
+                // CHECK IF EXISTS
+                if (this.isNull(response.data['IncentiveCheck'])) {
+                    this.incentiveExists = false
+                } else {
+                    this.incentiveExists = true
+                }
 
                 // PROCESS EMPLOYEES
                 var size = response.data['Employees'].length;
@@ -508,8 +562,8 @@ export default {
                     var subTotal = 0
                     for(let y=0; y<dataGuideSize; y++) {
                         var foundData = payrollData.filter(obj => obj.SalaryPeriod === this.dataSetGuides[y].value)
-                        datasets[this.dataSetGuides[y].name] = this.getBiMonthlyWage(foundData, basicSalary)
-                        subTotal += this.getBiMonthlyWage(foundData, basicSalary)
+                        datasets[this.dataSetGuides[y].name] = this.getBiMonthlyWage(foundData, basicSalary, this.term, this.dataSetGuides[y].value)
+                        subTotal += this.getBiMonthlyWage(foundData, basicSalary, this.term, this.dataSetGuides[y].value)
                     }
 
                     datasets['SubTotal'] = subTotal
@@ -517,7 +571,10 @@ export default {
                     var arOtherAmnt = this.getAROthers(response.data['Employees'][i]['AROthers'], response.data['Employees'][i]['id'])
                     datasets['AROthers'] = arOtherAmnt > 0 ? arOtherAmnt : ''
 
-                    var netPay = subTotal - (arOtherAmnt)
+                    var bempcDeduction = this.isNumber(this.getBempcDeduction(response.data['Employees'][i]['BEMPC'])) ? this.getBempcDeduction(response.data['Employees'][i]['BEMPC']) : 0
+                    datasets['BEMPC'] = bempcDeduction
+
+                    var netPay = subTotal - (arOtherAmnt + bempcDeduction)
                     datasets['NetPay'] = netPay > 0 ? parseFloat(netPay) : '-'
 
                     this.employees.push(datasets);
@@ -525,15 +582,57 @@ export default {
             })
             .catch(error => {
                 this.isGenerateButtonDisabled = true;
+                this.isPreviewButtonDisabled = false
 
                 Swal.fire({
                     icon : 'error',
                     title : 'Error submitting payroll data!',
                 });
                 console.log(error)
-                this.isDisplayed = 'gone';
-                this.isButtonDisabled = false;
+                this.loaderDisplay = 'gone';
             });
+        },
+        submit13thMonth() {
+            Swal.fire({
+                title: "Submit for Audit?",
+                text : 'Submit this 13th month pay draft for audit? You can always regenerate this anytime as long as it has not yet been approved for finalization.',
+                showCancelButton: true,
+                confirmButtonText: "Submit",
+                confirmButtonColor: '#3a9971',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    this.loaderDisplay = ''
+                    this.isGenerateButtonDisabled = true
+                    this.isPreviewButtonDisabled = true
+                    axios.post(`${ axios.defaults.baseURL }/incentives/save-thirteenth-month`, {
+                            Department : this.department,
+                            EmployeeType : this.employeeType,
+                            Term : this.term,
+                            Data : this.employees
+                    })
+                    .then(response => {
+                        this.loaderDisplay = 'gone'
+                        this.isGenerateButtonDisabled = true
+                        this.isPreviewButtonDisabled = false
+                        this.employees = []
+                        this.toast.fire({
+                            text :  '13th month data saved!',
+                            icon : 'success'
+                        })
+                    })
+                    .catch(error => {
+                        this.isGenerateButtonDisabled = false
+                        this.isPreviewButtonDisabled = false
+
+                        Swal.fire({
+                            icon : 'error',
+                            title : 'Error submitting 13th month data!',
+                        });
+                        console.log(error)
+                        this.loaderDisplay = 'gone'
+                    });
+                }
+            })
         },
         showSaveFader() {
             var message = document.getElementById('msg-display');
