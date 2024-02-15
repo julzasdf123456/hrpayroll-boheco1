@@ -16,7 +16,9 @@ class Bempc extends Model
         'Amount',
         'UserId',
         'Notes',
-        'ZeroOutExcessAmount'
+        'ZeroOutExcessAmount',
+        'Year',
+        'ReleaseType',
     ];
 
     protected $casts = [
@@ -28,6 +30,8 @@ class Bempc extends Model
         'UserId' => 'string',
         'Notes' => 'string',
         'ZeroOutExcessAmount' => 'string',
+        'Year' => 'string',
+        'ReleaseType' => 'string',
     ];
 
     public static array $rules = [
@@ -40,6 +44,8 @@ class Bempc extends Model
         'created_at' => 'nullable',
         'updated_at' => 'nullable',
         'ZeroOutExcessAmount' => 'nullable|string',
+        'Year' => 'nullable|string',
+        'ReleaseType' => 'nullable|string',
     ];
 
     

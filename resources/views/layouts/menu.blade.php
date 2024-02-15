@@ -210,6 +210,12 @@
                 <p>New 13th Month</p>
             </a>
         </li>
+        <li class="nav-item">
+            <a href="{{ route('incentives.other-bonuses') }}" class="nav-link {{ Request::is('incentives.other-bonuses*') ? 'active' : '' }}">
+                <i class="nav-icon fas fa-hand-holding-usd"></i>
+                <p>New Other Bonuses</p>
+            </a>
+        </li>
         <div class="divider"></div>
         <li class="nav-item">
             <a href="{{ route('incentivesAnnualProjections.index') }}" class="nav-link {{ Request::is('incentivesAnnualProjections*') ? 'active' : '' }}">

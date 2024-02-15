@@ -307,6 +307,10 @@ Route::post('/incentives/save-thirteenth-month', [IncentivesController::class, '
 Route::get('/incentives/view-incentives/{id}', [IncentivesController::class, 'viewIncentives'])->name('incentives.view-incentives');
 Route::get('/incentives/delete', [IncentivesController::class, 'delete'])->name('incentives.delete');
 Route::get('/incentives/lock', [IncentivesController::class, 'lock'])->name('incentives.lock');
+Route::get('/incentives/other-bonuses', [IncentivesController::class, 'otherBonuses'])->name('incentives.other-bonuses');
+Route::get('/incentives/get-incentives-list', [IncentivesController::class, 'getIncentivesList'])->name('incentives.get-incentives-list');
+Route::get('/incentives/get-custom-incentives-data', [IncentivesController::class, 'getCustomIncentivesData'])->name('incentives.get-custom-incentives-data');
+Route::post('/incentives/save-custom-bonus', [IncentivesController::class, 'saveCustomBonus'])->name('incentives.save-custom-bonus');
 Route::resource('incentives', IncentivesController::class);
 
 Route::get('/bempcs/upload', [BempcController::class, 'upload'])->name('bempcs.upload');

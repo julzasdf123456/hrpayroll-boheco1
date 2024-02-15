@@ -49,9 +49,9 @@
         <!-- SHOW IF EXISTS -->
         <div class="col-lg-12" v-if="incentiveExists">
             <div class="exists">
-                <span style="color: aliceblue;"><i class="fas fa-exclamation-triangle ico-tab-mini"></i>13th Month Pay data already exists</span>
+                <span style="color: aliceblue;"><i class="fas fa-exclamation-triangle ico-tab-mini"></i>13th Month Pay data already exists (Status: <strong>{{ dataStatus }}</strong>)</span>
             </div>
-            <a :href="baseURL + '/payroll_indices/view-payroll/' + salaryPeriod" class="btn btn-default btn-sm" style="margin-left: 10px;"><i class="fas fa-eye ico-tab-mini"></i>View 13th Month Data Instead</a>
+            <a target="_blank" :href="baseURL + '/incentives/view-incentives/' + existingDataSetId" class="btn btn-default btn-sm" style="margin-left: 10px;"><i class="fas fa-eye ico-tab-mini"></i>View 13th Month Data Instead</a>
         </div>
 
         <!-- TABLE -->
@@ -78,6 +78,7 @@
                             <th colspan="2" class='text-center' v-if="isSecondTermShown">{{ monthHeaders['9'] }}</th>
                             <th colspan="2" class='text-center' v-if="isSecondTermShown">{{ monthHeaders['10'] }}</th>
                             <th colspan="2" class='text-center' v-if="isSecondTermShown">{{ monthHeaders['11'] }}</th>
+                            <th rowspan="2" class='text-center' v-if="isSecondTermShown">May Incntv Amnt.</th>
                             <!-- TOTAL -->
                             <th rowspan="2" class="text-center">Sub-Total</th>
                             <th rowspan="2" class="text-center">AR-Others</th>
@@ -145,10 +146,11 @@
                             <td class='text-right' v-if="isSecondTermShown">{{ toMoney(employee.NovemberSecond) }}</td>
                             <td class='text-right' v-if="isSecondTermShown">{{ toMoney(employee.DecemberFirst) }}</td>
                             <td class='text-right' v-if="isSecondTermShown">{{ toMoney(employee.DecemberSecond) }}</td>
+                            <td class='text-right' v-if="isSecondTermShown">{{ toMoney(employee.PreviousTermAmount) }}</td>
                             <!-- TOTALS -->
                             <td class='text-right'>{{ toMoney(employee.SubTotal) }}</td>
                             <td>
-                                <input class="table-input-sm text-right" :class="tableInputTextColor" v-model="employee.AROthers" @keyup.enter="inputEnter(employee.AROthers, employee.id)" @blur="inputEnter(employee.AROthers, employee.id)" type="number" step="any"/>
+                                <input style="min-width: 80px;" class="table-input-sm text-right" :class="tableInputTextColor" v-model="employee.AROthers" @keyup.enter="inputEnter(employee.AROthers, employee.id)" @blur="inputEnter(employee.AROthers, employee.id)" type="number" step="any"/>
                             </td>
                             <td class='text-right'>{{ toMoney(employee.BEMPC) }}</td>
                             <td class='text-right'>{{ toMoney(employee.NetPay) }}</td>
@@ -343,6 +345,8 @@ export default {
                 showConfirmButton: false,
                 timer: 3000
             }),
+            dataStatus : null,
+            existingDataSetId : null
         }
     },
     methods : {
@@ -493,6 +497,8 @@ export default {
             this.incentiveExists = false
             this.isGenerateButtonDisabled = true
             this.isPreviewButtonDisabled = true
+            this.existingDataSetId = null
+            this.dataStatus = null
 
             if (this.term === moment().format('YYYY-05-01')) {
                 // MAY HEADERS
@@ -525,11 +531,11 @@ export default {
             }
 
             axios.get(`${ axios.defaults.baseURL }/incentives/get-thirteenth-month-data`, {
-                    params : {
-                        Department : this.department,
-                        EmployeeType : this.employeeType,
-                        Term : this.term
-                    }
+                params : {
+                    Department : this.department,
+                    EmployeeType : this.employeeType,
+                    Term : this.term
+                }
             })
             .then(response => {
                 this.loaderDisplay = 'gone'
@@ -539,7 +545,18 @@ export default {
                 // CHECK IF EXISTS
                 if (this.isNull(response.data['IncentiveCheck'])) {
                     this.incentiveExists = false
+                    this.dataStatus = null
                 } else {
+                    this.existingDataSetId = response.data['IncentiveCheck'].id
+                    if (this.isNull(response.data['IncentiveCheck'].Status)) {
+                        this.dataStatus = 'Pending'
+                    } else {
+                        if (response.data['IncentiveCheck'].Status === 'Locked') {
+                            this.dataStatus = 'Locked'
+                        } else {
+                            this.dataStatus = response.data['IncentiveCheck'].Status
+                        }
+                    }
                     this.incentiveExists = true
                 }
 
@@ -564,6 +581,14 @@ export default {
                         var foundData = payrollData.filter(obj => obj.SalaryPeriod === this.dataSetGuides[y].value)
                         datasets[this.dataSetGuides[y].name] = this.getBiMonthlyWage(foundData, basicSalary, this.term, this.dataSetGuides[y].value)
                         subTotal += this.getBiMonthlyWage(foundData, basicSalary, this.term, this.dataSetGuides[y].value)
+                    }
+
+                    // IF October/2nd Term, Display May/First Term incentive
+                    if (this.term !== moment().format('YYYY-05-01')) {
+                        datasets['PreviousTermAmount'] = this.isNull(response.data['Employees'][i]['FirstTerm']['NetPay']) ? 0 : parseFloat(response.data['Employees'][i]['FirstTerm']['NetPay'])
+                        subTotal = subTotal - (this.isNull(response.data['Employees'][i]['FirstTerm']['NetPay']) ? 0 : parseFloat(response.data['Employees'][i]['FirstTerm']['NetPay']))
+                    } else {
+                        datasets['PreviousTermAmount'] = 0
                     }
 
                     datasets['SubTotal'] = subTotal
@@ -593,46 +618,75 @@ export default {
             });
         },
         submit13thMonth() {
-            Swal.fire({
-                title: "Submit for Audit?",
-                text : 'Submit this 13th month pay draft for audit? You can always regenerate this anytime as long as it has not yet been approved for finalization.',
-                showCancelButton: true,
-                confirmButtonText: "Submit",
-                confirmButtonColor: '#3a9971',
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    this.loaderDisplay = ''
-                    this.isGenerateButtonDisabled = true
-                    this.isPreviewButtonDisabled = true
-                    axios.post(`${ axios.defaults.baseURL }/incentives/save-thirteenth-month`, {
-                            Department : this.department,
-                            EmployeeType : this.employeeType,
-                            Term : this.term,
-                            Data : this.employees
+            if (this.isNull(this.dataStatus)) {
+                Swal.fire({
+                    title: "Submit for Audit?",
+                    text : 'Submit this 13th month pay draft for audit? You can always regenerate this anytime as long as it has not yet been approved for finalization.',
+                    showCancelButton: true,
+                    confirmButtonText: "Submit",
+                    confirmButtonColor: '#3a9971',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        this.saveThirteenthMonth()
+                    }
+                })
+            } else {
+                if (this.dataStatus === 'Locked') {
+                    Swal.fire({
+                        icon : 'info',
+                        title: "Data is Already Locked",
+                        text : 'There is already an existing LOCKED dataset containing these data. Regenerating is no longer allowed.'
                     })
-                    .then(response => {
-                        this.loaderDisplay = 'gone'
-                        this.isGenerateButtonDisabled = true
-                        this.isPreviewButtonDisabled = false
-                        this.employees = []
-                        this.toast.fire({
-                            text :  '13th month data saved!',
-                            icon : 'success'
-                        })
+                } else {
+                    Swal.fire({
+                        icon : 'warning',
+                        title: "Re-submit and Override Existing?",
+                        text : 'There is already an existing dataset containing these data. Are you sure you want to override it?',
+                        showCancelButton: true,
+                        confirmButtonText: "Proceed Override",
+                        confirmButtonColor: '#e03822',
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            this.saveThirteenthMonth()
+                        }
                     })
-                    .catch(error => {
-                        this.isGenerateButtonDisabled = false
-                        this.isPreviewButtonDisabled = false
-
-                        Swal.fire({
-                            icon : 'error',
-                            title : 'Error submitting 13th month data!',
-                        });
-                        console.log(error)
-                        this.loaderDisplay = 'gone'
-                    });
                 }
+            }
+        },
+        saveThirteenthMonth() {
+            this.loaderDisplay = ''
+            this.isGenerateButtonDisabled = true
+            this.isPreviewButtonDisabled = true
+            axios.post(`${ axios.defaults.baseURL }/incentives/save-thirteenth-month`, {
+                    Department : this.department,
+                    EmployeeType : this.employeeType,
+                    Term : this.term,
+                    Data : this.employees
             })
+            .then(response => {
+                this.loaderDisplay = 'gone'
+                this.isGenerateButtonDisabled = true
+                this.isPreviewButtonDisabled = false
+                this.incentiveExists = false
+                this.employees = []
+
+                this.toast.fire({
+                    text :  '13th month data saved!',
+                    icon : 'success'
+                })
+            })
+            .catch(error => {
+                this.isGenerateButtonDisabled = false
+                this.isPreviewButtonDisabled = false
+                this.incentiveExists = false
+
+                Swal.fire({
+                    icon : 'error',
+                    title : 'Error submitting 13th month data!',
+                });
+                console.log(error)
+                this.loaderDisplay = 'gone'
+            });
         },
         showSaveFader() {
             var message = document.getElementById('msg-display');
