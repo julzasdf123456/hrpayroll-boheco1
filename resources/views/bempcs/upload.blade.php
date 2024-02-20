@@ -76,6 +76,8 @@
                 if (value === 'Bonus') {
                     $('#bonus').removeClass('gone')
                     $('#payroll').addClass('gone')
+                    $('#Partial').attr('checked', true)
+                    $('#Full').removeAttr('checked')
                 } else {
                     const radioButtons = document.querySelectorAll('input[name="ReleasingType"]');
                     radioButtons.forEach(function(radioButton) {
@@ -84,6 +86,20 @@
 
                     $('#bonus').addClass('gone')
                     $('#payroll').removeClass('gone')
+                    $('#Partial').removeAttr('checked')
+                    $('#Full').removeAttr('checked')
+                }
+            })
+
+            $('#Incentives').on('change', function() {
+                $('#Partial').removeAttr('checked')
+                $('#Full').removeAttr('checked')
+                if(this.value === '13th Month Pay - 1st Half') {
+                    $('#Partial').attr('checked', true)
+                    $('#Full').removeAttr('checked')
+                } else if (this.value === '13th Month Pay - 2nd Half') {
+                    $('#Full').attr('checked', true)
+                    $('#Partial').removeAttr('checked')
                 }
             })
 

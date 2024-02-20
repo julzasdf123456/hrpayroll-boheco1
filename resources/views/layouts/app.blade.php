@@ -243,6 +243,7 @@
                         <a href="{{ route('offsetApplications.create') }}" class="dropdown-item" title="Claim an offset">Offset</a>
                         <a href="{{ route('overtimes.create') }}" class="dropdown-item" title="File for an overtime">Overtime Authorization</a>
                         <a href="{{ route('attendanceConfirmations.create') }}" class="dropdown-item" title="File for an attendance confirmation">Attendance Confirmation</a>
+                        <a href="{{ route('leaveConversions.create') }}" class="dropdown-item" title="File for a leave to cash conversion">Leave Conversion</a>
                     </div>
                 </li>
             @endif

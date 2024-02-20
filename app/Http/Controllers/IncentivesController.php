@@ -264,12 +264,15 @@ class IncentivesController extends AppBaseController
         $department = $request['Department'];
         $term = $request['Term'];
         $employeeType = $request['EmployeeType'];
+        $releaseType = null;
 
 
         if ($term == date('Y-m-d', strtotime('May 1, ' . date('Y')))) {
             $incentiveName = '13th Month Pay - 1st Half';
+            $releaseType = 'Partial';
         } else {
             $incentiveName = '13th Month Pay - 2nd Half';
+            $releaseType = 'Full';
         }
 
         $incentive = Incentives::where('IncentiveName', $incentiveName)
@@ -288,7 +291,7 @@ class IncentivesController extends AppBaseController
             $incentive->IncentiveName = $incentiveName;
             $incentive->UserId = Auth::id();
             $incentive->Year = date('Y');
-            $incentive->ReleaseType = 'Partial';
+            $incentive->ReleaseType = $releaseType;
         }
         $incentive->save();
 
@@ -380,17 +383,43 @@ class IncentivesController extends AppBaseController
 
             // UPDATE ActualAmountReceived in EmployeeProjections
             $iDetails = IncentiveDetails::where('IncentivesId', $id)->get();
-            foreach($iDetails as $item) {
-                if ($incentive->IncentiveName == '13th Month Pay - 1st Half') {
-                    EmployeeIncentiveAnnualProjections::where('Year', $incentive->Year)
-                        ->where('EmployeeId', $item->EmployeeId)
-                        ->where('Incentive', '13th Month Pay')
-                        ->update(['ActualAmountPartialReceived' => $item->NetPay]);
-                } elseif ($incentive->IncentiveName == '13th Month Pay - 2nd Half') {
-                    EmployeeIncentiveAnnualProjections::where('Year', $incentive->Year)
-                        ->where('EmployeeId', $item->EmployeeId)
-                        ->where('Incentive', '13th Month Pay')
-                        ->update(['ActualAmountReceived' => $item->NetPay]);
+            if ($incentive->ReleaseType == 'Partial') {
+                foreach($iDetails as $item) {
+                    if ($incentive->IncentiveName == '13th Month Pay - 1st Half') {
+                        EmployeeIncentiveAnnualProjections::where('Year', $incentive->Year)
+                            ->where('EmployeeId', $item->EmployeeId)
+                            ->where('Incentive', '13th Month Pay')
+                            ->update(['ActualAmountPartialReceived' => $item->NetPay]);
+                    } elseif ($incentive->IncentiveName == '13th Month Pay - 2nd Half') {
+                        EmployeeIncentiveAnnualProjections::where('Year', $incentive->Year)
+                            ->where('EmployeeId', $item->EmployeeId)
+                            ->where('Incentive', '13th Month Pay')
+                            ->update(['ActualAmountReceived' => $item->NetPay]);
+                    } else {
+                        EmployeeIncentiveAnnualProjections::where('Year', $incentive->Year)
+                            ->where('EmployeeId', $item->EmployeeId)
+                            ->where('Incentive', $incentive->IncentiveName)
+                            ->update(['ActualAmountPartialReceived' => $item->NetPay]);
+                    }
+                }
+            } else {
+                foreach($iDetails as $item) {
+                    if ($incentive->IncentiveName == '13th Month Pay - 1st Half') {
+                        EmployeeIncentiveAnnualProjections::where('Year', $incentive->Year)
+                            ->where('EmployeeId', $item->EmployeeId)
+                            ->where('Incentive', '13th Month Pay')
+                            ->update(['ActualAmountPartialReceived' => $item->NetPay]);
+                    } elseif ($incentive->IncentiveName == '13th Month Pay - 2nd Half') {
+                        EmployeeIncentiveAnnualProjections::where('Year', $incentive->Year)
+                            ->where('EmployeeId', $item->EmployeeId)
+                            ->where('Incentive', '13th Month Pay')
+                            ->update(['ActualAmountReceived' => $item->NetPay]);
+                    } else {
+                        EmployeeIncentiveAnnualProjections::where('Year', $incentive->Year)
+                            ->where('EmployeeId', $item->EmployeeId)
+                            ->where('Incentive', $incentive->IncentiveName)
+                            ->update(['ActualAmountReceived' => $item->NetPay]);
+                    }
                 }
             }
         }
@@ -498,6 +527,7 @@ class IncentivesController extends AppBaseController
 
         $incentive = Incentives::where('IncentiveName', $incentiveName)
             ->where('Year', date('Y'))
+            ->where('ReleaseType', $releaseType)
             ->first();
 
         if ($incentive != null) {
@@ -542,5 +572,94 @@ class IncentivesController extends AppBaseController
         UserFootprints::log('Generated ' . $incentiveName, "Submitted " . $department . " " . $incentiveName . " draft for " . date('Y') . " for auditing."); 
 
         return response()->json('ok', 200);
+    }
+
+    public function yearEndBonuses(Request $request) {
+        return view('/incentives/year_end_bonuses', [
+
+        ]);
+    }
+
+    public function getYearEndIncentivesData(Request $request) {
+        $department = $request['Department'];
+        $employeeType = $request['EmployeeType'];
+
+        if ($department == 'SUB-OFFICE') {
+            $employees = DB::table('Employees')
+                ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+                ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+                ->select('Employees.FirstName',
+                        'Employees.MiddleName',
+                        'Employees.LastName',
+                        'Employees.Suffix',
+                        'Employees.id',
+                        'Positions.BasicSalary AS SalaryAmount',
+                        'Positions.Level',
+                        'Positions.Position',
+                        'EmployeesDesignations.Status'
+                )
+                ->where('EmployeesDesignations.Status', $employeeType)
+                ->where('Employees.OfficeDesignation', $department)
+                ->whereRaw("(EmploymentStatus IS NULL OR EmploymentStatus NOT IN ('Resigned', 'Retired'))")
+                ->orderBy('Employees.LastName')
+                ->get();
+        } else {
+            $employees = DB::table('Employees')
+                ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+                ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+                ->select('Employees.FirstName',
+                        'Employees.MiddleName',
+                        'Employees.LastName',
+                        'Employees.Suffix',
+                        'Employees.id',
+                        'Positions.BasicSalary AS SalaryAmount',
+                        'Positions.Level',
+                        'Positions.Position',
+                        'EmployeesDesignations.Status',
+                )
+                ->where('EmployeesDesignations.Status', $employeeType)
+                ->where('Positions.Department', $department)
+                ->whereRaw("Employees.OfficeDesignation NOT IN ('SUB-OFFICE') AND (EmploymentStatus IS NULL OR EmploymentStatus NOT IN ('Resigned', 'Retired'))")
+                ->orderBy('Employees.LastName')
+                ->get();
+        }
+
+        $from = date('Y-m-d', strtotime('January 1 ' . date('Y')));
+        $to = date('Y-m-d', strtotime('Last day of December ' . date('Y')));
+
+        foreach($employees as $item) {
+            $item->SalaryData = DB::table('PayrollExpandedDetails')
+                ->whereRaw("EmployeeId='" . $item->id . "' AND (SalaryPeriod BETWEEN '" . $from . "' AND '" . $to . "')")
+                ->select(
+                    'SalaryPeriod',
+                    'MonthlyWage',
+                    'TermWage',
+                    'AbsentAmount',
+                )
+                ->orderBy('SalaryPeriod')
+                ->get();
+
+            $item->AROthers = DB::table('OtherPayrollDeductions')
+                ->whereRaw("EmployeeId='" . $item->id . "' AND Type='Year-end Incentives' AND (created_at BETWEEN '" . date('Y-m-d', strtotime('January 1, ' . date('Y'))) . "' AND '" . date('Y-m-d', strtotime('December 31, ' . date('Y'))) . "')")
+                ->get();
+
+            $item->BEMPC = DB::table('BEMPC')
+                ->select('Amount')
+                ->whereRaw("EmployeeId='" . $item->id . "' AND DeductionFor='Year-end Incentives' AND Year='" . date('Y') . "' AND ReleaseType='Full'")
+                ->get();
+
+            $item->ExistingIncentive = DB::table('IncentiveDetails')
+                ->leftJoin('Incentives', 'IncentiveDetails.IncentivesId', '=', 'Incentives.id')
+                ->whereRaw("Incentives.Year='" . date('Y') . "' AND IncentiveDetails.EmployeeId='" . $item->id . "' AND Incentives.IncentiveName='Year-end Incentives' AND Incentives.ReleaseType='Full'")
+                ->select('IncentiveDetails.id', 'IncentiveDetails.NetPay', 'IncentiveDetails.SubTotal')
+                ->first();
+        }
+
+        $data = [
+            'Employees' => $employees,
+            // 'IncentiveCheck' => $incentiveCheck,
+        ];
+
+        return response()->json($data, 200);
     }
 }
