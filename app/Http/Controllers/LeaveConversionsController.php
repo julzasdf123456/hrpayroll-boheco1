@@ -323,6 +323,8 @@ class LeaveConversionsController extends AppBaseController
                         $id);
             }
         }
+
+        return response()->json($leaveConversion, 200);
     }
 
     public function reject(Request $request) {
@@ -364,5 +366,211 @@ class LeaveConversionsController extends AppBaseController
         return view('/leave_conversions/approved_sl_vl', [
             'data' => $data,
         ]);
+    }
+
+    public function printAll() {
+        $data = DB::table('LeaveConversions')
+            ->leftJoin('Employees', 'LeaveConversions.EmployeeId', '=', 'Employees.id')
+            ->leftJoin('users', 'LeaveConversions.UserId', '=', 'users.id')
+            ->leftJoin('LeaveBalances', 'Employees.id', '=', 'LeaveBalances.EmployeeId')
+            ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+            ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+            ->whereRaw("LeaveConversions.Status='Approved'")
+            ->select(
+                'FirstName',
+                'MiddleName',
+                'LastName',
+                'Suffix',
+                'LeaveConversions.*',
+                'users.name',
+                'Vacation',
+                'Sick',
+                'Positions.Position'
+            )
+            ->orderBy('LastName')
+            ->orderBy('LeaveConversions.created_at')
+            ->get();
+
+        $payrollClerk = DB::table('Employees')
+            ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+            ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+            ->whereRaw("Positions.Position='Payroll Clerk' AND (EmploymentStatus IS NULL OR EmploymentStatus NOT IN('Retired', 'Resigned'))")
+            ->select(
+                'FirstName',
+                'MiddleName',
+                'LastName',
+                'Suffix',
+                'Positions.Position'
+            )
+            ->first();
+
+        $osdManager = DB::table('Employees')
+            ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+            ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+            ->whereRaw("Positions.Position='Manager, O S D' AND (EmploymentStatus IS NULL OR EmploymentStatus NOT IN('Retired', 'Resigned'))")
+            ->select(
+                'FirstName',
+                'MiddleName',
+                'LastName',
+                'Suffix',
+                'Positions.Position'
+            )
+            ->first();
+
+        $internalAuditor = DB::table('Employees')
+            ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+            ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+            ->whereRaw("Positions.Position='Internal Auditor' AND (EmploymentStatus IS NULL OR EmploymentStatus NOT IN('Retired', 'Resigned'))")
+            ->select(
+                'FirstName',
+                'MiddleName',
+                'LastName',
+                'Suffix',
+                'Positions.Position'
+            )
+            ->first();
+
+        $gm = DB::table('Employees')
+            ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+            ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+            ->whereRaw("Positions.Position='General Manager' AND (EmploymentStatus IS NULL OR EmploymentStatus NOT IN('Retired', 'Resigned'))")
+            ->select(
+                'FirstName',
+                'MiddleName',
+                'LastName',
+                'Suffix',
+                'Positions.Position'
+            )
+            ->first();
+
+        return view('/leave_conversions/print_all', [
+            'data' => $data,
+            'payrollClerk' => $payrollClerk,
+            'osdManager' => $osdManager,
+            'internalAuditor' => $internalAuditor,
+            'gm' => $gm,
+        ]);
+    }
+
+    public function printSingle($id) {
+        $data = DB::table('LeaveConversions')
+            ->leftJoin('Employees', 'LeaveConversions.EmployeeId', '=', 'Employees.id')
+            ->leftJoin('users', 'LeaveConversions.UserId', '=', 'users.id')
+            ->leftJoin('LeaveBalances', 'Employees.id', '=', 'LeaveBalances.EmployeeId')
+            ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+            ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+            ->whereRaw("LeaveConversions.id='" . $id . "'")
+            ->select(
+                'FirstName',
+                'MiddleName',
+                'LastName',
+                'Suffix',
+                'LeaveConversions.*',
+                'users.name',
+                'Vacation',
+                'Sick',
+                'Positions.Position'
+            )
+            ->orderBy('LastName')
+            ->orderBy('LeaveConversions.created_at')
+            ->get();
+
+        $payrollClerk = DB::table('Employees')
+            ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+            ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+            ->whereRaw("Positions.Position='Payroll Clerk' AND (EmploymentStatus IS NULL OR EmploymentStatus NOT IN('Retired', 'Resigned'))")
+            ->select(
+                'FirstName',
+                'MiddleName',
+                'LastName',
+                'Suffix',
+                'Positions.Position'
+            )
+            ->first();
+
+        $osdManager = DB::table('Employees')
+            ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+            ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+            ->whereRaw("Positions.Position='Manager, O S D' AND (EmploymentStatus IS NULL OR EmploymentStatus NOT IN('Retired', 'Resigned'))")
+            ->select(
+                'FirstName',
+                'MiddleName',
+                'LastName',
+                'Suffix',
+                'Positions.Position'
+            )
+            ->first();
+
+        $internalAuditor = DB::table('Employees')
+            ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+            ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+            ->whereRaw("Positions.Position='Internal Auditor' AND (EmploymentStatus IS NULL OR EmploymentStatus NOT IN('Retired', 'Resigned'))")
+            ->select(
+                'FirstName',
+                'MiddleName',
+                'LastName',
+                'Suffix',
+                'Positions.Position'
+            )
+            ->first();
+
+        $gm = DB::table('Employees')
+            ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+            ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+            ->whereRaw("Positions.Position='General Manager' AND (EmploymentStatus IS NULL OR EmploymentStatus NOT IN('Retired', 'Resigned'))")
+            ->select(
+                'FirstName',
+                'MiddleName',
+                'LastName',
+                'Suffix',
+                'Positions.Position'
+            )
+            ->first();
+
+        return view('/leave_conversions/print_all', [
+            'data' => $data,
+            'payrollClerk' => $payrollClerk,
+            'osdManager' => $osdManager,
+            'internalAuditor' => $internalAuditor,
+            'gm' => $gm,
+        ]);
+    }
+
+    public function markAsDone(Request $request) {
+        $id = $request['id'];
+
+        $leaveConversion = LeaveConversions::find($id);
+
+        if ($leaveConversion != null) {
+            $leaveConversion->Status = 'Completed';
+            $leaveConversion->save();
+
+            UserFootprints::logSource('Leave Conversion Completed', 
+                        'Leave credit to cash conversion process completed and has already been issued a check.',
+                        $id);
+        }
+
+        return response()->json($leaveConversion, 200);
+    }
+
+    public function markAllAsDone(Request $request) {
+        $leaveConversions = LeaveConversions::where('Status', 'Approved')->get();
+
+        foreach($leaveConversions as $leaveConversion) {
+            $leaveConversion->Status = 'Completed';
+            $leaveConversion->save();
+
+            UserFootprints::logSource('Leave Conversion Completed', 
+                        'Leave credit to cash conversion process completed and has already been issued a check.',
+                        $leaveConversion->id);
+        }
+
+        return response()->json('ok', 200);
+    }
+
+    public function getLeaveConversionsData(Request $request) {
+        $employeeId = $request['EmployeeId'];
+
+        return response()->json(LeaveConversions::where('EmployeeId', $employeeId)->orderByDesc('created_at')->get(), 200);
     }
 }

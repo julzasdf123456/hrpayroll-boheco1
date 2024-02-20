@@ -329,4 +329,9 @@ Route::get('/leave-conversions/my-approvals', [LeaveConversionsController::class
 Route::get('/leave-conversions/approve', [LeaveConversionsController::class, 'approve'])->name('leaveConversions.approve');
 Route::get('/leave-conversions/reject', [LeaveConversionsController::class, 'reject'])->name('leaveConversions.reject');
 Route::get('/leave-conversions/approved-sl-and-vl', [LeaveConversionsController::class, 'approvedSLandVL'])->name('leaveConversions.approved-sl-and-vl');
+Route::get('/leave-conversions/print-all', [LeaveConversionsController::class, 'printAll'])->name('leaveConversions.print-all');
+Route::get('/leave-conversions/print-single/{id}', [LeaveConversionsController::class, 'printSingle'])->name('leaveConversions.print-single');
+Route::get('/leave-conversions/mark-as-done', [LeaveConversionsController::class, 'markAsDone'])->name('leaveConversions.mark-as-done');
+Route::get('/leave-conversions/mark-all-as-done', [LeaveConversionsController::class, 'markAllAsDone'])->name('leaveConversions.mark-all-as-done');
+Route::get('/leave-conversions/get-leave-conversions-data', [LeaveConversionsController::class, 'getLeaveConversionsData'])->name('leaveConversions.get-leave-conversions-data');
 Route::resource('leaveConversions', LeaveConversionsController::class);
