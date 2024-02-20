@@ -19,6 +19,7 @@ class LeaveConversions extends Model
         'Status',
         'Notes',
         'UserId',
+        'ScheduledDate',
     ];
 
     protected $casts = [
@@ -32,6 +33,7 @@ class LeaveConversions extends Model
         'Status' => 'string',
         'Notes' => 'string',
         'UserId' => 'string',
+        'ScheduledDate' => 'string',
     ];
 
     public static array $rules = [
@@ -46,6 +48,7 @@ class LeaveConversions extends Model
         'created_at' => 'nullable',
         'updated_at' => 'nullable',
         'UserId' => 'nullable|string',
+        'ScheduledDate' => 'nullable|string',
     ];
 
     

@@ -138,6 +138,14 @@
                 <i class="fas fa-clock nav-icon"></i><p>Overtime</p>
             </a>
         </li>
+        @canany('approve leave conversion', 'god permission')
+        <li class="nav-item">
+            <a href="{{ route('leaveConversions.my-approvals') }}"
+               class="nav-link {{ Request::is('leaveConversions.my-approvals*') ? 'active' : '' }}">
+                <i class="fas fa-exchange-alt nav-icon"></i><p>Leave Conversions</p>
+            </a>
+        </li>
+        @endcanany
         {{-- @endcanany --}}
     </ul>
 </li>
@@ -223,6 +231,12 @@
             </a>
         </li>
         <div class="divider"></div>
+        <li class="nav-item">
+            <a href="{{ route('leaveConversions.approved-sl-and-vl') }}" class="nav-link {{ Request::is('leaveConversions.approved-sl-and-vl*') ? 'active' : '' }}">
+                <i class="nav-icon fas fa-exchange-alt"></i>
+                <p>VL & SL Conversions</p>
+            </a>
+        </li>
         <li class="nav-item">
             <a href="{{ route('incentivesAnnualProjections.index') }}" class="nav-link {{ Request::is('incentivesAnnualProjections*') ? 'active' : '' }}">
                 <i class="nav-icon fas fa-funnel-dollar"></i>

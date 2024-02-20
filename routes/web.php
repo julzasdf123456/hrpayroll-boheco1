@@ -323,4 +323,10 @@ Route::get('/bempcs/delete', [BempcController::class, 'delete'])->name('bempcs.d
 Route::resource('bempcs', BempcController::class);
 
 Route::resource('incentiveDetails', App\Http\Controllers\IncentiveDetailsController::class);
+
+Route::post('/leave-conversions/request-multiple', [LeaveConversionsController::class, 'requestMultiple'])->name('leaveConversions.request-multiple');
+Route::get('/leave-conversions/my-approvals', [LeaveConversionsController::class, 'myApprovals'])->name('leaveConversions.my-approvals');
+Route::get('/leave-conversions/approve', [LeaveConversionsController::class, 'approve'])->name('leaveConversions.approve');
+Route::get('/leave-conversions/reject', [LeaveConversionsController::class, 'reject'])->name('leaveConversions.reject');
+Route::get('/leave-conversions/approved-sl-and-vl', [LeaveConversionsController::class, 'approvedSLandVL'])->name('leaveConversions.approved-sl-and-vl');
 Route::resource('leaveConversions', LeaveConversionsController::class);

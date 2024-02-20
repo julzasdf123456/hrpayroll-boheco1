@@ -42,12 +42,12 @@ html, body {
     padding-bottom: 12px !important;
 }
 
-body.dark-mode .main-sidebar {
+/* body.dark-mode .main-sidebar {
     margin-top: 12px !important;
     margin-left: 4px !important;
     border-top-left-radius: 22px !important;
     border-top-right-radius: 22px !important;
-}
+} */
 
 /**
  * NAVBAR
@@ -572,4 +572,19 @@ body.dark-mode .upload-jumbotron {
 
 .upload-jumbotron input[type="file"] {
     display: none;
+}
+
+/**
+ * SWAL
+ */
+.swal2-modal {
+    border-radius: 18px !important;
+}
+
+.swal2-toast {
+    border-radius: 18px !important;
+}
+
+body.dark-mode .swal2-toast {
+    background-color: #343a40 !important;
 }
