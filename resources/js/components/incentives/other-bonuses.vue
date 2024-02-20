@@ -164,7 +164,7 @@ export default {
             moment : moment,
             baseURL : axios.defaults.baseURL,
             employeeType : 'Regular',
-            department : 'OGM',
+            department : 'ESD',
             year : moment().format("YYYY"),
             colorProfile : document.querySelector("meta[name='color-profile']").getAttribute('content'),
             tableInputTextColor : this.isNull(document.querySelector("meta[name='color-profile']").getAttribute('content')) ? 'text-dark' : 'text-white',

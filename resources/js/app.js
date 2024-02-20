@@ -25,6 +25,7 @@ import AddonsAndDeductions from "./components/payroll/addons-and-deductions.vue"
 import WithholdingTaxes from "./components/payroll/withholding-taxes.vue"
 import ThirteenthMonthPay from "./components/incentives/thirteenth-month-pay.vue"
 import OtherBonuses from "./components/incentives/other-bonuses.vue"
+import YearEndBonuses from "./components/incentives/year-end-bonuses.vue"
 
 const app = createApp({
     
@@ -42,5 +43,6 @@ app.component('addons-and-deductions', AddonsAndDeductions);
 app.component('withholding-taxes', WithholdingTaxes);
 app.component('thirteenth-month-pay', ThirteenthMonthPay);
 app.component('other-bonuses', OtherBonuses);
+app.component('year-end-bonuses', YearEndBonuses);
 
 app.mount("#app");

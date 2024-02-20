@@ -24,6 +24,7 @@ use App\Http\Controllers\EmployeeBonusesController;
 use App\Http\Controllers\PayrollExpandedDetailsController;
 use App\Http\Controllers\IncentivesController;
 use App\Http\Controllers\BempcController;
+use App\Http\Controllers\LeaveConversionsController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -311,6 +312,8 @@ Route::get('/incentives/other-bonuses', [IncentivesController::class, 'otherBonu
 Route::get('/incentives/get-incentives-list', [IncentivesController::class, 'getIncentivesList'])->name('incentives.get-incentives-list');
 Route::get('/incentives/get-custom-incentives-data', [IncentivesController::class, 'getCustomIncentivesData'])->name('incentives.get-custom-incentives-data');
 Route::post('/incentives/save-custom-bonus', [IncentivesController::class, 'saveCustomBonus'])->name('incentives.save-custom-bonus');
+Route::get('/incentives/year-end-bonuses', [IncentivesController::class, 'yearEndBonuses'])->name('incentives.year-end-bonuses');
+Route::get('/incentives/get-year-end-incentives-data', [IncentivesController::class, 'getYearEndIncentivesData'])->name('incentives.get-year-end-incentives-data');
 Route::resource('incentives', IncentivesController::class);
 
 Route::get('/bempcs/upload', [BempcController::class, 'upload'])->name('bempcs.upload');
@@ -320,3 +323,4 @@ Route::get('/bempcs/delete', [BempcController::class, 'delete'])->name('bempcs.d
 Route::resource('bempcs', BempcController::class);
 
 Route::resource('incentiveDetails', App\Http\Controllers\IncentiveDetailsController::class);
+Route::resource('leaveConversions', LeaveConversionsController::class);

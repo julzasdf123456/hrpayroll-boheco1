@@ -136,9 +136,13 @@
         }
 
         function addTableRow(resObjectItem) {
+            var partial = isNull(resObjectItem['ActualAmountPartialReceived']) ? 0 : parseFloat(resObjectItem['ActualAmountPartialReceived'])
+            var full = isNull(resObjectItem['ActualAmountReceived']) ? 0 : parseFloat(resObjectItem['ActualAmountReceived'])
+            var actualReceived = partial + full
             return `<tr>
                         <td>` + resObjectItem['Incentive'] + `</td>
-                        <td class='text-right'>` + toMoney(resObjectItem['Amount']) + `</td>
+                        <td class='text-right'><strong>` + toMoney(resObjectItem['Amount']) + `<strong></td>
+                        <td class='text-right text-muted'>` + toMoney(actualReceived) + `</td>
                         <td>` + (resObjectItem['IsTaxable']=='true' ? 'Yes' : 'No') + `</td>
                         <td class='text-right'>` + toMoney(resObjectItem['MaxUntaxableAmount']) + `</td>
                         <td class='text-center'>

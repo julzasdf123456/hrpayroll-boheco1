@@ -1,5 +1,5 @@
 <div class="modal fade" id="modal-configure-incentives-wt" aria-hidden="true" style="display: none;">
-    <div class="modal-dialog modal-xl">
+    <div class="modal-dialog" style="max-width: 90% !important; margin-top: 20px;">
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title">Configure Withholding Taxes for Incentives & Bonuses</h4>
@@ -14,6 +14,7 @@
                     <thead>
                         <th class='text-center'>Incentive</th>
                         <th class='text-center'>Projected Amount</th>
+                        <th class='text-center'>Received Actual<br>Amount</th>
                         <th class='text-center'>Is Taxable</th>
                         <th class='text-center'>Max Untaxable<br>Amount</th>
                         <th class='text-center'>Deduct Monthly?</th>

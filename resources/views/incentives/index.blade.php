@@ -26,7 +26,12 @@
                         <tbody>
                             @foreach ($incentives as $incentive)
                                 <tr style="cursor: pointer;" onclick="view(`{{ $incentive->id }}`)">
-                                    <td>{{ $incentive->IncentiveName }}</td>
+                                    <td>
+                                        {{ $incentive->IncentiveName }}
+                                        @if (!str_contains($incentive->IncentiveName, "13th Month"))
+                                            ({{ $incentive->ReleaseType }})                                            
+                                        @endif
+                                    </td>
                                     <td class="text-right">
                                         <span class="badge bg-info">{{ $incentive->Status==null ? 'Pending' : $incentive->Status }}</span>
                                     </td>

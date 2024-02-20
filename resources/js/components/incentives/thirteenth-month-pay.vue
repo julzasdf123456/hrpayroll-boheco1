@@ -227,7 +227,7 @@ export default {
             moment : moment,
             baseURL : axios.defaults.baseURL,
             employeeType : 'Regular',
-            department : 'OGM',
+            department : 'ESD',
             year : moment().format("YYYY"),
             may : moment().format('YYYY-05-01'),
             october : moment().format('YYYY-10-01'),
