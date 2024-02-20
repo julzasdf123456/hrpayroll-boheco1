@@ -15,7 +15,8 @@ class UserFootprints extends Model
         'UserId',
         'LogName',
         'LogDetails',
-        'ComputerName'
+        'ComputerName',
+        'ObjectSourceId',
     ];
 
     protected $casts = [
@@ -23,7 +24,8 @@ class UserFootprints extends Model
         'UserId' => 'string',
         'LogName' => 'string',
         'LogDetails' => 'string',
-        'ComputerName' => 'string'
+        'ComputerName' => 'string',
+        'ObjectSourceId' => 'string',
     ];
 
     public static array $rules = [
@@ -32,7 +34,8 @@ class UserFootprints extends Model
         'LogDetails' => 'nullable|string|max:1500',
         'ComputerName' => 'nullable|string|max:50',
         'created_at' => 'nullable',
-        'updated_at' => 'nullable'
+        'updated_at' => 'nullable',
+        'ObjectSourceId' => 'nullable|string',
     ];
 
     public static function log($name, $details) {
@@ -44,4 +47,13 @@ class UserFootprints extends Model
         ]);
     }
     
+    public static function logSource($name, $details, $sourceId) {
+        UserFootprints::create([
+            'id' => IDGenerator::generateIDandRandString(),
+            'LogName' => $name,
+            'LogDetails' => $details,
+            'ObjectSourceId' => $sourceId,
+            'UserId' => Auth::id(),
+        ]);
+    }
 }

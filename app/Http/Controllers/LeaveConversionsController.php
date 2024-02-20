@@ -12,6 +12,9 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Employees;
 use App\Models\IDGenerator;
 use App\Models\LeaveConversions;
+use App\Models\LeaveBalances;
+use App\Models\LeaveBalanceDetails;
+use App\Models\UserFootprints;
 use Flash;
 
 class LeaveConversionsController extends AppBaseController
@@ -42,9 +45,26 @@ class LeaveConversionsController extends AppBaseController
     public function create()
     {
         if (Auth::user()->hasPermissionTo('create leave conversion for others')) {
-            $employees = Employees::orderBy('FirstName')->get();
+            $employees = DB::table('Employees')
+                ->leftJoin('LeaveBalances', 'Employees.id', '=', 'LeaveBalances.EmployeeId')
+                ->select(
+                    'Employees.*',
+                    'Vacation',
+                    'Sick'
+                )
+                ->orderBy('LastName')
+                ->get();
         } else {
-            $employees = Employees::where('id', Auth::user()->employee_id)->orderBy('FirstName')->get();
+            $employees = DB::table('Employees')
+                ->leftJoin('LeaveBalances', 'Employees.id', '=', 'LeaveBalances.EmployeeId')
+                ->whereRaw("Employees.id='" . Auth::user()->employee_id . "'")
+                ->select(
+                    'Employees.*',
+                    'Vacation',
+                    'Sick'
+                )
+                ->orderBy('LastName')
+                ->get();
         }
         return view('leave_conversions.create', [
             'employees' => $employees,
@@ -137,5 +157,212 @@ class LeaveConversionsController extends AppBaseController
         Flash::success('Leave Conversions deleted successfully.');
 
         return redirect(route('leaveConversions.index'));
+    }
+
+    public function requestMultiple(Request $request) {
+        $data = $request['Requests'];
+
+        foreach ($data as $item) {
+            $employee = DB::table('Employees')
+                ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+                ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+                ->select('Employees.FirstName',
+                        'Employees.MiddleName',
+                        'Employees.LastName',
+                        'Employees.Suffix',
+                        'Employees.id',
+                        'Positions.BasicSalary AS SalaryAmount',
+                        'Positions.Level',
+                        'Positions.Position',
+                        'EmployeesDesignations.Status'
+                )
+                ->whereRaw("Employees.id='" . $item['EmployeeId'] . "'")
+                ->first();
+
+            if ($employee != null) {
+                $dailyRate = Employees::getDailyRate($employee->SalaryAmount);
+                $vacation = $item['Vacation'] != null ? intval($item['Vacation']) : 0;
+                $sick = $item['Sick'] != null ? intval($item['Sick']) : 0;
+                $vacationAmount = round($dailyRate * $vacation, 2);
+                $sickAmount = round($dailyRate * $sick);
+
+                $id = IDGenerator::generateIDandRandString();
+                $leaveConversion = new LeaveConversions;
+                $leaveConversion->id = $id;
+                $leaveConversion->EmployeeId = $employee->id;
+                $leaveConversion->VacationDays = $vacation;
+                $leaveConversion->SickDays = $sick;
+                $leaveConversion->VacationAmount = $vacationAmount;
+                $leaveConversion->SickAmount = $sickAmount;
+                $leaveConversion->Year = date('Y');
+                $leaveConversion->Status = 'Filed';
+                $leaveConversion->UserId = Auth::id();
+                $leaveConversion->save();
+
+                UserFootprints::logSource('Requested Leave Conversion', 
+                    'Requested for leave to cash conversion for ' . Employees::getMergeNameFormal($employee) . ' with ' . $vacation . ' days for Vacation and ' . $sick . ' days for Sick Leave.',
+                    $id);
+            }
+        }
+
+        return response()->json('ok', 200);
+    }
+
+    public function myApprovals(Request $request) {
+        $checkEmployee = DB::table('Employees')
+            ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+            ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+            ->whereRaw("Employees.id='" . Auth::user()->employee_id . "'")
+            ->select(
+                'Positions.Position'
+            )
+            ->first();
+
+        if ($checkEmployee != null) {
+            if ($checkEmployee->Position == 'Head, Human Resource Development Section') {
+                $data = DB::table('LeaveConversions')
+                    ->leftJoin('Employees', 'LeaveConversions.EmployeeId', '=', 'Employees.id')
+                    ->leftJoin('users', 'LeaveConversions.UserId', '=', 'users.id')
+                    ->leftJoin('LeaveBalances', 'Employees.id', '=', 'LeaveBalances.EmployeeId')
+                    ->whereRaw("LeaveConversions.Status='Filed'")
+                    ->select(
+                        'FirstName',
+                        'MiddleName',
+                        'LastName',
+                        'Suffix',
+                        'LeaveConversions.*',
+                        'users.name',
+                        'Vacation',
+                        'Sick'
+                    )
+                    ->get();
+
+                return view('/leave_conversions/my_approvals', [
+                    'data' => $data,
+                ]);
+            } elseif ($checkEmployee->Position == 'Manager, I S D') {
+                $data = DB::table('LeaveConversions')
+                    ->leftJoin('Employees', 'LeaveConversions.EmployeeId', '=', 'Employees.id')
+                    ->leftJoin('users', 'LeaveConversions.UserId', '=', 'users.id')
+                    ->leftJoin('LeaveBalances', 'Employees.id', '=', 'LeaveBalances.EmployeeId')
+                    ->whereRaw("LeaveConversions.Status='Approved by HR'")
+                    ->select(
+                        'FirstName',
+                        'MiddleName',
+                        'LastName',
+                        'Suffix',
+                        'LeaveConversions.*',
+                        'users.name',
+                        'Vacation',
+                        'Sick'
+                    )
+                    ->get();
+
+                return view('/leave_conversions/my_approvals', [
+                    'data' => $data,
+                ]);
+            } else {
+                return abort(403, 'You are not authorized to access this module!');
+            }
+        } else {
+            return abort(409, 'You are not authorized to access this module!');
+        }
+    }
+
+    public function approve(Request $request) {
+        $id = $request['id'];
+
+        $leaveConversion = LeaveConversions::find($id);
+
+        if ($leaveConversion != null) {
+            if ($leaveConversion->Status == 'Filed') {
+                // APPROVED BY HR
+                $leaveConversion->Status = 'Approved by HR';
+                $leaveConversion->save();
+
+                UserFootprints::logSource('Leave Conversion Request Approved by HR', 
+                        'Leave credit to cash conversion approved by HR.',
+                        $id);
+            } else {
+                // APPROVED BY ISD MANAGER
+                $leaveConversion->Status = 'Approved';
+                $leaveConversion->save();
+
+                // UPDATE LeaveBalances
+                $leaveBalances = LeaveBalances::where('EmployeeId', $leaveConversion->EmployeeId)->first();
+                if ($leaveBalances != null) {
+                    $leaveBalances->Vacation = $leaveBalances->Vacation != null ? ($leaveBalances->Vacation - $leaveConversion->VacationDays) : 0;
+                    $leaveBalances->Sick = $leaveBalances->Sick != null ? ($leaveBalances->Sick - $leaveConversion->SickDays) : 0;
+                    $leaveBalances->save();
+
+                    // VACATION
+                    if ($leaveConversion->VacationDays > 0) {
+                        LeaveBalanceDetails::leaveLog(
+                            $leaveBalances->EmployeeId,
+                            'DEDUCT',
+                            $leaveConversion->VacationDays,
+                            'Deducted ' . $leaveConversion->VacationDays . ' days from Vacation Leave for cash conversion',
+                            'VACATION'
+                        );
+                    }
+                    
+                    // SICK
+                    if ($leaveConversion->SickDays > 0) {
+                        LeaveBalanceDetails::leaveLog(
+                            $leaveBalances->EmployeeId,
+                            'DEDUCT',
+                            $leaveConversion->SickDays,
+                            'Deducted ' . $leaveConversion->SickDays . ' days from Sick Leave for cash conversion',
+                            'SICK'
+                        );
+                    }
+                }
+
+                UserFootprints::logSource('Leave Conversion Request Approved', 
+                        'Leave credit to cash conversion approved and posted.',
+                        $id);
+            }
+        }
+    }
+
+    public function reject(Request $request) {
+        $id = $request['id'];
+        $notes = $request['Notes'];
+
+        $leaveConversion = LeaveConversions::find($id);
+
+        if ($leaveConversion != null) {
+            $leaveConversion->Status = 'Rejected by HR';
+            $leaveConversion->save();
+
+            UserFootprints::logSource('Leave Conversion Request Rejected by HR', 
+                    'Leave credit to cash conversion rejected by HR because of the following reasons: ' . $notes,
+                    $id);
+        }
+    }
+
+    public function approvedSLandVL(Request $request) {
+        $data = DB::table('LeaveConversions')
+                ->leftJoin('Employees', 'LeaveConversions.EmployeeId', '=', 'Employees.id')
+                ->leftJoin('users', 'LeaveConversions.UserId', '=', 'users.id')
+                ->leftJoin('LeaveBalances', 'Employees.id', '=', 'LeaveBalances.EmployeeId')
+                ->whereRaw("LeaveConversions.Status='Approved'")
+                ->select(
+                    'FirstName',
+                    'MiddleName',
+                    'LastName',
+                    'Suffix',
+                    'LeaveConversions.*',
+                    'users.name',
+                    'Vacation',
+                    'Sick'
+                )
+                ->orderBy('LastName')
+                ->orderBy('LeaveConversions.created_at')
+                ->get();
+
+        return view('/leave_conversions/approved_sl_vl', [
+            'data' => $data,
+        ]);
     }
 }

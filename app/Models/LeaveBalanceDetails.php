@@ -5,6 +5,8 @@ namespace App\Models;
 use Eloquent as Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\LeaveBalanceDetails;
+use App\Models\IDGenerator;
 
 /**
  * Class LeaveBalanceDetails
@@ -75,5 +77,14 @@ class LeaveBalanceDetails extends Model
         'LeaveType' => 'nullable|string',
     ];
 
-    
+    public static function leaveLog($employeeId, $method, $days, $details, $leaveType) {
+        LeaveBalanceDetails::create([
+            'id' => IDGenerator::generateIDandRandString(),
+            'EmployeeId' => $employeeId,
+            'Method' => $method,
+            'Days' => $days,
+            'Details' => $details,
+            'LeaveType' => $leaveType
+        ]);
+    }
 }

@@ -69,7 +69,7 @@ class EmployeesDesignationsController extends AppBaseController
         $employee = Employees::find($employeesDesignations->EmployeeId);
 
         if ($employee != null) {
-            $employee->Designation = $employeesDesignations->Designation;
+            $employee->Designation = $employeesDesignations->id;
             $employee->save();
         }
 

@@ -344,4 +344,12 @@ class Employees extends Model
 
         return $longevityProjection;
     }
+
+    public static function getDailyRate($salary) {
+        if ($salary != null) {
+            return round((floatval($salary) * 12) / 302, 2);
+        } else {
+            return 0;
+        }
+    }
 }
