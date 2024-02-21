@@ -107,6 +107,7 @@
                             </th>
                             <th colspan="2" class="text-center">Leave Cash Conversions</th>
                             <th rowspan="2" class="text-center">Loyalty Award</th>
+                            <th rowspan="2" class="text-center">Total<br>Amount</th>
                             <th rowspan="2" class="text-center">AR-Others</th>
                             <th rowspan="2" class="text-center">BEMPC</th>
                             <th rowspan="2" class="text-center">NET PAY</th>
@@ -231,6 +232,7 @@
                             <td class='text-right'>{{ employee.VL > 0 ? toMoney(employee.VL) : '-' }}</td>
                             <td class='text-right'>{{ employee.SL > 0 ? toMoney(employee.SL) : '-' }}</td>
                             <td class='text-right'>{{ employee.LoyaltyAward > 0 ? toMoney(employee.LoyaltyAward) : '-' }}</td>
+                            <td class='text-right'>{{ employee.SubTotal > 0 ? toMoney(employee.SubTotal) : '-' }}</td>
                             <td>
                                 <input style="min-width: 80px;" class="table-input-sm text-right" :disabled="isFixedAmountDisabled" :class="tableInputTextColor" v-model="employee.AROthers" @keyup.enter="inputEnter(employee.AROthers, employee.id)" @blur="inputEnter(employee.AROthers, employee.id)" type="number" step="any"/>
                             </td>
@@ -606,7 +608,7 @@ export default {
                     var vl = empArray[0].VL
                     var sl = empArray[0].SL
                     var loyaltyAward = empArray[0].LoyaltyAward
-                    var thirteenthDifferential = 0
+                    var thirteenthDifferential = empArray[0].ThirteenthMonthDifferential
                     var bempc = empArray[0].BEMPC.length < 1 ? 0 : empArray[0].BEMPC
 
                     value = value.length < 1 ? 0 : parseFloat(value)
@@ -617,7 +619,7 @@ export default {
                     loyaltyAward = parseFloat(loyaltyAward)
                     thirteenthDifferential = parseFloat(thirteenthDifferential)
                     bempc = parseFloat(bempc)
-                    newValue = (cashGift + fourteenth + loyaltyAward + vl + sl) - (parseFloat(value) + parseFloat(bempc) + thirteenthDifferential)
+                    newValue = (cashGift + fourteenth + loyaltyAward + vl + sl + thirteenthDifferential) - (parseFloat(value) + parseFloat(bempc))
                 }
                 this.employees = this.employees.map(obj => {
                     if (obj.id === employeeId) {
@@ -749,6 +751,7 @@ export default {
                                 this.salaryBasedCashGiftMultiplier = parseFloat(text)
                                 this.salaryBasedCashGiftLabel = 'Salary Based (x ' + text + ')'
                                 this.spreadCashGiftSalaryBasedAmount()
+                                this.fixedAmountCashGift = ''
                             } else {
                                 this.isCashGiftSalaryBased = false
                                 this.salaryBasedCashGiftLabel = 'Salary Based'
@@ -782,10 +785,12 @@ export default {
                 var fourteenth = this.employees[i].FourteenthMonth
                 var vl = this.employees[i].VL
                 var sl = this.employees[i].SL
-                var thirteenthDifferential = 0
+                var thirteenthDifferential = this.employees[i].ThirteenthMonthDifferential
                 var loyaltyAward = this.employees[i].LoyaltyAward
-                var netPay = (bonusAmnt + fourteenth + loyaltyAward + vl + sl) - (arOthers + bempc + parseFloat(thirteenthDifferential))
+                var subTotal = (bonusAmnt + fourteenth + loyaltyAward + vl + sl + parseFloat(thirteenthDifferential))
+                var netPay = (bonusAmnt + fourteenth + loyaltyAward + vl + sl + parseFloat(thirteenthDifferential)) - (arOthers + bempc)
 
+                this.employees[i].SubTotal = subTotal
                 this.employees[i].NetPay = netPay
             }
             this.showSaveFader()
@@ -801,11 +806,13 @@ export default {
                 var bempc = this.employees[i].BEMPC
                 var loyaltyAward = this.employees[i].LoyaltyAward
                 var fourteenth = this.employees[i].FourteenthMonth
-                var thirteenthDifferential = 0
+                var thirteenthDifferential = this.employees[i].ThirteenthMonthDifferential
                 var vl = this.employees[i].VL
                 var sl = this.employees[i].SL
-                var netPay = (cashGiftAmnt + fourteenth + loyaltyAward + vl + sl) - (arOthers + bempc + parseFloat(thirteenthDifferential))
+                var subTotal = (cashGiftAmnt + fourteenth + loyaltyAward + vl + sl + parseFloat(thirteenthDifferential))
+                var netPay = (cashGiftAmnt + fourteenth + loyaltyAward + vl + sl + parseFloat(thirteenthDifferential)) - (arOthers + bempc)
 
+                this.employees[i].SubTotal = subTotal
                 this.employees[i].NetPay = netPay
             }
             this.showSaveFader()
@@ -931,14 +938,14 @@ export default {
                         datasets[this.dataSetGuides13th[y].name] = this.getBiMonthlyWage(foundData13th, basicSalary, this.dataSetGuides13th[y].value)
                         thirteenthMonthActualTotal += this.getBiMonthlyWage(foundData13th, basicSalary, this.dataSetGuides13th[y].value)
                     }
-                    datasets['FourteenthMonth'] = fourteenthMonthTotal
+                    datasets['FourteenthMonth'] = this.round(fourteenthMonthTotal)
 
                     /**
                      * ============================================================================
                      *  13th Month
                      * ============================================================================
                      */
-                    datasets['Actual13thTotal'] = thirteenthMonthActualTotal
+                    datasets['Actual13thTotal'] = this.round(thirteenthMonthActualTotal)
                     var first13th = this.get13thReceived(response.data['Employees'][i]['Received13thMonths'], '13th Month Pay - 1st Half')
                     datasets['First13thTerm'] = first13th
                     var second13th = this.get13thReceived(response.data['Employees'][i]['Received13thMonths'], '13th Month Pay - 2nd Half')
@@ -946,7 +953,7 @@ export default {
                     var total13Received = first13th + second13th
                     datasets['Total13thReceived'] = total13Received
                     var diff13th = thirteenthMonthActualTotal - total13Received
-                    datasets['ThirteenthMonthDifferential'] = diff13th
+                    datasets['ThirteenthMonthDifferential'] = this.round(parseFloat(diff13th))
 
                     /**
                      * ============================================================================
@@ -957,11 +964,11 @@ export default {
                     if (this.isCashGiftSalaryBased) {
                         cashGiftAmnt = (this.isNull(response.data['Employees'][i]['SalaryAmount']) ? 0 : (parseFloat(response.data['Employees'][i]['SalaryAmount'])) * this.salaryBasedCashGiftMultiplier)
                     } else {
-                        cashGiftAmnt = this.isNull(response.data['Employees'][i]['ExistingIncentive']) ? this.fixedAmountCashGift : this.getExistingIncentive(response.data['Employees'][i]['ExistingIncentive'])
+                        cashGiftAmnt = jquery.isEmptyObject(response.data['Employees'][i]['ExistingIncentive']) ? this.fixedAmountCashGift : this.getExistingIncentive(response.data['Employees'][i]['ExistingIncentive'])
                     }
 
-                    cashGiftAmnt = this.isNull(cashGiftAmnt) ? 0 : (cashGiftAmnt.length < 1 ? 0 : cashGiftAmnt)
-                    datasets['CashGift'] = cashGiftAmnt
+                    cashGiftAmnt = cashGiftAmnt.length < 1 ? 0 : cashGiftAmnt
+                    datasets['CashGift'] = this.round(cashGiftAmnt)
 
                     /**
                      * ============================================================================
@@ -969,7 +976,7 @@ export default {
                      * ============================================================================
                      */
                     var loyaltyAward = this.getLoyaltyAward(response.data['Employees'][i]['DateHired'])
-                    datasets['LoyaltyAward'] = loyaltyAward > 0 ? loyaltyAward : 0
+                    datasets['LoyaltyAward'] = loyaltyAward > 0 ? this.round(loyaltyAward) : 0
 
                     /**
                      * ============================================================================
@@ -977,7 +984,7 @@ export default {
                      * ============================================================================
                      */
                     var vlTotal = this.getConversions(response.data['Employees'][i]['VLSL'], 'Vacation')
-                    datasets['VL'] = vlTotal > 0 ? vlTotal : 0
+                    datasets['VL'] = vlTotal > 0 ? this.round(vlTotal) : 0
 
                     /**
                      * ============================================================================
@@ -985,7 +992,15 @@ export default {
                      * ============================================================================
                      */
                      var slTotal = this.getConversions(response.data['Employees'][i]['VLSL'], 'Sick')
-                    datasets['SL'] = slTotal > 0 ? slTotal : 0
+                    datasets['SL'] = slTotal > 0 ? this.round(slTotal) : 0
+
+                    /**
+                     * ============================================================================
+                     *  SUB-TOTAL
+                     * ============================================================================
+                     */
+                    var subTotal = (cashGiftAmnt + fourteenthMonthTotal + loyaltyAward + vlTotal + slTotal + diff13th)
+                    datasets['SubTotal'] = subTotal > 0 ? this.round(parseFloat(subTotal)) : 0
 
                     /**
                      * ============================================================================
@@ -993,7 +1008,7 @@ export default {
                      * ============================================================================
                      */
                     var arOtherAmnt = this.getAROthers(response.data['Employees'][i]['AROthers'], response.data['Employees'][i]['id'])
-                    datasets['AROthers'] = arOtherAmnt > 0 ? arOtherAmnt : 0
+                    datasets['AROthers'] = arOtherAmnt > 0 ? this.round(arOtherAmnt) : 0
 
                     /**
                      * ============================================================================
@@ -1001,10 +1016,10 @@ export default {
                      * ============================================================================
                      */
                     var bempcDeduction = this.isNumber(this.getBempcDeduction(response.data['Employees'][i]['BEMPC'])) ? this.getBempcDeduction(response.data['Employees'][i]['BEMPC']) : 0
-                    datasets['BEMPC'] = bempcDeduction.length < 1 ? 0 : bempcDeduction
+                    datasets['BEMPC'] = bempcDeduction.length < 1 ? 0 : this.round(bempcDeduction)
 
-                    var netPay = (cashGiftAmnt + fourteenthMonthTotal + loyaltyAward + vlTotal + slTotal) - (arOtherAmnt + bempcDeduction)
-                    datasets['NetPay'] = netPay > 0 ? parseFloat(netPay) : 0
+                    var netPay = (cashGiftAmnt + fourteenthMonthTotal + loyaltyAward + vlTotal + slTotal + diff13th) - (arOtherAmnt + bempcDeduction)
+                    datasets['NetPay'] = netPay > 0 ? this.round(parseFloat(netPay)) : 0
 
                     this.employees.push(datasets)
                 }
@@ -1022,7 +1037,7 @@ export default {
             if (this.isNull(this.dataStatus)) {
                 Swal.fire({
                     title: "Submit for Audit?",
-                    text : 'Submit this ' + this.incentiveSelected + ' draft for audit? You can always regenerate this anytime as long as it has not yet been approved for finalization.',
+                    text : 'Submit this Year-end Incentives draft for audit? You can always regenerate this anytime as long as it has not yet been approved for finalization.',
                     showCancelButton: true,
                     confirmButtonText: "Submit",
                     confirmButtonColor: '#3a9971',
@@ -1058,13 +1073,11 @@ export default {
             this.loaderDisplay = ''
             this.isGenerateButtonDisabled = true
             this.isPreviewButtonDisabled = true
-            axios.post(`${ axios.defaults.baseURL }/incentives/save-custom-bonus`, {
+            axios.post(`${ axios.defaults.baseURL }/leave-incentives_year_end_details/save-year-end`, {
                     Department : this.department,
                     EmployeeType : this.employeeType,
-                    Incentive : this.incentiveSelected,
                     Data : this.employees,
-                    Notes : this.isSalaryBased ? ('Salary-based with ' + this.salaryBasedMultiplier + ' multiplier') : null,
-                    ReleaseType : this.releaseType,
+                    IncentiveName : this.incentiveSelected
             })
             .then(response => {
                 this.loaderDisplay = 'gone'
@@ -1074,7 +1087,7 @@ export default {
                 this.employees = []
 
                 this.toast.fire({
-                    text :  'Incentive data saved!',
+                    text :  'Year-end data saved!',
                     icon : 'success'
                 })
             })
@@ -1085,7 +1098,7 @@ export default {
 
                 Swal.fire({
                     icon : 'error',
-                    title : 'Error submitting Incentive data!',
+                    title : 'Error submitting year-end data!',
                 });
                 console.log(error)
                 this.loaderDisplay = 'gone'

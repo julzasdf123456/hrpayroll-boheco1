@@ -25,6 +25,7 @@ use App\Http\Controllers\PayrollExpandedDetailsController;
 use App\Http\Controllers\IncentivesController;
 use App\Http\Controllers\BempcController;
 use App\Http\Controllers\LeaveConversionsController;
+use App\Http\Controllers\IncentivesYearEndDetailsController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -314,6 +315,8 @@ Route::get('/incentives/get-custom-incentives-data', [IncentivesController::clas
 Route::post('/incentives/save-custom-bonus', [IncentivesController::class, 'saveCustomBonus'])->name('incentives.save-custom-bonus');
 Route::get('/incentives/year-end-bonuses', [IncentivesController::class, 'yearEndBonuses'])->name('incentives.year-end-bonuses');
 Route::get('/incentives/get-year-end-incentives-data', [IncentivesController::class, 'getYearEndIncentivesData'])->name('incentives.get-year-end-incentives-data');
+Route::get('/incentives/view-year-end-incentives/{id}', [IncentivesController::class, 'viewYearEndIncentives'])->name('incentives.view-year-end-incentives');
+Route::get('/incentives/lock-year-end-incentives', [IncentivesController::class, 'lockYearEndIncentives'])->name('incentives.lock-year-end-incentives');
 Route::resource('incentives', IncentivesController::class);
 
 Route::get('/bempcs/upload', [BempcController::class, 'upload'])->name('bempcs.upload');
@@ -335,3 +338,6 @@ Route::get('/leave-conversions/mark-as-done', [LeaveConversionsController::class
 Route::get('/leave-conversions/mark-all-as-done', [LeaveConversionsController::class, 'markAllAsDone'])->name('leaveConversions.mark-all-as-done');
 Route::get('/leave-conversions/get-leave-conversions-data', [LeaveConversionsController::class, 'getLeaveConversionsData'])->name('leaveConversions.get-leave-conversions-data');
 Route::resource('leaveConversions', LeaveConversionsController::class);
+
+Route::post('/leave-incentives_year_end_details/save-year-end', [IncentivesYearEndDetailsController::class, 'saveYearEndData'])->name('incentivesYearEndDetails.save-year-end');
+Route::resource('incentivesYearEndDetails', IncentivesYearEndDetailsController::class);
