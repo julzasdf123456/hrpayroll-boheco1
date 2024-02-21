@@ -73,7 +73,8 @@
                     </a>
 
                     <div class="dropdown-menu">
-                        <a class="dropdown-item"><i class="fas fa-download ico-tab"></i>Download FCB Upload Format</a>
+                        <a href="{{ route('incentives.download-year-end-fcb-template', [$incentive->id]) }}" class="dropdown-item"><i class="fas fa-download ico-tab"></i>Download FCB Upload Format</a>
+                        <a href="{{ route('incentives.print-year-end-fcb', [$incentive->id]) }}" class="dropdown-item"><i class="fas fa-print ico-tab"></i>Print FCB Submission</a>
                         <a href="{{ route('incentives.print-year-end-final', [$incentive->id]) }}" class="dropdown-item"><i class="fas fa-print ico-tab"></i>Print Final</a>
                         <a href="{{ route('incentives.print-year-end-signatures', [$incentive->id]) }}" class="dropdown-item"><i class="fas fa-print ico-tab"></i>Print For Receiving and Signature</a>
                     </div>

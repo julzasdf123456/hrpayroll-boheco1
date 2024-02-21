@@ -51,7 +51,7 @@ class EmployeePayrollSchedulesController extends AppBaseController
             $employees = DB::table('Employees')
                 ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
                 ->leftJoin('Positions', 'EmployeesDesignations.PositionId', '=', 'Positions.id')
-                ->whereRaw("Positions.Department='" . $department . "'")
+                ->whereRaw("Positions.Department='" . $department . "' AND (EmploymentStatus IS NULL OR EmploymentStatus NOT IN ('Resigned', 'Retired'))")
                 ->select('Employees.*', 'Positions.Department', 'Positions.Position')
                 ->orderBy("Employees.LastName")
                 ->get();
@@ -59,6 +59,7 @@ class EmployeePayrollSchedulesController extends AppBaseController
             $employees = DB::table('Employees')
                 ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
                 ->leftJoin('Positions', 'EmployeesDesignations.PositionId', '=', 'Positions.id')
+                ->whereRaw("(EmploymentStatus IS NULL OR EmploymentStatus NOT IN ('Resigned', 'Retired'))")
                 ->select('Employees.*', 'Positions.Department', 'Positions.Position')
                 ->orderBy("Employees.LastName")
                 ->get();

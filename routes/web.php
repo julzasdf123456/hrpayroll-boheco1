@@ -79,6 +79,7 @@ Route::get('/employees/update-office', [EmployeesController::class, 'updateOffic
 Route::get('/employees/update-date-hired', [EmployeesController::class, 'updateDateHired'])->name('employees.update-date-hired');
 Route::get('/employees/update-end', [EmployeesController::class, 'updateEnd'])->name('employees.update-end');
 Route::get('/employees/update-biometrics-id', [EmployeesController::class, 'updateBiometricsId'])->name('employees.update-biometrics-id');
+Route::get('/employees/update-pitakard', [EmployeesController::class, 'updatePitakard'])->name('employees.update-pitakard');
 Route::resource('employees', EmployeesController::class);
 
 Route::resource('permissions', App\Http\Controllers\PermissionController::class);
@@ -162,6 +163,8 @@ Route::get('/payroll_indices/withholding-taxes', [PayrollIndexController::class,
 Route::get('/payroll_indices/get-withholding-taxes-report-data', [PayrollIndexController::class, 'getWithholdingTaxesReportData'])->name('payrollIndices.get-withholding-taxes-report-data');
 Route::get('/payroll_indices/view-payroll-without-deduction/{salaryPeriod}', [PayrollIndexController::class, 'viewPayrollWithoutDeduction'])->name('payrollIndices.view-payroll-without-deduction');
 Route::get('/payroll_indices/view-payroll-deductions-only/{salaryPeriod}', [PayrollIndexController::class, 'viewPayrollDeductionsOnly'])->name('payrollIndices.view-payroll-deductions-only');
+Route::get('/payroll_indices/download-fcb-template/{salaryPeriod}', [PayrollIndexController::class, 'downloadFCBTemplate'])->name('payrollIndices.download-fcb-template');
+Route::get('/payroll_indices/print-fcb-submission/{salaryPeriod}', [PayrollIndexController::class, 'printFCBSubmission'])->name('payrollIndices.print-fcb-submission');
 Route::resource('payrollIndices', PayrollIndexController::class);
 
 
@@ -319,6 +322,8 @@ Route::get('/incentives/view-year-end-incentives/{id}', [IncentivesController::c
 Route::get('/incentives/lock-year-end-incentives', [IncentivesController::class, 'lockYearEndIncentives'])->name('incentives.lock-year-end-incentives');
 Route::get('/incentives/print-year-end-final/{id}', [IncentivesController::class, 'printYearEndFinal'])->name('incentives.print-year-end-final');
 Route::get('/incentives/print-year-end-signatures/{id}', [IncentivesController::class, 'printYearEndSignatures'])->name('incentives.print-year-end-signatures');
+Route::get('/incentives/print-year-end-fcb/{id}', [IncentivesController::class, 'printYearEndFCB'])->name('incentives.print-year-end-fcb');
+Route::get('/incentives/download-year-end-fcb-template/{id}', [IncentivesController::class, 'downloadYearEndFCBTemplate'])->name('incentives.download-year-end-fcb-template');
 Route::resource('incentives', IncentivesController::class);
 
 Route::get('/bempcs/upload', [BempcController::class, 'upload'])->name('bempcs.upload');

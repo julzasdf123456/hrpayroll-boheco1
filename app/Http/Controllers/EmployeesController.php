@@ -672,4 +672,14 @@ class EmployeesController extends AppBaseController
 
         return response()->json('ok', 200);
     }
+
+    public function updatePitakard(Request $request) {
+        $pitakardNo = $request['PitakardNo'];
+        $id = $request['id'];
+
+        Employees::where('id', $id)
+            ->update(['PrimaryBankNumber' => $pitakardNo]);
+
+        return response()->json('ok', 200);
+    }
 }
