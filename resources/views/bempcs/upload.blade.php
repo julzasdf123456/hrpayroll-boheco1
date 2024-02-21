@@ -34,6 +34,7 @@
                         @foreach ($bonuses as $item)
                             <option value="{{ $item->Incentive }}">{{ $item->Incentive }}</option>
                         @endforeach
+                        <option value="Year-end Incentives">Year-end Incentives</option>
                     </select>
                     <br>
                     <span class="text-muted">In what releasing mode?</span>
@@ -97,7 +98,7 @@
                 if(this.value === '13th Month Pay - 1st Half') {
                     $('#Partial').attr('checked', true)
                     $('#Full').removeAttr('checked')
-                } else if (this.value === '13th Month Pay - 2nd Half') {
+                } else if (this.value === '13th Month Pay - 2nd Half' | this.value === 'Year-end Incentives') {
                     $('#Full').attr('checked', true)
                     $('#Partial').removeAttr('checked')
                 }

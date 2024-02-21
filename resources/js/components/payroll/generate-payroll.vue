@@ -27,6 +27,7 @@
                     <select v-model="salaryPeriod" class="form-control form-control-sm">
                         <option :value="fifteenth">{{ moment(fifteenth).format('MMMM DD, YYYY') }}</option>
                         <option :value="thirtieth">{{ moment(thirtieth).format('MMMM DD, YYYY') }}</option>
+                        <option value="2024-03-15">March 15, 2024</option>
                     </select>
                 </div>
                 <div class="col-lg-2">
@@ -161,7 +162,7 @@ export default {
             }),
             // PAYROLL DATA
             employeeType : 'Regular',
-            department : 'OGM',
+            department : 'ESD',
             salaryPeriod : '',
             from : '2024-01-26',
             to : '2024-02-10',

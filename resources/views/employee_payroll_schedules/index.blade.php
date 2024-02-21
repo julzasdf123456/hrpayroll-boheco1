@@ -56,7 +56,7 @@
                     <tbody>
                         @foreach ($employees as $item)
                             <tr>
-                                <td><strong><a href="{{ route('employees.show', [$item->id]) }}">{{ Employees::getMergeName($item) }}</a></strong></td>
+                                <td><strong><a href="{{ route('employees.show', [$item->id]) }}">{{ Employees::getMergeNameFormal($item) }}</a></strong></td>
                                 <td>{{ $item->Department }}</td>
                                 <td>{{ $item->Position }}</td>
                                 <td>
