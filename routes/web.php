@@ -317,6 +317,8 @@ Route::get('/incentives/year-end-bonuses', [IncentivesController::class, 'yearEn
 Route::get('/incentives/get-year-end-incentives-data', [IncentivesController::class, 'getYearEndIncentivesData'])->name('incentives.get-year-end-incentives-data');
 Route::get('/incentives/view-year-end-incentives/{id}', [IncentivesController::class, 'viewYearEndIncentives'])->name('incentives.view-year-end-incentives');
 Route::get('/incentives/lock-year-end-incentives', [IncentivesController::class, 'lockYearEndIncentives'])->name('incentives.lock-year-end-incentives');
+Route::get('/incentives/print-year-end-final/{id}', [IncentivesController::class, 'printYearEndFinal'])->name('incentives.print-year-end-final');
+Route::get('/incentives/print-year-end-signatures/{id}', [IncentivesController::class, 'printYearEndSignatures'])->name('incentives.print-year-end-signatures');
 Route::resource('incentives', IncentivesController::class);
 
 Route::get('/bempcs/upload', [BempcController::class, 'upload'])->name('bempcs.upload');
