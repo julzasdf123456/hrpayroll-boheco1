@@ -9,6 +9,7 @@ use App\Repositories\IncentivesRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Maatwebsite\Excel\Facades\Excel;
 use App\Models\Employees;
 use App\Models\Incentives;
 use App\Models\IncentiveDetails;
@@ -18,6 +19,7 @@ use App\Models\EmployeeIncentiveAnnualProjections;
 use App\Models\IncentivesAnnualProjection;
 use App\Models\IncentivesYearEndDetails;
 use App\Models\LeaveConversions;
+use App\Exports\FCBUploadTemplate;
 use Flash;
 
 class IncentivesController extends AppBaseController
@@ -965,5 +967,142 @@ class IncentivesController extends AppBaseController
             'internalAuditor' => $internalAuditor,
             'gm' => $gm,
         ]);
+    }
+
+    public function printYearEndFCB($id) {
+        $incentive = Incentives::find($id);
+
+        $departments = DB::table('IncentivesYearEndDetails')
+            ->whereRaw("IncentivesId='" . $id . "'")
+            ->select(
+                'Department',
+            )
+            ->groupBy('Department')
+            ->get();
+
+        $datas = [];
+        foreach($departments as $item) {
+            array_push($datas, [
+                'Department' => $item->Department,
+                'Data' => DB::table('IncentivesYearEndDetails')
+                    ->leftJoin('Employees', 'IncentivesYearEndDetails.EmployeeId', '=', 'Employees.id')
+                    ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+                    ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+                    ->whereRaw("IncentivesYearEndDetails.Department='" . $item->Department . "' AND IncentivesYearEndDetails.IncentivesId='" . $id . "'")
+                    ->select(
+                        'FirstName',
+                        'LastName',
+                        'MiddleName',
+                        'Suffix',
+                        'PrimaryBankNumber',
+                        'IncentivesYearEndDetails.*',
+                        'Positions.Position'
+                    )
+                    ->orderBy('LastName')
+                    ->get(),
+            ]);
+        }
+
+        $totalPayroll = DB::table('IncentivesYearEndDetails')
+            ->whereRaw("IncentivesId='" . $id . "'")
+            ->select(
+                DB::raw("SUM(NetPay) AS TotalPayroll")
+            )
+            ->first();
+
+        $payrollClerk = DB::table('Employees')
+            ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+            ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+            ->whereRaw("Positions.Position='Payroll Clerk' AND (EmploymentStatus IS NULL OR EmploymentStatus NOT IN('Retired', 'Resigned'))")
+            ->select(
+                'FirstName',
+                'MiddleName',
+                'LastName',
+                'Suffix',
+                'Positions.Position'
+            )
+            ->first();
+
+        $osdManager = DB::table('Employees')
+            ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+            ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+            ->whereRaw("Positions.Position='Manager, O S D' AND (EmploymentStatus IS NULL OR EmploymentStatus NOT IN('Retired', 'Resigned'))")
+            ->select(
+                'FirstName',
+                'MiddleName',
+                'LastName',
+                'Suffix',
+                'Positions.Position'
+            )
+            ->first();
+
+        $internalAuditor = DB::table('Employees')
+            ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+            ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+            ->whereRaw("Positions.Position='Internal Auditor' AND (EmploymentStatus IS NULL OR EmploymentStatus NOT IN('Retired', 'Resigned'))")
+            ->select(
+                'FirstName',
+                'MiddleName',
+                'LastName',
+                'Suffix',
+                'Positions.Position'
+            )
+            ->first();
+
+        $gm = DB::table('Employees')
+            ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+            ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+            ->whereRaw("Positions.Position='General Manager' AND (EmploymentStatus IS NULL OR EmploymentStatus NOT IN('Retired', 'Resigned'))")
+            ->select(
+                'FirstName',
+                'MiddleName',
+                'LastName',
+                'Suffix',
+                'Positions.Position'
+            )
+            ->first();
+
+        return view('/incentives/print_year_end_fcb', [
+            'incentive' => $incentive,
+            'datas' => $datas,
+            'payrollClerk' => $payrollClerk,
+            'osdManager' => $osdManager,
+            'internalAuditor' => $internalAuditor,
+            'gm' => $gm,
+            'totalPayroll' => $totalPayroll,
+        ]);
+    }
+
+    public function downloadYearEndFCBTemplate($id) {
+        $incentive = Incentives::find($id);
+
+        $dataRaw = DB::table('IncentivesYearEndDetails')
+                    ->leftJoin('Employees', 'IncentivesYearEndDetails.EmployeeId', '=', 'Employees.id')
+                    ->whereRaw("IncentivesYearEndDetails.IncentivesId='" . $id . "'")
+                    ->select(
+                        'FirstName',
+                        'LastName',
+                        'MiddleName',
+                        'Suffix',
+                        'PrimaryBankNumber',
+                        'IncentivesYearEndDetails.*',
+                    )
+                    ->orderBy('LastName')
+                    ->get();
+
+        $data = [];
+        $totalPayroll = 0;
+        foreach($dataRaw as $item) {
+            $totalPayroll += floatval($item->NetPay);
+            array_push($data, [
+                'PitakardNo' => $item->PrimaryBankNumber,
+                'AccountName' => strtoupper(Employees::getMergeNameFull($item)),
+                'Amount' => $item->NetPay,
+            ]);
+        }
+
+        $export = new FCBUploadTemplate($data, $totalPayroll, date('m/d/Y'));
+
+        return Excel::download($export, 'FCB-Payroll-Upload-' . $incentive->IncentiveName . '-' . date('Y-m-d') . '.xlsx');
     }
 }

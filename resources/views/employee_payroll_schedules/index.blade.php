@@ -52,6 +52,7 @@
                         <th>Office</th>
                         <th>Date Hired</th>
                         <th>Biometrics ID</th>
+                        <th>Pitakard No.</th>
                     </thead>
                     <tbody>
                         @foreach ($employees as $item)
@@ -86,6 +87,9 @@
                                 </td>
                                 <td style="width: 160px;">
                                     <input id="biometric-id-{{ $item->id }}" onchange="updateBiometricId(`{{ $item->id }}`)" type="number" class="form-control form-control-sm" value="{{ $item->BiometricsUserId }}">
+                                </td>
+                                <td style="width: 220px;">
+                                    <input id="pitakard-{{ $item->id }}" onchange="updatePitakard(`{{ $item->id }}`)" type="text" class="form-control form-control-sm" value="{{ $item->PrimaryBankNumber }}">
                                 </td>
                             </tr>
                         @endforeach
@@ -230,6 +234,35 @@
                         Toast.fire({
                             icon : 'error',
                             text : 'Error updating biometrics ID!'
+                        })
+                    }
+                })
+            }            
+        }
+
+        function updatePitakard(id) {
+            var pitakardNo = $('#pitakard-' + id).val()
+
+            if (isNull(pitakardNo)) {
+
+            } else {
+                $.ajax({
+                    url : "{{ route('employees.update-pitakard') }}",
+                    type : "GET",
+                    data : {
+                        id : id,
+                        PitakardNo : pitakardNo
+                    },
+                    success : function(res) {
+                        Toast.fire({
+                            icon : 'success',
+                            text : 'Pitakard number updated!'
+                        })
+                    },
+                    error : function(err) {
+                        Toast.fire({
+                            icon : 'error',
+                            text : 'Error updating pitakard number!'
                         })
                     }
                 })

@@ -200,6 +200,14 @@ class Employees extends Model
         }
     }
 
+    public static function getMergeNameFull($employee) {
+        if ($employee != null) {
+            return  $employee->LastName . ', ' . $employee->FirstName . " " . $employee->Suffix . " " . $employee->MiddleName;
+        } else {
+            return "No name";
+        }
+    }
+
     public static function getCurrentAddress($employee) {
         if ($employee != null) {
             return $employee->StreetCurrent . ", " . (Barangays::find($employee->BarangayCurrent)==null ? '-' : Barangays::find($employee->BarangayCurrent)->Barangays) . ", " . (Towns::find($employee->TownCurrent)==null ? '-' : Towns::find($employee->TownCurrent)->Town) . ", " . $employee->ProvinceCurrent;
@@ -350,6 +358,26 @@ class Employees extends Model
             return round((floatval($salary) * 12) / 302, 2);
         } else {
             return 0;
+        }
+    }
+
+    public static function getDepartmentFull($abrev) {
+        if ($abrev === 'ESD') {
+            return 'Engineering Services Department';
+        } elseif ($abrev === 'ISD') {
+            return 'Institutional Services Department';
+        } elseif ($abrev === 'OGM') {
+            return 'Office of the General Manager';
+        } elseif ($abrev === 'PGD') {
+            return 'Power Genration Department';
+        } elseif ($abrev === 'OSD') {
+            return 'Office Services Department';
+        } elseif ($abrev === 'SEEAD') {
+            return 'Special Equipment and Energy Audit Department';
+        } elseif ($abrev === 'SUB-OFFICE') {
+            return 'Sub-Office Area';
+        } else {
+            return $abrev;
         }
     }
 }

@@ -60,13 +60,17 @@
              {{-- ACTIONS --}}
              <div class="col-lg-4">  
                 <div class="dropdown">
-                    <a class="btn btn-link dropdown-toggle float-right {{ Auth::user()->ColorProfile != null ? 'text-white' : '' }}" href="#" role="button" data-toggle="dropdown" aria-expanded="false" style="margin-right: 15px;">
+                    <a class="btn btn-primary-skinny dropdown-toggle float-right {{ Auth::user()->ColorProfile != null ? 'text-white' : '' }}" href="#" role="button" data-toggle="dropdown" aria-expanded="false" style="margin-right: 15px;">
                       More
                     </a>
                   
                     <div class="dropdown-menu">
-                        <a href="{{ route('payrollIndices.view-payroll-without-deduction', [$salaryPeriod]) }}" class="dropdown-item" style="padding-top: 12px; padding-bottom: 12px;" href="">View Payroll Without Deductions</a>
-                        <a href="{{ route('payrollIndices.view-payroll-deductions-only', [$salaryPeriod]) }}" class="dropdown-item" style="padding-top: 12px; padding-bottom: 12px;" href="">View Payroll Deductions Only</a>
+                        <a href="{{ route('payrollIndices.view-payroll-without-deduction', [$salaryPeriod]) }}" class="dropdown-item" style="padding-top: 12px; padding-bottom: 12px;" href=""><i class="fas fa-stop-circle ico-tab"></i>View Payroll Without Deductions</a>
+                        <a href="{{ route('payrollIndices.view-payroll-deductions-only', [$salaryPeriod]) }}" class="dropdown-item" style="padding-top: 12px; padding-bottom: 12px;" href=""><i class="fas fa-minus-circle ico-tab"></i>View Payroll Deductions Only</a>
+                        <div class="divider"></div>
+                        <a href="{{ route('payrollIndices.download-fcb-template', [$salaryPeriod]) }}" class="dropdown-item"><i class="fas fa-download ico-tab"></i>Download FCB Upload Format</a>
+                        <a href="{{ route('payrollIndices.print-fcb-submission', [$salaryPeriod]) }}" class="dropdown-item"><i class="fas fa-print ico-tab"></i>Print FCB Submission</a>
+                        <a href="{{ route('incentives.print-year-end-fcb', [$salaryPeriod]) }}" class="dropdown-item"><i class="fas fa-print ico-tab"></i>Print Final</a>
                     </div>
                 </div>
             </div>

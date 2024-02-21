@@ -9,6 +9,7 @@ use App\Http\Controllers\AppBaseController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Maatwebsite\Excel\Facades\Excel;
 use App\Models\Employees;
 use App\Models\PayrollIndex;
 use App\Models\LeaveAttendanceDates;
@@ -25,6 +26,7 @@ use App\Models\HolidaysList;
 use App\Models\PayrollExpandedDetails;
 use App\Models\UserFootprints;
 use App\Models\LoanDetails;
+use App\Exports\FCBUploadTemplate;
 use Flash;
 use Response;
 
@@ -1094,6 +1096,135 @@ class PayrollIndexController extends AppBaseController
             'datas' => $datas,
             'salaryPeriod' => $salaryPeriod,
             'stats' => $stats,
+        ]);
+    }
+
+    public function downloadFCBTemplate($salaryPeriod) {
+        $dataRaw = DB::table('PayrollExpandedDetails')
+            ->leftJoin('Employees', 'PayrollExpandedDetails.EmployeeId', '=', 'Employees.id')
+            ->whereRaw("PayrollExpandedDetails.SalaryPeriod='" . $salaryPeriod . "'")
+            ->select(
+                'FirstName',
+                'LastName',
+                'MiddleName',
+                'Suffix',
+                'PrimaryBankNumber',
+                'PayrollExpandedDetails.*'
+            )
+            ->orderBy('LastName')
+            ->get();
+
+        $data = [];
+        $totalPayroll = 0;
+        foreach($dataRaw as $item) {
+            $totalPayroll += floatval($item->NetPay);
+            array_push($data, [
+                'PitakardNo' => $item->PrimaryBankNumber,
+                'AccountName' => strtoupper(Employees::getMergeNameFull($item)),
+                'Amount' => $item->NetPay,
+            ]);
+        }
+
+        $export = new FCBUploadTemplate($data, $totalPayroll, $salaryPeriod);
+
+        return Excel::download($export, 'FCB-Payroll-Upload-' . $salaryPeriod . '.xlsx');
+    }
+
+    public function printFCBSubmission($salaryPeriod) {
+        $departments = DB::table('PayrollExpandedDetails')
+            ->whereRaw("SalaryPeriod='" . $salaryPeriod . "'")
+            ->select(
+                'Department',
+            )
+            ->groupBy('Department')
+            ->get();
+
+        $datas = [];
+        foreach($departments as $item) {
+            array_push($datas, [
+                'Department' => $item->Department,
+                'Data' => DB::table('PayrollExpandedDetails')
+                    ->leftJoin('Employees', 'PayrollExpandedDetails.EmployeeId', '=', 'Employees.id')
+                    ->whereRaw("PayrollExpandedDetails.Department='" . $item->Department . "' AND PayrollExpandedDetails.SalaryPeriod='" . $salaryPeriod . "'")
+                    ->select(
+                        'FirstName',
+                        'LastName',
+                        'MiddleName',
+                        'Suffix',
+                        'PrimaryBankNumber',
+                        'PayrollExpandedDetails.*'
+                    )
+                    ->orderBy('LastName')
+                    ->get(),
+            ]);
+        }
+
+        $totalPayroll = DB::table('PayrollExpandedDetails')
+            ->whereRaw("SalaryPeriod='" . $salaryPeriod . "'")
+            ->select(
+                DB::raw("SUM(NetPay) AS TotalPayroll")
+            )
+            ->first();
+            $payrollClerk = DB::table('Employees')
+            ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+            ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+            ->whereRaw("Positions.Position='Payroll Clerk' AND (EmploymentStatus IS NULL OR EmploymentStatus NOT IN('Retired', 'Resigned'))")
+            ->select(
+                'FirstName',
+                'MiddleName',
+                'LastName',
+                'Suffix',
+                'Positions.Position'
+            )
+            ->first();
+
+        $osdManager = DB::table('Employees')
+            ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+            ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+            ->whereRaw("Positions.Position='Manager, O S D' AND (EmploymentStatus IS NULL OR EmploymentStatus NOT IN('Retired', 'Resigned'))")
+            ->select(
+                'FirstName',
+                'MiddleName',
+                'LastName',
+                'Suffix',
+                'Positions.Position'
+            )
+            ->first();
+
+        $internalAuditor = DB::table('Employees')
+            ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+            ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+            ->whereRaw("Positions.Position='Internal Auditor' AND (EmploymentStatus IS NULL OR EmploymentStatus NOT IN('Retired', 'Resigned'))")
+            ->select(
+                'FirstName',
+                'MiddleName',
+                'LastName',
+                'Suffix',
+                'Positions.Position'
+            )
+            ->first();
+
+        $gm = DB::table('Employees')
+            ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+            ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+            ->whereRaw("Positions.Position='General Manager' AND (EmploymentStatus IS NULL OR EmploymentStatus NOT IN('Retired', 'Resigned'))")
+            ->select(
+                'FirstName',
+                'MiddleName',
+                'LastName',
+                'Suffix',
+                'Positions.Position'
+            )
+            ->first();
+
+        return view('/payroll_indices/print_fcb_submission', [
+            'datas' => $datas,
+            'salaryPeriod' => $salaryPeriod,
+            'totalPayroll' => $totalPayroll,
+            'payrollClerk' => $payrollClerk,
+            'osdManager' => $osdManager,
+            'internalAuditor' => $internalAuditor,
+            'gm' => $gm,
         ]);
     }
 }
