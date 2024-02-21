@@ -592,6 +592,7 @@ class IncentivesController extends AppBaseController
                         'Employees.MiddleName',
                         'Employees.LastName',
                         'Employees.Suffix',
+                        'Employees.DateHired',
                         'Employees.id',
                         'Positions.BasicSalary AS SalaryAmount',
                         'Positions.Level',
@@ -611,6 +612,7 @@ class IncentivesController extends AppBaseController
                         'Employees.MiddleName',
                         'Employees.LastName',
                         'Employees.Suffix',
+                        'Employees.DateHired',
                         'Employees.id',
                         'Positions.BasicSalary AS SalaryAmount',
                         'Positions.Level',
@@ -639,6 +641,17 @@ class IncentivesController extends AppBaseController
                 ->orderBy('SalaryPeriod')
                 ->get();
 
+            // 13th Month Received
+            $item->Received13thMonths = DB::table('IncentiveDetails')
+                ->leftJoin('Incentives', 'IncentiveDetails.IncentivesId', '=', 'Incentives.id')
+                ->whereRaw("IncentiveDetails.EmployeeId='" . $item->id . "' AND Incentives.IncentiveName IN ('13th Month Pay - 1st Half', '13th Month Pay - 2nd Half')")
+                ->select(
+                    'IncentiveName',
+                    'NetPay',
+                )
+                ->orderBy('Incentives.created_at')
+                ->get();
+
             $item->AROthers = DB::table('OtherPayrollDeductions')
                 ->whereRaw("EmployeeId='" . $item->id . "' AND Type='Year-end Incentives' AND (created_at BETWEEN '" . date('Y-m-d', strtotime('January 1, ' . date('Y'))) . "' AND '" . date('Y-m-d', strtotime('December 31, ' . date('Y'))) . "')")
                 ->get();
@@ -648,11 +661,17 @@ class IncentivesController extends AppBaseController
                 ->whereRaw("EmployeeId='" . $item->id . "' AND DeductionFor='Year-end Incentives' AND Year='" . date('Y') . "' AND ReleaseType='Full'")
                 ->get();
 
+            // CASH GIFT
             $item->ExistingIncentive = DB::table('IncentiveDetails')
                 ->leftJoin('Incentives', 'IncentiveDetails.IncentivesId', '=', 'Incentives.id')
                 ->whereRaw("Incentives.Year='" . date('Y') . "' AND IncentiveDetails.EmployeeId='" . $item->id . "' AND Incentives.IncentiveName='Year-end Incentives' AND Incentives.ReleaseType='Full'")
                 ->select('IncentiveDetails.id', 'IncentiveDetails.NetPay', 'IncentiveDetails.SubTotal')
                 ->first();
+
+            // VL and SL Conversion
+            $item->VLSL = DB::table('LeaveConversions')
+                ->whereRaw("Year='" . date('Y') . "' AND EmployeeId='" . $item->id . "' AND Status='Approved'")
+                ->get();
         }
 
         $data = [

@@ -588,3 +588,15 @@ body.dark-mode .upload-jumbotron {
 body.dark-mode .swal2-toast {
     background-color: #343a40 !important;
 }
+
+/**
+ * <a> tag
+ */
+body.dark-mode a:not(.nav-link, .bottom-nav-pills) {
+    color: #dfe3e6 !important;
+    transition: all .4s ease !important;
+}
+
+body.dark-mode a:hover:not(.nav-link, .bottom-nav-pills) {
+    color: #5ddfb8 !important;
+}

@@ -585,8 +585,15 @@ export default {
 
                     // IF October/2nd Term, Display May/First Term incentive
                     if (this.term !== moment().format('YYYY-05-01')) {
-                        datasets['PreviousTermAmount'] = this.isNull(response.data['Employees'][i]['FirstTerm']['NetPay']) ? 0 : parseFloat(response.data['Employees'][i]['FirstTerm']['NetPay'])
-                        subTotal = subTotal - (this.isNull(response.data['Employees'][i]['FirstTerm']['NetPay']) ? 0 : parseFloat(response.data['Employees'][i]['FirstTerm']['NetPay']))
+                        var prevNetPay = 0
+                        if (!this.isNull(response.data['Employees'][i]['FirstTerm'])) { 
+                            prevNetPay = (this.isNull(response.data['Employees'][i]['FirstTerm']['NetPay']) | response.data['Employees'][i]['FirstTerm']['NetPay'].length < 1 ? 0 : parseFloat(response.data['Employees'][i]['FirstTerm']['NetPay'])) 
+                        } else { 
+                            prevNetPay = 0 
+                        }
+                        prevNetPay = prevNetPay.length < 1 ? 0 : prevNetPay
+                        datasets['PreviousTermAmount'] = prevNetPay
+                        subTotal = subTotal - (prevNetPay)
                     } else {
                         datasets['PreviousTermAmount'] = 0
                     }
@@ -611,7 +618,7 @@ export default {
 
                 Swal.fire({
                     icon : 'error',
-                    title : 'Error submitting payroll data!',
+                    title : 'Error getting payroll data!',
                 });
                 console.log(error)
                 this.loaderDisplay = 'gone';

@@ -40,9 +40,15 @@
         </div>
 
         <!-- VISIBILITY SETTINGS -->
+        <!-- 14th Month Pay -->
         <div class="custom-control custom-switch" style="margin-left: 15px; margin-bottom: 20px;">
             <input type="checkbox" class="custom-control-input" :checked="is14MonthBreakdownShown" @change="toggle14thBreakdown()" id="show14th">
             <label class="custom-control-label text-muted" for="show14th" style="font-weight: normal">Show 14th-month Breakdown</label>
+        </div>
+        <!-- 13th Month Differential -->
+        <div class="custom-control custom-switch" style="margin-left: 15px; margin-bottom: 20px;">
+            <input type="checkbox" class="custom-control-input" :checked="is13MonthDiffBreakdownShown" @change="toggle13thBreakdown()" id="show13th">
+            <label class="custom-control-label text-muted" for="show13th" style="font-weight: normal">Show 13th-month Diff. Breakdown</label>
         </div>
 
         <!-- SHOW IF EXISTS -->
@@ -61,14 +67,13 @@
                         <tr>
                             <th rowspan="2" class='text-center' style="width: 240px;">Employees</th>
                             <th rowspan="2" class='text-center' style="width: 240px;">Position</th>
-                                <!-- 1st Term -->
+                                <!-- 14th MONTH -->
                                 <th colspan="2" v-if="is14MonthBreakdownShown" class='text-center'>{{ monthHeaders['0'] }}</th>
                                 <th colspan="2" v-if="is14MonthBreakdownShown" class='text-center'>{{ monthHeaders['1'] }}</th>
                                 <th colspan="2" v-if="is14MonthBreakdownShown" class='text-center'>{{ monthHeaders['2'] }}</th>
                                 <th colspan="2" v-if="is14MonthBreakdownShown" class='text-center'>{{ monthHeaders['3'] }}</th>
                                 <th colspan="2" v-if="is14MonthBreakdownShown" class='text-center'>{{ monthHeaders['4'] }}</th>
                                 <th colspan="2" v-if="is14MonthBreakdownShown" class='text-center'>{{ monthHeaders['5'] }}</th>
-                                <!-- 2nd Term -->
                                 <th colspan="2" v-if="is14MonthBreakdownShown" class='text-center'>{{ monthHeaders['6'] }}</th>
                                 <th colspan="2" v-if="is14MonthBreakdownShown" class='text-center'>{{ monthHeaders['7'] }}</th>
                                 <th colspan="2" v-if="is14MonthBreakdownShown" class='text-center'>{{ monthHeaders['8'] }}</th>
@@ -76,6 +81,23 @@
                                 <th colspan="2" v-if="is14MonthBreakdownShown" class='text-center'>{{ monthHeaders['10'] }}</th>
                                 <th colspan="2" v-if="is14MonthBreakdownShown" class='text-center'>{{ monthHeaders['11'] }}</th>
                             <th rowspan="2" class="text-center">14th Month Pay</th>
+                                <!-- 13th MONTH DIFFERENTIAL -->
+                                <th colspan="2" v-if="is13MonthDiffBreakdownShown" class='text-center'>{{ monthHeaders['0'] }}</th>
+                                <th colspan="2" v-if="is13MonthDiffBreakdownShown" class='text-center'>{{ monthHeaders['1'] }}</th>
+                                <th colspan="2" v-if="is13MonthDiffBreakdownShown" class='text-center'>{{ monthHeaders['2'] }}</th>
+                                <th colspan="2" v-if="is13MonthDiffBreakdownShown" class='text-center'>{{ monthHeaders['3'] }}</th>
+                                <th colspan="2" v-if="is13MonthDiffBreakdownShown" class='text-center'>{{ monthHeaders['4'] }}</th>
+                                <th colspan="2" v-if="is13MonthDiffBreakdownShown" class='text-center'>{{ monthHeaders['5'] }}</th>
+                                <th colspan="2" v-if="is13MonthDiffBreakdownShown" class='text-center'>{{ monthHeaders['6'] }}</th>
+                                <th colspan="2" v-if="is13MonthDiffBreakdownShown" class='text-center'>{{ monthHeaders['7'] }}</th>
+                                <th colspan="2" v-if="is13MonthDiffBreakdownShown" class='text-center'>{{ monthHeaders['8'] }}</th>
+                                <th colspan="2" v-if="is13MonthDiffBreakdownShown" class='text-center'>{{ monthHeaders['9'] }}</th>
+                                <th colspan="2" v-if="is13MonthDiffBreakdownShown" class='text-center'>{{ monthHeaders['10'] }}</th>
+                                <th colspan="2" v-if="is13MonthDiffBreakdownShown" class='text-center'>{{ monthHeaders['11'] }}</th>
+                                <th rowspan="2" v-if="is13MonthDiffBreakdownShown" class='text-center'>13th Month<br>Actual Total</th>
+                                <th rowspan="2" v-if="is13MonthDiffBreakdownShown" class='text-center'>13th Month<br>1st Term</th>
+                                <th rowspan="2" v-if="is13MonthDiffBreakdownShown" class='text-center'>13th Month<br>2nd Term</th>
+                                <th rowspan="2" v-if="is13MonthDiffBreakdownShown" class='text-center'>13th Month<br>Total Received</th>
                             <th rowspan="2" class="text-center">13th Month<br>Differential</th>
                             <th rowspan="2" class="text-center">Cash Gift
                                 <br>
@@ -90,7 +112,7 @@
                             <th rowspan="2" class="text-center">NET PAY</th>
                         </tr>
                         <tr>
-                            <!-- 1st Term -->
+                            <!-- 14th MONTH -->
                             <th v-if="is14MonthBreakdownShown" class='text-center'>1st</th>
                             <th v-if="is14MonthBreakdownShown" class='text-center'>2nd</th>
                             <th v-if="is14MonthBreakdownShown" class='text-center'>1st</th>
@@ -103,7 +125,6 @@
                             <th v-if="is14MonthBreakdownShown" class='text-center'>2nd</th>
                             <th v-if="is14MonthBreakdownShown" class='text-center'>1st</th>
                             <th v-if="is14MonthBreakdownShown" class='text-center'>2nd</th>
-                            <!-- 2nd Term -->
                             <th v-if="is14MonthBreakdownShown" class='text-center'>1st</th>
                             <th v-if="is14MonthBreakdownShown" class='text-center'>2nd</th>
                             <th v-if="is14MonthBreakdownShown" class='text-center'>1st</th>
@@ -116,6 +137,31 @@
                             <th v-if="is14MonthBreakdownShown" class='text-center'>2nd</th>
                             <th v-if="is14MonthBreakdownShown" class='text-center'>1st</th>
                             <th v-if="is14MonthBreakdownShown" class='text-center'>2nd</th>
+                            <!-- 13th MONTH DIFFERENTIAL -->
+                            <th v-if="is13MonthDiffBreakdownShown" class='text-center'>1st</th>
+                            <th v-if="is13MonthDiffBreakdownShown" class='text-center'>2nd</th>
+                            <th v-if="is13MonthDiffBreakdownShown" class='text-center'>1st</th>
+                            <th v-if="is13MonthDiffBreakdownShown" class='text-center'>2nd</th>
+                            <th v-if="is13MonthDiffBreakdownShown" class='text-center'>1st</th>
+                            <th v-if="is13MonthDiffBreakdownShown" class='text-center'>2nd</th>
+                            <th v-if="is13MonthDiffBreakdownShown" class='text-center'>1st</th>
+                            <th v-if="is13MonthDiffBreakdownShown" class='text-center'>2nd</th>
+                            <th v-if="is13MonthDiffBreakdownShown" class='text-center'>1st</th>
+                            <th v-if="is13MonthDiffBreakdownShown" class='text-center'>2nd</th>
+                            <th v-if="is13MonthDiffBreakdownShown" class='text-center'>1st</th>
+                            <th v-if="is13MonthDiffBreakdownShown" class='text-center'>2nd</th>
+                            <th v-if="is13MonthDiffBreakdownShown" class='text-center'>1st</th>
+                            <th v-if="is13MonthDiffBreakdownShown" class='text-center'>2nd</th>
+                            <th v-if="is13MonthDiffBreakdownShown" class='text-center'>1st</th>
+                            <th v-if="is13MonthDiffBreakdownShown" class='text-center'>2nd</th>
+                            <th v-if="is13MonthDiffBreakdownShown" class='text-center'>1st</th>
+                            <th v-if="is13MonthDiffBreakdownShown" class='text-center'>2nd</th>
+                            <th v-if="is13MonthDiffBreakdownShown" class='text-center'>1st</th>
+                            <th v-if="is13MonthDiffBreakdownShown" class='text-center'>2nd</th>
+                            <th v-if="is13MonthDiffBreakdownShown" class='text-center'>1st</th>
+                            <th v-if="is13MonthDiffBreakdownShown" class='text-center'>2nd</th>
+                            <th v-if="is13MonthDiffBreakdownShown" class='text-center'>1st</th>
+                            <th v-if="is13MonthDiffBreakdownShown" class='text-center'>2nd</th>
                             <th class="text-center">VL</th>
                             <th class="text-center">SL</th>
                         </tr>
@@ -124,7 +170,7 @@
                         <tr v-for="(employee, index) in employees" :key="employee.id">
                             <td style="min-width: 250px;"><strong>{{ employee.name }}</strong></td>
                             <td style="min-width: 250px;">{{ employee.Position }}</td>
-                            <!-- 1st Term -->
+                            <!-- 14th MONTH -->
                             <td v-if="is14MonthBreakdownShown" class='text-right'>{{ toMoney(employee.JanuaryFirst) }}</td>
                             <td v-if="is14MonthBreakdownShown" class='text-right'>{{ toMoney(employee.JanuarySecond) }}</td>
                             <td v-if="is14MonthBreakdownShown" class='text-right'>{{ toMoney(employee.FebruaryFirst) }}</td>
@@ -137,7 +183,6 @@
                             <td v-if="is14MonthBreakdownShown" class='text-right'>{{ toMoney(employee.MaySecond) }}</td>
                             <td v-if="is14MonthBreakdownShown" class='text-right'>{{ toMoney(employee.JuneFirst) }}</td>
                             <td v-if="is14MonthBreakdownShown" class='text-right'>{{ toMoney(employee.JuneSecond) }}</td>
-                            <!-- 2nd Term -->
                             <td v-if="is14MonthBreakdownShown" class='text-right'>{{ toMoney(employee.JulyFirst) }}</td>
                             <td v-if="is14MonthBreakdownShown" class='text-right'>{{ toMoney(employee.JulySecond) }}</td>
                             <td v-if="is14MonthBreakdownShown" class='text-right'>{{ toMoney(employee.AugustFirst) }}</td>
@@ -150,18 +195,47 @@
                             <td v-if="is14MonthBreakdownShown" class='text-right'>{{ toMoney(employee.NovemberSecond) }}</td>
                             <td v-if="is14MonthBreakdownShown" class='text-right'>{{ toMoney(employee.DecemberFirst) }}</td>
                             <td v-if="is14MonthBreakdownShown" class='text-right'>{{ toMoney(employee.DecemberSecond) }}</td>
+                            <td class='text-right'>{{ employee.FourteenthMonth > 0 ? toMoney(employee.FourteenthMonth) : '-' }}</td>
+                            <!-- 13th MONTH DIFFERENTIAL -->
+                            <td v-if="is13MonthDiffBreakdownShown" class='text-right'>{{ toMoney(employee.JanuaryFirst13thDiff) }}</td>
+                            <td v-if="is13MonthDiffBreakdownShown" class='text-right'>{{ toMoney(employee.JanuarySecond13thDiff) }}</td>
+                            <td v-if="is13MonthDiffBreakdownShown" class='text-right'>{{ toMoney(employee.FebruaryFirst13thDiff) }}</td>
+                            <td v-if="is13MonthDiffBreakdownShown" class='text-right'>{{ toMoney(employee.FebruarySecond13thDiff) }}</td>
+                            <td v-if="is13MonthDiffBreakdownShown" class='text-right'>{{ toMoney(employee.MarchFirst13thDiff) }}</td>
+                            <td v-if="is13MonthDiffBreakdownShown" class='text-right'>{{ toMoney(employee.MarchSecond13thDiff) }}</td>
+                            <td v-if="is13MonthDiffBreakdownShown" class='text-right'>{{ toMoney(employee.AprilFirst13thDiff) }}</td>
+                            <td v-if="is13MonthDiffBreakdownShown" class='text-right'>{{ toMoney(employee.AprilSecond13thDiff) }}</td>
+                            <td v-if="is13MonthDiffBreakdownShown" class='text-right'>{{ toMoney(employee.MayFirst13thDiff) }}</td>
+                            <td v-if="is13MonthDiffBreakdownShown" class='text-right'>{{ toMoney(employee.MaySecond13thDiff) }}</td>
+                            <td v-if="is13MonthDiffBreakdownShown" class='text-right'>{{ toMoney(employee.JuneFirst13thDiff) }}</td>
+                            <td v-if="is13MonthDiffBreakdownShown" class='text-right'>{{ toMoney(employee.JuneSecond13thDiff) }}</td>
+                            <td v-if="is13MonthDiffBreakdownShown" class='text-right'>{{ toMoney(employee.JulyFirst13thDiff) }}</td>
+                            <td v-if="is13MonthDiffBreakdownShown" class='text-right'>{{ toMoney(employee.JulySecond13thDiff) }}</td>
+                            <td v-if="is13MonthDiffBreakdownShown" class='text-right'>{{ toMoney(employee.AugustFirst13thDiff) }}</td>
+                            <td v-if="is13MonthDiffBreakdownShown" class='text-right'>{{ toMoney(employee.AugustSecond13thDiff) }}</td>
+                            <td v-if="is13MonthDiffBreakdownShown" class='text-right'>{{ toMoney(employee.SeptemberFirst13thDiff) }}</td>
+                            <td v-if="is13MonthDiffBreakdownShown" class='text-right'>{{ toMoney(employee.SeptemberSecond13thDiff) }}</td>
+                            <td v-if="is13MonthDiffBreakdownShown" class='text-right'>{{ toMoney(employee.OctoberFirst13thDiff) }}</td>
+                            <td v-if="is13MonthDiffBreakdownShown" class='text-right'>{{ toMoney(employee.OctoberSecond13thDiff) }}</td>
+                            <td v-if="is13MonthDiffBreakdownShown" class='text-right'>{{ toMoney(employee.NovemberFirst13thDiff) }}</td>
+                            <td v-if="is13MonthDiffBreakdownShown" class='text-right'>{{ toMoney(employee.NovemberSecond13thDiff) }}</td>
+                            <td v-if="is13MonthDiffBreakdownShown" class='text-right'>{{ toMoney(employee.DecemberFirst13thDiff) }}</td>
+                            <td v-if="is13MonthDiffBreakdownShown" class='text-right'>{{ toMoney(employee.DecemberSecond13thDiff) }}</td>
+                            <td v-if="is13MonthDiffBreakdownShown" class='text-right'>{{ toMoney(employee.Actual13thTotal) }}</td>
+                            <td v-if="is13MonthDiffBreakdownShown" class='text-right'>{{ toMoney(employee.First13thTerm) }}</td>
+                            <td v-if="is13MonthDiffBreakdownShown" class='text-right'>{{ toMoney(employee.Second13thTerm) }}</td>
+                            <td v-if="is13MonthDiffBreakdownShown" class='text-right'>{{ toMoney(employee.Total13thReceived) }}</td>
 
-                            <td class='text-right'>{{ toMoney(employee.FourteenthMonth) }}</td>
-                            <td class='text-right'>{{ toMoney(employee.ThirteenthMonthDifferential) }}</td>
-                            <td class='text-right'>{{ toMoney(employee.CashGift) }}</td>
-                            <td class='text-right'>{{ toMoney(employee.VL) }}</td>
-                            <td class='text-right'>{{ toMoney(employee.SL) }}</td>
-                            <td class='text-right'>{{ toMoney(employee.LoyaltyAward) }}</td>
+                            <td class='text-right'>{{ employee.ThirteenthMonthDifferential !== 0 ? toMoney(employee.ThirteenthMonthDifferential) : '-' }}</td>
+                            <td class='text-right'>{{ employee.CashGift > 0 ? toMoney(employee.CashGift) : '-' }}</td>
+                            <td class='text-right'>{{ employee.VL > 0 ? toMoney(employee.VL) : '-' }}</td>
+                            <td class='text-right'>{{ employee.SL > 0 ? toMoney(employee.SL) : '-' }}</td>
+                            <td class='text-right'>{{ employee.LoyaltyAward > 0 ? toMoney(employee.LoyaltyAward) : '-' }}</td>
                             <td>
                                 <input style="min-width: 80px;" class="table-input-sm text-right" :disabled="isFixedAmountDisabled" :class="tableInputTextColor" v-model="employee.AROthers" @keyup.enter="inputEnter(employee.AROthers, employee.id)" @blur="inputEnter(employee.AROthers, employee.id)" type="number" step="any"/>
                             </td>
-                            <td class='text-right'>{{ toMoney(employee.BEMPC) }}</td>
-                            <td class='text-right'>{{ toMoney(employee.NetPay) }}</td>
+                            <td class='text-right'>{{ employee.BEMPC > 0 ? toMoney(employee.BEMPC) : '-' }}</td>
+                            <td class='text-right'>{{ employee.NetPay > 0 ? toMoney(employee.NetPay) : '-' }}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -366,7 +440,107 @@ export default {
                     value : moment(moment().format('YYYY') + "-12-15").endOf('month').format('YYYY-MM-DD'),
                 },
             ],
+            dataSetGuides13th : [
+                {
+                    name : 'JanuaryFirst13thDiff',
+                    value : moment(moment().format('YYYY') + "-01-15").format('YYYY-MM-DD'),
+                },
+                {
+                    name : 'JanuarySecond13thDiff',
+                    value : moment(moment().format('YYYY') + "-01-15").endOf('month').format('YYYY-MM-DD'),
+                },
+                {
+                    name : 'FebruaryFirst13thDiff',
+                    value : moment(moment().format('YYYY') + "-02-15").format('YYYY-MM-DD'),
+                },
+                {
+                    name : 'FebruarySecond13thDiff',
+                    value : moment(moment().format('YYYY') + "-02-15").endOf('month').format('YYYY-MM-DD'),
+                },
+                {
+                    name : 'MarchFirst13thDiff',
+                    value : moment(moment().format('YYYY') + "-03-15").format('YYYY-MM-DD'),
+                },
+                {
+                    name : 'MarchSecond13thDiff',
+                    value : moment(moment().format('YYYY') + "-03-15").endOf('month').format('YYYY-MM-DD'),
+                },
+                {
+                    name : 'AprilFirst13thDiff',
+                    value : moment(moment().format('YYYY') + "-04-15").format('YYYY-MM-DD'),
+                },
+                {
+                    name : 'AprilSecond13thDiff',
+                    value : moment(moment().format('YYYY') + "-04-15").endOf('month').format('YYYY-MM-DD'),
+                },
+                {
+                    name : 'MayFirst13thDiff',
+                    value : moment(moment().format('YYYY') + "-05-15").format('YYYY-MM-DD'),
+                },
+                {
+                    name : 'MaySecond13thDiff',
+                    value : moment(moment().format('YYYY') + "-05-15").endOf('month').format('YYYY-MM-DD'),
+                },
+                {
+                    name : 'JuneFirst13thDiff',
+                    value : moment(moment().format('YYYY') + "-06-15").format('YYYY-MM-DD'),
+                },
+                {
+                    name : 'JuneSecond13thDiff',
+                    value : moment(moment().format('YYYY') + "-06-15").endOf('month').format('YYYY-MM-DD'),
+                },
+                {
+                    name : 'JulyFirst13thDiff',
+                    value : moment(moment().format('YYYY') + "-07-15").format('YYYY-MM-DD'),
+                },
+                {
+                    name : 'JulySecond13thDiff',
+                    value : moment(moment().format('YYYY') + "-07-15").endOf('month').format('YYYY-MM-DD'),
+                },
+                {
+                    name : 'AugustFirst13thDiff',
+                    value : moment(moment().format('YYYY') + "-08-15").format('YYYY-MM-DD'),
+                },
+                {
+                    name : 'AugustSecond13thDiff',
+                    value : moment(moment().format('YYYY') + "-08-15").endOf('month').format('YYYY-MM-DD'),
+                },
+                {
+                    name : 'SeptemberFirst13thDiff',
+                    value : moment(moment().format('YYYY') + "-09-15").format('YYYY-MM-DD'),
+                },
+                {
+                    name : 'SeptemberSecond13thDiff',
+                    value : moment(moment().format('YYYY') + "-09-15").endOf('month').format('YYYY-MM-DD'),
+                },
+                {
+                    name : 'OctoberFirst13thDiff',
+                    value : moment(moment().format('YYYY') + "-10-15").format('YYYY-MM-DD'),
+                },
+                {
+                    name : 'OctoberSecond13thDiff',
+                    value : moment(moment().format('YYYY') + "-10-15").endOf('month').format('YYYY-MM-DD'),
+                },
+                {
+                    name : 'NovemberFirst13thDiff',
+                    value : moment(moment().format('YYYY') + "-11-15").format('YYYY-MM-DD'),
+                },
+                {
+                    name : 'NovemberSecond13thDiff',
+                    value : moment(moment().format('YYYY') + "-11-15").endOf('month').format('YYYY-MM-DD'),
+                },
+                {
+                    name : 'DecemberFirst13thDiff',
+                    value : moment(moment().format('YYYY') + "-12-15").format('YYYY-MM-DD'),
+                },
+                {
+                    name : 'DecemberSecond13thDiff',
+                    value : moment(moment().format('YYYY') + "-12-15").endOf('month').format('YYYY-MM-DD'),
+                },
+            ],
             is14MonthBreakdownShown : false,
+            // 13th Month Differential
+            is13MonthDiffBreakdownShown : false,
             // CASH GIFT
             fixedAmountCashGift : '',
             isFixedAmountCashGiftDisabled : false,
@@ -432,10 +606,10 @@ export default {
                     var vl = empArray[0].VL
                     var sl = empArray[0].SL
                     var loyaltyAward = empArray[0].LoyaltyAward
-                    var thirteenthDifferential = empArray[0].ThirteenthMonthDifferential
-                    var bempc = this.isNull(empArray[0].BEMPC) ? 0 : empArray[0].BEMPC
+                    var thirteenthDifferential = 0
+                    var bempc = empArray[0].BEMPC.length < 1 ? 0 : empArray[0].BEMPC
 
-                    value = (!this.isNull(value) ? value : 0)
+                    value = value.length < 1 ? 0 : parseFloat(value)
                     fourteenth = parseFloat(fourteenth)
                     cashGift = parseFloat(cashGift)
                     vl = parseFloat(vl)
@@ -443,7 +617,7 @@ export default {
                     loyaltyAward = parseFloat(loyaltyAward)
                     thirteenthDifferential = parseFloat(thirteenthDifferential)
                     bempc = parseFloat(bempc)
-                    newValue = (fourteenth + cashGift + vl + sl + loyaltyAward) - (parseFloat(value) + parseFloat(bempc) + thirteenthDifferential)
+                    newValue = (cashGift + fourteenth + loyaltyAward + vl + sl) - (parseFloat(value) + parseFloat(bempc) + thirteenthDifferential)
                 }
                 this.employees = this.employees.map(obj => {
                     if (obj.id === employeeId) {
@@ -531,6 +705,9 @@ export default {
         toggle14thBreakdown() {
             return this.is14MonthBreakdownShown ? this.is14MonthBreakdownShown=false : this.is14MonthBreakdownShown=true
         },
+        toggle13thBreakdown() {
+            return this.is13MonthDiffBreakdownShown ? this.is13MonthDiffBreakdownShown=false : this.is13MonthDiffBreakdownShown=true
+        },
         // CASH GIFT FUNCTIONS
         salaryBasedCashGift() {
             (async () => {
@@ -600,26 +777,34 @@ export default {
                 var bonusAmnt = baseSalary * this.salaryBasedCashGiftMultiplier
                 this.employees[i].CashGift = bonusAmnt
 
-                var arOthers = this.isNull(this.employees[i].AROthers) ? 0 : parseFloat(this.employees[i].AROthers)
-                var bempc = this.isNull(this.employees[i].BEMPC) ? 0 : parseFloat(this.employees[i].BEMPC)
-                var fourteenth = this.isNull(this.employees[i].FourteenthMonth) ? 0 : parseFloat(this.employees[i].FourteenthMonth)
-                var netPay = (bonusAmnt + fourteenth) - (arOthers + bempc)
+                var arOthers = this.employees[i].AROthers
+                var bempc = this.employees[i].BEMPC
+                var fourteenth = this.employees[i].FourteenthMonth
+                var vl = this.employees[i].VL
+                var sl = this.employees[i].SL
+                var thirteenthDifferential = 0
+                var loyaltyAward = this.employees[i].LoyaltyAward
+                var netPay = (bonusAmnt + fourteenth + loyaltyAward + vl + sl) - (arOthers + bempc + parseFloat(thirteenthDifferential))
 
                 this.employees[i].NetPay = netPay
             }
             this.showSaveFader()
         },
-        spreadCashGiftFixedAmount(amount) {
+        spreadCashGiftFixedAmount(cashGiftAmnt) {
             this.salaryBasedCashGiftLabel = 'Salary Based'
             this.isCashGiftSalaryBased = false
             let size = this.employees.length
             for(let i=0; i<size; i++) {
-                this.employees[i].CashGift = amount
+                this.employees[i].CashGift = cashGiftAmnt
 
                 var arOthers = this.employees[i].AROthers
                 var bempc = this.employees[i].BEMPC
-                var fourteenth = this.isNull(this.employees[i].FourteenthMonth) ? 0 : this.employees[i].FourteenthMonth
-                var netPay = (amount + fourteenth) - (arOthers + bempc)
+                var loyaltyAward = this.employees[i].LoyaltyAward
+                var fourteenth = this.employees[i].FourteenthMonth
+                var thirteenthDifferential = 0
+                var vl = this.employees[i].VL
+                var sl = this.employees[i].SL
+                var netPay = (cashGiftAmnt + fourteenth + loyaltyAward + vl + sl) - (arOthers + bempc + parseFloat(thirteenthDifferential))
 
                 this.employees[i].NetPay = netPay
             }
@@ -631,6 +816,42 @@ export default {
                 return 0;
             } else {
                 return parseFloat(bonusAmount);
+            }
+        },
+        getLoyaltyAward (dateHired) {
+            var yearsTotal = isNull(dateHired) ? 0 : moment().diff(moment(dateHired).format('YYYY-MM-DD'), 'years')
+
+            if (yearsTotal < 10) {
+                return 0
+            } else if (yearsTotal === 10) {
+                return 2000
+            } else {
+                return 500
+            }
+        },
+        getConversions(vlslArray, type) {
+            if (type === 'Vacation') {
+                var size = vlslArray.length
+                var total = 0
+                for(let i=0; i<size; i++) {
+                    total += parseFloat(vlslArray[i].VacationAmount)
+                }
+                return total
+            } else {
+                var size = vlslArray.length
+                var total = 0
+                for(let i=0; i<size; i++) {
+                    total += parseFloat(vlslArray[i].SickAmount)
+                }
+                return total
+            }
+        },
+        get13thReceived(data, term) {
+            var foundData = data.filter(obj => obj.IncentiveName === term)
+            if (foundData.length > 0) {
+                return parseFloat(foundData[0].NetPay)
+            } else {
+                return 0
             }
         },
         getData() {
@@ -699,12 +920,33 @@ export default {
                     var basicSalary = this.isNull(response.data['Employees'][i]['SalaryAmount']) ? 0 : parseFloat(response.data['Employees'][i]['SalaryAmount'])
                     let dataGuideSize = this.term === moment().format('YYYY-05-01') ? 12 : this.dataSetGuides.length
                     var fourteenthMonthTotal = 0
+                    var thirteenthMonthActualTotal = 0
                     for(let y=0; y<dataGuideSize; y++) {
-                        var foundData = payrollData.filter(obj => obj.SalaryPeriod === this.dataSetGuides[y].value)
-                        datasets[this.dataSetGuides[y].name] = this.getBiMonthlyWage(foundData, basicSalary, this.dataSetGuides[y].value)
-                        fourteenthMonthTotal += this.getBiMonthlyWage(foundData, basicSalary, this.dataSetGuides[y].value)
+                        var foundData14th = payrollData.filter(obj => obj.SalaryPeriod === this.dataSetGuides[y].value)
+                        var foundData13th = payrollData.filter(obj => obj.SalaryPeriod === this.dataSetGuides13th[y].value)
+                        // 14th Month
+                        datasets[this.dataSetGuides[y].name] = this.getBiMonthlyWage(foundData14th, basicSalary, this.dataSetGuides[y].value)
+                        fourteenthMonthTotal += this.getBiMonthlyWage(foundData14th, basicSalary, this.dataSetGuides[y].value)
+                        // 13th Month
+                        datasets[this.dataSetGuides13th[y].name] = this.getBiMonthlyWage(foundData13th, basicSalary, this.dataSetGuides13th[y].value)
+                        thirteenthMonthActualTotal += this.getBiMonthlyWage(foundData13th, basicSalary, this.dataSetGuides13th[y].value)
                     }
                     datasets['FourteenthMonth'] = fourteenthMonthTotal
+
+                    /**
+                     * ============================================================================
+                     *  13th Month
+                     * ============================================================================
+                     */
+                    datasets['Actual13thTotal'] = thirteenthMonthActualTotal
+                    var first13th = this.get13thReceived(response.data['Employees'][i]['Received13thMonths'], '13th Month Pay - 1st Half')
+                    datasets['First13thTerm'] = first13th
+                    var second13th = this.get13thReceived(response.data['Employees'][i]['Received13thMonths'], '13th Month Pay - 2nd Half')
+                    datasets['Second13thTerm'] = second13th
+                    var total13Received = first13th + second13th
+                    datasets['Total13thReceived'] = total13Received
+                    var diff13th = thirteenthMonthActualTotal - total13Received
+                    datasets['ThirteenthMonthDifferential'] = diff13th
 
                     /**
                      * ============================================================================
@@ -713,21 +955,56 @@ export default {
                      */
                     var cashGiftAmnt = 0
                     if (this.isCashGiftSalaryBased) {
-                        cashGiftAmnt = (this.isNull(response.data['Employees'][i]['SalaryAmount']) ? 0 : parseFloat(response.data['Employees'][i]['SalaryAmount'])) * this.salaryBasedCashGiftMultiplier
+                        cashGiftAmnt = (this.isNull(response.data['Employees'][i]['SalaryAmount']) ? 0 : (parseFloat(response.data['Employees'][i]['SalaryAmount'])) * this.salaryBasedCashGiftMultiplier)
                     } else {
                         cashGiftAmnt = this.isNull(response.data['Employees'][i]['ExistingIncentive']) ? this.fixedAmountCashGift : this.getExistingIncentive(response.data['Employees'][i]['ExistingIncentive'])
                     }
 
+                    cashGiftAmnt = this.isNull(cashGiftAmnt) ? 0 : (cashGiftAmnt.length < 1 ? 0 : cashGiftAmnt)
                     datasets['CashGift'] = cashGiftAmnt
 
+                    /**
+                     * ============================================================================
+                     *  LOYALTY AWARD
+                     * ============================================================================
+                     */
+                    var loyaltyAward = this.getLoyaltyAward(response.data['Employees'][i]['DateHired'])
+                    datasets['LoyaltyAward'] = loyaltyAward > 0 ? loyaltyAward : 0
+
+                    /**
+                     * ============================================================================
+                     *  VL
+                     * ============================================================================
+                     */
+                    var vlTotal = this.getConversions(response.data['Employees'][i]['VLSL'], 'Vacation')
+                    datasets['VL'] = vlTotal > 0 ? vlTotal : 0
+
+                    /**
+                     * ============================================================================
+                     *  SL
+                     * ============================================================================
+                     */
+                     var slTotal = this.getConversions(response.data['Employees'][i]['VLSL'], 'Sick')
+                    datasets['SL'] = slTotal > 0 ? slTotal : 0
+
+                    /**
+                     * ============================================================================
+                     *  AROthers
+                     * ============================================================================
+                     */
                     var arOtherAmnt = this.getAROthers(response.data['Employees'][i]['AROthers'], response.data['Employees'][i]['id'])
-                    datasets['AROthers'] = arOtherAmnt > 0 ? arOtherAmnt : ''
+                    datasets['AROthers'] = arOtherAmnt > 0 ? arOtherAmnt : 0
 
+                    /**
+                     * ============================================================================
+                     *  BEMPC
+                     * ============================================================================
+                     */
                     var bempcDeduction = this.isNumber(this.getBempcDeduction(response.data['Employees'][i]['BEMPC'])) ? this.getBempcDeduction(response.data['Employees'][i]['BEMPC']) : 0
-                    datasets['BEMPC'] = bempcDeduction
+                    datasets['BEMPC'] = bempcDeduction.length < 1 ? 0 : bempcDeduction
 
-                    var netPay = (cashGiftAmnt + fourteenthMonthTotal) - (arOtherAmnt + bempcDeduction)
-                    datasets['NetPay'] = netPay > 0 ? parseFloat(netPay) : ''
+                    var netPay = (cashGiftAmnt + fourteenthMonthTotal + loyaltyAward + vlTotal + slTotal) - (arOtherAmnt + bempcDeduction)
+                    datasets['NetPay'] = netPay > 0 ? parseFloat(netPay) : 0
 
                     this.employees.push(datasets)
                 }
