@@ -351,8 +351,7 @@ a.btn-floating {
     background-color: transparent !important;
     color : #6b6b6b;
     transition: background-color .5s ease, color .4s ease !important;
-    padding-left: 25px !important;
-    padding-right: 25px !important;
+    padding: 10px 25px 10px 25px !important;
 }
 
 .dropdown-item:hover {
@@ -597,6 +596,6 @@ body.dark-mode a:not(.nav-link, .bottom-nav-pills) {
     transition: all .4s ease !important;
 }
 
-body.dark-mode a:hover:not(.nav-link, .bottom-nav-pills) {
+body.dark-mode a:hover:not(.nav-link, .bottom-nav-pills, .dropdown-item) {
     color: #5ddfb8 !important;
 }

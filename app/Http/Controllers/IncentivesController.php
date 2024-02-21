@@ -17,6 +17,7 @@ use App\Models\UserFootprints;
 use App\Models\EmployeeIncentiveAnnualProjections;
 use App\Models\IncentivesAnnualProjection;
 use App\Models\IncentivesYearEndDetails;
+use App\Models\LeaveConversions;
 use Flash;
 
 class IncentivesController extends AppBaseController
@@ -763,9 +764,206 @@ class IncentivesController extends AppBaseController
                         ->where('Incentive', 'Cash Gift')
                         ->update(['ActualAmountReceived' => $item->CashGift]);
                 }
+
+                // Leave Cnversions
+                LeaveConversions::where('EmployeeId', $item->EmployeeId)
+                    ->where('Status', 'Approved')
+                    ->where('Year', $incentive->Year)
+                    ->update(['Status' => 'Completed']);
             }
         }
 
         return response()->json('ok', 200);
+    }
+
+    public function printYearEndFinal($id) {
+        $incentive = Incentives::find($id);
+
+        $departments = DB::table('IncentivesYearEndDetails')
+            ->whereRaw("IncentivesId='" . $id . "'")
+            ->select(
+                'Department',
+            )
+            ->groupBy('Department')
+            ->get();
+
+        $datas = [];
+        foreach($departments as $item) {
+            array_push($datas, [
+                'Department' => $item->Department,
+                'Data' => DB::table('IncentivesYearEndDetails')
+                    ->leftJoin('Employees', 'IncentivesYearEndDetails.EmployeeId', '=', 'Employees.id')
+                    ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+                    ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+                    ->whereRaw("IncentivesYearEndDetails.Department='" . $item->Department . "' AND IncentivesYearEndDetails.IncentivesId='" . $id . "'")
+                    ->select(
+                        'FirstName',
+                        'LastName',
+                        'MiddleName',
+                        'Suffix',
+                        'IncentivesYearEndDetails.*',
+                        'Positions.Position'
+                    )
+                    ->orderBy('LastName')
+                    ->get(),
+            ]);
+        }
+
+        $payrollClerk = DB::table('Employees')
+            ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+            ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+            ->whereRaw("Positions.Position='Payroll Clerk' AND (EmploymentStatus IS NULL OR EmploymentStatus NOT IN('Retired', 'Resigned'))")
+            ->select(
+                'FirstName',
+                'MiddleName',
+                'LastName',
+                'Suffix',
+                'Positions.Position'
+            )
+            ->first();
+
+        $osdManager = DB::table('Employees')
+            ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+            ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+            ->whereRaw("Positions.Position='Manager, O S D' AND (EmploymentStatus IS NULL OR EmploymentStatus NOT IN('Retired', 'Resigned'))")
+            ->select(
+                'FirstName',
+                'MiddleName',
+                'LastName',
+                'Suffix',
+                'Positions.Position'
+            )
+            ->first();
+
+        $internalAuditor = DB::table('Employees')
+            ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+            ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+            ->whereRaw("Positions.Position='Internal Auditor' AND (EmploymentStatus IS NULL OR EmploymentStatus NOT IN('Retired', 'Resigned'))")
+            ->select(
+                'FirstName',
+                'MiddleName',
+                'LastName',
+                'Suffix',
+                'Positions.Position'
+            )
+            ->first();
+
+        $gm = DB::table('Employees')
+            ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+            ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+            ->whereRaw("Positions.Position='General Manager' AND (EmploymentStatus IS NULL OR EmploymentStatus NOT IN('Retired', 'Resigned'))")
+            ->select(
+                'FirstName',
+                'MiddleName',
+                'LastName',
+                'Suffix',
+                'Positions.Position'
+            )
+            ->first();
+
+        return view('/incentives/print_year_end_final', [
+            'incentive' => $incentive,
+            'datas' => $datas,
+            'payrollClerk' => $payrollClerk,
+            'osdManager' => $osdManager,
+            'internalAuditor' => $internalAuditor,
+            'gm' => $gm,
+        ]);
+    }
+
+    public function printYearEndSignatures($id) {
+        $incentive = Incentives::find($id);
+
+        $departments = DB::table('IncentivesYearEndDetails')
+            ->whereRaw("IncentivesId='" . $id . "'")
+            ->select(
+                'Department',
+            )
+            ->groupBy('Department')
+            ->get();
+
+        $datas = [];
+        foreach($departments as $item) {
+            array_push($datas, [
+                'Department' => $item->Department,
+                'Data' => DB::table('IncentivesYearEndDetails')
+                    ->leftJoin('Employees', 'IncentivesYearEndDetails.EmployeeId', '=', 'Employees.id')
+                    ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+                    ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+                    ->whereRaw("IncentivesYearEndDetails.Department='" . $item->Department . "' AND IncentivesYearEndDetails.IncentivesId='" . $id . "'")
+                    ->select(
+                        'FirstName',
+                        'LastName',
+                        'MiddleName',
+                        'Suffix',
+                        'PrimaryBankNumber',
+                        'IncentivesYearEndDetails.*',
+                        'Positions.Position'
+                    )
+                    ->orderBy('LastName')
+                    ->get(),
+            ]);
+        }
+
+        $payrollClerk = DB::table('Employees')
+            ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+            ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+            ->whereRaw("Positions.Position='Payroll Clerk' AND (EmploymentStatus IS NULL OR EmploymentStatus NOT IN('Retired', 'Resigned'))")
+            ->select(
+                'FirstName',
+                'MiddleName',
+                'LastName',
+                'Suffix',
+                'Positions.Position'
+            )
+            ->first();
+
+        $osdManager = DB::table('Employees')
+            ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+            ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+            ->whereRaw("Positions.Position='Manager, O S D' AND (EmploymentStatus IS NULL OR EmploymentStatus NOT IN('Retired', 'Resigned'))")
+            ->select(
+                'FirstName',
+                'MiddleName',
+                'LastName',
+                'Suffix',
+                'Positions.Position'
+            )
+            ->first();
+
+        $internalAuditor = DB::table('Employees')
+            ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+            ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+            ->whereRaw("Positions.Position='Internal Auditor' AND (EmploymentStatus IS NULL OR EmploymentStatus NOT IN('Retired', 'Resigned'))")
+            ->select(
+                'FirstName',
+                'MiddleName',
+                'LastName',
+                'Suffix',
+                'Positions.Position'
+            )
+            ->first();
+
+        $gm = DB::table('Employees')
+            ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+            ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+            ->whereRaw("Positions.Position='General Manager' AND (EmploymentStatus IS NULL OR EmploymentStatus NOT IN('Retired', 'Resigned'))")
+            ->select(
+                'FirstName',
+                'MiddleName',
+                'LastName',
+                'Suffix',
+                'Positions.Position'
+            )
+            ->first();
+
+        return view('/incentives/print_year_end_signatures', [
+            'incentive' => $incentive,
+            'datas' => $datas,
+            'payrollClerk' => $payrollClerk,
+            'osdManager' => $osdManager,
+            'internalAuditor' => $internalAuditor,
+            'gm' => $gm,
+        ]);
     }
 }

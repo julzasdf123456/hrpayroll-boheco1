@@ -1,5 +1,7 @@
 @php
     use App\Models\Employees;
+    
+    $colorProf = Auth::user()->ColorProfile;
 @endphp
 
 @extends('layouts.app')
@@ -65,7 +67,18 @@
                 <span class="text-muted">Generated on: {{ date('F d, Y h:i A', strtotime($incentive->created_at)) }} | Last Updated: {{ date('F d, Y h:i A', strtotime($incentive->updated_at)) }}</span>
             </div>
             <div class="col-lg-4">
-                <button class="btn btn-primary-skinny float-right" style="margin-left: 10px;"><i class="fas fa-print ico-tab-mini"></i>Print</button>
+                <div class="dropdown">
+                    <a class="btn btn-primary-skinny dropdown-toggle float-right {{ $colorProf != null ? 'text-white' : '' }}" href="#" role="button" data-toggle="dropdown" aria-expanded="false" style="margin-left: 10px;">
+                        More
+                    </a>
+
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item"><i class="fas fa-download ico-tab"></i>Download FCB Upload Format</a>
+                        <a href="{{ route('incentives.print-year-end-final', [$incentive->id]) }}" class="dropdown-item"><i class="fas fa-print ico-tab"></i>Print Final</a>
+                        <a href="{{ route('incentives.print-year-end-signatures', [$incentive->id]) }}" class="dropdown-item"><i class="fas fa-print ico-tab"></i>Print For Receiving and Signature</a>
+                    </div>
+                </div>
+                
                 @if ($incentive->Status != 'Locked')
                     <button onclick="lock()" class="btn btn-primary float-right"><i class="fas fa-lock ico-tab-mini"></i>Lock and Finalize</button>
                 @endif
