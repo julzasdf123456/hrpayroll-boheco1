@@ -15,7 +15,8 @@ class IncentivesAnnualProjection extends Model
         'IncentiveDescription',
         'Amount',
         'IsTaxable',
-        'MaxUntaxableAmount'
+        'MaxUntaxableAmount',
+        'Differential',
     ];
 
     protected $casts = [
@@ -25,7 +26,8 @@ class IncentivesAnnualProjection extends Model
         'IncentiveDescription' => 'string',
         'Amount' => 'decimal:2',
         'IsTaxable' => 'string',
-        'MaxUntaxableAmount' => 'decimal:2'
+        'MaxUntaxableAmount' => 'decimal:2',
+        'Differential' => 'decimal:2',
     ];
 
     public static array $rules = [
@@ -37,7 +39,8 @@ class IncentivesAnnualProjection extends Model
         'IsTaxable' => 'nullable|string|max:50',
         'MaxUntaxableAmount' => 'nullable|numeric',
         'created_at' => 'nullable',
-        'updated_at' => 'nullable'
+        'updated_at' => 'nullable',
+        'Differential' => 'nullable|numeric',
     ];
 
     

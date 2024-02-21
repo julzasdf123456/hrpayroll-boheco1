@@ -25,7 +25,7 @@
                     <table class="table table-hover table-borderless">
                         <tbody>
                             @foreach ($incentives as $incentive)
-                                <tr style="cursor: pointer;" onclick="view(`{{ $incentive->id }}`)">
+                                <tr style="cursor: pointer;" onclick="view(`{{ $incentive->id }}`, `{{ $incentive->IncentiveName }}`)">
                                     <td>
                                         {{ $incentive->IncentiveName }}
                                         @if (!str_contains($incentive->IncentiveName, "13th Month"))
@@ -49,8 +49,12 @@
 
 @push('page_scripts')
     <script>
-        function view(id) {
-            window.location.href = "{{ url('/incentives/view-incentives') }}/" + id
+        function view(id, incentiveName) {
+            if (incentiveName === 'Year-end Incentives') {
+                window.location.href = "{{ url('/incentives/view-year-end-incentives') }}/" + id
+            } else {
+                window.location.href = "{{ url('/incentives/view-incentives') }}/" + id
+            }
         }
     </script>
 @endpush

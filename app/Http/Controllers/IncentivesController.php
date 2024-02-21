@@ -16,6 +16,7 @@ use App\Models\IDGenerator;
 use App\Models\UserFootprints;
 use App\Models\EmployeeIncentiveAnnualProjections;
 use App\Models\IncentivesAnnualProjection;
+use App\Models\IncentivesYearEndDetails;
 use Flash;
 
 class IncentivesController extends AppBaseController
@@ -435,7 +436,7 @@ class IncentivesController extends AppBaseController
 
     public function getIncentivesList(Request $request) {
         $incentives  = IncentivesAnnualProjection::where('Year', date('Y'))
-            ->whereNotIn('Incentive', ['Rice and Laundry', 'Productivity Scheme (Performance Bonus)'])
+            ->whereNotIn('Incentive', ['Rice and Laundry'])
             ->get();
 
         return response()->json($incentives, 200);
@@ -584,6 +585,11 @@ class IncentivesController extends AppBaseController
         $department = $request['Department'];
         $employeeType = $request['EmployeeType'];
 
+        $incentiveCheck = DB::table('IncentivesYearEndDetails')
+            ->leftJoin('Incentives', 'IncentivesYearEndDetails.IncentivesId', '=', 'Incentives.id')
+            ->whereRaw("IncentiveName='Year-end Incentives' AND Department='" . $department . "' AND EmployeeType='" . $employeeType . "' AND Year='" . date('Y') . "' AND Incentives.ReleaseType='Full'")
+            ->first();  
+
         if ($department == 'SUB-OFFICE') {
             $employees = DB::table('Employees')
                 ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
@@ -676,9 +682,90 @@ class IncentivesController extends AppBaseController
 
         $data = [
             'Employees' => $employees,
-            // 'IncentiveCheck' => $incentiveCheck,
+            'IncentiveCheck' => $incentiveCheck,
         ];
 
         return response()->json($data, 200);
+    }
+
+    public function viewYearEndIncentives($id) {
+        $incentive = Incentives::find($id);
+
+        $departments = DB::table('IncentivesYearEndDetails')
+            ->whereRaw("IncentivesId='" . $id . "'")
+            ->select(
+                'Department',
+            )
+            ->groupBy('Department')
+            ->get();
+
+        $datas = [];
+        foreach($departments as $item) {
+            array_push($datas, [
+                'Department' => $item->Department,
+                'Data' => DB::table('IncentivesYearEndDetails')
+                    ->leftJoin('Employees', 'IncentivesYearEndDetails.EmployeeId', '=', 'Employees.id')
+                    ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+                    ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+                    ->whereRaw("IncentivesYearEndDetails.Department='" . $item->Department . "' AND IncentivesYearEndDetails.IncentivesId='" . $id . "'")
+                    ->select(
+                        'FirstName',
+                        'LastName',
+                        'MiddleName',
+                        'Suffix',
+                        'IncentivesYearEndDetails.*',
+                        'Positions.Position'
+                    )
+                    ->orderBy('LastName')
+                    ->get(),
+            ]);
+        }
+
+        return view('/incentives/view_year_end_incentives', [
+            'incentive' => $incentive,
+            'datas' => $datas,
+        ]);
+    }
+
+    public function lockYearEndIncentives(Request $request) {
+        $id = $request['id'];
+
+        $incentive = Incentives::find($id);
+        if ($incentive != null) {
+            $incentive->Status = 'Locked';
+            $incentive->save();
+
+            UserFootprints::logSource('Locked Year-end Incentives', "Locked Year-end Incentives data for " . $incentive->Year . ".", $incentive->id); 
+
+            // UPDATE ActualAmountReceived in EmployeeProjections
+            $iDetails = IncentivesYearEndDetails::where('IncentivesId', $id)->get();
+            foreach($iDetails as $item) {
+                // 14th Month
+                if ($item->FourteenthMonthPay != null && $item->FourteenthMonthPay !== 0) {
+                    EmployeeIncentiveAnnualProjections::where('Year', $incentive->Year)
+                        ->where('EmployeeId', $item->EmployeeId)
+                        ->where('Incentive', '14th Month Pay')
+                        ->update(['ActualAmountReceived' => $item->FourteenthMonthPay]);
+                }
+                
+                // 13th Month Differential
+                if ($item->FourteenthMonthPay != null && $item->FourteenthMonthPay !== 0) {
+                    EmployeeIncentiveAnnualProjections::where('Year', $incentive->Year)
+                        ->where('EmployeeId', $item->EmployeeId)
+                        ->where('Incentive', '13th Month Pay')
+                        ->update(['Differential' => $item->ThirteenthMonthDifferential]);
+                }
+
+                // Cash Gift
+                if ($item->FourteenthMonthPay != null && $item->FourteenthMonthPay !== 0) {
+                    EmployeeIncentiveAnnualProjections::where('Year', $incentive->Year)
+                        ->where('EmployeeId', $item->EmployeeId)
+                        ->where('Incentive', 'Cash Gift')
+                        ->update(['ActualAmountReceived' => $item->CashGift]);
+                }
+            }
+        }
+
+        return response()->json('ok', 200);
     }
 }
