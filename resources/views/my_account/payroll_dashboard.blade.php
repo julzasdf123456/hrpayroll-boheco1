@@ -36,7 +36,10 @@
             <div class="card shadow-none mt-4">
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-lg-3 col-md-6">
+                        <div class="col-lg-12">
+                            <p class="text-md">Payslip Summary</p>
+                        </div>
+                        <div class="col-lg-3 col-md-6 mt-2">
                             <span class="text-muted">Choose Year</span>
                             <select id="years" class="form-control">
                                 @foreach ($years as $year)
