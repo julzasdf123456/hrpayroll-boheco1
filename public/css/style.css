@@ -7,6 +7,10 @@ html, body {
     font-family: 'Poppins' !important;
 }
 
+html, body, th, tr {
+    font-size: .95em !important;
+}
+
 /**
  * FROM app.blade
  */
@@ -299,7 +303,7 @@ td.off {
 
 .sidebar-light .sidebar nav ul li a.nav-link.active {
     border-radius: 20px !important;
-    background-color: #5e6469 !important;
+    background-color: #3a9971 !important;
     border: 0px !important;
     box-shadow: none !important;
     color: #fafafa !important;
@@ -374,6 +378,20 @@ body.dark-mode .btn-primary-skinny {
 body.dark-mode .btn-primary-skinny:hover {
     border: 1px solid #54cc9a !important;
     color: #54cc9a !important;
+}
+
+.btn-link-muted,
+body.dark-mode .btn-link-muted {
+    color: #898e92 !important;
+    transition: all .4s ease;
+}
+
+.btn-link-muted:hover {
+    color: #41464b !important;
+}
+
+body.dark-mode .btn-link-muted:hover {
+    color: #d1d8df !important;
 }
 
 /**
@@ -756,4 +774,43 @@ body.dark-mode a:not(.nav-link, .bottom-nav-pills) {
 
 body.dark-mode a:hover:not(.nav-link, .bottom-nav-pills, .dropdown-item) {
     color: #5ddfb8 !important;
+}
+
+/**
+ * USERS PROFILE SIDE
+ */
+.center-contents {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+.center-contents div {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+.text-primary {
+    color: #007bff !important;
+}
+
+body.dark-mode .text-primary {
+    color: #66a0df !important;
+}
+
+.text-lg {
+    font-size: 1.98em !important;
+}
+
+.text-md {
+    font-size: 1.6em !important;
+}
+
+.section {
+    padding: 20px 16px 12px 16px !important;
+}
+
+.content-wrapper {
+    height: auto !important;
 }

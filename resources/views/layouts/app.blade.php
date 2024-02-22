@@ -5,6 +5,7 @@
     <title>{{ config('app.name') }}</title>
     <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
     <meta name="color-profile" content="{{ Auth::user()->ColorProfile }}">
+    <meta name="employee-id" content="{{ Auth::user()->employee_id }}">
 
     <link rel="stylesheet" href="{{ URL::asset('css/source_sans_pro.css'); }} ">
 
@@ -140,7 +141,7 @@
                     <table class="table table-borderless table-hover table-sm">
                         <tr>
                             <td>
-                                <a href="" class="btn btn-link {{ $userCache->ColorProfile != null ? 'text-light' : 'text-dark' }}"><i class="fas fa-user-circle ico-tab"></i>My Account</a>
+                                <a href="{{ route('users.my-account-index', [Auth::user()->employee_id]) }}" class="btn btn-link {{ $userCache->ColorProfile != null ? 'text-light' : 'text-dark' }}"><i class="fas fa-user-circle ico-tab"></i>My Account</a>
                             </td>
                         </tr>
                         <tr>

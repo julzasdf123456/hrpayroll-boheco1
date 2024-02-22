@@ -19,7 +19,20 @@
         </div>
         <nav class="mt-4">
             <ul class="nav nav-pills nav-sidebar flex-column text-sm nav-child-indent nav-flat" data-widget="treeview" role="menu" data-accordion="false">
-                @include('layouts.menu')
+                @if (in_array(Route::currentRouteName(), [
+                        'users.my-account-index', 'users.leave-credits', 'users.view-leave', 'users.payroll-dashboard',
+                        'leaveApplications.create', 'leaveApplications.create-step-two',
+                        'tripTickets.create', 'tripTickets.edit', 'tripTickets.my-trip-tickets',
+                        'offsetApplications.create',
+                        'overtimes.create',
+                        'attendanceConfirmations.create',
+                        'leaveConversions.create',]))
+                    {{-- MY ACCOUNTS --}}
+                    @include('layouts.my_account_menu')
+                @else
+                    {{-- ADMIN --}}
+                    @include('layouts.menu')
+                @endif
             </ul>
         </nav>
     </div>
