@@ -70,7 +70,7 @@
                         <div class="divider"></div>
                         <a href="{{ route('payrollIndices.download-fcb-template', [$salaryPeriod]) }}" class="dropdown-item"><i class="fas fa-download ico-tab"></i>Download FCB Upload Format</a>
                         <a href="{{ route('payrollIndices.print-fcb-submission', [$salaryPeriod]) }}" class="dropdown-item"><i class="fas fa-print ico-tab"></i>Print FCB Submission</a>
-                        <a href="{{ route('incentives.print-year-end-fcb', [$salaryPeriod]) }}" class="dropdown-item"><i class="fas fa-print ico-tab"></i>Print Final</a>
+                        <a href="{{ route('payrollIndices.print-payroll-final', [$salaryPeriod]) }}" class="dropdown-item"><i class="fas fa-print ico-tab"></i>Print Final</a>
                     </div>
                 </div>
             </div>

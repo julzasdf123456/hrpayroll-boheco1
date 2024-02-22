@@ -147,7 +147,7 @@ class AttendaneConfirmationsController extends AppBaseController
             }           
         }
 
-        return redirect(route('employees.show', [$input['EmployeeId']]));
+        return redirect(route('home'));
     }
 
     /**

@@ -209,7 +209,7 @@ class LeaveApplicationsController extends AppBaseController
 
         Flash::success('Leave Applications deleted successfully.');
 
-        return redirect(route('leaveApplications.index'));
+        return redirect(route('users.leave-credits', [$leaveApplications->EmployeeId]));
     }
 
     public function createStepTwo($id) {
@@ -989,5 +989,21 @@ class LeaveApplicationsController extends AppBaseController
         }
 
         return response()->json($leaveApplication, 200);
+    }
+
+    public function getLeavesByType(Request $request) {
+        $employeeId = $request['EmployeeId'];
+        $leaveType = $request['LeaveType'];
+
+        $data = DB::table('LeaveApplications')
+            ->whereRaw("LeaveApplications.EmployeeId='" . $employeeId . "' AND LeaveApplications.LeaveType='" . $leaveType . "'")
+            ->select(
+                'LeaveApplications.*',
+                DB::raw("(SELECT SUM(Longevity) FROM LeaveDays WHERE LeaveId=LeaveApplications.id) AS TotalDays")
+            )
+            ->orderByDesc('LeaveApplications.created_at')
+            ->get();
+
+        return response()->json($data, 200);
     }
 }

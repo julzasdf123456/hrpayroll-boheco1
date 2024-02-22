@@ -27,19 +27,23 @@ class HomeController extends Controller
      */
     public function index()
     {
-        $leaves = LeaveApplications::where('EmployeeId', Auth::user()->employee_id)->orderByDesc('created_at')
-            ->limit(5)
-            ->get();
-            
-        $info = Notifications::where('UserId', Auth::id())
-            ->where('Type', 'INFO')
-            ->limit(5)
-            ->get();
+        if (Auth::user()->hasPermissionTo('admin ui')) {
+            $leaves = LeaveApplications::where('EmployeeId', Auth::user()->employee_id)->orderByDesc('created_at')
+                ->limit(5)
+                ->get();
+                
+            $info = Notifications::where('UserId', Auth::id())
+                ->where('Type', 'INFO')
+                ->limit(5)
+                ->get();
 
-        return view('home', [
-            'leaves' => $leaves,
-            'info' => $info,
-        ]);
+            return view('home', [
+                'leaves' => $leaves,
+                'info' => $info,
+            ]);
+        } else {
+            return redirect(route('users.my-account-index', [Auth::user()->employee_id]));
+        }
     }
 
     public function reeve() {

@@ -167,25 +167,21 @@ class EmployeesController extends AppBaseController
             return redirect(route('employees.index'));
         }
 
-        if(Auth::user()->hasAnyPermission(['god permission', 'profile view'])) {
-            return view('employees.show', [
-                'employees' => $employees, 
-                'employeeDesignations' => $employeeDesignations,
-                'rankings' => $rankings,
-                'educationalAttainment' => $educationalAttainment,
-                'ids' => $ids,
-                'leaveApplications' => $leaveApplications,
-                'payslips' => $payslips,
-                'workSchedules' => $workSchedules,
-                'leaveBalance' => $leaveBalance,
-                'leaveBalanceDetails' => $leaveBalanceDetails,
-                'tripTickets' => $tripTickets,
-                'overtimes' => $overtimes,
-                'payrollSundries' => $payrollSundries,
-            ]);
-        } else {
-            return abort(403, "You're not authorized view your profile.");
-        }
+        return view('employees.show', [
+            'employees' => $employees, 
+            'employeeDesignations' => $employeeDesignations,
+            'rankings' => $rankings,
+            'educationalAttainment' => $educationalAttainment,
+            'ids' => $ids,
+            'leaveApplications' => $leaveApplications,
+            'payslips' => $payslips,
+            'workSchedules' => $workSchedules,
+            'leaveBalance' => $leaveBalance,
+            'leaveBalanceDetails' => $leaveBalanceDetails,
+            'tripTickets' => $tripTickets,
+            'overtimes' => $overtimes,
+            'payrollSundries' => $payrollSundries,
+        ]);
     }
 
     /**

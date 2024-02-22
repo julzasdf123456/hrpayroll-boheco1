@@ -24,6 +24,9 @@
         @include('adminlte-templates::common.errors')
 
         <div class="card shadow-none">
+            <div class="card-header">
+                <span class="card-title"><i class="fas fa-info-circle ico-tab"></i>File Here</span>
+            </div>
             <div class="card-body p-0">
                 <table class="table table-hover table-bordered" id="offset-table">
                     <thead>

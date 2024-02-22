@@ -7,6 +7,10 @@ use App\Http\Requests\UpdateLeaveBalancesRequest;
 use App\Repositories\LeaveBalancesRepository;
 use App\Http\Controllers\AppBaseController;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+use App\Models\LeaveBalances;
+use App\Models\LeaveBalanceDetails;
 use Flash;
 use Response;
 
@@ -153,5 +157,32 @@ class LeaveBalancesController extends AppBaseController
         Flash::success('Leave Balances deleted successfully.');
 
         return redirect(route('leaveBalances.index'));
+    }
+
+    public function getLeaveData(Request $request) {
+        $employeeId = $request['EmployeeId'];
+        $leaveType = $request['LeaveType'];
+
+        if ($leaveType == 'All') {
+            $data = DB::table('LeaveApplications')
+                ->whereRaw("LeaveApplications.EmployeeId='" . $employeeId . "'")
+                ->select(
+                    'LeaveApplications.*',
+                    DB::raw("(SELECT SUM(Longevity) FROM LeaveDays WHERE LeaveId=LeaveApplications.id) AS TotalDays")
+                )
+                ->orderByDesc('LeaveApplications.created_at')
+                ->paginate(10);
+        } else {
+            $data = DB::table('LeaveApplications')
+                ->whereRaw("LeaveApplications.EmployeeId='" . $employeeId . "' AND LeaveApplications.LeaveType='" . $leaveType . "'")
+                ->select(
+                    'LeaveApplications.*',
+                    DB::raw("(SELECT SUM(Longevity) FROM LeaveDays WHERE LeaveId=LeaveApplications.id) AS TotalDays")
+                )
+                ->orderByDesc('LeaveApplications.created_at')
+                ->paginate(10);
+        }
+
+        return response()->json($data, 200);
     }
 }

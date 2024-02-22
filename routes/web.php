@@ -26,6 +26,7 @@ use App\Http\Controllers\IncentivesController;
 use App\Http\Controllers\BempcController;
 use App\Http\Controllers\LeaveConversionsController;
 use App\Http\Controllers\IncentivesYearEndDetailsController;
+use App\Http\Controllers\LeaveBalancesController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -53,7 +54,12 @@ Route::get('/home/reeve', [HomeController::class, 'reeve'])->name('home.reeve');
 Route::get('/users/add_permissions/{id}', [UsersController::class, 'addRoles'])->name('users.add-roles');
 Route::post('/users/create-roles', [UsersController::class, 'createRoles']);
 Route::get('/users/switch-color-modes', [UsersController::class, 'switchColorModes'])->name('users.switch-color-modes');
-Route::resource('users', App\Http\Controllers\UsersController::class);
+
+Route::get('/my_account/my-account-index/{employeeId}', [UsersController::class, 'myAccountIndex'])->name('users.my-account-index');
+Route::get('/my_account/leave-credits/{employeeId}', [UsersController::class, 'leaveCredits'])->name('users.leave-credits');
+Route::get('/my_account/view-leave/{leaveId}', [UsersController::class, 'viewLeave'])->name('users.view-leave');
+Route::get('/my_account/payroll-dashboard', [UsersController::class, 'payrollDashboard'])->name('users.payroll-dashboard');
+Route::resource('users', UsersController::class);
 
 Route::get('/register/get-employee-ajax', [App\Http\Controllers\Auth\RegisterController::class, 'getEmployeeAjax'])->name('register.get-employee-ajax');
 
@@ -121,6 +127,7 @@ Route::post('/leave_applications/add-image-attachments', [LeaveApplicationsContr
 Route::get('/leave_applications/remove-image', [LeaveApplicationsController::class, 'removeImage'])->name('leaveApplications.remove-image');
 Route::get('/leave_applications/remove-leave-signatory', [LeaveApplicationsController::class, 'removeLeaveSignatory'])->name('leaveApplications.remove-leave-signatory');
 Route::get('/leave_applications/reject-leave-ajax', [LeaveApplicationsController::class, 'rejectLeaveAjax'])->name('leaveApplications.reject-leave-ajax');
+Route::get('/leave_applications/get-leaves-by-type', [LeaveApplicationsController::class, 'getLeavesByType'])->name('leaveApplications.get-leaves-by-type');
 Route::resource('leaveApplications', LeaveApplicationsController::class);
 
 Route::resource('leaveSignatories', App\Http\Controllers\LeaveSignatoriesController::class);
@@ -165,6 +172,8 @@ Route::get('/payroll_indices/view-payroll-without-deduction/{salaryPeriod}', [Pa
 Route::get('/payroll_indices/view-payroll-deductions-only/{salaryPeriod}', [PayrollIndexController::class, 'viewPayrollDeductionsOnly'])->name('payrollIndices.view-payroll-deductions-only');
 Route::get('/payroll_indices/download-fcb-template/{salaryPeriod}', [PayrollIndexController::class, 'downloadFCBTemplate'])->name('payrollIndices.download-fcb-template');
 Route::get('/payroll_indices/print-fcb-submission/{salaryPeriod}', [PayrollIndexController::class, 'printFCBSubmission'])->name('payrollIndices.print-fcb-submission');
+Route::get('/payroll_indices/print-payroll-final/{salaryPeriod}', [PayrollIndexController::class, 'printPayrollFinal'])->name('payrollIndices.print-payroll-final');
+Route::get('/payroll_indices/get-payroll-monthly-data', [PayrollIndexController::class, 'getPayrollMonthlyData'])->name('payrollIndices.get-payroll-monthly-data');
 Route::resource('payrollIndices', PayrollIndexController::class);
 
 
@@ -201,7 +210,8 @@ Route::resource('employeePayrollSchedules', EmployeePayrollSchedulesController::
 Route::resource('payrollSchedules', App\Http\Controllers\PayrollSchedulesController::class);
 
 
-Route::resource('leaveBalances', App\Http\Controllers\LeaveBalancesController::class);
+Route::get('/leave_balances/get-leave-data', [LeaveBalancesController::class, 'getLeaveData'])->name('leaveBalances.get-leave-data');
+Route::resource('leaveBalances', LeaveBalancesController::class);
 
 
 Route::resource('leaveBalanceDetails', App\Http\Controllers\LeaveBalanceDetailsController::class);
