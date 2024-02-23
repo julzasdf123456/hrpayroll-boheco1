@@ -18,7 +18,7 @@
                     <span aria-hidden="true">×</span>
                 </button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body table-responsive">
                 <table class="table table-hover table-bordered table-sm" id="leave-conversions-table">
                     <thead>
                         <tr>
