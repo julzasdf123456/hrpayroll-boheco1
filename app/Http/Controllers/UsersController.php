@@ -315,4 +315,32 @@ class UsersController extends AppBaseController
 
         ]);
     }
+
+    public function payrollDetailedView() {
+        return view('/my_account/payroll_detailed_view', [
+
+        ]);
+    }
+
+    public function attachBohecoAccount() {
+        return view('/my_account/payroll_attach_boheco_account', [
+
+        ]);
+    }
+
+    public function searchBohecoAccounts(Request $request) {
+        $search = $request['Search'];
+
+        if ($search != null) {
+            $data = DB::connection('sqlsrv_billing')
+                ->table('AccountMaster')
+                ->whereRaw("AccountNumber LIKE '%" . $search . "%' OR ConsumerName LIKE '%" . $search . "%' OR MeterNumber LIKE '%" . $search . "%'")
+                ->orderBy('AccountNumber')
+                ->paginate(10);
+        } else {
+            $data = [];
+        }
+
+        return response()->json($data, 200);
+    }
 }

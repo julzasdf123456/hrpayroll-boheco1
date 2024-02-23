@@ -20,7 +20,8 @@
         <nav class="mt-4">
             <ul class="nav nav-pills nav-sidebar flex-column text-sm nav-child-indent nav-flat" data-widget="treeview" role="menu" data-accordion="false">
                 @if (in_array(Route::currentRouteName(), [
-                        'users.my-account-index', 'users.leave-credits', 'users.view-leave', 'users.payroll-dashboard',
+                        'users.my-account-index', 'users.leave-credits', 'users.view-leave', 
+                        'users.payroll-dashboard', 'users.payroll-detailed-view', 'users.attach-boheco-account',
                         'leaveApplications.create', 'leaveApplications.create-step-two',
                         'tripTickets.create', 'tripTickets.edit', 'tripTickets.my-trip-tickets',
                         'offsetApplications.create',

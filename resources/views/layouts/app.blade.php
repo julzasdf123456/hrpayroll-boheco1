@@ -503,6 +503,19 @@
     function round(value) {
         return Math.round((value + Number.EPSILON) * 100) / 100
     }
+
+    function dashZero(value) {
+        if (isNull(value)) {
+            return '-'
+        } else {
+            value = parseFloat(value)
+            if (value === 0) {
+                return '-'
+            } else {
+                return toMoney(value)
+            }
+        }
+    }
     
 </script>
 

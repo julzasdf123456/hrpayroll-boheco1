@@ -155,10 +155,13 @@ export default {
             })
             .then(response => {
                 this.leaveData = response.data
-                console.log(this.leaveData)
             })
             .catch(error => {
                 console.log(error)
+                this.toast.fire({
+                    icon : 'error',
+                    text : 'Error fetching leave data'
+                })
             })
         },
     },
