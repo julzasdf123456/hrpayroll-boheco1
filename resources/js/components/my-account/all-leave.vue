@@ -14,7 +14,7 @@
         </select>
     </div>
 
-    <div class="col-lg-12 mt-4">
+    <div class="col-lg-12 mt-4 table-responsive">
         <table class="table table-md table-hover">
             <thead>
                 <th style="width: 32px;"></th>
