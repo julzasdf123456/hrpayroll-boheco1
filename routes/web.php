@@ -27,6 +27,7 @@ use App\Http\Controllers\BempcController;
 use App\Http\Controllers\LeaveConversionsController;
 use App\Http\Controllers\IncentivesYearEndDetailsController;
 use App\Http\Controllers\LeaveBalancesController;
+use App\Http\Controllers\AttachedAccountsController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -59,6 +60,9 @@ Route::get('/my_account/my-account-index/{employeeId}', [UsersController::class,
 Route::get('/my_account/leave-credits/{employeeId}', [UsersController::class, 'leaveCredits'])->name('users.leave-credits');
 Route::get('/my_account/view-leave/{leaveId}', [UsersController::class, 'viewLeave'])->name('users.view-leave');
 Route::get('/my_account/payroll-dashboard', [UsersController::class, 'payrollDashboard'])->name('users.payroll-dashboard');
+Route::get('/my_account/payroll-detailed-view', [UsersController::class, 'payrollDetailedView'])->name('users.payroll-detailed-view');
+Route::get('/my_account/attach-boheco-account', [UsersController::class, 'attachBohecoAccount'])->name('users.attach-boheco-account');
+Route::get('/my_account/search-boheco-accounts', [UsersController::class, 'searchBohecoAccounts'])->name('users.search-boheco-accounts');
 Route::resource('users', UsersController::class);
 
 Route::get('/register/get-employee-ajax', [App\Http\Controllers\Auth\RegisterController::class, 'getEmployeeAjax'])->name('register.get-employee-ajax');
@@ -358,3 +362,6 @@ Route::resource('leaveConversions', LeaveConversionsController::class);
 
 Route::post('/leave-incentives_year_end_details/save-year-end', [IncentivesYearEndDetailsController::class, 'saveYearEndData'])->name('incentivesYearEndDetails.save-year-end');
 Route::resource('incentivesYearEndDetails', IncentivesYearEndDetailsController::class);
+
+Route::get('/attached_accounts/get-connected-accounts', [AttachedAccountsController::class, 'getConnectedAccounts'])->name('attachedAccounts.get-connected-accounts');
+Route::resource('attachedAccounts', AttachedAccountsController::class);

@@ -27,6 +27,7 @@ import ThirteenthMonthPay from "./components/incentives/thirteenth-month-pay.vue
 import OtherBonuses from "./components/incentives/other-bonuses.vue"
 import YearEndBonuses from "./components/incentives/year-end-bonuses.vue"
 import AllLeave from "./components/my-account/all-leave.vue"
+import AttachBohecoAccount from "./components/my-account/attach-boheco-account.vue"
 
 const app = createApp({
     
@@ -46,5 +47,6 @@ app.component('thirteenth-month-pay', ThirteenthMonthPay);
 app.component('other-bonuses', OtherBonuses);
 app.component('year-end-bonuses', YearEndBonuses);
 app.component('all-leave', AllLeave);
+app.component('attach-boheco-account', AttachBohecoAccount);
 
 app.mount("#app");

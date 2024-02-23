@@ -15,7 +15,7 @@
     <div class="row">
         <div class="col-lg-12" style="margin-bottom: 26px;">
             <p class="text-center no-pads text-lg">Payroll Dashboard</p>
-            <p class="text-center no-pads text-muted">Manage and view your payroll activities</p>
+            <p class="text-center no-pads text-muted">Manage and view your monthly payroll and incentive activities</p>
         </div>
     </div>
 
@@ -25,7 +25,7 @@
         <div class="section">
             <div class="row">
                 <div class="col-10">
-                    <p class="no-pads text-md">Your payroll data and payslips</p>
+                    <p class="no-pads text-md">Your monthly payroll data and payslips</p>
                     <p class="no-pads text-muted">List of your annual/monthly payroll history data and payslips. Also contained here is the summary of your payroll so you can efficiently make analytics and projections on your future expenses.</p>
                 </div>
                 <div class="col-2 center-contents">
@@ -33,6 +33,7 @@
                 </div>
             </div>
 
+            {{-- payslip summary table --}}
             <div class="card shadow-none mt-4">
                 <div class="card-body">
                     <div class="row">
@@ -53,7 +54,7 @@
                             </div>
                         </div>
 
-                        <div class="col-lg-12 mt-3">
+                        <div class="col-lg-12 mt-3 table-responsive">
                             <table class="table table-hover" id="payslips-table">
                                 <thead>
                                     <th>Month</th>
@@ -69,14 +70,29 @@
                     </div>
                 </div>
                 <div class="card-footer">
+                    <a href="{{ route('users.payroll-detailed-view') }}" class="btn btn-primary">Detailed View <i class="fas fa-external-link-alt ico-tab-left-mini"></i></a>
+
                     <div class="dropdown float-right">
                         <a class="btn btn-primary-skinny dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-expanded="false">
                           More Options
                         </a>
                       
                         <div class="dropdown-menu">
-                            <button class="dropdown-item" data-toggle="modal" data-target="#modal-leave-logs">Leave credit logs</button>
-                            <button class="dropdown-item" data-toggle="modal" data-target="#modal-leave-conversion-logs">Leave conversion logs</button>
+                            <a href="{{ route('users.attach-boheco-account') }}" class="dropdown-item">Attached BOHECO I Accounts</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- payslip summary graph --}}
+            <div class="card shadow-none mt-2">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <p class="text-md">Graphical View</p>
+                        </div>
+                        <div class="col-lg-12" id="graph-holder">
+                            <canvas id="payslip-canvas" height="300" style="height: 300px;"></canvas>
                         </div>
                     </div>
                 </div>
@@ -113,7 +129,9 @@
         })
 
         function getPayrollData(year) {
+            $('#payslip-canvas').remove()
             $('#payslips-loader').removeClass('gone')
+            $('#graph-holder p').remove()
             $('#payslips-table tbody tr').remove()
             $.ajax({
                 url : "{{ route('payrollIndices.get-payroll-monthly-data') }}",
@@ -125,36 +143,41 @@
                 success : function(res) {
                     $('#payslips-loader').addClass('gone')
 
-                    var tblData = []
+                    if (isNull(res)) {
+                        $('#graph-holder').append(`<p class='text-center'>No data found</p>`)
+                    } else {
+                        $('#graph-holder').append(`<canvas id="payslip-canvas" height="300" style="height: 300px;"></canvas>`)
+                        var tblData = []
 
-                    for (let i=0; i<months.length; i++) {
-                        var mo = null
-                        var term15 = 0
-                        var term30 = 0
-                        $.each(res, function(index, el) {
-                            if (moment(res[index]['SalaryPeriod']).format("MMMM") === months[i]) {
-                                if (isNull(mo)) {
-                                    mo = months[i]
+                        for (let i=0; i<months.length; i++) {
+                            var mo = null
+                            var term15 = 0
+                            var term30 = 0
+                            $.each(res, function(index, el) {
+                                if (moment(res[index]['SalaryPeriod']).format("MMMM") === months[i]) {
+                                    if (isNull(mo)) {
+                                        mo = months[i]
+                                    }
+                                    
+                                    if (moment(res[index]['SalaryPeriod']).format('DD') === '15') {
+                                        term15 = res[index]['NetPay']
+                                    } else {
+                                        term30 = res[index]['NetPay']
+                                    }
                                 }
-                                
-                                if (moment(res[index]['SalaryPeriod']).format('DD') === '15') {
-                                    term15 = res[index]['NetPay']
-                                } else {
-                                    term30 = res[index]['NetPay']
-                                }
-                            }
-                        })
-                        
-                        if (!isNull(mo)) {
-                            tblData.push({
-                                'Month' : mo,
-                                'FirstTerm' : term15,
-                                'SecondTerm' : term30
                             })
+                            
+                            if (!isNull(mo)) {
+                                tblData.push({
+                                    'Month' : mo,
+                                    'FirstTerm' : term15,
+                                    'SecondTerm' : term30
+                                })
+                            }
                         }
-                    }
 
-                    populatePaylipsTable(tblData)
+                        populatePaylipsTable(tblData)
+                    }
                 },
                 error : function(err) {
                     $('#payslips-loader').addClass('gone')
@@ -177,9 +200,9 @@
                 $('#payslips-table tbody').append(`
                     <tr>
                         <td>` + tblData[index]['Month'] + `</td>
-                        <td class='text-right'>` + (firstTerm === 0 ? '-' :  '₱ ' + toMoney(firstTerm)) + `</td>
-                        <td class='text-right'>` + (secondTerm === 0 ? '-' : '₱ ' + toMoney(secondTerm)) + `</td>
-                        <td class='text-right'>` + (total === 0 ? '-' : '₱ ' + toMoney(total)) + `</td>
+                        <td class='text-right'>` + (firstTerm === 0 ? '-' :  '₱' + toMoney(firstTerm)) + `</td>
+                        <td class='text-right'>` + (secondTerm === 0 ? '-' : '₱' + toMoney(secondTerm)) + `</td>
+                        <td class='text-right'>` + (total === 0 ? '-' : '₱' + toMoney(total)) + `</td>
                     </tr>
                 `)
 
@@ -190,11 +213,92 @@
             $('#payslips-table tbody').append(`
                 <tr>
                     <th>TOTAL EARNINGS</th>
-                    <th class='text-right'>` + (firstTermTotal === 0 ? '-' :  '₱ ' + toMoney(firstTermTotal)) + `</th>
-                    <th class='text-right'>` + (secondTermTotal === 0 ? '-' : '₱ ' + toMoney(secondTermTotal)) + `</th>
-                    <th class='text-right'>` + (overallTotal === 0 ? '-' : '₱ ' + toMoney(overallTotal)) + `</th>
+                    <th class='text-right'>` + (firstTermTotal === 0 ? '-' :  '₱' + toMoney(firstTermTotal)) + `</th>
+                    <th class='text-right'>` + (secondTermTotal === 0 ? '-' : '₱' + toMoney(secondTermTotal)) + `</th>
+                    <th class='text-right'>` + (overallTotal === 0 ? '-' : '₱' + toMoney(overallTotal)) + `</th>
                 </tr>
             `)
+
+            loadPayslipGraph(tblData)
+        }
+
+        function loadPayslipGraph(tblData) {
+            var payslipCanvas = document.getElementById('payslip-canvas').getContext('2d')
+            var ticksStyle = { fontColor : '{{ $colorProf != null ? "#fff" : "#495057" }}', fontStyle:'bold'}
+
+            var labels = []
+            var firstTerms = []
+            var secondTerms = []
+            for(let i=0; i<tblData.length; i++) {
+                labels[i] = tblData[i].Month
+                firstTerms[i] = tblData[i].FirstTerm
+                secondTerms[i] = tblData[i].SecondTerm
+            }
+
+            var chartData = {
+                labels: labels,
+                datasets: [
+                    {
+                        label: '15th',
+                        backgroundColor: 'rgba(60,141,188,0)',
+                        borderColor: 'rgba(60,141,188,0.8)',
+                        pointRadius: 3,
+                        pointColor: '#3b8bba',
+                        pointStrokeColor: 'rgba(60,141,188,1)',
+                        pointHighlightFill: '#fff',
+                        pointHighlightStroke: 'rgba(60,141,188,1)',
+                        data: firstTerms
+                    },
+                    {
+                        label: '30th',
+                        backgroundColor: 'rgba(210, 214, 222, 0)',
+                        borderColor: '{{ env("SUCCESS") }}',
+                        pointRadius: 3,
+                        pointColor: '{{ env("SUCCESS") }}',
+                        pointStrokeColor: '{{ env("SUCCESS") }}',
+                        pointHighlightFill: '#fff',
+                        pointHighlightStroke: 'rgba(220,220,220,1)',
+                        data: secondTerms
+                    }
+                ]
+            }
+
+            var chartOptions = {
+                maintainAspectRatio: false,
+                responsive: true,
+                legend: {
+                    display: true
+                },
+                scales: {
+                    xAxes: [{
+                        gridLines: {
+                            display: false
+                        },
+                        ticks : ticksStyle,
+                    }],
+                    yAxes: [{
+                        gridLines: {
+                            display: false
+                        },
+                        ticks : $.extend({
+                            beginAtZero:true,
+                            callback : function(value) { 
+                                if(value>=1000) { 
+                                    value/=1000
+                                    value+='k'
+                                }
+                                return '$'+value
+                            }}, ticksStyle
+                        )
+                    }]
+                }
+            }
+
+            var payslipChart = new Chart(payslipCanvas, { // lgtm[js/unused-local-variable]
+                type: 'line',
+                data: chartData,
+                options: chartOptions
+            })
         }
     </script>
 @endpush
