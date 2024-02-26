@@ -250,11 +250,9 @@
     </div> 
 </div>
 
-@canany('god permission')
 <div class="right-bottom">
     <a href="{{ route('payrollIndices.view-payroll', [$salaryPeriod]) }}" class="btn-floating shadow bg-success" title="Delete Payroll Entry"><i class="fas fa-arrow-left ico-tab-mini"></i>Original View</a>
 </div>
-@endcanany
 
 @endsection
 

@@ -27,7 +27,7 @@
                     <select v-model="salaryPeriod" class="form-control form-control-sm">
                         <option :value="fifteenth">{{ moment(fifteenth).format('MMMM DD, YYYY') }}</option>
                         <option :value="thirtieth">{{ moment(thirtieth).format('MMMM DD, YYYY') }}</option>
-                        <option value="2024-03-15">March 15, 2024</option>
+                        <!-- <option value="2024-03-15">March 15, 2024</option> -->
                     </select>
                 </div>
                 <div class="col-lg-2">
@@ -146,7 +146,7 @@ export default {
         return {
             baseURL : axios.defaults.baseURL,
             fifteenth : moment().format('YYYY-MM-15'),
-            thirtieth : moment().month()==1 ? moment().endOf('month').format('YYYY-MM-DD') : moment().format('YYYY-MM-30'),
+            thirtieth : moment().endOf('month').format('YYYY-MM-DD'),
             moment : moment,
             selectedDate: null,
             pickerOptions: {
@@ -321,8 +321,18 @@ export default {
             });
 
             this.summaryHeaders.push({
+                name : 'BOHECO I Bills',
+                label : 'BOHECO I Bills'
+            });
+
+            this.summaryHeaders.push({
                 name : 'AR-Others',
                 label : 'AR-Others'
+            });
+
+            this.summaryHeaders.push({
+                name : 'BEMPC',
+                label : 'BEMPC'
             });
 
             this.summaryHeaders.push({
@@ -348,6 +358,11 @@ export default {
             this.summaryHeaders.push({
                 name : 'NET PAY',
                 label : 'NET PAY'
+            });
+
+            this.summaryHeaders.push({
+                name : 'Zero-out Excess',
+                label : 'Zero-out Excess'
             });
         },
         toggleView() {
@@ -1242,9 +1257,9 @@ export default {
             var totalTaxable = 0
             var riceAllowance = 0
             for(let i=0; i<size; i++) {
-                if (incentivesArr[i]['DeductMonthly'] == 'Yes') {
+                if (incentivesArr[i]['DeductMonthly'] === 'Yes') {
                     if (incentivesArr[i]['Incentive'].includes('Rice and Laundry')) {
-
+                        riceAllowance = incentivesArr[i]['Amount']
                     }
                     total += parseFloat(incentivesArr[i]['Amount'])
                     totalUntaxable += parseFloat(incentivesArr[i]['MaxUntaxableAmount'])
@@ -1270,6 +1285,28 @@ export default {
 
             return this.round(amount)
         },
+        getBohecoBills(data) {
+            var amount = 0
+
+            for(let i=0; i<data.length; i++) {
+                amount += data[i].NetAmount
+            }
+
+            return this.round(amount)
+        },
+        getBempcDeduction(data) {
+            if (this.isNull(data)) {
+                return 0
+            } else {
+                var amnt = data[0].Amount
+
+                if (this.isNull(amnt)) {
+                    return 0
+                } else {
+                    return parseFloat(amnt)
+                }
+            }
+        },
         generate() {
             if (this.isNull(this.employeeType) | this.isNull(this.department) | this.isNull(this.salaryPeriod) | this.isNull(this.from) | this.isNull(this.to)) {
                 Swal.fire({
@@ -1291,6 +1328,15 @@ export default {
                 this.existStatus = ''
                 this.getInBetweenDates(this.from, this.to);
 
+                Swal.fire({
+                    title : 'Generating Payroll',
+                    text : `This may take a couple of seconds due to the amount of data that's being analyzed. Please wait...`,
+                    allowOutsideClick : false,
+                    didOpen : () => {
+                        Swal.showLoading()
+                    }
+                })
+
                 // GET EMPLOYEES DATA
                 axios.get(`${ axios.defaults.baseURL }/payroll_indices/get-payroll-data`, {
                     params: {
@@ -1302,6 +1348,7 @@ export default {
                     }
                 })
                 .then(response => {
+                    Swal.close()
                     if (this.existStatus === 'Approved' || this.existStatus === 'Approved By Audit') {
                         this.isGenerateButtonDisabled = true;
                     } else {
@@ -1441,11 +1488,20 @@ export default {
                         var philHealth = !this.isFifteenth(this.salaryPeriod) ? (this.isNull(response.data['Employees'][i]['PhilHealth']) ? 0 : this.round(parseFloat(response.data['Employees'][i]['PhilHealth']))) : 0;       
                         summaryChunks.push(philHealth > 0 ? `₱` + this.toMoney(philHealth) : '-');
 
+                        // BOHECO I Bills
+                        var bohecoBills = response.data['Employees'][i]['PowerBills']
+                        var bohecoAmount = this.getBohecoBills(bohecoBills)
+                        summaryChunks.push(bohecoAmount > 0 ? `₱` + this.toMoney(bohecoAmount) : '-');
+
                         // OTHER DEDUCTIONS - AR OTHERS
                         var arOtherLoans = this.getAROtherLoans(response.data['Employees'][i]['Loans'])
                         var otherDeductions = this.getOtherDeductions(response.data['Employees'][i]['OtherDeductions'])  
                         otherDeductions += arOtherLoans 
                         summaryChunks.push(otherDeductions > 0 ? `₱` + this.toMoney(otherDeductions) : '-');
+
+                        // BEMPC
+                        var bempcDeduction = this.isNumber(this.getBempcDeduction(response.data['Employees'][i]['BEMPC'])) ? this.getBempcDeduction(response.data['Employees'][i]['BEMPC']) : 0
+                        summaryChunks.push(bempcDeduction > 0 ? `₱` + this.toMoney(bempcDeduction) : '-');
 
                         // SALARY/OT/LATE/UT/ABS WT   
                         var baseSalaryWT = this.getSalaryWT(response.data['Employees'][i]['SalaryAmount'], lateAmount, otAmount)    
@@ -1463,13 +1519,20 @@ export default {
                         summaryChunks.push(taxWheld > 0 ? `₱` + this.toMoney(taxWheld) : '-');
 
                         // TOTAL DEDUCTIONS 
-                        var totalDeductions = taxWheld + otherDeductions + philHealth + sssLoan + sssContribution + pagIbigLoan + pagIbigContribution + mcLoan
+                        var totalDeductions = taxWheld + otherDeductions + philHealth + sssLoan + sssContribution + pagIbigLoan + pagIbigContribution + mcLoan + bohecoAmount + bempcDeduction
                         summaryChunks.push(totalDeductions > 0 ? `₱` + this.toMoney(totalDeductions) : '-');
 
                         // NET PAY   
                         var netPay = totalAmountPartial - totalDeductions
-                        netPay = netPay < 1 ? 0 : netPay
+                        // netPay = netPay < 1 ? 0 : netPay
                         summaryChunks.push(netPay > 0 ? (`<strong>₱` + this.toMoney(netPay) + `<strong>`) : '-');
+
+                        // ZERO OUT
+                        var zeroOutExcess = 0
+                        if (netPay < 0) {
+                            zeroOutExcess = netPay
+                        }
+                        summaryChunks.push(zeroOutExcess > 0 ? '-' : (`(` + this.toMoney(zeroOutExcess * (-1)) + `)`));
 
                         this.summaries.push(summaryChunks)
 
@@ -1498,7 +1561,10 @@ export default {
                             SSSContribution : sssContribution,
                             SSSLoan : sssLoan,
                             PhilHealthContribution : philHealth,
+                            BOHECOIAmount : bohecoAmount,
+                            BOHECOIBills : bohecoBills,
                             OtherDeductions : otherDeductions,
+                            BEMPC : bempcDeduction,
                             SalaryWithholdingTax : baseSalaryWT,
                             TotalWithholdingTax : taxWheld,
                             TotalDeductions : totalDeductions,
@@ -1513,6 +1579,7 @@ export default {
                     }
                 })
                 .catch(error => {
+                    Swal.close()
                     this.isGenerateButtonDisabled = true;
                     this.existStatus = ''
                     this.payrollExists = false
@@ -1605,6 +1672,15 @@ export default {
             this.isGenerateButtonDisabled = true;
             this.isButtonDisabled = true;
 
+            Swal.fire({
+                title : 'Saving Payroll',
+                text : 'This may take a couple of seconds. Please wait...',
+                allowOutsideClick : false,
+                didOpen : () => {
+                    Swal.showLoading()
+                }
+            })
+
             axios.post(`${ axios.defaults.baseURL }/payroll_expanded_details/bulk-save-payroll`, {
                     EmployeeType : this.employeeType,
                     Department : this.department,
@@ -1612,6 +1688,7 @@ export default {
                     Data : this.payrollData,
             })
             .then(response => {
+                Swal.close()
                 this.isDisplayed = 'gone';
                 this.isGenerateButtonDisabled = false;
                 this.isButtonDisabled = false;
@@ -1634,6 +1711,7 @@ export default {
                 this.existStatus = ''
             })
             .catch(error => {
+                Swal.close()
                 this.isGenerateButtonDisabled = true;
 
                 Swal.fire({
