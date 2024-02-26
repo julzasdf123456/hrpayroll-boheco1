@@ -12,6 +12,7 @@ use App\Models\UserFootprints;
 use App\Models\PayrollExpandedDetails;
 use App\Models\EmployeeIncntvsProjectionTaxMark;
 use App\Models\EmployeeIncentiveAnnualProjections;
+use App\Models\PayrollBillsAttachments;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Flash;
@@ -153,8 +154,9 @@ class PayrollExpandedDetailsController extends AppBaseController
             ->delete();
 
         foreach($data as $item) {
+            $id = IDGenerator::generateIDandRandString();
             $payrollDraft = new PayrollExpandedDetails;
-            $payrollDraft->id = IDGenerator::generateIDandRandString();
+            $payrollDraft->id = $id;
             $payrollDraft->EmployeeId = $item['EmployeeId'];
             $payrollDraft->SalaryPeriod = $item['SalaryPeriod'];
             $payrollDraft->From = $item['From'];
@@ -188,7 +190,36 @@ class PayrollExpandedDetailsController extends AppBaseController
             $payrollDraft->Status = $item['Status'];
             $payrollDraft->Department = $item['Department'];
             $payrollDraft->EmployeeType = $item['EmployeeType'];
+            $payrollDraft->PowerBills = $item['BOHECOIAmount'];
+            $payrollDraft->BEMPC = $item['BEMPC'];
             $payrollDraft->save();
+
+            // SAVE BOHECO I Power Bills Attachments
+            $bills = $item['BOHECOIBills'];
+            if ($bills != null) {
+                foreach($bills as $bill) {
+                    $payrollAttachments = PayrollBillsAttachments::where('AccountNumber', $bill['AccountNumber'])
+                        ->where('BillingMonth', $bill['ServicePeriodEnd'])
+                        ->first();
+
+                    if ($payrollAttachments != null) {
+                        $payrollAttachments->Surcharges = $bill['Surcharges'];
+                        $payrollAttachments->Amount = $bill['NetAmount'];
+                    } else {
+                        $payrollAttachments = new PayrollBillsAttachments;
+                        $payrollAttachments->id = IDGenerator::generateIDandRandString();
+                        $payrollAttachments->Surcharges = $bill['Surcharges'];
+                        $payrollAttachments->Amount = $bill['NetAmount'];
+                        $payrollAttachments->AccountNumber = $bill['AccountNumber'];
+                        $payrollAttachments->BillingMonth = $bill['ServicePeriodEnd'];
+                        $payrollAttachments->EmployeeId = $item['EmployeeId'];
+                        $payrollAttachments->BillAmount = $bill['BillAmount'];
+                        $payrollAttachments->PayrollId = $id;
+                        $payrollAttachments->ScheduleDate = $salaryPeriod;
+                    }
+                    $payrollAttachments->save();
+                }
+            }
 
             // ADD INCENTIVE PROJECTION TAX COMPUTATION
             $incentiveProjections = EmployeeIncentiveAnnualProjections::where('EmployeeId', $item['EmployeeId'])

@@ -26,6 +26,10 @@ use App\Models\HolidaysList;
 use App\Models\PayrollExpandedDetails;
 use App\Models\UserFootprints;
 use App\Models\LoanDetails;
+use App\Models\AttachedAccounts;
+use App\Models\PayrollBillsAttachments;
+use App\Models\PaidBills;
+use App\Models\Bills;
 use App\Exports\FCBUploadTemplate;
 use Flash;
 use Response;
@@ -740,6 +744,163 @@ class PayrollIndexController extends AppBaseController
             $item->ProjectedIncentives = DB::table('EmployeeIncentiveAnnualProjections')
                     ->whereRaw("EmployeeId='" . $item->id . "' AND Year='" . date('Y') . "'")
                     ->get();
+
+            // BOHECO I Bills
+            $linkedAccounts = AttachedAccounts::where("EmployeeId", $item->id)->get();
+            $totalBillAmount = [];
+            foreach($linkedAccounts as $accts) {
+                $bills =  DB::connection('sqlsrv_billing')
+                    ->table('Bills')
+                    ->leftJoin('AccountMaster', 'Bills.AccountNumber', '=', 'AccountMaster.AccountNumber')
+                    ->leftJoin('BillsExtension', function($join) {
+                        $join->on('Bills.AccountNumber', '=', 'BillsExtension.AccountNumber')
+                            ->on('Bills.ServicePeriodEnd', '=', 'BillsExtension.ServicePeriodEnd');
+                    })
+                    ->whereRaw("Bills.AccountNumber='" . $accts->AccountNumber . "' AND Bills.AccountNumber NOT IN (SELECT AccountNumber FROM PaidBills WHERE AccountNumber=Bills.AccountNumber AND ServicePeriodEnd=Bills.ServicePeriodEnd)")
+                    ->select('AccountMaster.ConsumerName',
+                            'AccountMaster.ConsumerAddress',
+                            'AccountMaster.AccountStatus',
+                            'AccountMaster.ComputeMode',
+                            'Bills.AccountNumber',
+                            'Bills.PowerPreviousReading',
+                            'Bills.PowerPresentReading',
+                            'Bills.DemandPreviousReading',
+                            'Bills.DemandPresentReading',
+                            'Bills.NetMeteringNetAmount',
+                            'Bills.ReferenceNo',
+                            'Bills.DAA_GRAM',
+                            'Bills.DAA_ICERA',
+                            'Bills.ACRM_TAFPPCA',
+                            'Bills.ACRM_TAFxA',
+                            'Bills.DAA_VAT',
+                            'Bills.ACRM_VAT',
+                            'Bills.NetPresReading',
+                            'Bills.NetPowerKWH',
+                            'Bills.NetGenerationAmount',
+                            'Bills.CreditKWH',
+                            'Bills.CreditAmount',
+                            'Bills.NetMeteringSystemAmt',
+                            'Bills.Item3',
+                            'Bills.Item4',
+                            'Bills.SeniorCitizenDiscount',
+                            'Bills.SeniorCitizenSubsidy',
+                            'Bills.UCMERefund',
+                            'Bills.NetPrevReading',
+                            'Bills.CrossSubsidyCreditAmt',
+                            'Bills.MissionaryElectrificationAmt',
+                            'Bills.EnvironmentalAmt',
+                            'Bills.LifelineSubsidyAmt',
+                            'Bills.Item1',
+                            'Bills.Item2',
+                            'Bills.DistributionSystemAmt',
+                            'Bills.SupplyRetailCustomerAmt',
+                            'Bills.SupplySystemAmt',
+                            'Bills.MeteringRetailCustomerAmt',
+                            'Bills.MeteringSystemAmt',
+                            'Bills.SystemLossAmt',
+                            'Bills.FBHCAmt',
+                            'Bills.FPCAAdjustmentAmt',
+                            'Bills.ForexAdjustmentAmt',
+                            'Bills.TransmissionDemandAmt',
+                            'Bills.TransmissionSystemAmt',
+                            'Bills.DistributionDemandAmt',
+                            'Bills.EPAmount',
+                            'Bills.PCAmount',
+                            'Bills.LoanCondonation',
+                            'Bills.BillingPeriod',
+                            'Bills.UnbundledTag',
+                            'Bills.GenerationSystemAmt',
+                            'Bills.PPCAAmount',
+                            'Bills.UCAmount',
+                            'Bills.MeterNumber',
+                            'Bills.ConsumerType',
+                            'Bills.BillType',
+                            'Bills.QCAmount',
+                            'Bills.PPA',
+                            'Bills.PPAAmount',
+                            'Bills.BasicAmount',
+                            'Bills.PRADiscount',
+                            'Bills.PRAAmount',
+                            'Bills.PPCADiscount',
+                            'Bills.AverageKWDemand',
+                            'Bills.CoreLoss',
+                            'Bills.Meter',
+                            'Bills.PR',
+                            'Bills.SDW',
+                            'Bills.Others',
+                            'Bills.ServiceDateFrom',
+                            'Bills.ServiceDateTo',
+                            'Bills.ServicePeriodEnd',
+                            'Bills.DueDate',
+                            'Bills.BillNumber',
+                            'Bills.Remarks',
+                            'Bills.AverageKWH',
+                            'Bills.Charges',
+                            'Bills.Deductions',
+                            'Bills.NetAmount',
+                            'Bills.PowerRate',
+                            'Bills.DemandRate',
+                            'Bills.BillingDate',
+                            'Bills.AdditionalKWH',
+                            'Bills.AdditionalKWDemand',
+                            'Bills.PowerKWH',
+                            'Bills.KWHAmount',
+                            'Bills.DemandKW',
+                            'Bills.KWAmount',
+                            'BillsExtension.GenerationVAT',
+                            'BillsExtension.TransmissionVAT',
+                            'BillsExtension.SLVAT',
+                            'BillsExtension.DistributionVAT',
+                            'BillsExtension.OthersVAT',
+                            'BillsExtension.Item5',
+                            'BillsExtension.Item6',
+                            'BillsExtension.Item7',
+                            'BillsExtension.Item8',
+                            'BillsExtension.Item9',
+                            'BillsExtension.Item10',
+                            'BillsExtension.Item11',
+                            'BillsExtension.Item12',
+                            'BillsExtension.Item13',
+                            'BillsExtension.Item14',
+                            'BillsExtension.Item15',
+                            'BillsExtension.Item16',
+                            'BillsExtension.Item17',
+                            'BillsExtension.Item18',
+                            'BillsExtension.Item19',
+                            'BillsExtension.Item20',
+                            'BillsExtension.Item21',
+                            'BillsExtension.Item22',
+                            'BillsExtension.Item23',
+                            'BillsExtension.Item24',)
+                        ->get();
+
+                if ($bills != null && count($bills) > 0) {
+                    foreach($bills as $bill) {
+                        $surcharges = PayrollIndex::getSurcharge($bill);
+                        if ($bill->ComputeMode == 'NetMetered') {
+                            $billAmnt = round(floatval($bill->NetMeteringNetAmount), 2);
+                        } else {
+                            $billAmnt = round(floatval($bill->NetAmount), 2);
+                        }
+                        $netAmnt = $surcharges + $billAmnt;
+                        array_push($totalBillAmount, [
+                            'AccountNumber' => $bill->AccountNumber,
+                            'ServicePeriodEnd' => $bill->ServicePeriodEnd,
+                            'BillAmount' => $billAmnt,
+                            'Surcharges' => $surcharges,
+                            'NetAmount' => $netAmnt,
+                        ]);
+                    }
+                }
+            }
+
+            // BEMPC
+            $item->BEMPC = DB::table('BEMPC')
+                ->select('Amount')
+                ->whereRaw("EmployeeId='" . $item->id . "' AND DeductionFor LIKE '%Payroll%' AND DeductionSchedule='" . $salaryPeriod . "'")
+                ->get();
+
+            $item->PowerBills = $totalBillAmount;
         }
 
         $holidays = DB::table('HolidaysList')
@@ -864,6 +1025,52 @@ class PayrollIndexController extends AppBaseController
         foreach($loans as $item) {
             LoanDetails::where('id', $item->id)
                 ->update(['Paid' => 'Paid']);
+        }
+
+        /**
+         * UPDATE PaidBills on Employees with attached billing information
+         */
+        $bills = PayrollBillsAttachments::where('ScheduleDate', $salaryPeriod)->whereNull('Status')->get();
+        foreach($bills as $item) {
+            $paidBill = PaidBills::where('ServicePeriodEnd', $item->BillingMonth)
+                ->where('AccountNumber', $item->AccountNumber)
+                ->first();
+            if ($paidBill != null) {
+                // DOUBLE PAYMENT
+                $item->Status = 'Double Payment';
+            } else {
+                $bill = Bills::where('ServicePeriodEnd', $item->BillingMonth)
+                    ->where('AccountNumber', $item->AccountNumber)
+                    ->first();
+                if ($bill != null) {
+                    $sVat = floatval($item->Surcharges) - (floatval($item->Surcharges) / 1.12);
+
+                    $paidBill = new PaidBills;
+                    $paidBill->AccountNumber = $bill->AccountNumber;
+                    $paidBill->BillNumber = $bill->BillNumber;
+                    $paidBill->ServicePeriodEnd = $bill->ServicePeriodEnd;
+                    $paidBill->Power = $bill->KWHAmount;
+                    $paidBill->Meter = round(floatval($bill->Item2) + $sVat, 2);
+                    $paidBill->PR = $bill->PR;
+                    $paidBill->Others = $bill->Others;
+                    $paidBill->NetAmount = $item->Amount;
+                    $paidBill->PaymentType = 'SUB-OFFICE/STATION';
+                    $paidBill->ORNumber = null;
+                    $paidBill->Teller = env('CASHIER_USER');
+                    $paidBill->DCRNumber = "";
+                    $paidBill->PostingDate = $item->created_at;
+                    $paidBill->PostingSequence = '1';
+                    $paidBill->PromptPayment = '0';
+                    $paidBill->Surcharge = round($item->Surcharges, 2);
+                    $paidBill->save();
+
+                    $item->Status = 'Posted';
+                } else {
+                    $item->Status = 'Bill Not Found';
+                }
+            }
+
+            $item->save();
         }
 
         return response()->json('ok', 200);
@@ -1340,5 +1547,47 @@ class PayrollIndexController extends AppBaseController
             ->get();
 
         return response()->json($data, 200);
+    }
+
+    public function zeroOut($salaryPeriod) {
+        $data = DB::table('PayrollExpandedDetails')
+                    ->leftJoin('Employees', 'PayrollExpandedDetails.EmployeeId', '=', 'Employees.id')
+                    ->whereRaw("PayrollExpandedDetails.SalaryPeriod='" . $salaryPeriod . "' AND NetPay < 0")
+                    ->select(
+                        'FirstName',
+                        'LastName',
+                        'MiddleName',
+                        'Suffix',
+                        'PayrollExpandedDetails.*'
+                    )
+                    ->orderBy('PayrollExpandedDetails.Department')
+                    ->orderBy('Employees.LastName')
+                    ->get();
+
+        return view('/payroll_indices/zero_out', [
+            'data' => $data,
+            'salaryPeriod' => $salaryPeriod,
+        ]);
+    }
+
+    public function printZeroOut($salaryPeriod) {
+        $data = DB::table('PayrollExpandedDetails')
+                    ->leftJoin('Employees', 'PayrollExpandedDetails.EmployeeId', '=', 'Employees.id')
+                    ->whereRaw("PayrollExpandedDetails.SalaryPeriod='" . $salaryPeriod . "' AND NetPay < 0")
+                    ->select(
+                        'FirstName',
+                        'LastName',
+                        'MiddleName',
+                        'Suffix',
+                        'PayrollExpandedDetails.*'
+                    )
+                    ->orderBy('PayrollExpandedDetails.Department')
+                    ->orderBy('Employees.LastName')
+                    ->get();
+
+        return view('/payroll_indices/print_zero_out', [
+            'data' => $data,
+            'salaryPeriod' => $salaryPeriod,
+        ]);
     }
 }

@@ -178,6 +178,8 @@ Route::get('/payroll_indices/download-fcb-template/{salaryPeriod}', [PayrollInde
 Route::get('/payroll_indices/print-fcb-submission/{salaryPeriod}', [PayrollIndexController::class, 'printFCBSubmission'])->name('payrollIndices.print-fcb-submission');
 Route::get('/payroll_indices/print-payroll-final/{salaryPeriod}', [PayrollIndexController::class, 'printPayrollFinal'])->name('payrollIndices.print-payroll-final');
 Route::get('/payroll_indices/get-payroll-monthly-data', [PayrollIndexController::class, 'getPayrollMonthlyData'])->name('payrollIndices.get-payroll-monthly-data');
+Route::get('/payroll_indices/zero-out/{salaryPeriod}', [PayrollIndexController::class, 'zeroOut'])->name('payrollIndices.zero-out');
+Route::get('/payroll_indices/print-zero-out/{salaryPeriod}', [PayrollIndexController::class, 'printZeroOut'])->name('payrollIndices.print-zero-out');
 Route::resource('payrollIndices', PayrollIndexController::class);
 
 
@@ -365,3 +367,6 @@ Route::resource('incentivesYearEndDetails', IncentivesYearEndDetailsController::
 
 Route::get('/attached_accounts/get-connected-accounts', [AttachedAccountsController::class, 'getConnectedAccounts'])->name('attachedAccounts.get-connected-accounts');
 Route::resource('attachedAccounts', AttachedAccountsController::class);
+Route::resource('payrollBillsAttachments', App\Http\Controllers\PayrollBillsAttachmentsController::class);
+Route::resource('paidBills', App\Http\Controllers\PaidBillsController::class);
+Route::resource('bills', App\Http\Controllers\BillsController::class);

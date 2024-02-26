@@ -8,6 +8,7 @@ use Maatwebsite\Excel\Concerns\WithMappedCells;
 use Maatwebsite\Excel\Concerns\WithCalculatedFormulas;
 use Illuminate\Support\Facades\DB;
 use App\Models\IncentiveDetails;
+use App\Models\PayrollExpandedDetails;
 use App\Models\IDGenerator;
 
 class BEMPCUploads implements WithCalculatedFormulas, ToCollection {
@@ -82,20 +83,39 @@ class BEMPCUploads implements WithCalculatedFormulas, ToCollection {
                         break;
                     
                     default:
-                        $checkId = DB::table('IncentiveDetails')
-                            ->leftJoin('Incentives', 'IncentiveDetails.IncentivesId', '=', 'Incentives.id')
-                            ->whereRaw("Incentives.Year='" . date('Y') . "' AND IncentiveDetails.EmployeeId='" . $row[0] . "' AND Incentives.IncentiveName='" . $this->deductionFor . "' AND Incentives.ReleaseType='" . $this->releasingType . "'")
-                            ->select('IncentiveDetails.id', 'IncentiveDetails.SubTotal', 'IncentiveDetails.OtherDeductions', 'IncentiveDetails.NetPay')
-                            ->first();
+                        if (str_contains($this->deductionFor, 'Payroll')) {
+                            // if payroll
+                            $payroll = PayrollExpandedDetails::where('SalaryPeriod', $this->deductionSchedule)
+                                ->where('EmployeeId', $row[0])
+                                ->first();
+                            if ($payroll != null) {
+                                $bempcExisting = $payroll->BEMPC != null ? $payroll->BEMPC : 0;
+                                $netPay = $payroll->NetPay - $bempcExisting;
 
-                        if ($checkId != null) {
-                            $subTtl = floatval($checkId->SubTotal);
-                            $otherDeductions = floatval($checkId->OtherDeductions);
-                            $bempcAmnt = $row[2] != null && is_numeric($row[2]) ? floatval($row[2]) : 0;
-                            
-                            $total = $subTtl - ($otherDeductions + $bempcAmnt);
-                            IncentiveDetails::where('id', $checkId->id)
-                                ->update(['BEMPC' => $bempcAmnt, 'NetPay' => $total]);
+                                $bempcAmount = floatval($row[2]);
+                                $netPay = $netPay - $bempcAmount;
+
+                                $payroll->NetPay = $netPay;
+                                $payroll->BEMPC = $bempcAmount;
+                                $payroll->save();
+                            }
+                        } else {
+                            // other bonuses
+                            $checkId = DB::table('IncentiveDetails')
+                                ->leftJoin('Incentives', 'IncentiveDetails.IncentivesId', '=', 'Incentives.id')
+                                ->whereRaw("Incentives.Year='" . date('Y') . "' AND IncentiveDetails.EmployeeId='" . $row[0] . "' AND Incentives.IncentiveName='" . $this->deductionFor . "' AND Incentives.ReleaseType='" . $this->releasingType . "'")
+                                ->select('IncentiveDetails.id', 'IncentiveDetails.SubTotal', 'IncentiveDetails.OtherDeductions', 'IncentiveDetails.NetPay')
+                                ->first();
+
+                            if ($checkId != null) {
+                                $subTtl = floatval($checkId->SubTotal);
+                                $otherDeductions = floatval($checkId->OtherDeductions);
+                                $bempcAmnt = $row[2] != null && is_numeric($row[2]) ? floatval($row[2]) : 0;
+                                
+                                $total = $subTtl - ($otherDeductions + $bempcAmnt);
+                                IncentiveDetails::where('id', $checkId->id)
+                                    ->update(['BEMPC' => $bempcAmnt, 'NetPay' => $total]);
+                            }
                         }
                         break;
                 }

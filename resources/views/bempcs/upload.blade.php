@@ -88,7 +88,7 @@
                     $('#bonus').addClass('gone')
                     $('#payroll').removeClass('gone')
                     $('#Partial').removeAttr('checked')
-                    $('#Full').removeAttr('checked')
+                    $('#Full').prop('checked', true).change()
                 }
             })
 

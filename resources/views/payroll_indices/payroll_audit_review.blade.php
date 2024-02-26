@@ -8,7 +8,7 @@
 @push('page_css')
     <style>
         .table-xs {
-            font-size: .70em;
+            font-size: .80em;
         }
     </style>
 @endpush
@@ -46,6 +46,8 @@
         $OverallSSSLoan = 0;
         $OverallPhilHealthContribution = 0;
         $OverallOtherDeductions = 0;
+        $OverallPowerBills = 0;
+        $OverallBEMPC = 0;
         $OverallSalaryWithholdingTax = 0;
         $OverallTotalWithholdingTax = 0;
         $OverallTotalDeductions = 0;
@@ -83,6 +85,8 @@
                                 <th colspan="2"  class="text-center">SSS</th>
                                 <th rowspan="2"  class="text-center">PhilHealth Cont.</th>
                                 <th rowspan="2"  class="text-center">AR Others</th>
+                                <th rowspan="2"  class="text-center">BOHECO I Bills</th>
+                                <th rowspan="2"  class="text-center">BEMPC</th>
                                 <th rowspan="2"  class="text-center">Salary Only WT</th>
                                 <th rowspan="2"  class="text-center">Total Tax Wheld</th>
                                 <th rowspan="2"  class="text-center">Total Deductions</th>
@@ -123,6 +127,8 @@
                                 $SSSLoan = 0;
                                 $PhilHealthContribution = 0;
                                 $OtherDeductions = 0;
+                                $PowerBills = 0;
+                                $BEMPC = 0;
                                 $SalaryWithholdingTax = 0;
                                 $TotalWithholdingTax = 0;
                                 $TotalDeductions = 0;
@@ -151,6 +157,8 @@
                                     <td class="text-right">{{ $itemx->SSSLoan > 0 ? '₱'.number_format($itemx->SSSLoan, 2) : '-' }}</td>
                                     <td class="text-right">{{ $itemx->PhilHealthContribution > 0 ? '₱'.number_format($itemx->PhilHealthContribution, 2) : '-' }}</td>
                                     <td class="text-right">{{ $itemx->OtherDeductions > 0 ? '₱'.number_format($itemx->OtherDeductions, 2) : '-' }}</td>
+                                    <td class="text-right">{{ $itemx->PowerBills > 0 ? '₱'.number_format($itemx->PowerBills, 2) : '-' }}</td>
+                                    <td class="text-right">{{ $itemx->BEMPC > 0 ? '₱'.number_format($itemx->BEMPC, 2) : '-' }}</td>
                                     <td class="text-right">{{ $itemx->SalaryWithholdingTax > 0 ? '₱'.number_format($itemx->SalaryWithholdingTax, 2) : '-' }}</td>
                                     <td class="text-right">{{ $itemx->TotalWithholdingTax > 0 ? '₱'.number_format($itemx->TotalWithholdingTax, 2) : '-' }}</td>
                                     <td class="text-right">{{ $itemx->TotalDeductions > 0 ? '₱'.number_format($itemx->TotalDeductions, 2) : '-' }}</td>
@@ -177,6 +185,8 @@
                                     $SSSLoan += $itemx->SSSLoan;
                                     $PhilHealthContribution += $itemx->PhilHealthContribution;
                                     $OtherDeductions += $itemx->OtherDeductions;
+                                    $PowerBills += $itemx->PowerBills;
+                                    $BEMPC += $itemx->BEMPC;
                                     $SalaryWithholdingTax += $itemx->SalaryWithholdingTax;
                                     $TotalWithholdingTax += $itemx->TotalWithholdingTax;
                                     $TotalDeductions += $itemx->TotalDeductions;
@@ -206,6 +216,8 @@
                                 <th class="text-right">{{ $SSSLoan > 0 ? '₱'.number_format($SSSLoan, 2) : '-' }}</th>
                                 <th class="text-right">{{ $PhilHealthContribution > 0 ? '₱'.number_format($PhilHealthContribution, 2) : '-' }}</th>
                                 <th class="text-right">{{ $OtherDeductions > 0 ? '₱'.number_format($OtherDeductions, 2) : '-' }}</th>
+                                <th class="text-right">{{ $PowerBills > 0 ? '₱'.number_format($PowerBills, 2) : '-' }}</th>
+                                <th class="text-right">{{ $BEMPC > 0 ? '₱'.number_format($BEMPC, 2) : '-' }}</th>
                                 <th class="text-right">{{ $SalaryWithholdingTax > 0 ? '₱'.number_format($SalaryWithholdingTax, 2) : '-' }}</th>
                                 <th class="text-right">{{ $TotalWithholdingTax > 0 ? '₱'.number_format($TotalWithholdingTax, 2) : '-' }}</th>
                                 <th class="text-right">{{ $TotalDeductions > 0 ? '₱'.number_format($TotalDeductions, 2) : '-' }}</th>
@@ -233,6 +245,8 @@
                                 $OverallSSSLoan += $SSSLoan;
                                 $OverallPhilHealthContribution += $PhilHealthContribution;
                                 $OverallOtherDeductions += $OtherDeductions;
+                                $OverallPowerBills += $PowerBills;
+                                $OverallBEMPC += $BEMPC;
                                 $OverallSalaryWithholdingTax += $SalaryWithholdingTax;
                                 $OverallTotalWithholdingTax += $TotalWithholdingTax;
                                 $OverallTotalDeductions += $TotalDeductions;
@@ -261,6 +275,8 @@
                                     <th class="text-right">{{ $OverallSSSLoan > 0 ? '₱'.number_format($OverallSSSLoan, 2) : '-' }}</th>
                                     <th class="text-right">{{ $OverallPhilHealthContribution > 0 ? '₱'.number_format($OverallPhilHealthContribution, 2) : '-' }}</th>
                                     <th class="text-right">{{ $OverallOtherDeductions > 0 ? '₱'.number_format($OverallOtherDeductions, 2) : '-' }}</th>
+                                    <th class="text-right">{{ $OverallPowerBills > 0 ? '₱'.number_format($OverallPowerBills, 2) : '-' }}</th>
+                                    <th class="text-right">{{ $OverallBEMPC > 0 ? '₱'.number_format($OverallBEMPC, 2) : '-' }}</th>
                                     <th class="text-right">{{ $OverallSalaryWithholdingTax > 0 ? '₱'.number_format($OverallSalaryWithholdingTax, 2) : '-' }}</th>
                                     <th class="text-right">{{ $OverallTotalWithholdingTax > 0 ? '₱'.number_format($OverallTotalWithholdingTax, 2) : '-' }}</th>
                                     <th class="text-right">{{ $OverallTotalDeductions > 0 ? '₱'.number_format($OverallTotalDeductions, 2) : '-' }}</th>
@@ -364,6 +380,14 @@
                 confirmButtonText: "Approve"
             }).then((result) => {
                 if (result.isConfirmed) {
+                    Swal.fire({
+                        title : 'Approval Commencing',
+                        text : 'Approval also locks the data. This may take several seconds...',
+                        allowOutsideClick : false,
+                        didOpen : () => {
+                            Swal.showLoading()
+                        }
+                    })
                     $.ajax({
                         url : "{{ route('payrollIndices.audit-approve-payroll') }}",
                         type : "GET",
@@ -371,6 +395,7 @@
                             SalaryPeriod : "{{ $salaryPeriod }}",
                         },
                         success : function(res) {
+                            Swal.close()
                             Toast.fire({
                                 icon : 'success',
                                 text : 'Payroll approved by audit.'
@@ -378,6 +403,7 @@
                             window.location.href = "{{ route('payrollIndices.payroll-audit') }}"
                         },
                         error : function(err) {
+                            Swal.close()
                             Swal.fire({
                                 icon : 'error',
                                 text : 'Error approving payroll!'
