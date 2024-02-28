@@ -64,6 +64,7 @@ Route::get('/my_account/payroll-detailed-view', [UsersController::class, 'payrol
 Route::get('/my_account/attach-boheco-account', [UsersController::class, 'attachBohecoAccount'])->name('users.attach-boheco-account');
 Route::get('/my_account/search-boheco-accounts', [UsersController::class, 'searchBohecoAccounts'])->name('users.search-boheco-accounts');
 Route::get('/my_account/personal-info', [UsersController::class, 'personalInfo'])->name('users.personal-info');
+Route::get('/my_account/get-incentives-by-employee-id', [UsersController::class, 'getIncentivesByEmployeeId'])->name('users.get-incentives-by-employee-id');
 Route::resource('users', UsersController::class);
 
 Route::get('/register/get-employee-ajax', [App\Http\Controllers\Auth\RegisterController::class, 'getEmployeeAjax'])->name('register.get-employee-ajax');
