@@ -343,4 +343,10 @@ class UsersController extends AppBaseController
 
         return response()->json($data, 200);
     }
+
+    public function personalInfo(Request $request) {
+        return view('/my_account/personal_info', [
+
+        ]);
+    }
 }

@@ -24,3 +24,11 @@
         <p>Payroll</p>
     </a>
 </li>
+
+<li class="nav-item">
+    <a href="{{ route('users.personal-info') }}"
+       class="nav-link {{ Request::is('users.personal-info*') ? 'active' : '' }}">
+       <i class="fas fa-info-circle nav-icon"></i>
+        <p>Personal Info</p>
+    </a>
+</li>

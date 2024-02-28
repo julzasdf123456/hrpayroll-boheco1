@@ -32,6 +32,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Flash;
 use Response;
+use File;
 
 class EmployeesController extends AppBaseController
 {
@@ -677,5 +678,134 @@ class EmployeesController extends AppBaseController
             ->update(['PrimaryBankNumber' => $pitakardNo]);
 
         return response()->json('ok', 200);
+    }
+
+    public function uploadFile($employeeId) {
+        $employees = DB::table('Employees')
+                ->select('Employees.FirstName',
+                        'Employees.MiddleName',
+                        'Employees.LastName',
+                        'Employees.Suffix',
+                        'Employees.id',
+                )
+                ->where('Employees.id', $employeeId)
+                ->first();
+
+        return view('/employees/upload_file', [
+            'employeeId' => $employeeId,
+            'employee' => $employees,
+        ]);
+    }
+
+    public function saveUploadedFiles(Request $request) {
+        $id = $request['EmployeeId'];
+        $files = $_FILES['files'];
+
+        $path = Employees::filePath() . "$id/";
+        File::makeDirectory($path, $mode = 0777, true, true);
+
+        foreach ($_FILES["files"]["name"] as $key => $fileName) {
+            $tempFileName = $_FILES["files"]["tmp_name"][$key];
+            $targetFileName = $path . basename($fileName);
+    
+            // Move the uploaded file to the target directory
+            if (move_uploaded_file($tempFileName, $targetFileName)) {
+                echo "The file " . basename($fileName) . " has been uploaded.<br>";
+            } else {
+                echo "Sorry, there was an error uploading your file.<br>";
+            }
+        }
+
+        return redirect(route('employees.show', [$id]));
+    }
+
+    public function fetchFiles(Request $request) {
+        $id = $request['EmployeeId'];
+
+        // FILES
+        $path = Employees::filePath() . "$id/";
+        if (file_exists($path) && is_dir($path)) {
+            $fileNames = scandir($path);
+            $fileNames = array_diff($fileNames, array('.', '..'));
+            sort($fileNames);
+        } else {
+            $fileNames = [];
+        }
+
+        $files = [];
+        foreach($fileNames as $file) {
+            if (in_array($file, ['trash'])) {
+
+            } else {
+                $lastModified = filemtime($path . '/' . $file);
+                $formattedDate = date('Y/m/d h:i A', $lastModified);
+
+                array_push($files, [
+                    'file' => $file,
+                    'dateModified' => $formattedDate
+                ]);
+            }
+        }
+
+        return response()->json($files, 200);
+    }
+
+    public function renameFile(Request $request) {
+        $id = $request['EmployeeId'];
+        $oldFileName = $request['OldFileName'];
+        $newFileName = $request['NewFileName'];
+
+        // FILES
+        $oldFile = Employees::filePath() . "$id/" . $oldFileName;
+        $extension = strtolower(pathinfo($oldFile, PATHINFO_EXTENSION));
+
+        $newFile = Employees::filePath() . "$id/" . $newFileName . "." . $extension;
+
+        if (rename($oldFile, $newFile)) {
+            return response()->json('ok', 200);
+        } else {
+            return response()->json('Unable to rename file!', 403);
+        }
+    }
+
+    public function trashFile(Request $request) {
+        $id = $request['EmployeeId'];
+        $currentFile = $request['CurrentFile'];
+
+        $current = Employees::filePath() . "$id/" . $currentFile;
+
+        $path = Employees::filePath() . "$id/trash/";
+        File::makeDirectory($path, $mode = 0777, true, true);
+        $trash = $path . date('Y_m_d_H_i_') . $currentFile;
+
+        if (file_exists($current)) {
+            if (rename($current, $trash)) {
+                return response()->json('ok', 200);
+            } else {
+                return response()->json('Unable to trash file!', 403);
+            }
+        } else {
+            return response()->json('File not found!', 404);
+        }
+    }
+
+    public function getEmployeeFullAjax(Request $request) {
+        $id = $request['EmployeeId'];
+
+        $data = DB::table('Employees')
+            ->leftJoin('EmployeesDesignations', 'EmployeesDesignations.EmployeeId', '=', 'Employees.id')
+            ->leftJoin('Positions', 'EmployeesDesignations.PositionId', '=', 'Positions.id')
+            ->leftJoin('Towns', 'Employees.TownCurrent', '=', 'Towns.id')
+            ->leftJoin('Barangays', 'Employees.BarangayCurrent', '=', 'Barangays.id')
+            ->select( 
+                'Employees.*', 
+                'Positions.Position', 
+                'Towns.Town as CurrentTown',
+                'Barangays.Barangays as CurrentBarangay',
+            )
+            ->where('Employees.id', $id)
+            ->first();
+
+        return response()->json($data, 200);
     }
 }

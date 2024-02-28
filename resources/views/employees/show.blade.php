@@ -6,6 +6,7 @@
 @extends('layouts.app')
 
 @section('content')
+    <meta name="view-employee-id" content="{{ $employees->id }}">
     <section class="content-header">
         <div class="container-fluid">
             <div class="row mb-2">
@@ -68,6 +69,7 @@
                                 @else
                                     <button class="dropdown-item" onclick="allowNoAttendance(`{{ $employees->id }}`)"><i class="fas fa-fingerprint ico-tab"></i>Allow No Attendance</button>
                                 @endif
+                                <a class="dropdown-item" href="{{ route('employees.upload-file', [$employees->id]) }}"><i class="fas fa-upload ico-tab"></i>Upload Files and Docs</a>
                             @endcanany
                             <a class="dropdown-item" href="{{ route('employees.attendance', [$employees->id]) }}"><i class="fas fa-calendar-alt ico-tab"></i>View Attendance</a>
 
@@ -170,7 +172,7 @@
                                         <a class="nav-link" id="promotions-tab" data-toggle="pill" href="#promotions-content" role="tab" aria-controls="promotions-content" aria-selected="false">Promotions</a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="nav-link" id="educational-attainments-tab" data-toggle="pill" href="#educational-attainment-content" role="tab" aria-controls="educational-attainment-content" aria-selected="false">Educational Attainment</a>
+                                        <a class="nav-link" id="files-tab" data-toggle="pill" href="#files-content" role="tab" aria-controls="files-content" aria-selected="false">Files & Docs</a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="nav-link" id="private-info-tab" data-toggle="pill" href="#private-info-content" role="tab" aria-controls="private-info-content" aria-selected="false">Private Information</a>
@@ -196,8 +198,8 @@
                                     <div class="tab-pane fade" id="promotions-content" role="tabpanel" aria-labelledby="promotions-tab">
                                         @include('employees.promotions')
                                     </div>
-                                    <div class="tab-pane fade" id="educational-attainment-content" role="tabpanel" aria-labelledby="educational-attainments-tab">
-                                        @include('employees.educational_attainment_view')
+                                    <div class="tab-pane fade" id="files-content" role="tabpanel" aria-labelledby="files-tab">
+                                        @include('employees.tab_files')
                                     </div>
                                     <div class="tab-pane fade" id="private-info-content" role="tabpanel" aria-labelledby="private-info-tab">
                                         @include('employees.private_info_view')
