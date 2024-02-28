@@ -377,3 +377,92 @@
         </div>
     </div> 
 </div>
+
+<div class="divider"></div>
+
+<p><i>ID and Bank Numbers</i></p>
+
+<div class="form-group col-sm-12">
+    <div class="row">
+        <div class="col-lg-3 col-md-5">
+            {!! Form::label('TIN', 'TIN:') !!}
+        </div>
+
+        <div class="col-lg-9 col-md-7">
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fas fa-hashtag"></i></span>
+                </div>
+                {!! Form::text('TIN', null, ['class' => 'form-control','maxlength' => 500,'maxlength' => 500]) !!}
+            </div>
+        </div>
+    </div> 
+</div>
+
+<div class="form-group col-sm-12">
+    <div class="row">
+        <div class="col-lg-3 col-md-5">
+            {!! Form::label('SSSNumber', 'SSS:') !!}
+        </div>
+
+        <div class="col-lg-9 col-md-7">
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fas fa-hashtag"></i></span>
+                </div>
+                {!! Form::text('SSSNumber', null, ['class' => 'form-control','maxlength' => 500,'maxlength' => 500]) !!}
+            </div>
+        </div>
+    </div> 
+</div>
+
+<div class="form-group col-sm-12">
+    <div class="row">
+        <div class="col-lg-3 col-md-5">
+            {!! Form::label('PagIbigNumber', 'Pag-Ibig:') !!}
+        </div>
+
+        <div class="col-lg-9 col-md-7">
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fas fa-hashtag"></i></span>
+                </div>
+                {!! Form::text('PagIbigNumber', null, ['class' => 'form-control','maxlength' => 500,'maxlength' => 500]) !!}
+            </div>
+        </div>
+    </div> 
+</div>
+
+<div class="form-group col-sm-12">
+    <div class="row">
+        <div class="col-lg-3 col-md-5">
+            {!! Form::label('PhilHealthNumber', 'PhilHealth:') !!}
+        </div>
+
+        <div class="col-lg-9 col-md-7">
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fas fa-hashtag"></i></span>
+                </div>
+                {!! Form::text('PhilHealthNumber', null, ['class' => 'form-control','maxlength' => 500,'maxlength' => 500]) !!}
+            </div>
+        </div>
+    </div> 
+</div>
+
+<div class="form-group col-sm-12">
+    <div class="row">
+        <div class="col-lg-3 col-md-5">
+            {!! Form::label('PrimaryBankNumber', 'Pitakard Number:') !!}
+        </div>
+
+        <div class="col-lg-9 col-md-7">
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fas fa-hashtag"></i></span>
+                </div>
+                {!! Form::text('PrimaryBankNumber', null, ['class' => 'form-control','maxlength' => 500,'maxlength' => 500]) !!}
+            </div>
+        </div>
+    </div> 
+</div>

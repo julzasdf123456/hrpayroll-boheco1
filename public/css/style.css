@@ -814,3 +814,20 @@ body.dark-mode .text-primary {
 .content-wrapper {
     height: auto !important;
 }
+
+.v-align {
+    vertical-align: middle !important;
+}
+
+/**
+ * Client View - My personal space
+ */
+.fixed-td-md {
+    width: 210px !important;
+}
+
+@media screen and (max-width: 1020px) {
+    .fixed-td-md {
+        width: 160px !important;
+    }
+}

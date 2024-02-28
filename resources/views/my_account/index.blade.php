@@ -5,6 +5,20 @@
 @endphp
 @extends('layouts.app')
 
+@push('page_css')
+    <style>
+        .mt-on-mobile {
+            margin-top: 6px !important;
+        }
+
+        @media screen and (max-width: 1100px) {
+            .mt-on-mobile {
+                margin-top: 10px !important;
+            }
+        }
+    </style>
+@endpush
+
 @section('content')
 <div class="content">
     {{-- IMG --}}
@@ -23,7 +37,7 @@
         <div class="col-lg-12">
             <div class="row">
                 {{-- LEAVE --}}
-                <div class="col-lg-4 offset-lg-2 col-md-12">
+                <div class="col-lg-4 offset-lg-2 mt-on-mobile col-md-12">
                     <div class="card shadow-none" style="height: 100%;">
                         <div class="card-body">
                             <h4>Leave Credits</h4>
@@ -65,13 +79,13 @@
                 </div>
 
                 {{-- Payroll --}}
-                <div class="col-lg-4 col-md-12">
+                <div class="col-lg-4 col-md-12 mt-on-mobile">
                     <div class="card shadow-none" style="height: 100%;">
                         <div class="card-body">
-                            <h4>Attendance & Payroll</h4>
+                            <h4>Payroll</h4>
                             <div class="row">
                                 <div class="col-7">
-                                    <span class="text-muted">View and manage your attendance and payroll information, including all your incentives, overtime pays, deductions, and withholding taxes</span>
+                                    <span class="text-muted">View and manage your payroll information, including all your incentives, overtime pays, deductions, and withholding taxes</span>
                                 </div>
                                 <div class="col-5 center-contents">
                                     <img style="width: 90% !important;" class="img-fluid" src="{{ asset('imgs/payroll-dash.png') }}" alt="User profile picture">
@@ -86,31 +100,31 @@
             </div>
         </div>
         
-        <div class="col-lg-12" style="margin-top: 12px;">
+        <div class="col-lg-12 mt-on-mobile">
             <div class="row">
                 {{-- TRIPS --}}
-                <div class="col-lg-4 offset-lg-2 col-md-12">
+                <div class="col-lg-4 offset-lg-2 mt-on-mobile col-md-12">
                     <div class="card shadow-none" style="height: 100%;">
                         <div class="card-body">
-                            <h4>Travels and Trips</h4>
+                            <h4>Attendance</h4>
                             
                             <div class="row">
                                 <div class="col-8">
-                                    <span class="text-muted">View your official {{ env('APP_COMPANY_ABRV') }} travel orders and trip tickets</span>
+                                    <span class="text-muted">Monitor your {{ env('APP_COMPANY_ABRV') }} attendances and daily logs, including your trips, travels, and other attendance-related information</span>
                                 </div>
                                 <div class="col-4 center-contents">
-                                    <img style="width: 90% !important;" class="img-fluid" src="{{ asset('imgs/trips.png') }}" alt="User profile picture">
+                                    <img style="width: 95% !important;" class="img-fluid" src="{{ asset('imgs/attendances.png') }}" alt="User profile picture">
                                 </div>
                             </div>
                         </div>
                         <div class="card-footer">
-                            <a href="" class="btn btn-link">Trips tickets and travel orders</a>
+                            <a href="" class="btn btn-link">Attendance management</a>
                         </div>
                     </div>
                 </div>
 
                 {{-- My Personal Space --}}
-                <div class="col-lg-4 col-md-12">
+                <div class="col-lg-4 col-md-12 mt-on-mobile">
                     <div class="card shadow-none" style="height: 100%;">
                         <div class="card-body">
                             <h4>Your Personal Space</h4>
@@ -125,7 +139,7 @@
                             </div>
                         </div>
                         <div class="card-footer">
-                            <a href="" class="btn btn-link">Manage personal info</a>
+                            <a href="{{ route('users.personal-info') }}" class="btn btn-link">Manage personal info</a>
                         </div>
                     </div>
                 </div>

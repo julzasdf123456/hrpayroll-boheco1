@@ -63,6 +63,7 @@ Route::get('/my_account/payroll-dashboard', [UsersController::class, 'payrollDas
 Route::get('/my_account/payroll-detailed-view', [UsersController::class, 'payrollDetailedView'])->name('users.payroll-detailed-view');
 Route::get('/my_account/attach-boheco-account', [UsersController::class, 'attachBohecoAccount'])->name('users.attach-boheco-account');
 Route::get('/my_account/search-boheco-accounts', [UsersController::class, 'searchBohecoAccounts'])->name('users.search-boheco-accounts');
+Route::get('/my_account/personal-info', [UsersController::class, 'personalInfo'])->name('users.personal-info');
 Route::resource('users', UsersController::class);
 
 Route::get('/register/get-employee-ajax', [App\Http\Controllers\Auth\RegisterController::class, 'getEmployeeAjax'])->name('register.get-employee-ajax');
@@ -90,6 +91,12 @@ Route::get('/employees/update-date-hired', [EmployeesController::class, 'updateD
 Route::get('/employees/update-end', [EmployeesController::class, 'updateEnd'])->name('employees.update-end');
 Route::get('/employees/update-biometrics-id', [EmployeesController::class, 'updateBiometricsId'])->name('employees.update-biometrics-id');
 Route::get('/employees/update-pitakard', [EmployeesController::class, 'updatePitakard'])->name('employees.update-pitakard');
+Route::get('/employees/upload-file/{id}', [EmployeesController::class, 'uploadFile'])->name('employees.upload-file');
+Route::post('/employees/save-uploaded-files', [EmployeesController::class, 'saveUploadedFiles'])->name('employees.save-uploaded-files');
+Route::get('/employees/fetch-files', [EmployeesController::class, 'fetchFiles'])->name('employees.fetch-files');
+Route::get('/employees/rename-file', [EmployeesController::class, 'renameFile'])->name('employees.rename-file');
+Route::post('/employees/trash-file', [EmployeesController::class, 'trashFile'])->name('employees.trash-file');
+Route::get('/employees/get-employee-full-ajax', [EmployeesController::class, 'getEmployeeFullAjax'])->name('employees.get-employee-full-ajax');
 Route::resource('employees', EmployeesController::class);
 
 Route::resource('permissions', App\Http\Controllers\PermissionController::class);

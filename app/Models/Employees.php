@@ -89,6 +89,10 @@ class Employees extends Model
         'DateEnded',
         'PrimaryBankNumber',
         'PrimaryBank',
+        'TIN',
+        'SSSNumber',
+        'PhilHealthNumber',
+        'PagIbigNumber',
     ];
 
     /**
@@ -131,6 +135,10 @@ class Employees extends Model
         'DateEnded' => 'string',
         'PrimaryBankNumber' => 'string',
         'PrimaryBank' => 'string',
+        'TIN' => 'string',
+        'SSSNumber' => 'string',
+        'PhilHealthNumber' => 'string',
+        'PagIbigNumber' => 'string',
     ];
 
     /**
@@ -174,6 +182,10 @@ class Employees extends Model
         'DateEnded' => 'nullable|string',
         'PrimaryBankNumber' => 'nullable|string',
         'PrimaryBank' => 'nullable|string',
+        'TIN' => 'nullable|string',
+        'SSSNumber' => 'nullable|string',
+        'PhilHealthNumber' => 'nullable|string',
+        'PagIbigNumber' => 'nullable|string',
     ];
 
     public static function getMergeName($employee) {
@@ -379,5 +391,9 @@ class Employees extends Model
         } else {
             return $abrev;
         }
+    }
+
+    public static function filePath() {
+        return public_path() . "/files/";
     }
 }

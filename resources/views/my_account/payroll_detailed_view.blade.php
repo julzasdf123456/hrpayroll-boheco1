@@ -61,6 +61,8 @@
                                         <th colspan="2"  class="text-center">SSS</th>
                                         <th rowspan="2"  class="text-center">PhilHealth Cont.</th>
                                         <th rowspan="2"  class="text-center">AR Others</th>
+                                        <th rowspan="2"  class="text-center">BOHECO I Bills</th>
+                                        <th rowspan="2"  class="text-center">BEMPC</th>
                                         <th rowspan="2"  class="text-center">Salary Only WT</th>
                                         <th rowspan="2"  class="text-center">Total Tax Wheld</th>
                                         <th rowspan="2"  class="text-center">Total Deductions</th>
@@ -173,6 +175,8 @@
             var SSSLoan = 0
             var PhilHealthContribution = 0
             var OtherDeductions = 0
+            var PowerBills = 0
+            var BEMPC = 0
             var SalaryWithholdingTax = 0
             var TotalWithholdingTax = 0
             var TotalDeductions = 0
@@ -201,6 +205,8 @@
                         <td class="text-right">` + (dashZero(res[index]['SSSLoan'])) + `</td>
                         <td class="text-right">` + (dashZero(res[index]['PhilHealthContribution'])) + `</td>
                         <td class="text-right">` + (dashZero(res[index]['OtherDeductions'])) + `</td>
+                        <td class="text-right">` + (dashZero(res[index]['PowerBills'])) + `</td>
+                        <td class="text-right">` + (dashZero(res[index]['BEMPC'])) + `</td>
                         <td class="text-right">` + (dashZero(res[index]['SalaryWithholdingTax'])) + `</td>
                         <td class="text-right">` + (dashZero(res[index]['TotalWithholdingTax'])) + `</td>
                         <td class="text-right">` + (dashZero(res[index]['TotalDeductions'])) + `</td>
@@ -228,6 +234,8 @@
                 SSSLoan += parseFloat(res[index]['SSSLoan'])
                 PhilHealthContribution += parseFloat(res[index]['PhilHealthContribution'])
                 OtherDeductions += parseFloat(res[index]['OtherDeductions'])
+                PowerBills += (isNull(res[index]['PowerBills']) ? 0 : parseFloat(res[index]['PowerBills']))
+                BEMPC += (isNull(res[index]['BEMPC']) ? 0 : parseFloat(res[index]['BEMPC']))
                 SalaryWithholdingTax += parseFloat(res[index]['SalaryWithholdingTax'])
                 TotalWithholdingTax += parseFloat(res[index]['TotalWithholdingTax'])
                 TotalDeductions += parseFloat(res[index]['TotalDeductions'])
@@ -257,6 +265,8 @@
                     <th class="text-right">` + (toMoney(SSSLoan)) + `</th>
                     <th class="text-right">` + (toMoney(PhilHealthContribution)) + `</th>
                     <th class="text-right">` + (toMoney(OtherDeductions)) + `</th>
+                    <th class="text-right">` + (toMoney(PowerBills)) + `</th>
+                    <th class="text-right">` + (toMoney(BEMPC)) + `</th>
                     <th class="text-right">` + (toMoney(SalaryWithholdingTax)) + `</th>
                     <th class="text-right">` + (toMoney(TotalWithholdingTax)) + `</th>
                     <th class="text-right">` + (toMoney(TotalDeductions)) + `</th>

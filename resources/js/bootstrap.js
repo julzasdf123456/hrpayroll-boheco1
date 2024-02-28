@@ -23,6 +23,7 @@ window.axios = axios;
 
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.axios.defaults.baseURL = 'http://localhost/hr/public/index.php';
+window.axios.defaults.filePath = 'http://localhost/hr/public/files/';
 
 /**
  * Echo exposes an expressive API for subscribing to channels and listening

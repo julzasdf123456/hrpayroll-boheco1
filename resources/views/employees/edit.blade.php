@@ -5,7 +5,7 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-12">
-                    <h1>Edit Employees</h1>
+                    <h4>Edit Employee</h4>
                 </div>
             </div>
         </div>
@@ -15,7 +15,7 @@
 
         @include('adminlte-templates::common.errors')
 
-        <div class="card">
+        <div class="card shadow-none">
 
             {!! Form::model($employees, ['route' => ['employees.update', $employees->id], 'method' => 'patch']) !!}
 
