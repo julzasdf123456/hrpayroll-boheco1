@@ -95,7 +95,7 @@
             <div class="card-body">
                 <div class="row">
                     {{-- LIST --}}
-                    <div class="col-lg-12" style="margin-top: 16px;">
+                    <div class="col-lg-12 table-responsive" style="margin-top: 16px;">
                         <table class="table table-hover table-bordered" id="queue-table">
                             <thead>
                                 <th>Employee</th>
