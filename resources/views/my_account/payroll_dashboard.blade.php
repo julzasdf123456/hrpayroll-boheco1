@@ -99,6 +99,110 @@
             </div>
         </div>
 
+        {{-- incentives --}}
+        <div class="section mt-2">
+            <div class="row">
+                <div class="col-10">
+                    <p class="no-pads text-md">Your annual incentives summary</p>
+                    <p class="no-pads text-muted">Repository of your annual incentives, bonuses, and benefits.</p>
+                </div>
+                <div class="col-2 center-contents">
+                    <img style="width: 100% !important;" class="img-fluid" src="{{ asset('imgs/incentives.png') }}" alt="User profile picture">
+                </div>
+            </div>
+
+            {{-- payslip summary table --}}
+            <div class="card shadow-none mt-4">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <p class="text-md">Incentives Summary</p>
+                        </div>
+                        <div class="col-lg-3 col-md-6 mt-2">
+                            <span class="text-muted">Choose Year</span>
+                            <select id="incentives-years" class="form-control">
+                                @foreach ($years as $year)
+                                    <option value="{{ $year }}">{{ $year }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-lg-9 col-md-6">
+                            <div id="incentives-loader" class="spinner-border text-primary float-right gone" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-12 mt-3 table-responsive">
+                            <table class="table table-hover" id="incentives-table">
+                                <thead>
+                                    <th>Incentive</th>
+                                    <th class="text-right">Amount</th>
+                                    <th class="text-right">Deductions</th>
+                                    <th class="text-right">Net Pay</th>
+                                </thead>
+                                <tbody>
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- taxes --}}
+        <div class="section mt-2">
+            <div class="row">
+                <div class="col-10">
+                    <p class="no-pads text-md">Your withholding taxes</p>
+                    <p class="no-pads text-muted">Computation of your year-round withholding taxes. NOTE that the withholding taxes that are being deducted from your
+                         monthly salary are based on the annual projection of your incentives. This is to reduce the year-end withholding tax that is being deducted from 
+                         your year-end incentives. 
+                    </p>
+                </div>
+                <div class="col-2 center-contents">
+                    <img style="width: 100% !important;" class="img-fluid" src="{{ asset('imgs/tax.png') }}" alt="User profile picture">
+                </div>
+            </div>
+
+            {{-- payslip summary table --}}
+            <div class="card shadow-none mt-4">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <p class="text-md">Withholding Taxes Computation</p>
+                        </div>
+                        <div class="col-lg-3 col-md-6 mt-2">
+                            <span class="text-muted">Choose Year</span>
+                            <select id="wt-years" class="form-control">
+                                @foreach ($years as $year)
+                                    <option value="{{ $year }}">{{ $year }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-lg-9 col-md-6">
+                            <div id="wt-loader" class="spinner-border text-primary float-right gone" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-12 mt-3 table-responsive">
+                            <table class="table table-hover" id="wt-table">
+                                <thead>
+                                    <th>Incentive</th>
+                                    <th class="text-right">Amount</th>
+                                    <th class="text-right">Deductions</th>
+                                    <th class="text-right">Net Pay</th>
+                                </thead>
+                                <tbody>
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 @endsection
@@ -122,9 +226,14 @@
 
         $(document).ready(function() {
             getPayrollData($('#years').val())
+            getIncentivesData($('#incentives-years').val())
 
             $('#years').on('change', function() {
                 getPayrollData(this.value)
+            })
+
+            $('#incentives-years').on('change', function() {
+                getIncentivesData(this.value)
             })
         })
 
@@ -299,6 +408,84 @@
                 data: chartData,
                 options: chartOptions
             })
+        }
+
+        function getIncentivesData(year) {
+            $('#incentives-loader').removeClass('gone')
+            $('#incentives-table tbody tr').remove()
+            $.ajax({
+                url : "{{ route('users.get-incentives-by-employee-id') }}",
+                type : "GET",
+                data : {
+                    Year : year,
+                    EmployeeId : "{{ Auth::user()->employee_id }}"
+                },
+                success : function(res){
+                    $('#incentives-loader').addClass('gone')
+
+                    if (!isNull(res)) {
+                        populateIncentivesTable(res['incentives'], res['yearEndIncentives'])
+                    }
+                },
+                error : function(err) {
+                    $('#incentives-loader').addClass('gone')
+                    Toast.fire({
+                        icon : 'error',
+                        text : 'Error fetching payslip data'
+                    })
+                }
+            })
+        }
+
+        function populateIncentivesTable(incentives, yearEnd) {
+            var size = incentives.length
+            var overAllSubTotal = 0
+            var overAllDeductions = 0
+            var overallTotal = 0
+            for (let i=0; i<size; i++) {
+                var deductions = parseFloat(incentives[i]['OtherDeductions']) + parseFloat(incentives[i]['BEMPC'])
+                overallTotal +=  parseFloat(incentives[i]['NetPay'])
+                overAllDeductions += deductions
+                overAllSubTotal += parseFloat(incentives[i]['SubTotal'])
+                $('#incentives-table tbody').append(`
+                    <tr>
+                        <td>` + incentives[i]['IncentiveName'] + `</td>
+                        <td class='text-right'>` + (isNull(incentives[i]['SubTotal']) ? '-' : toMoney(parseFloat(incentives[i]['SubTotal']))) + `</td>
+                        <td class='text-right'>` + toMoney(deductions) + `</td>
+                        <td class='text-right'><strong>` + (isNull(incentives[i]['NetPay']) ? '-' : toMoney(parseFloat(incentives[i]['NetPay']))) + `</strong></td>
+                    </tr>
+                `)
+            }
+
+            // YEAR END
+            var yearEndDeductions = 0
+            if (!isNull(yearEnd)) {
+                var bempc = parseFloat(yearEnd['BEMPC'])
+                var arOthers = parseFloat(yearEnd['AROthers'])
+                yearEndDeductions = bempc + arOthers
+
+                overAllSubTotal += parseFloat(yearEnd['SubTotal'])
+                overAllSubTotal += yearEndDeductions
+                overallTotal += parseFloat(yearEnd['NetPay'])
+                $('#incentives-table tbody').append(`
+                    <tr>
+                        <td>` + yearEnd['IncentiveName'] + `</td>
+                        <td class='text-right'>` + (isNull(yearEnd['SubTotal']) ? '-' : toMoney(parseFloat(yearEnd['SubTotal']))) + `</td>
+                        <td class='text-right'>` + toMoney(yearEndDeductions) + `</td>
+                        <td class='text-right'><strong>` + (isNull(yearEnd['NetPay']) ? '-' : toMoney(parseFloat(yearEnd['NetPay']))) + `</strong></td>
+                    </tr>
+                `)
+            }
+
+            // TOTAL
+            $('#incentives-table tbody').append(`
+                <tr>
+                    <th>TOTAL</th>
+                    <th class='text-right'>` + toMoney(overAllSubTotal) + `</th>
+                    <th class='text-right'>` + toMoney(overAllDeductions) + `</th>
+                    <th class='text-right'><strong>` + toMoney(overallTotal) + `</strong></th>
+                </tr>
+            `)
         }
     </script>
 @endpush

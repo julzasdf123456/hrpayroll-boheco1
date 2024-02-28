@@ -349,4 +349,40 @@ class UsersController extends AppBaseController
 
         ]);
     }
+
+    public function getIncentivesByEmployeeId(Request $request) {
+        $id = $request['EmployeeId'];
+        $year = $request['Year'];
+
+        $incentives = DB::table('IncentiveDetails') 
+            ->leftJoin('Incentives', 'IncentiveDetails.IncentivesId', '=', 'Incentives.id')
+            ->whereRaw("IncentiveDetails.EmployeeId='" . $id . "' AND Incentives.id IS NOT NULL AND Incentives.Year='" . $year . "'")
+            ->select(
+                'IncentiveDetails.*',
+                'Incentives.IncentiveName',
+                'Incentives.Notes',
+                'Incentives.ReleaseType'
+            )
+            ->orderBy('IncentiveDetails.created_at')
+            ->get();
+
+        $yearEndIncentives = DB::table('IncentivesYearEndDetails') 
+            ->leftJoin('Incentives', 'IncentivesYearEndDetails.IncentivesId', '=', 'Incentives.id')
+            ->whereRaw("IncentivesYearEndDetails.EmployeeId='" . $id . "' AND Incentives.id IS NOT NULL AND Incentives.Year='" . $year . "'")
+            ->select(
+                'IncentivesYearEndDetails.*',
+                'Incentives.IncentiveName',
+                'Incentives.Notes',
+                'Incentives.ReleaseType'
+            )
+            ->orderBy('IncentivesYearEndDetails.created_at')
+            ->first();
+
+        $data = [
+            'incentives' => $incentives,
+            'yearEndIncentives' => $yearEndIncentives
+        ];
+
+        return response()->json($data, 200);
+    }
 }
