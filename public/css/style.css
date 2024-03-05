@@ -831,3 +831,86 @@ body.dark-mode .text-primary {
         width: 160px !important;
     }
 }
+
+/**
+ * Custom Tree View
+ */
+.tree-view {
+    width: 100% !important;
+    list-style-type: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.tree-view li {
+    padding: 8px 10px 8px 10px !important;
+    border-bottom: 1px solid #dedede !important;
+    display: flex !important;
+    transition: all .4s ease;
+}
+
+.tree-view li:last-child {
+    border-bottom: none !important;
+}
+
+.tree-view li:hover {
+    background-color: rgba(0, 0, 0, .05) !important;
+}
+
+body.dark-mode .tree-view li {
+    border-bottom: 1px solid #747780 !important;
+}
+
+body.dark-mode .tree-view li:last-child {
+    border-bottom: none !important;
+}
+
+body.dark-mode .tree-view li:hover {
+    background-color: rgba(255, 255, 255, .05) !important;
+}
+
+.tree-view-tools {
+    display: inline-flex !important;
+    vertical-align: top !important;
+    align-items: start !important;
+}
+
+.tree-view-content {
+    display: inline-block !important;
+    width: 100% !important;
+}
+
+.tree-view-child {
+    padding: 15px !important;
+}
+
+.fade-enter-active, 
+.fade-leave-active {
+    transition: all 0.5s !important;
+}
+.fade-enter, 
+.fade-leave-to /* .fade-leave-active in <2.1.8 */ {
+    opacity: 0 !important;
+}
+
+/**
+ * TREE VIEW FOR SUBORDINATES
+ */
+ul.employee-tree {
+    list-style-type: circle;
+}
+
+ul.employee-tree ul.employee-tree {
+    margin-left: 20px;
+}
+
+.employee-tree-list {
+    margin-left: 5px;
+    cursor: pointer;
+    padding: 8px 0px 8px 0px;
+}
+
+.employee-tree-list img {
+    margin-right: 15px;
+    width: 36px;
+}

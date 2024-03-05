@@ -30,6 +30,7 @@ use App\Models\AttachedAccounts;
 use App\Models\PayrollBillsAttachments;
 use App\Models\PaidBills;
 use App\Models\Bills;
+use App\Models\EmployeeDayOffs;
 use App\Exports\FCBUploadTemplate;
 use Flash;
 use Response;
@@ -901,6 +902,11 @@ class PayrollIndexController extends AppBaseController
                 ->get();
 
             $item->PowerBills = $totalBillAmount;
+
+            // DAY OFFST
+            $item->DayOffs = DB::table('EmployeeDayOffs')
+                ->whereRaw("EmployeeDayOffs.EmployeeId='" . $item->id . "' AND (EmployeeDayOffs.DayOff BETWEEN '" . $from . "' AND '" . $to . "')")
+                ->get();
         }
 
         $holidays = DB::table('HolidaysList')

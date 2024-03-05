@@ -31,6 +31,7 @@ use App\Models\LeaveBalanceDetails;
 use App\Models\OffsetApplications;
 use App\Models\Overtimes;
 use App\Models\LeaveImageAttachments;
+use App\Models\DayOffSchedules;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Flash;
@@ -384,5 +385,41 @@ class UsersController extends AppBaseController
         ];
 
         return response()->json($data, 200);
+    }
+
+    public function staffManagement(Request $request) {
+        return view('/my_account/staff_management', [
+
+        ]);
+    }
+
+    public function getStaff(Request $request) {
+        $id = $request['EmployeeId'];
+
+        return Employees::getStaff($id);
+    }
+
+    public function getEmployeesByDepartment(Request $request) {
+        $id = $request['EmployeeId'];
+
+        $employee = DB::table('Employees')
+            ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+            ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+            ->select('Positions.Department')
+            ->whereRaw("Employees.id='" . $id . "'")
+            ->orderByDesc('EmployeesDesignations.DateStarted')
+            ->first();
+
+        return Employees::getEmployeesFromDepartment($employee->Department);
+    }
+
+    public function staffDayOffSchedules($employeeId) {
+        $employee = Employees::find($employeeId);
+        $dayOffs = DayOffSchedules::orderBy('Days')->get();
+
+        return view('/my_account/staff_day_off_schedules', [
+            'employee' => $employee,
+            'dayOffs' => $dayOffs,
+        ]);
     }
 }

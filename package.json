@@ -14,6 +14,7 @@
     "dependencies": {
         "@vitejs/plugin-vue": "^4.3.4",
         "bootstrap": "^5.3.1",
+        "bstreeview": "^1.2.0",
         "daterangepicker": "^3.1.0",
         "flatpickr": "^4.6.13",
         "jquery": "^3.7.1",

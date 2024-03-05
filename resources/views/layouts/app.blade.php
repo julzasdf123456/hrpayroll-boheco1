@@ -31,6 +31,8 @@
     
     <link rel="stylesheet" href="{{ URL::asset('css/style.css'); }}">
 
+    <link rel="stylesheet" href="{{ URL::asset('css/bstreeview.css'); }}">
+
     {{-- <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&amp;display=fallback"> --}}
 
     <!-- Font Awesome -->
@@ -295,6 +297,7 @@
 {{-- INPUT MASK --}}
 <script src="{{ URL::asset('js/inputmask.min.js'); }}"></script>
 <script src="{{ URL::asset('js/daterangepicker.min.js'); }}"></script>
+<script src="{{ URL::asset('js/bstreeview.js'); }}"></script>
 <script>
     $('.select2').select2({
             theme: 'bootstrap4'

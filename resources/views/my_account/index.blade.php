@@ -145,6 +145,40 @@
                 </div>
             </div>
         </div>
+
+        <div class="col-lg-12 mt-on-mobile">
+            <div class="row">
+                {{-- OTHERS --}}
+                <div class="col-lg-8 offset-lg-2 mt-on-mobile col-md-12">
+                    <div class="card shadow-none">
+                        <div class="card-body">
+                            <h4>Other Modules</h4>
+                            <table class="table table-hover mt-3">
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <a href="{{ route('users.staff-management') }}" class="btn btn-link-muted">Manage Your Staff and Subordinates</a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <a href="" class="btn btn-link-muted">Memorandums</a>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="p-4">
+                        <span class="text-muted">Only you can see and modify your portal. Always remember to not let anyone customize or alter your information and 
+                            configurations to avoid malicious data activity and data inconsitency. It is always your right to preserve your privacy. For more info, 
+                            call IT office.
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
     
