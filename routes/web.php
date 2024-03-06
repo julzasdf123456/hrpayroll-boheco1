@@ -232,8 +232,10 @@ Route::resource('employeePayrollSchedules', EmployeePayrollSchedulesController::
 
 Route::resource('payrollSchedules', App\Http\Controllers\PayrollSchedulesController::class);
 
-
 Route::get('/leave_balances/get-leave-data', [LeaveBalancesController::class, 'getLeaveData'])->name('leaveBalances.get-leave-data');
+Route::get('/leave_balances/batch-edit', [LeaveBalancesController::class, 'batchEdit'])->name('leaveBalances.batch-edit');
+Route::get('/leave_balances/get-merge-data', [LeaveBalancesController::class, 'getMergeData'])->name('leaveBalances.get-merge-data');
+Route::post('/leave_balances/update-value', [LeaveBalancesController::class, 'updateValue'])->name('leaveBalances.update-value');
 Route::resource('leaveBalances', LeaveBalancesController::class);
 
 
