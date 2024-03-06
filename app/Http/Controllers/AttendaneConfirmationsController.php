@@ -341,4 +341,117 @@ class AttendaneConfirmationsController extends AppBaseController
 
         return response()->json($ats, 200);
     }
+
+    public function manualEntry(Request $request) {
+        return view('/attendane_confirmations/manual_entry', [
+            'employees' => Employees::orderBy('LastName')->get(),
+        ]);
+    }
+
+    public function saveManualEntry(CreateAttendaneConfirmationsRequest $request) {
+        $input = $request->all();
+
+        if ($input['AMIn'] != null) {
+            $input['AMIn'] = date('Y-m-d H:i:s', strtotime($input['AMIn']));
+        }
+
+        if ($input['AMOut'] != null) {
+            $input['AMOut'] = date('Y-m-d H:i:s', strtotime($input['AMOut']));
+        }
+
+        if ($input['PMIn'] != null) {
+            $input['PMIn'] = date('Y-m-d H:i:s', strtotime($input['PMIn']));
+        }
+
+        if ($input['PMOut'] != null) {
+            $input['PMOut'] = date('Y-m-d H:i:s', strtotime($input['PMOut']));
+        }
+
+        if ($input['OTIn'] != null) {
+            $input['OTIn'] = date('Y-m-d H:i:s', strtotime($input['OTIn']));
+        }
+
+        if ($input['OTOut'] != null) {
+            $input['OTOut'] = date('Y-m-d H:i:s', strtotime($input['OTOut']));
+        }
+
+        $attendaneConfirmations = $this->attendaneConfirmationsRepository->create($input);
+
+        $ats = AttendaneConfirmations::find($input['id']);
+
+        if ($ats != null) {
+            $employee = Employees::find($ats->EmployeeId);
+            $user = Users::where('employee_id', $employee->id)->first();
+
+            // INSERT START MORNING IN
+            if ($ats->AMIn != null) {
+                $attendance = new AttendanceData;
+                $attendance->id = IDGenerator::generateIDandRandString();
+                $attendance->BiometricUserId = $employee->BiometricsUserId;
+                $attendance->EmployeeId = $employee->id;
+                $attendance->UserId = $user != null ? $user->id : null;
+                $attendance->Timestamp = $ats->AMIn;
+                $attendance->save();
+            }            
+
+            // INSERT START MORNING OUT
+            if ($ats->AMOut != null) {
+                $attendance = new AttendanceData;
+                $attendance->id = IDGenerator::generateIDandRandString();
+                $attendance->BiometricUserId = $employee->BiometricsUserId;
+                $attendance->EmployeeId = $employee->id;
+                $attendance->UserId = $user != null ? $user->id : null;
+                $attendance->Timestamp = $ats->AMOut;
+                $attendance->save();
+            }            
+
+            // INSERT START AFTERNOON IN
+            if ($ats->PMIn != null) {
+                $attendance = new AttendanceData;
+                $attendance->id = IDGenerator::generateIDandRandString();
+                $attendance->BiometricUserId = $employee->BiometricsUserId;
+                $attendance->EmployeeId = $employee->id;
+                $attendance->UserId = $user != null ? $user->id : null;
+                $attendance->Timestamp = $ats->PMIn;
+                $attendance->save();
+            }
+            
+            // INSERT START AFTERNOON OUT
+            if ($ats->PMOut != null) {
+                $attendance = new AttendanceData;
+                $attendance->id = IDGenerator::generateIDandRandString();
+                $attendance->BiometricUserId = $employee->BiometricsUserId;
+                $attendance->EmployeeId = $employee->id;
+                $attendance->UserId = $user != null ? $user->id : null;
+                $attendance->Timestamp = $ats->PMOut;
+                $attendance->save();
+            }
+
+            // INSERT START OT IN
+            if ($ats->OTIn != null) {
+                $attendance = new AttendanceData;
+                $attendance->id = IDGenerator::generateIDandRandString();
+                $attendance->BiometricUserId = $employee->BiometricsUserId;
+                $attendance->EmployeeId = $employee->id;
+                $attendance->UserId = $user != null ? $user->id : null;
+                $attendance->Timestamp = $ats->OTIn;
+                $attendance->save();
+            }
+            
+            // INSERT START OT OUT
+            if ($ats->OTOut != null) {
+                $attendance = new AttendanceData;
+                $attendance->id = IDGenerator::generateIDandRandString();
+                $attendance->BiometricUserId = $employee->BiometricsUserId;
+                $attendance->EmployeeId = $employee->id;
+                $attendance->UserId = $user != null ? $user->id : null;
+                $attendance->Timestamp = $ats->OTOut;
+                $attendance->save();
+            }
+        }
+
+        Flash::success('Attendance confirmation for saved!');
+
+        return redirect(route('attendanceConfirmations.manual-entry'));
+    }
 }

@@ -145,6 +145,9 @@ Route::get('/leave_applications/remove-image', [LeaveApplicationsController::cla
 Route::get('/leave_applications/remove-leave-signatory', [LeaveApplicationsController::class, 'removeLeaveSignatory'])->name('leaveApplications.remove-leave-signatory');
 Route::get('/leave_applications/reject-leave-ajax', [LeaveApplicationsController::class, 'rejectLeaveAjax'])->name('leaveApplications.reject-leave-ajax');
 Route::get('/leave_applications/get-leaves-by-type', [LeaveApplicationsController::class, 'getLeavesByType'])->name('leaveApplications.get-leaves-by-type');
+Route::get('/leave_applications/manual-entries', [LeaveApplicationsController::class, 'manualEntries'])->name('leaveApplications.manual-entries');
+Route::get('/leave_applications/get-leave-balances-by-employee', [LeaveApplicationsController::class, 'getLeaveBalancesByEmployee'])->name('leaveApplications.get-leave-balances-by-employee');
+Route::get('/leave_applications/manual-save', [LeaveApplicationsController::class, 'manualSave'])->name('leaveApplications.manual-save');
 Route::resource('leaveApplications', LeaveApplicationsController::class);
 
 Route::resource('leaveSignatories', App\Http\Controllers\LeaveSignatoriesController::class);
@@ -204,6 +207,7 @@ Route::get('/overtimes/my-approvals', [OvertimesController::class, 'myApprovals'
 Route::get('/overtimes/save', [OvertimesController::class, 'save'])->name('overtimes.save');
 Route::get('/overtimes/approve', [OvertimesController::class, 'approve'])->name('overtimes.approve');
 Route::get('/overtimes/reject', [OvertimesController::class, 'reject'])->name('overtimes.reject');
+Route::get('/overtimes/manual-entry', [OvertimesController::class, 'manualEntry'])->name('overtimes.manual-entry');
 Route::resource('overtimes', OvertimesController::class);
 
 Route::get('/positions/update-super', [App\Http\Controllers\PositionsController::class, 'updateSuper'])->name('positions.update-super');
@@ -254,6 +258,7 @@ Route::get('/trip_tickets/log-vehicle-trips', [TripTicketsController::class, 'lo
 Route::get('/trip_tickets/log-departure', [TripTicketsController::class, 'logDeparture'])->name('tripTickets.log-departure');
 Route::get('/trip_tickets/log-vehicle-arrivals', [TripTicketsController::class, 'logVehicleArrivals'])->name('tripTickets.log-vehicle-arrivals');
 Route::get('/trip_tickets/log-arrival', [TripTicketsController::class, 'logArrival'])->name('tripTickets.log-arrival');
+Route::get('/trip_tickets/manual-entry', [TripTicketsController::class, 'manualEntry'])->name('tripTickets.manual-entry');
 Route::resource('tripTickets', TripTicketsController::class);
 
 Route::get('/trip_ticket_destinations/remove-destination', [App\Http\Controllers\TripTicketDestinationsController::class, 'removeDestination'])->name('tripTicketDestinations.remove-destination');
@@ -273,6 +278,7 @@ Route::get('/offset_applications/reject', [OffsetApplicationsController::class, 
 Route::get('/offset_applications/approve', [OffsetApplicationsController::class, 'approve'])->name('offsetApplications.approve');
 Route::get('/offset_applications/my-approvals', [OffsetApplicationsController::class, 'myApprovals'])->name('offsetApplications.my-approvals');
 Route::get('/offset_applications/save-offset-applications', [OffsetApplicationsController::class, 'saveOffsetApplications'])->name('offsetApplications.save-offset-applications');
+Route::get('/offset_applications/manual-entry', [OffsetApplicationsController::class, 'manualEntry'])->name('offsetApplications.manual-entry');
 Route::resource('offsetApplications', OffsetApplicationsController::class);
 
 Route::resource('offsetSignatories', App\Http\Controllers\OffsetSignatoriesController::class);
@@ -280,6 +286,8 @@ Route::resource('offsetSignatories', App\Http\Controllers\OffsetSignatoriesContr
 Route::get('/attendane_confirmations/reject', [AttendaneConfirmationsController::class, 'reject'])->name('attendanceConfirmations.reject');
 Route::get('/attendane_confirmations/approve', [AttendaneConfirmationsController::class, 'approve'])->name('attendanceConfirmations.approve');
 Route::get('/attendane_confirmations/my-approvals', [AttendaneConfirmationsController::class, 'myApprovals'])->name('attendanceConfirmations.my-approvals');
+Route::get('/attendane_confirmations/manual-entry', [AttendaneConfirmationsController::class, 'manualEntry'])->name('attendanceConfirmations.manual-entry');
+Route::post('/attendane_confirmations/save-manual-entry', [AttendaneConfirmationsController::class, 'saveManualEntry'])->name('attendanceConfirmations.save-manual-entry');
 Route::resource('attendanceConfirmations', AttendaneConfirmationsController::class);
 Route::resource('attendanceConfirmationSignatories', App\Http\Controllers\AttendaneConfirmationSignatoriesController::class);
 

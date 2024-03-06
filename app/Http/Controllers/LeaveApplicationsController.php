@@ -6,11 +6,11 @@ use App\Http\Requests\CreateLeaveApplicationsRequest;
 use App\Http\Requests\UpdateLeaveApplicationsRequest;
 use App\Repositories\LeaveApplicationsRepository;
 use App\Http\Controllers\AppBaseController;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Models\LeaveApplications;
 use App\Models\LeaveSignatories;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Auth;
 use App\Models\LeaveAttendanceDates;
 use App\Models\Users;
 use App\Models\Notifications;
@@ -1005,5 +1005,66 @@ class LeaveApplicationsController extends AppBaseController
             ->get();
 
         return response()->json($data, 200);
+    }
+
+    public function manualEntries(Request $request) {
+        $employees = Employees::orderBy('LastName')->get();
+
+        $holidaysList = HolidaysList::whereRaw("HolidayDate > GETDATE()")->get();
+        $holidays = "";
+        $size = count($holidaysList);
+        $i = 0;
+        foreach($holidaysList as $item) {
+            if ($i == ($size - 1)) {
+                $holidays .= date('Y-m-d', strtotime($item->HolidayDate));
+            } else {
+                $holidays .= date('Y-m-d', strtotime($item->HolidayDate)) . ',';
+            }
+            $i++;
+        }
+
+        return view('/leave_applications/manual_entries', [
+            'employees' => $employees,
+            'holidays' => $holidays,
+        ]);
+    }
+
+    public function getLeaveBalancesByEmployee(Request $request) {
+        return response()->json(LeaveBalances::where('EmployeeId', $request['EmployeeId'])->first(), 200);
+    }
+
+    public function manualSave(Request $request) {
+        $employeeId = $request['EmployeeId'];
+        $leaveType = $request['LeaveType'];
+        $reason = $request['Reason'];
+        $dateFiled = $request['DateFiled'];
+        $days = $request['Days'];
+
+        $id = IDGenerator::generateID();
+        $leave = new LeaveApplications;
+        $leave->id = $id;
+        $leave->EmployeeId = $employeeId;
+        $leave->Content = $reason;
+        $leave->Status = 'APPROVED';
+        $leave->LeaveType = $leaveType;
+        $leave->created_at = $dateFiled;
+        $leave->save();
+
+        for($i=0; $i<count($days); $i++) {
+            $leaveDay = new LeaveDays;
+            $leaveDay->id = IDGenerator::generateIDandRandString();
+            $leaveDay->LeaveId = $id;
+            $leaveDay->LeaveDate = $days[$i]['LeaveDate'];
+            if ($days[$i]['Duration'] === 'WHOLE') {
+                $leaveDay->Longevity = 1;
+            } else {
+                $leaveDay->Longevity = 0.5;
+            }
+            $leaveDay->Duration = $days[$i]['Duration'];
+            $leaveDay->Status = 'APPROVED';
+            $leaveDay->save();
+        }
+
+        return response()->json($leave, 200);
     }
 }

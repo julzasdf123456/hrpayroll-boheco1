@@ -102,7 +102,11 @@ class TripTicketsController extends AppBaseController
 
         Flash::success('Trip Tickets saved successfully.');
 
-        return redirect(route('tripTickets.my-trip-tickets', [$input['UserId']]));
+        if ($request['Status'] == 'APPROVED') {
+            return redirect(route('tripTickets.manual-entry'));
+        } else {
+            return redirect(route('tripTickets.my-trip-tickets', [$input['UserId']]));
+        }
     }
 
     /**
@@ -588,5 +592,26 @@ class TripTicketsController extends AppBaseController
         }
 
         return response()->json('ok', 200);
+    }
+
+    public function manualEntry(Request $request) {
+        $employees = Employees::orderBy('LastName')->get();
+
+        $drivers = DB::table('Employees')
+            ->leftJoin('EmployeesDesignations', 'EmployeesDesignations.EmployeeId', '=', 'Employees.id')
+            ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+            ->select('Employees.*')
+            ->whereRaw("Positions.Level='Driver' OR Employees.AuthorizedToDrive='Yes'")
+            ->orderBy('Employees.LastName')
+            ->get();
+
+        $vehicles = Vehicles::orderBy('VehicleName')->get();
+
+        return view('/trip_tickets/manual_entry', [
+            'employees' => $employees,
+            'drivers' => $drivers,
+            'towns' => Towns::orderBy('Town')->get(),
+            'vehicles' => $vehicles,
+        ]);
     }
 }

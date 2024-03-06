@@ -44,7 +44,6 @@ class OffsetApplicationsController extends AppBaseController
      */
     public function create()
     {
-        
         return view('offset_applications.create', [
             'employees' => Employees::orderBy('LastName')->get(),
         ]);
@@ -155,82 +154,86 @@ class OffsetApplicationsController extends AppBaseController
             $offset->PurposeOfDuty = $item['Purpose'];
             $offset->DateOfOffset = $item['DateOfOffset'];
             $offset->OffsetReason = $item['Reason'];
-            $offset->Status = 'FILED';
+            $offset->Status = isset($item['Status']) && $item['Status']=='APPROVED' ? $item['Status'] : 'FILED';
             $offset->save();
 
             $i++;
         }
 
-        // INSERT SIGNATORY
-        $user = Auth::user();
+        if (isset($item['Status']) && $item['Status']=='APPROVED') {
 
-        $employee = DB::table('Employees')
-            ->leftJoin('EmployeesDesignations', 'EmployeesDesignations.EmployeeId', '=', 'Employees.id')
-            ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
-            ->select('Employees.LastName', 'Positions.Position', 'Positions.Department', 'Positions.ParentPositionId')
-            ->whereRaw("Employees.id='" . $user->employee_id . "'")
-            ->first();
+        } else {
+            // INSERT SIGNATORY
+            $user = Auth::user();
 
-        if ($employee != null) {
-            if ($employee->ParentPositionId != null) {
-                // LOOP SIGNATORIES AND FETCH UPPER LEVEL POSITIONS
-                $signatories = [];
-                $parentPosId = $employee->ParentPositionId;
-                $dept = $employee->Department;
-                $sign = true;
-                $i = 0;
-                $rank = 0;
+            $employee = DB::table('Employees')
+                ->leftJoin('EmployeesDesignations', 'EmployeesDesignations.EmployeeId', '=', 'Employees.id')
+                ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+                ->select('Employees.LastName', 'Positions.Position', 'Positions.Department', 'Positions.ParentPositionId')
+                ->whereRaw("Employees.id='" . $user->employee_id . "'")
+                ->first();
 
-                while ($sign) {
-                    $signatoryParents = DB::table('users')
-                        ->leftJoin('Employees', 'users.employee_id', '=', 'Employees.id')
-                        ->leftJoin('EmployeesDesignations', 'EmployeesDesignations.EmployeeId', '=', 'Employees.id')
-                        ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
-                        ->select('users.id', 'Employees.FirstName', 'Employees.LastName', 'Employees.MiddleName', 'Employees.Suffix', 'Positions.Level', 'Positions.Position', 'Positions.ParentPositionId', 'Positions.id AS PositionId')
-                        ->whereRaw("Positions.id='" . $parentPosId . "' ")
-                        ->first();
+            if ($employee != null) {
+                if ($employee->ParentPositionId != null) {
+                    // LOOP SIGNATORIES AND FETCH UPPER LEVEL POSITIONS
+                    $signatories = [];
+                    $parentPosId = $employee->ParentPositionId;
+                    $dept = $employee->Department;
+                    $sign = true;
+                    $i = 0;
+                    $rank = 0;
 
-                    if ($i > 3) {
-                        break;
-                    } else {
-                        if ($signatoryParents != null && $signatoryParents->id != null) {
-                            if ($signatoryParents->Level == 'Manager') {
-                                array_push($signatories, [
-                                    'id' => $signatoryParents->id,
-                                    'FirstName' => $signatoryParents->FirstName,
-                                    'LastName' => $signatoryParents->LastName,
-                                    'MiddleName' => $signatoryParents->MiddleName,
-                                    'Suffix' => $signatoryParents->Suffix,
-                                    'Position' => $signatoryParents->Position,
-                                    'Level' => $signatoryParents->Level,
-                                ]);
+                    while ($sign) {
+                        $signatoryParents = DB::table('users')
+                            ->leftJoin('Employees', 'users.employee_id', '=', 'Employees.id')
+                            ->leftJoin('EmployeesDesignations', 'EmployeesDesignations.EmployeeId', '=', 'Employees.id')
+                            ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+                            ->select('users.id', 'Employees.FirstName', 'Employees.LastName', 'Employees.MiddleName', 'Employees.Suffix', 'Positions.Level', 'Positions.Position', 'Positions.ParentPositionId', 'Positions.id AS PositionId')
+                            ->whereRaw("Positions.id='" . $parentPosId . "' ")
+                            ->first();
 
-                                $offsetSig = OffsetSignatories::where('OffsetBatchId', $id)->where('EmployeeId', $signatoryParents->id)->first();
-                                if ($offsetSig == null) {
-                                    $offsetSig = new OffsetSignatories;
-                                    $offsetSig->id = IDGenerator::generateID() . "" . $i;
-                                    $offsetSig->OffsetBatchId = $id;
-                                    $offsetSig->EmployeeId = $signatoryParents->id;
-                                    $offsetSig->Rank = ($rank+1);
-                                    $offsetSig->Status = null;
-                                    $offsetSig->save();
+                        if ($i > 3) {
+                            break;
+                        } else {
+                            if ($signatoryParents != null && $signatoryParents->id != null) {
+                                if ($signatoryParents->Level == 'Manager') {
+                                    array_push($signatories, [
+                                        'id' => $signatoryParents->id,
+                                        'FirstName' => $signatoryParents->FirstName,
+                                        'LastName' => $signatoryParents->LastName,
+                                        'MiddleName' => $signatoryParents->MiddleName,
+                                        'Suffix' => $signatoryParents->Suffix,
+                                        'Position' => $signatoryParents->Position,
+                                        'Level' => $signatoryParents->Level,
+                                    ]);
 
-                                    $rank++;
+                                    $offsetSig = OffsetSignatories::where('OffsetBatchId', $id)->where('EmployeeId', $signatoryParents->id)->first();
+                                    if ($offsetSig == null) {
+                                        $offsetSig = new OffsetSignatories;
+                                        $offsetSig->id = IDGenerator::generateID() . "" . $i;
+                                        $offsetSig->OffsetBatchId = $id;
+                                        $offsetSig->EmployeeId = $signatoryParents->id;
+                                        $offsetSig->Rank = ($rank+1);
+                                        $offsetSig->Status = null;
+                                        $offsetSig->save();
+
+                                        $rank++;
+                                    }
                                 }
                             }
-                        }
 
-                        if ($signatoryParents->ParentPositionId != null) {
-                            $parentPosId = $signatoryParents->ParentPositionId;
-                            $sign = true;
-                            $i++;
-                        } else {
-                            $sign = false;
-                            break;
+                            if ($signatoryParents->ParentPositionId != null) {
+                                $parentPosId = $signatoryParents->ParentPositionId;
+                                $sign = true;
+                                $i++;
+                            } else {
+                                $sign = false;
+                                break;
+                            }
                         }
                     }
-                }
-            }           
+                }           
+            }
         }
 
         return response()->json('ok', 200);
@@ -326,5 +329,11 @@ class OffsetApplicationsController extends AppBaseController
         }
 
         return response()->json($offset, 200);
+    }
+
+    public function manualEntry(Request $request) {
+        return view('/offset_applications/manual_entry', [
+            'employees' => Employees::orderBy('LastName')->get(),
+        ]);
     }
 }
