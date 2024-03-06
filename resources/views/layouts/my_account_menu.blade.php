@@ -32,3 +32,11 @@
         <p>Personal Info</p>
     </a>
 </li>
+
+<li class="nav-item">
+    <a href="{{ route('users.staff-management') }}"
+       class="nav-link {{ Request::is('users.staff-management*') ? 'active' : '' }}">
+       <i class="fas fa-users nav-icon"></i>
+        <p>Staff & Subordinates</p>
+    </a>
+</li>

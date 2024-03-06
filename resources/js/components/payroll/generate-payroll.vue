@@ -27,7 +27,6 @@
                     <select v-model="salaryPeriod" class="form-control form-control-sm">
                         <option :value="fifteenth">{{ moment(fifteenth).format('MMMM DD, YYYY') }}</option>
                         <option :value="thirtieth">{{ moment(thirtieth).format('MMMM DD, YYYY') }}</option>
-                        <option value="2024-03-15">March 15, 2024</option>
                     </select>
                 </div>
                 <div class="col-lg-2">
@@ -164,8 +163,8 @@ export default {
             employeeType : 'Regular',
             department : 'ESD',
             salaryPeriod : '',
-            from : '2024-01-26',
-            to : '2024-02-10',
+            from : '2024-02-22',
+            to : '2024-03-03',
             // TABLE COLUMNS
             dateHeaders : [],
             summaryHeaders : [],
@@ -894,7 +893,7 @@ export default {
             }
         },
         getHoursAttended(attendanceData, scheduleArray, noAttendanceAllowed, date, dayOffDays, specialDutyDays, leaveDays, offsets, tripTickets, holidays) {
-            var daySpelled = moment(date).format('dddd');
+            var daySpelled = moment(date).format('YYYY-MM-DD');
             var leaveTotalHours = 0;
             var offsetTotalHours = 0;
             var tripTicketTotalHours = 0;
@@ -1156,8 +1155,8 @@ export default {
         },
         getTotalWorkingHours(date, dayOffDays, specialDutyDays, holidays) {
             var workingHours = 0;
-            var daySpelled = moment(date).format('dddd');
-
+            var daySpelled = moment(date).format('YYYY-MM-DD');
+            
             if (this.isDateInHoliday(date, holidays)) {
                 workingHours = 0;
             } else {
@@ -1307,6 +1306,13 @@ export default {
                 }
             }
         },
+        dayOffDatesToArray(dayOffs) {
+            var arr = []
+            for(var i=0; i<dayOffs.length; i++) {
+                arr[i] = dayOffs[i].DayOff
+            }
+            return arr;
+        },
         generate() {
             if (this.isNull(this.employeeType) | this.isNull(this.department) | this.isNull(this.salaryPeriod) | this.isNull(this.from) | this.isNull(this.to)) {
                 Swal.fire({
@@ -1394,7 +1400,7 @@ export default {
                                 schedule, 
                                 this.isNull(response.data['Employees'][i]['NoAttendanceAllowed']) ? false : true, 
                                 this.dateHeaders[j].name, 
-                                response.data['Employees'][i]['DayOffDates'],
+                                this.dayOffDatesToArray(response.data['Employees'][i]['DayOffs']),
                                 response.data['Employees'][i]['SpecialDutyDays'],
                                 response.data['Employees'][i]['LeaveDays'],
                                 response.data['Employees'][i]['Offsets'],

@@ -28,6 +28,7 @@ use App\Http\Controllers\LeaveConversionsController;
 use App\Http\Controllers\IncentivesYearEndDetailsController;
 use App\Http\Controllers\LeaveBalancesController;
 use App\Http\Controllers\AttachedAccountsController;
+use App\Http\Controllers\EmployeeDayOffsController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -65,6 +66,10 @@ Route::get('/my_account/attach-boheco-account', [UsersController::class, 'attach
 Route::get('/my_account/search-boheco-accounts', [UsersController::class, 'searchBohecoAccounts'])->name('users.search-boheco-accounts');
 Route::get('/my_account/personal-info', [UsersController::class, 'personalInfo'])->name('users.personal-info');
 Route::get('/my_account/get-incentives-by-employee-id', [UsersController::class, 'getIncentivesByEmployeeId'])->name('users.get-incentives-by-employee-id');
+Route::get('/my_account/staff-management', [UsersController::class, 'staffManagement'])->name('users.staff-management');
+Route::get('/my_account/get-staff', [UsersController::class, 'getStaff'])->name('users.get-staff');
+Route::get('/my_account/get-employees-by-department', [UsersController::class, 'getEmployeesByDepartment'])->name('users.get-employees-by-department');
+Route::get('/my_account/staff-day-off-schedules/{employeeId}', [UsersController::class, 'staffDayOffSchedules'])->name('users.staff-day-off-schedules');
 Route::resource('users', UsersController::class);
 
 Route::get('/register/get-employee-ajax', [App\Http\Controllers\Auth\RegisterController::class, 'getEmployeeAjax'])->name('register.get-employee-ajax');
@@ -378,3 +383,7 @@ Route::resource('attachedAccounts', AttachedAccountsController::class);
 Route::resource('payrollBillsAttachments', App\Http\Controllers\PayrollBillsAttachmentsController::class);
 Route::resource('paidBills', App\Http\Controllers\PaidBillsController::class);
 Route::resource('bills', App\Http\Controllers\BillsController::class);
+
+Route::get('/employee-day-offs/get-by-employee', [EmployeeDayOffsController::class, 'getByEmployee'])->name('employeeDayOffs.get-by-employee');
+Route::get('/employee-day-offs/remove', [EmployeeDayOffsController::class, 'remove'])->name('employeeDayOffs.remove');
+Route::resource('employeeDayOffs', EmployeeDayOffsController::class);

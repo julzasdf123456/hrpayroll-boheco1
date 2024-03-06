@@ -310,6 +310,43 @@ class Employees extends Model
         return $signatories;
     }
 
+    public static function getStaff($employeeId) {
+        $employee = DB::table('Employees')
+            ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+            ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+            ->select('Employees.LastName', 'Positions.Position', 'Positions.id AS PositionId', 'Positions.Department', 'Positions.ParentPositionId')
+            ->whereRaw("Employees.id='" . $employeeId . "'")
+            ->orderByDesc('EmployeesDesignations.DateStarted')
+            ->first();
+
+        if ($employee != null) {
+            // get immediate unders first
+            $unders = DB::table('Employees')
+                ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+                ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+                ->select('Employees.id', 'Employees.FirstName', 'Employees.LastName', 'Employees.MiddleName', 'Employees.Suffix', 'Positions.Position', 'Positions.id AS PositionId', 'Positions.Department', 'Positions.ParentPositionId')
+                ->whereRaw("Positions.ParentPositionId='" . $employee->PositionId . "'")
+                ->orderBy('FirstName')
+                ->get();
+
+            return response()->json($unders, 200);
+        } else {
+            return response()->json([], 200);
+        }
+    }
+
+    public static function getEmployeesFromDepartment($department) {
+        $employees = DB::table('Employees')
+            ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+            ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+            ->select('Employees.id', 'Employees.FirstName', 'Employees.LastName', 'Employees.MiddleName', 'Employees.Suffix', 'Positions.Position', 'Positions.id AS PositionId', 'Positions.Department', 'Positions.ParentPositionId')
+            ->whereRaw("Positions.Department='" . $department . "'")
+            ->orderByDesc('Employees.FirstName')
+            ->get();
+
+        return $employees;
+    }
+
     public static function getYearsFromDateHired($dateHired) {
         $now = new DateTime();
         $dateHired = new DateTime($dateHired);
