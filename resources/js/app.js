@@ -17,6 +17,7 @@ import { createApp } from 'vue/dist/vue.esm-bundler.js';
 
 import EmployeesSearch from "./components/employees/search.vue"
 import FilesList from "./components/employees/files-list.vue"
+import LeaveBalancesBatchEdit from "./components/employees/leave-balances-batch-edit.vue"
 import Reeve from "./components/reeve/reeve.vue"
 import GeneratePayroll from "./components/payroll/generate-payroll.vue"
 import MultiplePayrollDeductions from "./components/payroll/multiple-payroll-deductions.vue"
@@ -54,5 +55,6 @@ app.component('attach-boheco-account', AttachBohecoAccount);
 app.component('files-list', FilesList);
 app.component('personal-info', PersonalInfo);
 app.component('staff-management', StaffManagement);
+app.component('leave-balances-batch-edit', LeaveBalancesBatchEdit);
 
 app.mount("#app");

@@ -128,9 +128,10 @@ class LeaveBalancesController extends AppBaseController
 
         $leaveBalances = $this->leaveBalancesRepository->update($request->all(), $id);
 
-        Flash::success('Leave Balances updated successfully.');
+        // Flash::success('Leave Balances updated successfully.');
 
-        return redirect(route('leaveBalances.index'));
+        // return redirect(route('leaveBalances.index'));
+        return response()->json($leaveBalances, 200);
     }
 
     /**
@@ -184,5 +185,81 @@ class LeaveBalancesController extends AppBaseController
         }
 
         return response()->json($data, 200);
+    }
+
+    public function batchEdit(Request $request) {
+        return view('/leave_balances/batch_edit', [
+
+        ]);
+    }
+
+    public function getMergeData(Request $request) {
+        $department = $request['Department'];
+
+        if ($department == 'All') {
+            $data = DB::table('Employees')
+                ->leftJoin('LeaveBalances', 'Employees.id', '=', 'LeaveBalances.EmployeeId')
+                ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+                ->leftJoin('Positions', 'EmployeesDesignations.PositionId', '=', 'Positions.id')
+                ->whereRaw("(EmploymentStatus IS NULL OR EmploymentStatus NOT IN ('Resigned', 'Retired'))")
+                ->select(
+                    'LeaveBalances.*',
+                    'FirstName',
+                    'LastName',
+                    'MiddleName',
+                    'Suffix',
+                    'Gender'
+                )
+                ->orderBy('LastName')
+                ->get();
+        } else {
+            $data = DB::table('Employees')
+                ->leftJoin('LeaveBalances', 'Employees.id', '=', 'LeaveBalances.EmployeeId')
+                ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+                ->leftJoin('Positions', 'EmployeesDesignations.PositionId', '=', 'Positions.id')
+                ->whereRaw("Positions.Department='" . $department . "' AND (EmploymentStatus IS NULL OR EmploymentStatus NOT IN ('Resigned', 'Retired'))")
+                ->select(
+                    'LeaveBalances.*',
+                    'FirstName',
+                    'LastName',
+                    'MiddleName',
+                    'Suffix',
+                    'Gender'
+                )
+                ->orderBy('LastName')
+                ->get();
+        }
+
+        return response()->json($data, 200);
+    }
+
+    public function updateValue(UpdateLeaveBalancesRequest $request)
+    {
+        $id = $request['id'];
+        $type = $request['Type'];
+        $value = $request['Value'];
+
+        $leaveBalances = LeaveBalances::find($id);
+
+        if ($leaveBalances != null) {
+            if ($type == 'Vacation') {
+                $leaveBalances->Vacation = $value;
+            } else if ($type == 'Sick') {
+                $leaveBalances->Sick = $value;
+            } else if ($type == 'Special') {
+                $leaveBalances->Special = $value;
+            } else if ($type == 'Maternity') {
+                $leaveBalances->Maternity = $value;
+            } else if ($type == 'MaternityForSoloMother') {
+                $leaveBalances->MaternityForSoloMother = $value;
+            } else if ($type == 'Paternity') {
+                $leaveBalances->Paternity = $value;
+            } else if ($type == 'SoloParent') {
+                $leaveBalances->SoloParent = $value;
+            }
+            $leaveBalances->save();
+        }
+
+        return response()->json($leaveBalances, 200);
     }
 }

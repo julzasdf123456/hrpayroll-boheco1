@@ -32,6 +32,14 @@
                 <p>Employee Configurations</p>
             </a>
         </li>  
+        
+        <li class="nav-item">
+            <a href="{{ route('leaveBalances.batch-edit') }}"
+               class="nav-link {{ Request::is('leaveBalances.batch-edit*') ? 'active' : '' }}">
+               <i class="fas fa-sort-amount-down nav-icon"></i>
+                <p>Leave Balance Conf.</p>
+            </a>
+        </li>  
     </ul>
 </li>
 @endcanany
