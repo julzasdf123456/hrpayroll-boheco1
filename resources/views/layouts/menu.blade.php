@@ -42,15 +42,39 @@
     <a href="#" class="nav-link">
         <i class="nav-icon fas fa-sign-out-alt"></i>
         <p>
-            Leave Applications
+            Manual Entries
             <i class="right fas fa-caret-left"></i>
         </p>
     </a>
     <ul class="nav nav-treeview">
         <li class="nav-item">
-            <a href="{{ route('leaveApplications.create') }}"
-               class="nav-link {{ Request::is('leaveApplications.create*') ? 'active' : '' }}">
-                <i class="fas fa-file-export nav-icon"></i><p>File Leave</p>
+            <a href="{{ route('leaveApplications.manual-entries') }}"
+               class="nav-link {{ Request::is('leaveApplications.manual-entries*') ? 'active' : '' }}">
+                <i class="fas fa-file-export nav-icon"></i><p>Leave</p>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="{{ route('tripTickets.manual-entry') }}"
+               class="nav-link {{ Request::is('tripTickets.manual-entry*') ? 'active' : '' }}">
+                <i class="fas fa-plane-departure nav-icon"></i><p>Trip Tickets</p>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="{{ route('offsetApplications.manual-entry') }}"
+               class="nav-link {{ Request::is('offsetApplications.manual-entry*') ? 'active' : '' }}">
+                <i class="fas fa-random nav-icon"></i><p>Offsets</p>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="{{ route('overtimes.manual-entry') }}"
+               class="nav-link {{ Request::is('overtimes.manual-entry*') ? 'active' : '' }}">
+                <i class="fas fa-user-clock nav-icon"></i><p>Overtimes</p>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="{{ route('attendanceConfirmations.manual-entry') }}"
+               class="nav-link {{ Request::is('attendanceConfirmations.manual-entry*') ? 'active' : '' }}">
+                <i class="fas fa-fingerprint nav-icon"></i><p>Attendance Confirmation</p>
             </a>
         </li>
     </ul>

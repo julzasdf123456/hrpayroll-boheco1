@@ -185,22 +185,27 @@ class OvertimesController extends AppBaseController
             $overtime->PurposeOfOT = $item['Purpose'];
             $overtime->TotalHours = $item['TotalHours'];
             $overtime->MaxHourThreshold = $item['MaxHours'];
+            $overtime->Status = isset($item['Status']) && $item['Status']=='APPROVED' ? $item['Status'] : null;
             $overtime->UserId = Auth::id();
             $overtime->save();
 
-            // FIND NEXT SIGNATORY
-            $signatories = Employees::getSupers($item['EmployeeId'], []);
+            if (isset($item['Status']) && $item['Status']=='APPROVED') {
 
-            $rank = 1;
-            foreach($signatories as $signatory) {
-                $sigs = new OvertimeSignatories;
-                $sigs->id = IDGenerator::generateIDandRandString() . $rank;
-                $sigs->OvertimeId = $id;
-                $sigs->EmployeeId = $signatory['id'];
-                $sigs->Rank = $rank;
-                $sigs->save();
+            } else {
+                // FIND NEXT SIGNATORY
+                $signatories = Employees::getSupers($item['EmployeeId'], []);
 
-                $rank++;
+                $rank = 1;
+                foreach($signatories as $signatory) {
+                    $sigs = new OvertimeSignatories;
+                    $sigs->id = IDGenerator::generateIDandRandString() . $rank;
+                    $sigs->OvertimeId = $id;
+                    $sigs->EmployeeId = $signatory['id'];
+                    $sigs->Rank = $rank;
+                    $sigs->save();
+
+                    $rank++;
+                }
             }
             
             $i++;
@@ -331,5 +336,11 @@ class OvertimesController extends AppBaseController
         }
 
         return response()->json($overtime, 200);
+    }
+
+    public function manualEntry(Request $request) {
+        return view('/overtimes/manual_entry', [
+            'employees' => Employees::orderBy('FirstName')->get(),
+        ]);
     }
 }
