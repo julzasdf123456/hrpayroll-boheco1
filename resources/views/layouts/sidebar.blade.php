@@ -29,7 +29,9 @@
                         'offsetApplications.create',
                         'overtimes.create',
                         'attendanceConfirmations.create',
-                        'leaveConversions.create',]))
+                        'leaveConversions.create',
+                        'leaveApplications.my-approvals', 'tripTickets.my-approvals', 'offsetApplications.my-approvals', 'attendanceConfirmations.my-approvals', 'overtimes.my-approvals'
+                        ]))
                     {{-- MY ACCOUNTS --}}
                     @include('layouts.my_account_menu')
                 @else
