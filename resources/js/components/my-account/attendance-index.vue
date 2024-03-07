@@ -1,19 +1,20 @@
 <template>
+    <!-- TRIP TICKET HISTORIES -->
     <div class="section">
         <div class="row">
-            <div class="col-lg-11 col-md-9">
+            <div class="col-10">
                 <p class="no-pads text-md">Your Trip Ticket History</p>
                 <p class="no-pads text-muted">List of your BOHECO I trips. Some of these trips might be filed by your coleagues and you're just a passenger.</p>
             </div>
-            <div class="col-lg-1 col-md-3 center-contents">
-                <img style="width: 100% !important;" class="img-fluid" src="../../../../public/imgs/trip-tickets.png" alt="User profile picture">
+            <div class="col-2 center-contents">
+                <img style="width: 75% !important;" class="img-fluid" src="../../../../public/imgs/trip-tickets.png" alt="User profile picture">
             </div>
         </div>
 
         <div class="row mt-3">
             <div class="col-lg-12 mb-4">
                 <span class="text-muted">Start Filter From</span>
-                <flat-pickr v-model="startFrom" :config="pickerOptions" class="form-control form-control-sm" style="width: 280px;" @on-change="getTripTickets()"></flat-pickr>
+                <flat-pickr v-model="startFrom" :config="pickerOptions" :readonly="false" class="form-control" style="width: 280px;" @on-change="getTripTickets()"></flat-pickr>
             </div>
             <div class="col-lg-4 col-md-6" v-for="trips in tripTickets.data" :key="trips.id">
                 <div class="card shadow-none" style="height: 350px;">
@@ -47,6 +48,59 @@
         </div>
         
     </div>
+
+    <!-- OFFSETS -->
+    <div class="section">
+        <div class="row">
+            <div class="col-10">
+                <p class="no-pads text-md">Your Duty Offsets</p>
+                <p class="no-pads text-muted">List of your offsetted days. </p>
+            </div>
+            <div class="col-2 center-contents">
+                <img style="width: 80% !important;" class="img-fluid" src="../../../../public/imgs/offsets.png" alt="User profile picture">
+            </div>
+        </div>
+
+        <div class="card shadow-none mt-4">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <p class="text-md no-pads">Offset Summary</p>
+                        <span class="text-muted">Sorted from latest to oldest</span>
+                    </div>
+                    <div class="col-lg-12 mt-4">
+                        <span class="text-muted">Start Filter From</span>
+                        <flat-pickr v-model="startOffsetFrom" :config="pickerOptions" :readonly="false" class="form-control" style="width: 280px;" @on-change="getOffsets()"></flat-pickr>
+                    </div>
+                   <div class="col-lg-12 table-responsive mt-3">
+                        <table class="table table-hover">
+                            <thead>
+                                <th>Date of Offset</th>
+                                <th>Reason</th>
+                                <th>Date of Duty</th>
+                                <th>Duty Purpose</th>
+                                <th></th>
+                            </thead>
+                            <tbody>
+                                <tr v-for="offset in offsets.data" :key="offset.id">
+                                    <td>{{ moment(offset.DateOfOffset).format("MMM DD, YYYY (ddd)") }}</td>
+                                    <td>{{ offset.OffsetReason }}</td>
+                                    <td>{{ moment(offset.DateOfDuty).format("MMM DD, YYYY (ddd)") }}</td>
+                                    <td>{{ offset.PurposeOfDuty }}</td>
+                                    <td class="text-right">
+                                        <span class="badge bg-info">{{ offset.Status }}</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="col-lg-12">
+                            <pagination :data="offsets" :limit="12" @pagination-change-page="getOffsets"></pagination>
+                        </div>
+                   </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </template>
 
 <script>
@@ -59,7 +113,7 @@ import jquery from 'jquery';
 import Swal from 'sweetalert2';
 
 export default {
-    name : 'PersonalInfo.personal-info',
+    name : 'AttendanceIndex.attendance-index',
     components : {
         FlatPickr,
         Swal,
@@ -85,7 +139,9 @@ export default {
                 // You can configure more options here as per Flatpickr documentation
             },
             tripTickets : {},
-            startFrom : moment().format("YYYY-MM-DD")
+            startFrom : moment().format("YYYY-MM-DD"),
+            offsets : {},
+            startOffsetFrom : moment().format("YYYY-MM-DD"),
         }
     },
     methods : {
@@ -141,6 +197,25 @@ export default {
                     text : 'Error getting trip ticket data!\n' + error.response.data
                 })
             })
+        },
+        getOffsets(page = 1) {
+            axios.get(`${ axios.defaults.baseURL }/offset_applications/get-offsets-by-employee`, {
+                params : {
+                    page : page,
+                    EmployeeId : this.employeeId,
+                    StartDate : this.startOffsetFrom,
+                }
+            })
+            .then(response => {
+                this.offsets = response.data
+            })
+            .catch(error => {
+                console.log(error)
+                this.toast.fire({
+                    icon : 'error',
+                    text : 'Error getting offset data!\n' + error.response.data
+                })
+            })
         }
     },
     created() {
@@ -148,6 +223,7 @@ export default {
     },
     mounted() {
         this.getTripTickets()
+        this.getOffsets()
     }
 }
 

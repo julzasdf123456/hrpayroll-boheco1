@@ -99,6 +99,25 @@
             </div>
         </div>
 
+        {{-- Overtimes--}}
+        <div class="section">
+            <div class="row">
+                <div class="col-10">
+                    <p class="no-pads text-md">Your overtime records</p>
+                    <p class="no-pads text-muted">A summary of your annual overtime records. If there's any missing record in the list, ask your supers or HR for further info.</p>
+                </div>
+                <div class="col-2 center-contents">
+                    <img style="width: 80% !important;" class="img-fluid" src="{{ asset('imgs/overtime.png') }}" alt="User profile picture">
+                </div>
+            </div>
+
+            {{-- overtime --}}
+            <div id="app">
+                <overtime></overtime>
+            </div>
+            @vite('resources/js/app.js')
+        </div>
+
         {{-- incentives --}}
         <div class="section mt-2">
             <div class="row">

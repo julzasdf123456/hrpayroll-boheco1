@@ -343,4 +343,15 @@ class OvertimesController extends AppBaseController
             'employees' => Employees::orderBy('FirstName')->get(),
         ]);
     }
+
+    public function getOvertimesByEmployee(Request $request) {
+        $employeeId = $request['EmployeeId'];
+        $year = $request['Year'];
+
+        $data = Overtimes::where('EmployeeId', $employeeId)
+            ->whereBetween('DateOfOT', [$year . '-01-01', $year. '-12-31'])
+            ->paginate(10);
+
+        return response()->json($data, 200);
+    }
 }

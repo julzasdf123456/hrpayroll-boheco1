@@ -209,6 +209,7 @@ Route::get('/overtimes/save', [OvertimesController::class, 'save'])->name('overt
 Route::get('/overtimes/approve', [OvertimesController::class, 'approve'])->name('overtimes.approve');
 Route::get('/overtimes/reject', [OvertimesController::class, 'reject'])->name('overtimes.reject');
 Route::get('/overtimes/manual-entry', [OvertimesController::class, 'manualEntry'])->name('overtimes.manual-entry');
+Route::get('/overtimes/get-overtimes-by-employee', [OvertimesController::class, 'getOvertimesByEmployee'])->name('overtimes.get-overtimes-by-employee');
 Route::resource('overtimes', OvertimesController::class);
 
 Route::get('/positions/update-super', [App\Http\Controllers\PositionsController::class, 'updateSuper'])->name('positions.update-super');
@@ -283,6 +284,7 @@ Route::get('/offset_applications/approve', [OffsetApplicationsController::class,
 Route::get('/offset_applications/my-approvals', [OffsetApplicationsController::class, 'myApprovals'])->name('offsetApplications.my-approvals');
 Route::get('/offset_applications/save-offset-applications', [OffsetApplicationsController::class, 'saveOffsetApplications'])->name('offsetApplications.save-offset-applications');
 Route::get('/offset_applications/manual-entry', [OffsetApplicationsController::class, 'manualEntry'])->name('offsetApplications.manual-entry');
+Route::get('/offset_applications/get-offsets-by-employee', [OffsetApplicationsController::class, 'getOffsetsByEmployee'])->name('offsetApplications.get-offsets-by-employee');
 Route::resource('offsetApplications', OffsetApplicationsController::class);
 
 Route::resource('offsetSignatories', App\Http\Controllers\OffsetSignatoriesController::class);
