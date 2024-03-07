@@ -422,4 +422,14 @@ class UsersController extends AppBaseController
             'dayOffs' => $dayOffs,
         ]);
     }
+
+    public function attendanceIndex(Request $request) {
+        $employee = Employees::find(Auth::user()->employee_id);
+
+        $workSchedules = PayrollSchedules::find($employee->PayrollScheduleId);
+
+        return view('/my_account/attendance_index', [
+            'workSchedules' => $workSchedules,
+        ]);
+    }
 }

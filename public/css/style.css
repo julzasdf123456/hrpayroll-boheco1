@@ -86,6 +86,30 @@ body.dark-mode .divider {
     text-overflow: ellipsis;
 }
 
+.ellipsize-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* Number of lines */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ellipsize-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3; /* Number of lines */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ellipsize-4 {
+    display: -webkit-box;
+    -webkit-line-clamp: 4; /* Number of lines */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 .ellipsize-dynamic {
     width: 350px;
     white-space: nowrap;
@@ -489,6 +513,12 @@ a.btn-floating {
 
 .card-footer {
     background-color: transparent !important; 
+}
+
+.card-footer.bg-success {
+    background-color: #3a9971 !important; 
+    border-end-end-radius: 18px !important;
+    border-end-start-radius: 18px !important;
 }
 
 /**
@@ -913,4 +943,11 @@ ul.employee-tree ul.employee-tree {
 .employee-tree-list img {
     margin-right: 15px;
     width: 36px;
+}
+
+.color-legend {
+    width: 10px !important; 
+    height: 10px !important; 
+    display: inline-block; 
+    border-radius: 50%;
 }

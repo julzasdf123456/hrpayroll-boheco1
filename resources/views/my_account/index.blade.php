@@ -118,7 +118,7 @@
                             </div>
                         </div>
                         <div class="card-footer">
-                            <a href="" class="btn btn-link">Attendance management</a>
+                            <a href="{{ route('users.attendance-index') }}" class="btn btn-link">Attendance management</a>
                         </div>
                     </div>
                 </div>

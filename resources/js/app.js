@@ -32,6 +32,7 @@ import AllLeave from "./components/my-account/all-leave.vue"
 import AttachBohecoAccount from "./components/my-account/attach-boheco-account.vue"
 import PersonalInfo from "./components/my-account/personal-info.vue"
 import StaffManagement from "./components/my-account/staff-management.vue"
+import AttendanceIndex from "./components/my-account/attendance-index.vue"
 
 const app = createApp({
     
@@ -56,5 +57,6 @@ app.component('files-list', FilesList);
 app.component('personal-info', PersonalInfo);
 app.component('staff-management', StaffManagement);
 app.component('leave-balances-batch-edit', LeaveBalancesBatchEdit);
+app.component('attendance-index', AttendanceIndex);
 
 app.mount("#app");

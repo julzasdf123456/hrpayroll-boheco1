@@ -1,20 +1,140 @@
 @php
     use App\Models\Employees;
-@endphp
 
-<div id="calendar"></div>
+    $colorProf = Auth::user()->ColorProfile;
+
+    $years = [];
+    for($i=0; $i<24; $i++) {
+        $years[$i] = date('Y', strtotime('today -' . $i . ' years'));
+    }
+@endphp
+@extends('layouts.app')
+
+@section('content')
+<div class="content">
+    <div class="row">
+        <div class="col-lg-12" style="margin-bottom: 26px;">
+            <p class="text-center no-pads text-lg">Attendance Management</p>
+            <p class="text-center no-pads text-muted">View and monitor your daily attendance logs.</p>
+        </div>
+    </div>
+
+    {{-- CONTENT LINEAR --}}
+    <div class="col-lg-10 offset-lg-1">
+        {{-- DTR --}}
+        <div class="section">
+            <div class="row">
+                <div class="col-lg-11 col-md-9">
+                    <p class="no-pads text-md">Your DTR and Duty Loggs</p>
+                    <p class="no-pads text-muted">A quick peek of your biometric-based daily time record, leaves, trips, offsets, and more in one integrated calendar. 
+                        Your supers can also see these data.</p>
+                </div>
+                <div class="col-lg-1 col-md-3 center-contents">
+                    <img style="width: 100% !important;" class="img-fluid" src="{{ asset('imgs/attendances.png') }}" alt="User profile picture">
+                </div>
+            </div>
+
+            {{-- payslip summary table --}}
+            <div class="card shadow-none mt-4">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <p class="text-md">Daily Attendance Calendar</p>
+                        </div>
+                        <div class="col-lg-4 col-md-12 mt-3">
+                            <span class="text-muted">Legend:</span>
+                            <table class="table table-borderless table-sm table-hover mt-3">
+                                <tbody>
+                                    <tr>
+                                        <td style="width: 30px;">
+                                            <span class="color-legend bg-success"></span>
+                                        </td>
+                                        <td>Punctually Present</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="width: 30px;">
+                                            <span class="color-legend" style="background-color: #97bf08;"></span>
+                                        </td>
+                                        <td>Late</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="width: 30px;">
+                                            <span class="color-legend" style="background-color: #b008bf;"></span>
+                                        </td>
+                                        <td>Undertimed</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="width: 30px;">
+                                            <span class="color-legend" style="background-color: #bf3f08;"></span>
+                                        </td>
+                                        <td>Absent AM/PM (No Time-in or out)</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="width: 30px;">
+                                            <span class="color-legend" style="background-color: #305375;"></span>
+                                        </td>
+                                        <td>On a Trip</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="width: 30px;">
+                                            <span class="color-legend" style="background-color: #7a3041;"></span>
+                                        </td>
+                                        <td>Leave</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="width: 30px;">
+                                            <span class="color-legend" style="background-color: #c99402;"></span>
+                                        </td>
+                                        <td>Offset</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="width: 30px;">
+                                            <span class="color-legend" style="background-color: #de5e02;"></span>
+                                        </td>
+                                        <td>Day-off</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="width: 30px;">
+                                            <span class="color-legend" style="border: 1px solid #c5c5c5;"></span>
+                                        </td>
+                                        <td>Absent/AWOL</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="col-lg-8 col-md-12">
+                            <div class="p-3" id="calendar"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    
+                </div>
+            </div>
+        </div>
+
+        {{-- OTHERS --}}
+        <div id="app">
+            <attendance-index></attendance-index>
+        </div>
+        @vite('resources/js/app.js')
+    </div>
+</div>
+@endsection
 
 @push('page_scripts')
     <script>
-        var scheds = [];
-
+        var scheds = []
         $(document).ready(function() {
-            // QUERY SCHEDS
+            getDTR()
+        })
+
+        function getDTR() {
             $.ajax({
                 url : '{{ route("employees.get-attendance-data-ajax") }}',
                 type : 'GET',
                 data : {
-                    EmployeeId : "{{ $employees->id }}"
+                    EmployeeId : "{{ Auth::user()->employee_id }}"
                 },
                 success : function(res) {
                     moment.tz.setDefault("Asia/Taipei");
@@ -169,7 +289,7 @@
                     /**
                      * DAY OFFS
                      **/
-                    var dayOffs = res['DayOffs']
+                     var dayOffs = res['DayOffs']
                     $.each(dayOffs, function(index, element) {
                         var obj = {}
 
@@ -199,9 +319,9 @@
                 
                     var calendar = new Calendar(calendarEl, {
                         headerToolbar: {
-                            left  : 'prev,next today',
+                            left  : 'prev today',
                             center: 'title',
-                            right : 'dayGridMonth,timeGridWeek,timeGridDay'
+                            right : 'next'
                         },
                         themeSystem: 'bootstrap',
                         events : scheds,
@@ -223,8 +343,6 @@
                     alert('An error occurred while trying to query the schedules')
                 }
             })
-
-        })
+        }
     </script>
 @endpush
-

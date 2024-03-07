@@ -26,6 +26,14 @@
 </li>
 
 <li class="nav-item">
+    <a href="{{ route('users.attendance-index') }}"
+       class="nav-link {{ Request::is('users.attendance-index*') ? 'active' : '' }}">
+       <i class="fas fa-fingerprint nav-icon"></i>
+        <p>Attendance</p>
+    </a>
+</li>
+
+<li class="nav-item">
     <a href="{{ route('users.personal-info') }}"
        class="nav-link {{ Request::is('users.personal-info*') ? 'active' : '' }}">
        <i class="fas fa-info-circle nav-icon"></i>
