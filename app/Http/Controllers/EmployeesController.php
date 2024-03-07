@@ -27,6 +27,7 @@ use App\Models\LeaveBalanceDetails;
 use App\Models\OffsetApplications;
 use App\Models\Overtimes;
 use App\Models\EmployeePayrollSundries;
+use App\Models\EmployeeDayOffs;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -561,10 +562,15 @@ class EmployeesController extends AppBaseController
                     ->select('DateOfOffset')
                     ->get();
 
+            $dayOffs = EmployeeDayOffs::where('EmployeeId', $employeeId)
+                    ->select('DayOff')
+                    ->get();
+
             $data['Biometrics'] = $attendanceData;
             $data['Leave'] = $leaveDays;
             $data['TripTickets'] = $tripTickets;
             $data['Offsets'] = $offsets;
+            $data['DayOffs'] = $dayOffs;
 
             return response()->json($data, 200);
         } else {

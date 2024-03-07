@@ -24,6 +24,7 @@
                         'users.payroll-dashboard', 'users.payroll-detailed-view', 'users.attach-boheco-account',
                         'users.personal-info',
                         'users.staff-management', 'users.staff-day-off-schedules',
+                        'users.attendance-index',
                         'leaveApplications.create', 'leaveApplications.create-step-two',
                         'tripTickets.create', 'tripTickets.edit', 'tripTickets.my-trip-tickets',
                         'offsetApplications.create',

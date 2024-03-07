@@ -614,4 +614,26 @@ class TripTicketsController extends AppBaseController
             'vehicles' => $vehicles,
         ]);
     }
+
+    public function getTripTicketsByEmployee(Request $request) {
+        $employeeId = $request['EmployeeId'];
+        $startDate = $request['StartDate'];
+
+        $data = DB::table("TripTicketPassengers")
+            ->leftJoin('TripTickets', 'TripTicketPassengers.TripTicketId', '=', 'TripTickets.id')
+            ->leftJoin('Employees', 'TripTickets.Driver', '=', 'Employees.id')
+            ->whereRaw("TripTicketPassengers.EmployeeId='" . $employeeId . "' AND TripTickets.DateOfTravel <= '" . $startDate . "' AND TripTickets.Status NOT IN ('Trash')")
+            ->select(
+                'TripTickets.*',
+                'Employees.FirstName AS DriverFirstName',
+                'Employees.MiddleName AS DriverMiddleName',
+                'Employees.LastName AS DriverLastName',
+                'Employees.Suffix AS DriverSuffix',
+                DB::raw("(SELECT STRING_AGG(DestinationAddress, ',') FROM TripTicketDestinations WHERE TripTicketDestinations.TripTicketId=TripTickets.id) AS Destinations")
+            )
+            ->orderByDesc('TripTicketPassengers.created_at')
+            ->paginate(6);
+
+        return response()->json($data, 200);
+    }
 }

@@ -70,6 +70,7 @@ Route::get('/my_account/staff-management', [UsersController::class, 'staffManage
 Route::get('/my_account/get-staff', [UsersController::class, 'getStaff'])->name('users.get-staff');
 Route::get('/my_account/get-employees-by-department', [UsersController::class, 'getEmployeesByDepartment'])->name('users.get-employees-by-department');
 Route::get('/my_account/staff-day-off-schedules/{employeeId}', [UsersController::class, 'staffDayOffSchedules'])->name('users.staff-day-off-schedules');
+Route::get('/my_account/attendance-index', [UsersController::class, 'attendanceIndex'])->name('users.attendance-index');
 Route::resource('users', UsersController::class);
 
 Route::get('/register/get-employee-ajax', [App\Http\Controllers\Auth\RegisterController::class, 'getEmployeeAjax'])->name('register.get-employee-ajax');
@@ -261,6 +262,7 @@ Route::get('/trip_tickets/log-departure', [TripTicketsController::class, 'logDep
 Route::get('/trip_tickets/log-vehicle-arrivals', [TripTicketsController::class, 'logVehicleArrivals'])->name('tripTickets.log-vehicle-arrivals');
 Route::get('/trip_tickets/log-arrival', [TripTicketsController::class, 'logArrival'])->name('tripTickets.log-arrival');
 Route::get('/trip_tickets/manual-entry', [TripTicketsController::class, 'manualEntry'])->name('tripTickets.manual-entry');
+Route::get('/trip_tickets/get-trip-tickets-by-employee', [TripTicketsController::class, 'getTripTicketsByEmployee'])->name('tripTickets.get-trip-tickets-by-employee');
 Route::resource('tripTickets', TripTicketsController::class);
 
 Route::get('/trip_ticket_destinations/remove-destination', [App\Http\Controllers\TripTicketDestinationsController::class, 'removeDestination'])->name('tripTicketDestinations.remove-destination');
