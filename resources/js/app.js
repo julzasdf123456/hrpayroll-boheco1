@@ -33,6 +33,7 @@ import AttachBohecoAccount from "./components/my-account/attach-boheco-account.v
 import PersonalInfo from "./components/my-account/personal-info.vue"
 import StaffManagement from "./components/my-account/staff-management.vue"
 import AttendanceIndex from "./components/my-account/attendance-index.vue"
+import Overtime from "./components/my-account/overtime.vue"
 
 const app = createApp({
     
@@ -58,5 +59,6 @@ app.component('personal-info', PersonalInfo);
 app.component('staff-management', StaffManagement);
 app.component('leave-balances-batch-edit', LeaveBalancesBatchEdit);
 app.component('attendance-index', AttendanceIndex);
+app.component('overtime', Overtime);
 
 app.mount("#app");

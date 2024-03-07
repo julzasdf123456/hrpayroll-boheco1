@@ -24,13 +24,13 @@
         {{-- DTR --}}
         <div class="section">
             <div class="row">
-                <div class="col-lg-11 col-md-9">
+                <div class="col-10">
                     <p class="no-pads text-md">Your DTR and Duty Loggs</p>
                     <p class="no-pads text-muted">A quick peek of your biometric-based daily time record, leaves, trips, offsets, and more in one integrated calendar. 
                         Your supers can also see these data.</p>
                 </div>
-                <div class="col-lg-1 col-md-3 center-contents">
-                    <img style="width: 100% !important;" class="img-fluid" src="{{ asset('imgs/attendances.png') }}" alt="User profile picture">
+                <div class="col-2 center-contents">
+                    <img style="width: 80% !important;" class="img-fluid" src="{{ asset('imgs/attendances.png') }}" alt="User profile picture">
                 </div>
             </div>
 

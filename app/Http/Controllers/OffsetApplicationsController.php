@@ -336,4 +336,16 @@ class OffsetApplicationsController extends AppBaseController
             'employees' => Employees::orderBy('LastName')->get(),
         ]);
     }
+
+    public function getOffsetsByEmployee(Request $request) {
+        $employeeId = $request['EmployeeId'];
+        $startDate = $request['StartDate'];
+
+        $data = OffsetApplications::where('EmployeeId', $employeeId)
+            ->whereRaw("DateOfOffset <= '" . $startDate . "'")
+            ->orderByDesc('DateOfOffset')
+            ->paginate(12);
+
+        return response()->json($data, 200);
+    }
 }
