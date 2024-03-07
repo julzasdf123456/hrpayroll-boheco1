@@ -40,3 +40,47 @@
         <p>Staff & Subordinates</p>
     </a>
 </li>
+
+{{-- APPROVALS --}}
+<li class="nav-item">
+    <a href="#" class="nav-link">
+        <i class="nav-icon fas fa-check-circle"></i>
+        <p>
+            My Approvals
+            <i class="right fas fa-caret-left"></i>
+        </p>
+    </a>
+    <ul class="nav nav-treeview">
+        {{-- @canany('god permission') --}}
+        <li class="nav-item">
+            <a href="{{ route('leaveApplications.my-approvals') }}"
+               class="nav-link {{ Request::is('leaveApplications.my-approvals*') ? 'active' : '' }}">
+                <i class="fas fa-file-export nav-icon"></i><p>Leave Applications</p>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="{{ route('tripTickets.my-approvals') }}"
+               class="nav-link {{ Request::is('tripTickets.my-approvals*') ? 'active' : '' }}">
+                <i class="fas fa-car nav-icon"></i><p>Trip Tickets</p>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="{{ route('offsetApplications.my-approvals') }}"
+               class="nav-link {{ Request::is('offsetApplications.my-approvals*') ? 'active' : '' }}">
+                <i class="fas fa-calendar-minus nav-icon"></i><p>Offsets</p>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="{{ route('attendanceConfirmations.my-approvals') }}"
+               class="nav-link {{ Request::is('attendanceConfirmations.my-approvals*') ? 'active' : '' }}">
+                <i class="fas fa-fingerprint nav-icon"></i><p>Attendance Confirmation</p>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="{{ route('overtimes.my-approvals') }}"
+               class="nav-link {{ Request::is('overtimes.my-approvals*') ? 'active' : '' }}">
+                <i class="fas fa-clock nav-icon"></i><p>Overtime</p>
+            </a>
+        </li>
+    </ul>
+</li>

@@ -262,10 +262,10 @@ class LeaveConversionsController extends AppBaseController
                     'data' => $data,
                 ]);
             } else {
-                return abort(403, 'You are not authorized to access this module!');
+                return abort(403, 'Only HR and ISD Manager is Allowed to access this module.');
             }
         } else {
-            return abort(409, 'You are not authorized to access this module!');
+            return abort(409, 'Only HR and ISD Manager is Allowed to access this module.');
         }
     }
 
