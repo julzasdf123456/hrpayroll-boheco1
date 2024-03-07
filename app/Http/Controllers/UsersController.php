@@ -223,8 +223,7 @@ class UsersController extends AppBaseController
     }
 
     public function myAccountIndex($employeeId) {
-        $employee = DB::table('PayrollExpandedDetails')
-                ->leftJoin('Employees', 'PayrollExpandedDetails.EmployeeId', '=', 'Employees.id')
+        $employee = DB::table('Employees')
                 ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
                 ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
                 ->whereRaw("Employees.id='" . $employeeId . "'")
