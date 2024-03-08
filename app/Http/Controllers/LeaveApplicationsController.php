@@ -664,6 +664,21 @@ class LeaveApplicationsController extends AppBaseController
             // UPDATE LEAVE STATUS
             $leaveApplication->Status = 'Partially Approved';
             $leaveApplication->save();
+
+            
+            /**
+             * =========================================================================
+             * SEND SMS
+             * =========================================================================
+             */
+            if ($employee != null && $employee->ContactNumbers != null) {
+                SMSNotifications::sendSMS($employee->ContactNumbers, 
+                    "HR System - Leave Approval:\n\n" . Users::find($leaveSignatory->EmployeeId)->name . " has APPROVED your " . $leaveApplication->LeaveType . " leave. 
+                        Your leave is now forwarded to the next signatory.",
+                    "HR-Leave",
+                    $id
+                );
+            }
         } else {
             // UPDATE LEAVE STATUS
             // THIS PORTION IS WHEN THE LEAVE HAS FULLY SIGNED BY ALL SIGNATORIES
@@ -676,6 +691,19 @@ class LeaveApplicationsController extends AppBaseController
             } else {
                 $leaveApplication->Status = 'APPROVED';
                 $leaveApplication->save();
+
+                /**
+                 * =========================================================================
+                 * SEND SMS
+                 * =========================================================================
+                 */
+                if ($employee != null && $employee->ContactNumbers != null) {
+                    SMSNotifications::sendSMS($employee->ContactNumbers, 
+                        "HR System - Leave Approval:\n\n" . Users::find($leaveSignatory->EmployeeId)->name . " has APPROVED your " . $leaveApplication->LeaveType . " leave.",
+                        "HR-Leave",
+                        $id
+                    );
+                }
 
                 // PLOT LEAVE DAYS TO ATTENDANCE DATA
                 $leaveDays = LeaveDays::where('LeaveId', $id)->get();
@@ -929,6 +957,7 @@ class LeaveApplicationsController extends AppBaseController
 
         $leaveApplication = LeaveApplications::find($id);
         $leaveSignatory = LeaveSignatories::find($signatoryId);
+        $employee = Employees::find($leaveApplication->EmployeeId);
 
         if ($leaveApplication != null) {
             $leaveApplication->Status = 'REJECTED';
@@ -968,6 +997,19 @@ class LeaveApplicationsController extends AppBaseController
             $notifications->Notes = $id;
             $notifications->Status = "UNREAD";
             $notifications->save();
+            
+            /**
+             * =========================================================================
+             * SEND SMS
+             * =========================================================================
+             */
+            if ($employee != null && $employee->ContactNumbers != null) {
+                SMSNotifications::sendSMS($employee->ContactNumbers, 
+                    "HR System - Leave Approval:\n\n" . Users::find($leaveSignatory->EmployeeId)->name . " has DISAPPROVED your " . $leaveApplication->LeaveType . " leave due to the following reasons:\n\n" . $notes,
+                    "HR-Leave",
+                    $id
+                );
+            }
         }
 
         return response()->json($leaveApplication, 200);
