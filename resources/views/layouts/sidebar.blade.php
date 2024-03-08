@@ -23,7 +23,7 @@
                         'users.my-account-index', 'users.leave-credits', 'users.view-leave', 
                         'users.payroll-dashboard', 'users.payroll-detailed-view', 'users.attach-boheco-account',
                         'users.personal-info',
-                        'users.staff-management', 'users.staff-day-off-schedules',
+                        'users.staff-management', 'users.staff-day-off-schedules', 'users.staff-super-view',
                         'users.attendance-index',
                         'leaveApplications.create', 'leaveApplications.create-step-two',
                         'tripTickets.create', 'tripTickets.edit', 'tripTickets.my-trip-tickets',

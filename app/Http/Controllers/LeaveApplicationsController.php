@@ -23,6 +23,7 @@ use App\Models\LeaveBalances;
 use App\Models\LeaveBalanceDetails;
 use App\Models\LeaveImageAttachments;
 use App\Models\HolidaysList;
+use App\Models\SMSNotifications;
 use DatePeriod;
 use DateTime;
 use DateInterval;
@@ -230,66 +231,20 @@ class LeaveApplicationsController extends AppBaseController
             ->whereRaw("Positions.Department='" . $employee->Department . "' AND Positions.Level IN ('Manager', 'Chief', 'Supervisor')")
             ->get();
 
-        // LOOP SIGNATORIES AND FETCH UPPER LEVEL POSITIONS
-        $users = [];
-        $parentPosId = $employee->ParentPositionId;
-        $dept = $employee->Department;
-        $sign = true;
-        $i = 0;
-        $rank = 0;
-        
-        while ($sign) {
-            $signatoryParents = DB::table('users')
-                ->leftJoin('Employees', 'users.employee_id', '=', 'Employees.id')
-                ->leftJoin('EmployeesDesignations', 'EmployeesDesignations.EmployeeId', '=', 'Employees.id')
-                ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
-                ->select('users.id', 'Employees.FirstName', 'Employees.LastName', 'Employees.MiddleName', 'Employees.Suffix', 'Positions.Position', 'Positions.Level', 'Positions.ParentPositionId', 'Positions.id AS PositionId')
-                ->whereRaw("Positions.id='" . $parentPosId . "' " . ($employee->Level=="Manager" ? "" : " AND Positions.Level NOT IN ('General Manager')"))
-                ->first();
+        $signatories = Employees::getSupers($leaveApplication->EmployeeId, ['Chief', 'Manager', 'General Manager']);
 
-            if ($i > 4) {
-                break;
-            } else {
-                if ($signatoryParents != null) {
-                    array_push($users, [
-                        'id' => $signatoryParents->id,
-                        'FirstName' => $signatoryParents->FirstName,
-                        'LastName' => $signatoryParents->LastName,
-                        'MiddleName' => $signatoryParents->MiddleName,
-                        'Suffix' => $signatoryParents->Suffix,
-                        'Position' => $signatoryParents->Position,
-                    ]);         
-                    
-                    // INSERT SIGNATORIES AUTOMATICALLY
-                    if ($signatoryParents->Level == 'Chief' | $signatoryParents->Level == 'Manager' | $signatoryParents->Level == 'General Manager') {
-                        $leaveSig = LeaveSignatories::where('LeaveId', $id)->where('EmployeeId', $signatoryParents->id)->first();
-                        if ($leaveSig == null) {
-                            $leaveSig = new LeaveSignatories;
-                            // $leaveSig->id = IDGenerator::generateID() . "" . $i;
-                            $leaveSig->LeaveId = $id;
-                            $leaveSig->EmployeeId = $signatoryParents->id;
-                            $leaveSig->Rank = ($rank+1);
-                            $leaveSig->Status = null;
-                            $leaveSig->save();
-
-                            $rank++;
-                        }
-                    }
-
-                    if ($signatoryParents->ParentPositionId != null) {
-                        $parentPosId = $signatoryParents->ParentPositionId;
-                        $sign = true;
-                        $i++;
-                    } else {
-                        $sign = false;
-                        break;
-                    }
-                } else {
-                    $sign = false;
-                    break;
-                }    
+        $rank = 1;
+        if ($signatories != null) {
+            foreach($signatories as $signatory) {
+                $sigs = new LeaveSignatories;
+                // $sigs->id = IDGenerator::generateIDandRandString() . $rank;
+                $sigs->LeaveId = $id;
+                $sigs->EmployeeId = $signatory['id'];
+                $sigs->Rank = $rank;
+                $sigs->save();
+    
+                $rank++;
             }
-                    
         }
        
         $leaveSignatories = DB::table('LeaveSignatories')
@@ -422,6 +377,20 @@ class LeaveApplicationsController extends AppBaseController
             // UPDATE LEAVE STATUS
             $leaveApplication->Status = 'Partially Approved';
             $leaveApplication->save();
+
+            /**
+             * =========================================================================
+             * SEND SMS
+             * =========================================================================
+             */
+            if ($employee != null && $employee->ContactNumbers != null) {
+                SMSNotifications::sendSMS($employee->ContactNumbers, 
+                    "HR System - Leave Approval:\n\n" . Users::find($leaveSignatory->EmployeeId)->name . " has approved your " . $leaveApplication->LeaveType . " leave. 
+                        Your leave is now forwarded to the next signatory.",
+                    "HR-Leave",
+                    $id
+                );
+            }
         } else {
             // UPDATE LEAVE STATUS
             // THIS PORTION IS WHEN THE LEAVE HAS FULLY SIGNED BY ALL SIGNATORIES
@@ -612,7 +581,20 @@ class LeaveApplicationsController extends AppBaseController
                     }
                     $leaveBalances->save();
                 }
-            }                    
+            }  
+            
+             /**
+             * =========================================================================
+             * SEND SMS
+             * =========================================================================
+             */
+            if ($employee != null && $employee->ContactNumbers != null) {
+                SMSNotifications::sendSMS($employee->ContactNumbers, 
+                    "HR System - Leave Approval:\n\n" . Users::find($leaveSignatory->EmployeeId)->name . " has approved your " . $leaveApplication->LeaveType . " leave.",
+                    "HR-Leave",
+                    $id
+                );
+            }
         }
         
         return redirect(route('home'));
@@ -1066,5 +1048,40 @@ class LeaveApplicationsController extends AppBaseController
         }
 
         return response()->json($leave, 200);
+    }
+
+    public function publishLeave($id) {
+        $leaveApplications = DB::table('LeaveApplications')
+            ->leftJoin('Employees', 'LeaveApplications.EmployeeId', '=', 'Employees.id')
+            ->select(
+                'LeaveApplications.*',
+                'FirstName',
+                'LastName'
+            )
+            ->where('LeaveApplications.id', $id)
+            ->first();
+
+        $leaveDays = LeaveDays::where('LeaveId', $id)->orderBy('LeaveDate')->get();
+
+        if (count($leaveDays) > 0) {
+            $signatories = Employees::getSupers($leaveApplications->EmployeeId, ['Chief', 'Manager', 'General Manager']);
+
+            if (count($signatories) > 0) {
+                $employee = DB::table('users')
+                    ->leftJoin('Employees', 'users.employee_id', '=', 'Employees.id')
+                    ->whereRaw("users.id='" . $signatories[0]['id'] . "'")
+                    ->first();
+
+                if ($employee != null && $employee->ContactNumbers != null) {
+                    SMSNotifications::sendSMS($employee->ContactNumbers, 
+                        "HR System - Leave Approval:\n\n" . $leaveApplications->FirstName . " " . $leaveApplications->LastName . " has a new leave application that needs your approval.",
+                        "HR-Leave",
+                        $id
+                    );
+                }
+            }
+        }
+
+        return redirect(route('home'));
     }
 }

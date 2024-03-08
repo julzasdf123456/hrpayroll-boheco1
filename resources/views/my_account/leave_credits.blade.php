@@ -18,9 +18,11 @@
             {{-- leave credit balances --}}
             <div class="section">
                 <div class="row">
-                    <div class="col-10">
-                        <p class="no-pads text-md">Your leave balances</p>
-                        <p class="no-pads text-muted">Available leave balances as of this month. This is where you can benchmark your available balances if you desire to go on a vacation, or convert available balances into cash.</p>
+                    <div class="col-10 relative">
+                        <div class="botom-left-contents px-3">
+                            <p class="no-pads text-md">Your leave balances</p>
+                            <p class="no-pads text-muted">Available leave balances as of this month. This is where you can benchmark your available balances if you desire to go on a vacation, or convert available balances into cash.</p>
+                        </div>
                     </div>
                     <div class="col-2 center-contents">
                         <img style="width: 90% !important;" class="img-fluid" src="{{ asset('imgs/leave-balances.png') }}" alt="User profile picture">
@@ -119,9 +121,11 @@
             {{-- all leave --}}
             <div class="section">
                 <div class="row">
-                    <div class="col-10">
-                        <p class="no-pads text-md">All leave applications</p>
-                        <p class="no-pads text-muted">All of your leave history are listed here. Filter and sort it according to your liking.</p>
+                    <div class="col-10 relative">
+                        <div class="botom-left-contents px-3">
+                            <p class="no-pads text-md">All leave applications</p>
+                            <p class="no-pads text-muted">All of your leave history are listed here. Filter and sort it according to your liking.</p>
+                        </div>
                     </div>
                     <div class="col-2 center-contents">
                         <img style="width: 80% !important;" class="img-fluid" src="{{ asset('imgs/leave-history.png') }}" alt="User profile picture">

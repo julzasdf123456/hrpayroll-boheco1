@@ -71,6 +71,7 @@ Route::get('/my_account/get-staff', [UsersController::class, 'getStaff'])->name(
 Route::get('/my_account/get-employees-by-department', [UsersController::class, 'getEmployeesByDepartment'])->name('users.get-employees-by-department');
 Route::get('/my_account/staff-day-off-schedules/{employeeId}', [UsersController::class, 'staffDayOffSchedules'])->name('users.staff-day-off-schedules');
 Route::get('/my_account/attendance-index', [UsersController::class, 'attendanceIndex'])->name('users.attendance-index');
+Route::get('/my_account/staff-super-view/{id}', [UsersController::class, 'staffSuperView'])->name('users.staff-super-view');
 Route::resource('users', UsersController::class);
 
 Route::get('/register/get-employee-ajax', [App\Http\Controllers\Auth\RegisterController::class, 'getEmployeeAjax'])->name('register.get-employee-ajax');
@@ -149,6 +150,7 @@ Route::get('/leave_applications/get-leaves-by-type', [LeaveApplicationsControlle
 Route::get('/leave_applications/manual-entries', [LeaveApplicationsController::class, 'manualEntries'])->name('leaveApplications.manual-entries');
 Route::get('/leave_applications/get-leave-balances-by-employee', [LeaveApplicationsController::class, 'getLeaveBalancesByEmployee'])->name('leaveApplications.get-leave-balances-by-employee');
 Route::get('/leave_applications/manual-save', [LeaveApplicationsController::class, 'manualSave'])->name('leaveApplications.manual-save');
+Route::get('/leave_applications/publish-leave/{id}', [LeaveApplicationsController::class, 'publishLeave'])->name('leaveApplications.publish-leave');
 Route::resource('leaveApplications', LeaveApplicationsController::class);
 
 Route::resource('leaveSignatories', App\Http\Controllers\LeaveSignatoriesController::class);
@@ -401,3 +403,4 @@ Route::resource('bills', App\Http\Controllers\BillsController::class);
 Route::get('/employee-day-offs/get-by-employee', [EmployeeDayOffsController::class, 'getByEmployee'])->name('employeeDayOffs.get-by-employee');
 Route::get('/employee-day-offs/remove', [EmployeeDayOffsController::class, 'remove'])->name('employeeDayOffs.remove');
 Route::resource('employeeDayOffs', EmployeeDayOffsController::class);
+Route::resource('s-m-s-notifications', App\Http\Controllers\SMSNotificationsController::class);

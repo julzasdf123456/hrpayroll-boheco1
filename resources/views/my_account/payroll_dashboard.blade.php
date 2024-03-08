@@ -24,9 +24,12 @@
         {{-- Payslips and payroll data --}}
         <div class="section">
             <div class="row">
-                <div class="col-10">
-                    <p class="no-pads text-md">Your monthly payroll data and payslips</p>
-                    <p class="no-pads text-muted">List of your annual/monthly payroll history data and payslips. Also contained here is the summary of your payroll so you can efficiently make analytics and projections on your future expenses.</p>
+                <div class="col-10 relative">
+                    <div class="botom-left-contents px-3">
+                        <p class="no-pads text-md">Your monthly payroll data and payslips</p>
+                        <p class="no-pads text-muted">List of your annual/monthly payroll history data and payslips. Also contained here is the summary 
+                            of your payroll so you can efficiently make analytics and projections on your future expenses.</p>
+                    </div>
                 </div>
                 <div class="col-2 center-contents">
                     <img style="width: 100% !important;" class="img-fluid" src="{{ asset('imgs/payslips.png') }}" alt="User profile picture">
@@ -102,9 +105,11 @@
         {{-- Overtimes--}}
         <div class="section">
             <div class="row">
-                <div class="col-10">
-                    <p class="no-pads text-md">Your overtime records</p>
-                    <p class="no-pads text-muted">A summary of your annual overtime records. If there's any missing record in the list, ask your supers or HR for further info.</p>
+                <div class="col-10 relative">
+                    <div class="botom-left-contents px-3">
+                        <p class="no-pads text-md">Your overtime records</p>
+                        <p class="no-pads text-muted">A summary of your annual overtime records. If there's any missing record in the list, ask your supers or HR for further info.</p>
+                    </div>
                 </div>
                 <div class="col-2 center-contents">
                     <img style="width: 80% !important;" class="img-fluid" src="{{ asset('imgs/overtime.png') }}" alt="User profile picture">
@@ -121,9 +126,11 @@
         {{-- incentives --}}
         <div class="section mt-2">
             <div class="row">
-                <div class="col-10">
-                    <p class="no-pads text-md">Your annual incentives summary</p>
-                    <p class="no-pads text-muted">Repository of your annual incentives, bonuses, and benefits.</p>
+                <div class="col-10 relative">
+                    <div class="botom-left-contents px-3">
+                        <p class="no-pads text-md">Your annual incentives summary</p>
+                        <p class="no-pads text-muted">Repository of your annual incentives, bonuses, and benefits.</p>
+                    </div>
                 </div>
                 <div class="col-2 center-contents">
                     <img style="width: 100% !important;" class="img-fluid" src="{{ asset('imgs/incentives.png') }}" alt="User profile picture">
@@ -172,12 +179,14 @@
         {{-- taxes --}}
         <div class="section mt-2">
             <div class="row">
-                <div class="col-10">
-                    <p class="no-pads text-md">Your withholding taxes</p>
-                    <p class="no-pads text-muted">Computation of your year-round withholding taxes. NOTE that the withholding taxes that are being deducted from your
-                         monthly salary are based on the annual projection of your incentives. This is to reduce the year-end withholding tax that is being deducted from 
-                         your year-end incentives. 
-                    </p>
+                <div class="col-10 relative">
+                    <div class="botom-left-contents px-3">
+                        <p class="no-pads text-md">Your withholding taxes</p>
+                        <p class="no-pads text-muted">Computation of your year-round withholding taxes. Withholding taxes that are no being deducted from your
+                            monthly salary are based on the annual projection of your incentives. This is to reduce the year-end withholding tax that is being deducted from 
+                            your year-end incentives. 
+                        </p>
+                    </div>
                 </div>
                 <div class="col-2 center-contents">
                     <img style="width: 100% !important;" class="img-fluid" src="{{ asset('imgs/tax.png') }}" alt="User profile picture">
