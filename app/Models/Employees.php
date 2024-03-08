@@ -260,10 +260,10 @@ class Employees extends Model
                     ->leftJoin('EmployeesDesignations', 'EmployeesDesignations.EmployeeId', '=', 'Employees.id')
                     ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
                     ->select('users.id', 'Employees.FirstName', 'Employees.LastName', 'Employees.MiddleName', 'Employees.Suffix', 'Positions.Level', 'Positions.Position', 'Positions.ParentPositionId', 'Positions.id AS PositionId')
-                    ->whereRaw("Positions.id='" . $parentPosId . "' ")
+                    ->whereRaw("Positions.id='" . $parentPosId . "'")
                     ->first();
 
-                if ($i > 5) {
+                if ($i > 6) {
                     $sign = false;
                     break;
                 } else {

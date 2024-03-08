@@ -4,8 +4,8 @@
         <div class="row">
             <div class="col-10 relative">
                 <div class="botom-left-contents px-3">
-                    <p class="no-pads text-md">Your Trip Ticket History</p>
-                    <p class="no-pads text-muted">List of your BOHECO I trips. Some of these trips might be filed by your coleagues and you're just a passenger.</p>
+                    <p class="no-pads text-md">Trip Ticket History</p>
+                    <p class="no-pads text-muted">List of this employee's BOHECO I trips.</p>
                 </div>
             </div>
             <div class="col-2 center-contents">
@@ -56,8 +56,8 @@
         <div class="row">
             <div class="col-10 relative">
                 <div class="botom-left-contents px-3">
-                    <p class="no-pads text-md">Your Duty Offsets</p>
-                    <p class="no-pads text-muted">List of your offsetted days. </p>
+                    <p class="no-pads text-md">Duty Offsets</p>
+                    <p class="no-pads text-muted">List of this employee's offsetted days. </p>
                 </div>
             </div>
             <div class="col-2 center-contents">
@@ -105,6 +105,65 @@
             </div>
         </div>
     </div>
+
+    <!-- LEAVE -->
+    <div class="section">
+        <div class="row">
+            <div class="col-10 relative">
+                <div class="botom-left-contents px-3">
+                    <p class="no-pads text-md">Leave Summary</p>
+                    <p class="no-pads text-muted">List of this employee's leave. </p>
+
+                </div>
+            </div>
+            <div class="col-2 center-contents">
+                <img style="width: 80% !important;" class="img-fluid" src="../../../../public/imgs/leave-history.png" alt="User profile picture">
+            </div>
+        </div>
+
+        <div class="card shadow-none mt-4">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-lg-3 col-md-6">
+                        <span class="text-muted">Filter Leave</span>
+                        <select v-model="leaveType" class="form-control" @change="getLeaveData">
+                            <option value="All">All</option>
+                            <option value="Vacation">Vacation</option>
+                            <option value="Sick">Sick</option>
+                            <option value="Special">Special</option>
+                            <option value="Paternity">Paternity</option>
+                            <option value="Maternity">Maternity</option>
+                            <option value="MaternityForSoloMother">Maternity for Solo Mom</option>
+                            <option value="SoloParent">Solo Parent</option>
+                        </select>
+                    </div>
+                
+                    <div class="col-lg-12 mt-4 table-responsive">
+                        <table class="table table-md table-hover">
+                            <thead>
+                                <th style="width: 32px;"></th>
+                                <th>Date Filed</th>
+                                <th>Reason</th>
+                                <th class="text-right"># of Days</th>
+                                <th class="text-center">Status</th>
+                            </thead>
+                            <tbody>
+                                <tr v-for="leave in leaveData.data" :key="leave.id" @click="leaveView(leave.id)" style="cursor: pointer;">
+                                    <td :title="leave.LeaveType"><i class="fas" :class="getIconType(leave.LeaveType)"></i></td>
+                                    <td>{{ moment(leave.created_at).format("MMMM DD, YYY") }}</td>
+                                    <td>{{leave.Content }}</td>
+                                    <td class="text-right">{{leave.TotalDays }}</td>
+                                    <td class="text-center"><span class="badge" :class="getStatusBadgeColor(leave.Status)">{{leave.Status }}</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                
+                        <pagination :data="leaveData" :limit="10" @pagination-change-page="getLeaveData"></pagination>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </template>
 
 <script>
@@ -146,6 +205,8 @@ export default {
             startFrom : moment().format("YYYY-MM-DD"),
             offsets : {},
             startOffsetFrom : moment().format("YYYY-MM-DD"),
+            leaveData : {},
+            leaveType : 'All',
         }
     },
     methods : {
@@ -220,7 +281,57 @@ export default {
                     text : 'Error getting offset data!\n' + error.response.data
                 })
             })
-        }
+        },
+        getStatusBadgeColor(status) {
+            if (this.isNull(status)) {
+                return 'bg-info'
+            } else if (status === 'Filed') {
+                return 'bg-primary'
+            } else if (status == 'REJECTED') {
+                return 'bg-danger'
+            } else {
+                return 'bg-success'
+            }
+        },
+        getIconType(leaveType) {
+            if (leaveType === 'Vacation') {
+                return 'fa-umbrella-beach'
+            } else if (leaveType === 'Sick') {
+                return 'fa-clinic-medical'
+            } else if (leaveType === 'Special') {
+                return 'fa-birthday-cake'
+            } else if (leaveType === 'Paternity') {
+                return 'fa-male'
+            } else if (leaveType === 'Maternity' | leaveType === 'MaternityForSoloMother') {
+                return 'fa-female'
+            } else if (leaveType === 'SoloParent') {
+                return 'fa-suitcase-rolling'
+            } else {
+                return 'fa-circle'
+            }
+        },
+        getLeaveData(page = 1) {
+            axios.get(`${ axios.defaults.baseURL }/leave_balances/get-leave-data`, {
+                params : {
+                    page : page,
+                    LeaveType : this.leaveType,
+                    EmployeeId : this.employeeId,
+                }
+            })
+            .then(response => {
+                this.leaveData = response.data
+            })
+            .catch(error => {
+                console.log(error)
+                this.toast.fire({
+                    icon : 'error',
+                    text : 'Error fetching leave data'
+                })
+            })
+        },
+        leaveView(id) {
+            window.location.href = `${ axios.defaults.baseURL }/my_account/view-leave/` + id
+        },
     },
     created() {
         
@@ -228,6 +339,7 @@ export default {
     mounted() {
         this.getTripTickets()
         this.getOffsets()
+        this.getLeaveData()
     }
 }
 

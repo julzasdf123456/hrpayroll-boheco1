@@ -2,11 +2,13 @@
     <!-- personal info -->
     <div class="section">
         <div class="row">
-            <div class="col-10">
-                <p class="no-pads text-md">Your Staff Tree</p>
-                <p class="no-pads text-muted">Your staff being grouped according to sub-positions. Note that only the HR can assign and re-asign these groupings. If there are employees that
-                    are not listed in here, contact HR for immediate actions.
-                </p>
+            <div class="col-10 relative">
+                <div class="botom-left-contents px-3">
+                    <p class="no-pads text-md">Your Staff Tree</p>
+                    <p class="no-pads text-muted">Your staff being grouped according to sub-positions. Note that only the HR can assign and re-asign these groupings. If there are employees that
+                        are not listed in here, contact HR for immediate actions.
+                    </p>
+                </div>
             </div>
             <div class="col-2 center-contents">
                 <img style="width: 100% !important;" class="img-fluid" src="../../../../public/imgs/staff.png" alt="User profile picture">
@@ -61,7 +63,11 @@ export default {
             }),
             tree : [],
             currentEmployeeId : '',
-            treeHtml : ''
+            treeHtml : '',
+            tripsToday : [],
+            dayOffsToday : [],
+            offsetsToday : [],
+            leaveToday : [],
         }
     },
     methods : {
@@ -112,11 +118,14 @@ export default {
                 }
             })
             .then(response => {
-                var employees = response.data
+                var employees = response.data['Employees']
+                this.tripsToday = response.data['TripTickets']
+                this.dayOffsToday = response.data['DayOffs']
+                this.offsetsToday = response.data['Offsets']
+                this.leaveToday = response.data['Leaves']
 
                 var len = employees.length
-                var arr = []
-                arr[this.currentEmployeeId] = []
+
                 for(let i=0; i<len; i++) {
                     this.tree.push({
                         id : employees[i]['id'],
@@ -131,7 +140,7 @@ export default {
                         Child : null
                     })
                 }
-                console.log(this.tree)
+
                 this.tree = this.processTree(this.tree)
                 // console.log(this.tree)
                 this.treeHtml = this.treeToHtml(this.tree)
@@ -168,6 +177,27 @@ export default {
                 this.addChildren(temp, child); // Recursively add children of the child node
             }
         },
+        checkAttendanceToday(employeeId, trips, dayOffs, offsets, leaves) {
+            var tag = ""
+
+            if (trips.some(obj => obj.EmployeeId === employeeId)) {
+                tag += `<span class='badge bg-info'>TRIP</span>`
+            }
+
+            if (dayOffs.some(obj => obj.EmployeeId === employeeId)) {
+                tag += `<span class='badge bg-danger'>DAY-OFF</span>`
+            }
+
+            if (offsets.some(obj => obj.EmployeeId === employeeId)) {
+                tag += `<span class='badge bg-warning'>OFFSET</span>`
+            }
+            
+            if (leaves.some(obj => obj.EmployeeId === employeeId)) {
+                tag += `<span class='badge bg-primary'>LEAVE</span>`
+            }
+
+            return tag
+        },
         treeToHtml(tree) {
             let html = `<ul class='employee-tree'>`;
             for (let node of tree) {
@@ -176,12 +206,13 @@ export default {
                                 `<img src='${ this.imgsPath }/prof-img.png' class='img-circle'></img>` +
                             `</div>` +
                             `<div style="display: inline-block; height: inherit; vertical-align: middle;">` +
-                                `<strong>${node.FirstName} ${node.LastName}</strong><br>` +
+                                `<strong class='ico-tab-mini'>${node.FirstName} ${node.LastName}</strong>` +  this.checkAttendanceToday(node.id, this.tripsToday, this.dayOffsToday, this.offsetsToday, this.leaveToday) +
+                                `<br>` +
                                 `${ node.id }` +
                             `</div>` +
 
                             `<div class="dropdown" style="display: inline;" >
-                                <a class="btn btn-link-muted btn-sm float-right" role="button" data-toggle="dropdown" aria-expanded="false">
+                                <a class="btn btn-link-muted btn-sm float-right ${ node.id===this.currentEmployeeId ? 'gone' : '' }" role="button" data-toggle="dropdown" aria-expanded="false">
                                     <i class="fas fa-ellipsis-v"></i>
                                 </a>
                                 
@@ -189,6 +220,7 @@ export default {
                                     <span class="dropdown-item text-muted">${node.FirstName} ${node.LastName}</span>
                                     <div class='divider'></div>
                                     <a class="dropdown-item" href="${ this.baseURL }/my_account/staff-day-off-schedules/${node.id}"><i class="fas fa-toggle-off ico-tab"></i>Manage Day-off Schedules</a>
+                                    <a class="dropdown-item" href="${ this.baseURL }/my_account/staff-super-view/${node.id}"><i class="fas fa-calendar ico-tab"></i>Attendance, Trips, Leaves</a>
 
                                 </div>
                             </div>`
@@ -199,28 +231,6 @@ export default {
             }
             html += `</ul>`
             return html
-        },
-        openTree(employeeId, isOpen) {
-            // reset all open
-            this.tree = this.tree.map(obj => {
-                return {
-                    ...obj,
-                    IsOpen : false 
-                };
-            });
-
-            // find object
-            const index = this.tree.findIndex(obj => obj.id === employeeId);
-
-            if (index !== -1) {
-                this.tree = this.tree.map(obj => {
-                    if (obj.id === employeeId) {
-                        return { ...obj, IsOpen : !isOpen }; // Update the name property
-                    } else {
-                        return obj;
-                    }
-                })
-            }
         },
     },
     created() {

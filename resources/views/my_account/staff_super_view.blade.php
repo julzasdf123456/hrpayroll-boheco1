@@ -11,25 +11,30 @@
 @extends('layouts.app')
 
 @section('content')
-<meta name="employee-id-current" content="{{ Auth::user()->employee_id }}">
+<meta name="employee-id-current" content="{{ $employee->id }}">
 <div class="content">
-    <div class="row">
+    {{-- <div class="row">
         <div class="col-lg-12" style="margin-bottom: 26px;">
             <p class="text-center no-pads text-lg">Attendance Management</p>
             <p class="text-center no-pads text-muted">View and monitor your daily attendance logs.</p>
         </div>
-    </div>
+    </div> --}}
 
     {{-- CONTENT LINEAR --}}
     <div class="col-lg-10 offset-lg-1">
+        <a href="{{ route('users.staff-management') }}" class="btn btn-link-muted" style="margin-right: 30px; display: inline;"><i class="fas fa-arrow-left"></i></a>
+        <p class="text-md" style="display: inline-block;">Staff & Subordinates Mangement</p>
+
+        <br>
+        <div class="divider"></div>
+
         {{-- DTR --}}
         <div class="section">
             <div class="row">
                 <div class="col-10 relative">
                     <div class="botom-left-contents px-3">
-                        <p class="no-pads text-md">Your DTR and Duty Loggs</p>
-                        <p class="no-pads text-muted">A quick peek of your biometric-based daily time record, leaves, trips, offsets, and more in one integrated calendar. 
-                            Your supers can also see these data.</p>
+                        <p class="no-pads text-md">{{ Employees::getMergeName($employee) }}'s Attendance Logs</p>
+                        <p class="no-pads text-muted">A quick peek of {{ Employees::getMergeName($employee) }}'s biometric-based daily time record, leaves, trips, offsets, and more in one integrated calendar. </p>
                     </div>
                 </div>
                 <div class="col-2 center-contents">
@@ -118,7 +123,7 @@
 
         {{-- OTHERS --}}
         <div id="app">
-            <attendance-index></attendance-index>
+            <super-view-attendance></super-view-attendance>
         </div>
         @vite('resources/js/app.js')
     </div>
@@ -137,7 +142,7 @@
                 url : '{{ route("employees.get-attendance-data-ajax") }}',
                 type : 'GET',
                 data : {
-                    EmployeeId : "{{ Auth::user()->employee_id }}"
+                    EmployeeId : "{{ $employee->id }}"
                 },
                 success : function(res) {
                     moment.tz.setDefault("Asia/Taipei");

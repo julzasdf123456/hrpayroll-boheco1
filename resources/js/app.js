@@ -34,6 +34,7 @@ import PersonalInfo from "./components/my-account/personal-info.vue"
 import StaffManagement from "./components/my-account/staff-management.vue"
 import AttendanceIndex from "./components/my-account/attendance-index.vue"
 import Overtime from "./components/my-account/overtime.vue"
+import SuperViewAttendance from "./components/my-account/super-view-attendance.vue"
 
 const app = createApp({
     
@@ -60,5 +61,6 @@ app.component('staff-management', StaffManagement);
 app.component('leave-balances-batch-edit', LeaveBalancesBatchEdit);
 app.component('attendance-index', AttendanceIndex);
 app.component('overtime', Overtime);
+app.component('super-view-attendance', SuperViewAttendance);
 
 app.mount("#app");

@@ -123,7 +123,7 @@
                 </div>
                 <div class="card-footer">
                     <button class="btn btn-danger" id="deleteLeave"><i class="fas fa-trash ico-tab-mini"></i>Trash Leave</button>
-                    <a href="{{ route('home') }}" class="btn btn-primary float-right"><i class="fas fa-check-circle ico-tab-mini"></i>Publish Leave</a>
+                    <a href="{{ route('leaveApplications.publish-leave', [$leaveApplication->id]) }}" class="btn btn-primary float-right"><i class="fas fa-check-circle ico-tab-mini"></i>Publish Leave</a>
                 </div>
             </div>
         </div>

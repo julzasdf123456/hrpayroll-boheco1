@@ -2,10 +2,12 @@
     <!-- personal info -->
     <div class="section">
         <div class="row">
-            <div class="col-10">
-                <p class="no-pads text-md">Your employement info in BOHECO I</p>
-                <p class="no-pads text-muted">Information you declared about yourself based on your contract to BOHECO I. 
-                    Do note that these information are only visible to you and to the company administrators.</p>
+            <div class="col-10 relative">
+                <div class="botom-left-contents px-3">
+                    <p class="no-pads text-md">Your employement info in BOHECO I</p>
+                    <p class="no-pads text-muted">Information you declared about yourself based on your contract to BOHECO I. 
+                        Do note that these information are only visible to you and to the company administrators.</p>
+                </div>
             </div>
             <div class="col-2 center-contents">
                 <img style="width: 100% !important;" class="img-fluid" src="../../../../public/imgs/personal-info.png" alt="User profile picture">
@@ -115,9 +117,11 @@
     <!-- files -->
     <div class="section mt-3">
         <div class="row">
-            <div class="col-10">
-                <p class="no-pads text-md">Your BOHECO I files</p>
-                <p class="no-pads text-muted">Files you submitted to BOHECO I. These could be your requirements, certifications, medical, or any random files your submitted to the firm.</p>
+            <div class="col-10 relative">
+                <div class="botom-left-contents px-3">
+                    <p class="no-pads text-md">Your BOHECO I files</p>
+                    <p class="no-pads text-muted">Files you submitted to BOHECO I. These could be your requirements, certifications, medical, or any random files your submitted to the firm.</p>
+                </div>
             </div>
             <div class="col-2 center-contents">
                 <img style="width: 100% !important;" class="img-fluid" src="../../../../public/imgs/files.png" alt="User profile picture">

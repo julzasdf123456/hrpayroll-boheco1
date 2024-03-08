@@ -6,11 +6,13 @@ use App\Http\Requests\CreateNotificationsRequest;
 use App\Http\Requests\UpdateNotificationsRequest;
 use App\Repositories\NotificationsRepository;
 use App\Http\Controllers\AppBaseController;
-use Illuminate\Http\Request;
-use App\Models\Notifications;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
+use App\Models\Notifications;
+use App\Models\SMSNotifications;
 use App\Models\Employees;
+use App\Models\IDGenerator;
 use Flash;
 use Response;
 
@@ -61,22 +63,65 @@ class NotificationsController extends AppBaseController
     {
         $input = $request->all();
 
-        $users = DB::table('users')
-            ->leftJoin('Employees', 'users.employee_id', '=', 'Employees.id')
-            ->select('users.id')
-            ->get();
+        if (isset($input['Content']) && $input['Content'] != null) {
+            $users = DB::table('users')
+                ->leftJoin('Employees', 'users.employee_id', '=', 'Employees.id')
+                ->select('users.id')
+                ->get();
 
-        foreach($users as $item) {
-            $notification = new Notifications;
-            $notification->UserId = $item->id;
-            $notification->Type = $input['Type'];
-            $notification->Content = $input['Content'];
-            $notification->Status = 'UNREAD';
-            $notification->Notes = $notification->id;
-            $notification->save();
+            // process sms
+            if (isset($input['SendSms']) && $input['SendSms']=='SendSms') {
+                $depts = [];
+
+                if (isset($input['Department']) && count($input['Department']) > 0) {
+                    foreach($input['Department'] as $item) {
+                        array_push($depts, $item);
+                    }
+                } else {
+                    $depts = ['ISD', 'OSD', 'OGM', 'ESD', 'PGD', 'SEEAD', 'SUB-OFFICE'];
+                }
+
+                $employees = DB::table('Employees')
+                    ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+                    ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+                    ->whereIn('Positions.Department', $depts)
+                    ->whereRaw("(EmploymentStatus IS NULL OR EmploymentStatus NOT IN ('Retired', 'Resigned')) 
+                        AND Employees.ContactNumbers IS NOT NULL")
+                    ->get();
+
+                foreach($employees as $employee) {
+                    // check if many numbers
+                    $contactNos = explode(",", $employee->ContactNumbers);
+
+                    // loop numbers
+                    for($i=0; $i<count($contactNos); $i++) {
+                        $contactNo = trim($contactNos[$i]);
+                        // check if number is valid (8 digit up)
+                        if (strlen($contactNo) > 8) {
+                            $sms = new SMSNotifications;
+                            $sms->id = IDGenerator::generateIDandRandString();
+                            $sms->ContactNumber = $contactNo;
+                            $sms->Message = $input['Content'];
+                            $sms->Status = 'PENDING';
+                            $sms->AIFacilitator = 'Calisto';
+                            $sms->Source = 'Info maker';
+                            $sms->save();
+                        }
+                    }
+                }
+            }
+
+            // flush web notifs
+            foreach($users as $item) {
+                $notification = new Notifications;
+                $notification->UserId = $item->id;
+                $notification->Type = $input['Type'];
+                $notification->Content = $input['Content'];
+                $notification->Status = 'UNREAD';
+                $notification->Notes = $notification->id;
+                $notification->save();
+            }
         }
-
-        // $notifications = $this->notificationsRepository->create($input);
 
         Flash::success('Notifications saved successfully.');
 

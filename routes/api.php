@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\Biometrics;
+use App\Http\Controllers\API\SMSNotificationsAPI;
 
 /*
 |--------------------------------------------------------------------------
@@ -25,3 +26,9 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 Route::get('get-users', [Biometrics::class, 'getUsers']);
 Route::get('get-attendance', [Biometrics::class, 'getAttendance']);
 Route::get('get-version', [Biometrics::class, 'getVersion']);
+
+/**
+ * SMS NOTIFICATIONS
+ */
+Route::get('get-random-notification', [SMSNotificationsAPI::class, 'getRandomNotification']);
+Route::get('update-sms', [SMSNotificationsAPI::class, 'updateSMSNotification']);

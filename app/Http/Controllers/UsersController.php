@@ -32,6 +32,8 @@ use App\Models\OffsetApplications;
 use App\Models\Overtimes;
 use App\Models\LeaveImageAttachments;
 use App\Models\DayOffSchedules;
+use App\Models\TripTickets;
+use App\Models\EmployeeDayOffs;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Flash;
@@ -409,7 +411,34 @@ class UsersController extends AppBaseController
             ->orderByDesc('EmployeesDesignations.DateStarted')
             ->first();
 
-        return Employees::getEmployeesFromDepartment($employee->Department);
+        $data = [
+            'Employees' => Employees::getEmployeesFromDepartment($employee->Department),
+            'TripTickets' => DB::table('TripTicketPassengers')
+                ->leftJoin('TripTickets', 'TripTicketPassengers.TripTicketId', '=', 'TripTickets.id')
+                ->where('TripTickets.DateOfTravel', date('Y-m-d'))
+                ->where('TripTickets.Status', 'APPROVED')
+                ->select(
+                    'TripTicketPassengers.EmployeeId',
+                    'TripTickets.DateOfTravel'
+                )
+                ->get(),
+            'DayOffs' => EmployeeDayOffs::where('DayOff', date('Y-m-d'))
+                ->get(),
+            'Offsets' => OffsetApplications::where('DateOfOffset', date('Y-m-d'))
+                ->where('Status', 'APPROVED')
+                ->get(),
+            'Leaves' => DB::table('LeaveDays')
+                ->leftJoin('LeaveApplications', 'LeaveDays.LeaveId', '=', 'LeaveApplications.id')
+                ->where('LeaveDays.LeaveDate', date('Y-m-d'))
+                ->where('LeaveDays.Status', 'APPROVED')
+                ->select(
+                    'LeaveApplications.EmployeeId',
+                    'LeaveDays.LeaveDate'
+                )
+                ->get(),
+        ];
+
+        return response()->json($data, 200);
     }
 
     public function staffDayOffSchedules($employeeId) {
@@ -429,6 +458,17 @@ class UsersController extends AppBaseController
 
         return view('/my_account/attendance_index', [
             'workSchedules' => $workSchedules,
+        ]);
+    }
+
+    public function staffSuperView($employeeId) {
+        $employee = Employees::find($employeeId);
+
+        $workSchedules = PayrollSchedules::find($employee->PayrollScheduleId);
+
+        return view('/my_account/staff_super_view', [
+            'workSchedules' => $workSchedules,
+            'employee' => $employee,
         ]);
     }
 }
