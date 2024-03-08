@@ -434,13 +434,11 @@ class TripTicketsController extends AppBaseController
          */
         $employee = Employees::find(Users::find($tripTicket->UserId)->employee_id);
         if ($employee != null && $employee->ContactNumbers != null) {
-            if ($requisitioner != null) {
-                SMSNotifications::sendSMS($employee->ContactNumbers, 
-                    "HR System - Trip Ticket Approval:\n\n" . Auth::user()->name . " has APPROVED your trip ticket with Ref. No. " . $id . ".",
-                    "HR-Trip Ticket",
-                    $id
-                );
-            }
+            SMSNotifications::sendSMS($employee->ContactNumbers, 
+                "HR System - Trip Ticket Approval:\n\n" . Auth::user()->name . " has APPROVED your trip ticket with Ref. No. " . $id . ".",
+                "HR-Trip Ticket",
+                $id
+            );
         }
 
         return response()->json('ok', 200);
