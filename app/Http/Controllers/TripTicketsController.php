@@ -15,6 +15,7 @@ use App\Models\TripTicketDestinations;
 use App\Models\TripTicketSignatories;
 use App\Models\IDGenerator;
 use App\Models\AttendanceData;
+use App\Models\SMSNotifications;
 use App\Models\Users;
 use App\Models\TripTicketGRS;
 use Illuminate\Support\Facades\DB;
@@ -98,6 +99,26 @@ class TripTicketsController extends AppBaseController
             $signatory->EmployeeId = $request['Signatory']; // user id
             $signatory->Rank = 1;
             $signatory->save();
+
+            $user = Users::find($request['Signatory']);
+            $employee = Employees::find($user->employee_id);
+            $requisitioner = Employees::find($tripTickets->EmployeeId);
+            if ($employee != null) {
+                /**
+                 * =========================================================================
+                 * SEND SMS
+                 * =========================================================================
+                 */
+                if ($employee != null && $employee->ContactNumbers != null) {
+                    if ($requisitioner != null) {
+                        SMSNotifications::sendSMS($employee->ContactNumbers, 
+                            "HR System - Trip Ticket Approval:\n\n" . $requisitioner->FirstName . " " . $requisitioner->LastName . " has filed a trip ticket that needs your approval.",
+                            "HR-Trip Ticket",
+                            $tripTickets->id
+                        );
+                    }
+                }
+            }
         }
 
         Flash::success('Trip Tickets saved successfully.');
@@ -274,46 +295,7 @@ class TripTicketsController extends AppBaseController
 
         if ($employee != null) {
             if ($employee->ParentPositionId != null) {
-                // LOOP SIGNATORIES AND FETCH UPPER LEVEL POSITIONS
-                $signatories = [];
-                $parentPosId = $employee->ParentPositionId;
-                $dept = $employee->Department;
-                $sign = true;
-                $i = 0;
-                while ($sign) {
-                    $signatoryParents = DB::table('users')
-                        ->leftJoin('Employees', 'users.employee_id', '=', 'Employees.id')
-                        ->leftJoin('EmployeesDesignations', 'EmployeesDesignations.EmployeeId', '=', 'Employees.id')
-                        ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
-                        ->select('users.id', 'Employees.FirstName', 'Employees.LastName', 'Employees.MiddleName', 'Employees.Suffix', 'Positions.Level', 'Positions.Position', 'Positions.ParentPositionId', 'Positions.id AS PositionId')
-                        ->whereRaw("Positions.id='" . $parentPosId . "' ")
-                        ->first();
-
-                    if ($i > 3) {
-                        break;
-                    } else {
-                        if ($signatoryParents->id != null) {
-                            array_push($signatories, [
-                                'id' => $signatoryParents->id,
-                                'FirstName' => $signatoryParents->FirstName,
-                                'LastName' => $signatoryParents->LastName,
-                                'MiddleName' => $signatoryParents->MiddleName,
-                                'Suffix' => $signatoryParents->Suffix,
-                                'Position' => $signatoryParents->Position,
-                                'Level' => $signatoryParents->Level,
-                            ]);
-                        }
-
-                        if ($signatoryParents->ParentPositionId != null) {
-                            $parentPosId = $signatoryParents->ParentPositionId;
-                            $sign = true;
-                            $i++;
-                        } else {
-                            $sign = false;
-                            break;
-                        }
-                    }
-                }
+                $signatories = Employees::getSupers($employeeId, ['Chief', 'Manager', 'General Manager']);
 
                 return response()->json($signatories, 200);
             } else {
@@ -444,6 +426,22 @@ class TripTicketsController extends AppBaseController
 
         TripTicketSignatories::where('TripTicketId', $id)
             ->update(['Status' => 'APPROVED']);
+
+        /**
+         * =========================================================================
+         * SEND SMS
+         * =========================================================================
+         */
+        $employee = Employees::find(Users::find($tripTicket->UserId)->employee_id);
+        if ($employee != null && $employee->ContactNumbers != null) {
+            if ($requisitioner != null) {
+                SMSNotifications::sendSMS($employee->ContactNumbers, 
+                    "HR System - Trip Ticket Approval:\n\n" . Auth::user()->name . " has APPROVED your trip ticket with Ref. No. " . $id . ".",
+                    "HR-Trip Ticket",
+                    $id
+                );
+            }
+        }
 
         return response()->json('ok', 200);
     }

@@ -250,6 +250,7 @@
 
                     },
                     error : function(err) {
+                        console.log(err)
                         Toast.fire({
                             icon : 'error',
                             text : 'Error adding passenger'
