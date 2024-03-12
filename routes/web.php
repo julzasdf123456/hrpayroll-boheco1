@@ -29,6 +29,7 @@ use App\Http\Controllers\IncentivesYearEndDetailsController;
 use App\Http\Controllers\LeaveBalancesController;
 use App\Http\Controllers\AttachedAccountsController;
 use App\Http\Controllers\EmployeeDayOffsController;
+use App\Http\Controllers\DependentsController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -199,6 +200,7 @@ Route::get('/payroll_indices/print-payroll-final/{salaryPeriod}', [PayrollIndexC
 Route::get('/payroll_indices/get-payroll-monthly-data', [PayrollIndexController::class, 'getPayrollMonthlyData'])->name('payrollIndices.get-payroll-monthly-data');
 Route::get('/payroll_indices/zero-out/{salaryPeriod}', [PayrollIndexController::class, 'zeroOut'])->name('payrollIndices.zero-out');
 Route::get('/payroll_indices/print-zero-out/{salaryPeriod}', [PayrollIndexController::class, 'printZeroOut'])->name('payrollIndices.print-zero-out');
+Route::get('/payroll_indices/get-withholding-tax-data', [PayrollIndexController::class, 'getWithholdingTaxData'])->name('payrollIndices.get-withholding-tax-data');
 Route::resource('payrollIndices', PayrollIndexController::class);
 
 
@@ -404,3 +406,6 @@ Route::get('/employee-day-offs/get-by-employee', [EmployeeDayOffsController::cla
 Route::get('/employee-day-offs/remove', [EmployeeDayOffsController::class, 'remove'])->name('employeeDayOffs.remove');
 Route::resource('employeeDayOffs', EmployeeDayOffsController::class);
 Route::resource('s-m-s-notifications', App\Http\Controllers\SMSNotificationsController::class);
+
+Route::get('/dependents/add-dependents', [DependentsController::class, 'addDependents'])->name('dependents.add-dependents');
+Route::resource('dependents', DependentsController::class);

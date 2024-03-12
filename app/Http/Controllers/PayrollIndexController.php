@@ -1596,4 +1596,67 @@ class PayrollIndexController extends AppBaseController
             'salaryPeriod' => $salaryPeriod,
         ]);
     }
+
+    public function getWithholdingTaxData(Request $request) {
+        $employeeId = $request['EmployeeId'];
+        $year = $request['Year'];
+
+        $employee = DB::table('Employees')
+            ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+            ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+            ->leftJoin('PayrollSchedules', 'Employees.PayrollScheduleId', '=', 'PayrollSchedules.id')
+            ->leftJoin('EmployeePayrollSundries', 'Employees.id', '=', 'EmployeePayrollSundries.EmployeeId')
+            ->select('Employees.FirstName',
+                    'Employees.MiddleName',
+                    'Employees.LastName',
+                    'Employees.Suffix',
+                    'Employees.id',
+                    'Employees.BiometricsUserId',
+                    'Employees.PayrollScheduleId',
+                    'Employees.NoAttendanceAllowed',
+                    'Employees.DayOffDates',
+                    'Positions.BasicSalary AS SalaryAmount',
+                    'Positions.Level',
+                    'EmployeesDesignations.Status',
+                    'PayrollSchedules.StartTime',
+                    'PayrollSchedules.BreakStart',
+                    'PayrollSchedules.BreakEnd',
+                    'PayrollSchedules.EndTime',
+                    'EmployeePayrollSundries.Longevity',
+                    'EmployeePayrollSundries.RiceAllowance',
+                    'EmployeePayrollSundries.Insurances',
+                    'EmployeePayrollSundries.PagIbigContribution',
+                    'EmployeePayrollSundries.SSSContribution',
+                    'EmployeePayrollSundries.PhilHealth',
+            )
+            ->where('Employees.id', $employeeId)
+            ->orderBy('Employees.LastName')
+            ->first();
+        
+        if ($employee != null) {
+            $payrollActual = DB::table('PayrollExpandedDetails')
+                ->whereRaw("EmployeeId='" . $employeeId . "' AND (SalaryPeriod BETWEEN '" . $year . "-01-01' AND '" . $year . "-12-31')")
+                ->orderBy('SalaryPeriod')
+                ->get();
+
+            $projectedIncentives = DB::table('EmployeeIncentiveAnnualProjections')
+                ->whereRaw("EmployeeId='" . $employeeId . "' AND Year='" . $year . "'")
+                ->get();
+
+            $contributions = DB::table('EmployeePayrollSundries')
+                ->whereRaw("EmployeeId='" . $employeeId . "'")
+                ->first();
+
+            $data = [
+                'Employee' => $employee,
+                'PayrollActual' => $payrollActual,
+                'ProjectedIncentives' => $projectedIncentives,
+                'Contributions' => $contributions,
+            ];
+
+            return response()->json($data, 200);
+        } else {
+            return response()->json(['Employee not found!'], 404);
+        }
+    }
 }

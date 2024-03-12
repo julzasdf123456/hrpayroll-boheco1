@@ -1,72 +1,85 @@
 <template>
-    <div class="card shadow-none mt-4">
-        <div class="card-body">
-            <div class="row">
-                <div class="col-lg-12">
-                    <p class="text-md">OT Summary</p>
+    <div class="section">
+        <div class="row">
+            <div class="col-10 relative">
+                <div class="botom-left-contents px-3">
+                    <p class="no-pads text-md">Your overtime records</p>
+                    <p class="no-pads text-muted">A summary of your annual overtime records. If there's any missing record in the list, ask your supers or HR for further info.</p>
                 </div>
-                <div class="col-lg-3 col-md-6 mt-2">
-                    <span class="text-muted">Choose Year</span>
-                    <select v-model="yearSelect" class="form-control" @change="getOvertimes()">
-                        <option v-for="year in years" :key="year">{{ year }}</option>
-                    </select>
-                </div>
-                <div class="col-lg-9 col-md-6">
-                    <div class="spinner-border text-primary float-right" :class="showLoader" role="status">
-                        <span class="sr-only">Loading...</span>
-                    </div>
-                </div>
-
-                <div class="col-lg-12 mt-3 table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                            <th>Type</th>
-                            <th>Start</th>
-                            <th>End</th>
-                            <th>Total Hours</th>
-                            <th>OT Purpose</th>
-                            <th></th>
-                        </thead>
-                        <tbody>
-                            <tr v-for="ot in overTimes.data" :key="ot.id">
-                                <td class="v-align">
-                                    {{ ot.TypeOfDay }}
-                                    <br>
-                                    <span class="text-muted">{{ ot.Multiplier }}x multiplier</span>
-                                </td>
-                                <td class="v-align">
-                                    {{ moment(ot.DateofOT).format("MMM DD, YYYY (ddd)") }}
-                                    <br>
-                                    <span class="text-muted">{{ isNull(ot.From) ? '-' : moment(ot.From.split(".")[0], "HH:mm:ss").format("hh:mm A") }}</span>
-                                </td>
-                                <td class="v-align">
-                                    {{ moment(ot.DateOTEnded).format("MMM DD, YYYY (ddd)") }}
-                                    <br>
-                                    <span class="text-muted">{{ isNull(ot.To) ? '-' : moment(ot.To.split(".")[0], "HH:mm:ss").format("hh:mm A") }}</span>
-                                </td>
-                                <td class="v-align">
-                                    <strong>{{ isNull(ot.TotalHours) ? '-' : ot.TotalHours  }}</strong>
-                                    <br>
-                                    <span class="text-muted">{{ ot.MaxHourThreshold }} hours max limit</span>
-                                </td>
-                                <td class="v-align">
-                                    {{ ot.PurposeOfOT }}
-                                </td>
-                                <td class="v-align text-right">
-                                    <span class="badge bg-info">{{ ot.Status }}</span>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    
+            </div>
+            <div class="col-2 center-contents">
+                <img style="width: 80% !important;" class="img-fluid" src="../../../../public/imgs/overtime.png" alt="User profile picture">
+            </div>
+        </div>
+        <div class="card shadow-none mt-4">
+            <div class="card-body">
+                <div class="row">
                     <div class="col-lg-12">
-                        <pagination :data="overTimes" :limit="10" @pagination-change-page="getOvertimes"></pagination>
+                        <p class="text-md">OT Summary</p>
+                    </div>
+                    <div class="col-lg-3 col-md-6 mt-2">
+                        <span class="text-muted">Choose Year</span>
+                        <select v-model="yearSelect" class="form-control" @change="getOvertimes()">
+                            <option v-for="year in years" :key="year">{{ year }}</option>
+                        </select>
+                    </div>
+                    <div class="col-lg-9 col-md-6">
+                        <div class="spinner-border text-primary float-right" :class="showLoader" role="status">
+                            <span class="sr-only">Loading...</span>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-12 mt-3 table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <th>Type</th>
+                                <th>Start</th>
+                                <th>End</th>
+                                <th>Total Hours</th>
+                                <th>OT Purpose</th>
+                                <th></th>
+                            </thead>
+                            <tbody>
+                                <tr v-for="ot in overTimes.data" :key="ot.id">
+                                    <td class="v-align">
+                                        {{ ot.TypeOfDay }}
+                                        <br>
+                                        <span class="text-muted">{{ ot.Multiplier }}x multiplier</span>
+                                    </td>
+                                    <td class="v-align">
+                                        {{ moment(ot.DateofOT).format("MMM DD, YYYY (ddd)") }}
+                                        <br>
+                                        <span class="text-muted">{{ isNull(ot.From) ? '-' : moment(ot.From.split(".")[0], "HH:mm:ss").format("hh:mm A") }}</span>
+                                    </td>
+                                    <td class="v-align">
+                                        {{ moment(ot.DateOTEnded).format("MMM DD, YYYY (ddd)") }}
+                                        <br>
+                                        <span class="text-muted">{{ isNull(ot.To) ? '-' : moment(ot.To.split(".")[0], "HH:mm:ss").format("hh:mm A") }}</span>
+                                    </td>
+                                    <td class="v-align">
+                                        <strong>{{ isNull(ot.TotalHours) ? '-' : ot.TotalHours  }}</strong>
+                                        <br>
+                                        <span class="text-muted">{{ ot.MaxHourThreshold }} hours max limit</span>
+                                    </td>
+                                    <td class="v-align">
+                                        {{ ot.PurposeOfOT }}
+                                    </td>
+                                    <td class="v-align text-right">
+                                        <span class="badge bg-info">{{ ot.Status }}</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <div class="col-lg-12">
+                            <pagination :data="overTimes" :limit="10" @pagination-change-page="getOvertimes"></pagination>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="card-footer">
-            
+            <div class="card-footer">
+                
+            </div>
         </div>
     </div>
 </template>

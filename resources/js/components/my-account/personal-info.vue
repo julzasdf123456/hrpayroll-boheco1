@@ -80,6 +80,23 @@
             </div>
         </div>
 
+        <!-- Dependents Info -->
+        <div class="card shadow-none mt-2">
+            <div class="card-body table-responsive">
+                <p class="text-md no-pads">Dependents</p>
+                <span class="text-muted">Could be your immediate family members, parents, or any direct relative</span>
+
+                <table class="table table-hover mt-4">
+                    <tbody>
+                        
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-footer">
+                <a :href="baseURL + '/dependents/add-dependents'" class="btn btn-primary-skinny float-right">Add Dependents</a>
+            </div>
+        </div>
+
         <!-- Cards and Numbers Info -->
         <div class="card shadow-none mt-2">
             <div class="card-body table-responsive">

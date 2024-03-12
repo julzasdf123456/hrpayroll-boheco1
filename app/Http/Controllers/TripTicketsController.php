@@ -453,6 +453,23 @@ class TripTicketsController extends AppBaseController
         TripTicketSignatories::where('TripTicketId', $id)
             ->update(['Status' => 'REJECTED']);
 
+        /**
+         * =========================================================================
+         * SEND SMS
+         * =========================================================================
+         */
+        $tripTicket = TripTickets::where('id', $id)->first();
+        if ($tripTicket != null) {
+            $employee = Employees::find(Users::find($tripTicket->UserId)->employee_id);
+            if ($employee != null && $employee->ContactNumbers != null) {
+                SMSNotifications::sendSMS($employee->ContactNumbers, 
+                    "HR System - Trip Ticket Approval:\n\n" . Auth::user()->name . " has DISAPPROVED your trip ticket with Ref. No. " . $id . ".",
+                    "HR-Trip Ticket",
+                    $id
+                );
+            }
+        }
+
         return response()->json('ok', 200);
     }
 

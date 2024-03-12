@@ -867,6 +867,18 @@ body.dark-mode .text-primary {
     vertical-align: middle !important;
 }
 
+.indent-1 {
+    text-indent: 20px !important;
+}
+
+.indent-2 {
+    text-indent: 40px !important;
+}
+
+.indent-3 {
+    text-indent: 60px !important;
+}
+
 /**
  * Client View - My personal space
  */
