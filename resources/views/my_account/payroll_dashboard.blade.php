@@ -102,26 +102,12 @@
             </div>
         </div>
 
-        {{-- Overtimes--}}
-        <div class="section">
-            <div class="row">
-                <div class="col-10 relative">
-                    <div class="botom-left-contents px-3">
-                        <p class="no-pads text-md">Your overtime records</p>
-                        <p class="no-pads text-muted">A summary of your annual overtime records. If there's any missing record in the list, ask your supers or HR for further info.</p>
-                    </div>
-                </div>
-                <div class="col-2 center-contents">
-                    <img style="width: 80% !important;" class="img-fluid" src="{{ asset('imgs/overtime.png') }}" alt="User profile picture">
-                </div>
-            </div>
+        <div id="app">
+            <withholding-taxes-view></withholding-taxes-view>
 
-            {{-- overtime --}}
-            <div id="app">
-                <overtime></overtime>
-            </div>
-            @vite('resources/js/app.js')
+            <overtime></overtime>
         </div>
+        @vite('resources/js/app.js')
 
         {{-- incentives --}}
         <div class="section mt-2">
@@ -175,62 +161,7 @@
                 </div>
             </div>
         </div>
-
-        {{-- taxes --}}
-        <div class="section mt-2">
-            <div class="row">
-                <div class="col-10 relative">
-                    <div class="botom-left-contents px-3">
-                        <p class="no-pads text-md">Your withholding taxes</p>
-                        <p class="no-pads text-muted">Computation of your year-round withholding taxes. Withholding taxes that are no being deducted from your
-                            monthly salary are based on the annual projection of your incentives. This is to reduce the year-end withholding tax that is being deducted from 
-                            your year-end incentives. 
-                        </p>
-                    </div>
-                </div>
-                <div class="col-2 center-contents">
-                    <img style="width: 100% !important;" class="img-fluid" src="{{ asset('imgs/tax.png') }}" alt="User profile picture">
-                </div>
-            </div>
-
-            {{-- payslip summary table --}}
-            <div class="card shadow-none mt-4">
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-lg-12">
-                            <p class="text-md">Withholding Taxes Computation</p>
-                        </div>
-                        <div class="col-lg-3 col-md-6 mt-2">
-                            <span class="text-muted">Choose Year</span>
-                            <select id="wt-years" class="form-control">
-                                @foreach ($years as $year)
-                                    <option value="{{ $year }}">{{ $year }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="col-lg-9 col-md-6">
-                            <div id="wt-loader" class="spinner-border text-primary float-right gone" role="status">
-                                <span class="sr-only">Loading...</span>
-                            </div>
-                        </div>
-
-                        <div class="col-lg-12 mt-3 table-responsive">
-                            <table class="table table-hover" id="wt-table">
-                                <thead>
-                                    <th>Incentive</th>
-                                    <th class="text-right">Amount</th>
-                                    <th class="text-right">Deductions</th>
-                                    <th class="text-right">Net Pay</th>
-                                </thead>
-                                <tbody>
-
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        
     </div>
 </div>
 @endsection
