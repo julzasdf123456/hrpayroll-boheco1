@@ -97,6 +97,7 @@
                     <div class="dropdown-menu" aria-labelledby="file-menu">
                         <a href="{{ route('leaveApplications.create') }}" class="dropdown-item" title="File for leave">Leave</a>
                         <a href="{{ route('tripTickets.create') }}" class="dropdown-item" title="Make a trip ticket">Trip Ticket</a>
+                        <a href="{{ route('travelOrders.create') }}" class="dropdown-item" title="Make a travel order">Travel Order</a>
                         <a href="{{ route('offsetApplications.create') }}" class="dropdown-item" title="Claim an offset">Offset</a>
                         <a href="{{ route('overtimes.create') }}" class="dropdown-item" title="File for an overtime">Overtime Authorization</a>
                         <a href="{{ route('attendanceConfirmations.create') }}" class="dropdown-item" title="File for an attendance confirmation">Attendance Confirmation</a>

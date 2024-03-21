@@ -31,7 +31,8 @@
                         'overtimes.create',
                         'attendanceConfirmations.create',
                         'leaveConversions.create',
-                        'leaveApplications.my-approvals', 'tripTickets.my-approvals', 'offsetApplications.my-approvals', 'attendanceConfirmations.my-approvals', 'overtimes.my-approvals'
+                        'leaveApplications.my-approvals', 'tripTickets.my-approvals', 'offsetApplications.my-approvals', 'attendanceConfirmations.my-approvals', 'overtimes.my-approvals',
+                        'travelOrders.create', 'travelOrders.my-approvals',
                         ]))
                     {{-- MY ACCOUNTS --}}
                     @include('layouts.my_account_menu')

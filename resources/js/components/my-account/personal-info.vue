@@ -87,8 +87,31 @@
                 <span class="text-muted">Could be your immediate family members, parents, or any direct relative</span>
 
                 <table class="table table-hover mt-4">
+                    <thead>
+                        <th>Dependent</th>
+                        <th>Relationship</th>
+                        <th>Beneficiary</th>
+                        <th>Disability</th>
+                        <th></th>
+                    </thead>
                     <tbody>
-                        
+                        <tr v-for="dependent in dependents" :key="dependent.id">
+                            <td class="v-align">
+                                <strong>{{ dependent.DependentName }}</strong>
+                                <br>
+                                <span class="text-muted">{{ isNull(dependent.Address) ? 'no address' : dependent.Address }}</span>
+                            </td>
+                            <td class="v-align">
+                                {{ dependent.Relationship }}
+                                <br>
+                                <span title="Birthday" class="text-muted"><i class="fas fa-birthday-cake ico-tab-mini"></i>{{ isNull(dependent.Birthdate) ? 'no birthdate' : moment(dependent.Birthdate).format("MMM DD, YYYY") }}</span>
+                            </td>
+                            <td class="v-align">{{ dependent.IsBeneficiary }}</td>
+                            <td class="v-align">{{ dependent.Disability }}</td>
+                            <td class="v-align text-right">
+                                <button @click="removeDependent(dependent.id)" class="btn btn-link text-muted"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -206,7 +229,8 @@ export default {
                 timer: 3000
             }),
             files : {},
-            employeeData : ''
+            employeeData : '',
+            dependents : []
         }
     },
     methods : {
@@ -282,6 +306,55 @@ export default {
                     text : 'Error getting employee data!\n' + error.response.data
                 })
             })
+        },
+        getDependents() {
+            this.dependents = null
+            axios.get(`${ axios.defaults.baseURL }/dependents/get-dependents`, {
+                params : {
+                    EmployeeId : this.employeeId,
+                }
+            })
+            .then(response => {
+                this.dependents = response.data
+            })
+            .catch(error => {
+                console.log(error)
+                this.toast.fire({
+                    icon : 'error',
+                    text : 'Error getting dependents!'
+                })
+            })
+        },
+        removeDependent(id) {
+            Swal.fire({
+                title: "Remove dependent?",
+                text : 'You can always re-add this anytime.',
+                showCancelButton: true,
+                confirmButtonText: "Remove",
+                confirmButtonColor : "#e03822"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    axios.get(`${ axios.defaults.baseURL }/dependents/remove-dependent`, {
+                        params : {
+                            id : id,
+                        }
+                    })
+                    .then(response => {
+                        this.dependents = this.dependents.filter(obj => obj.id !== id)
+                        this.toast.fire({
+                            icon : 'success',
+                            text : 'Dependent removed!'
+                        })
+                    })
+                    .catch(error => {
+                        console.log(error)
+                        this.toast.fire({
+                            icon : 'error',
+                            text : 'Error deleting dependent!'
+                        })
+                    })
+                }
+            })
         }
     },
     created() {
@@ -290,6 +363,7 @@ export default {
     mounted() {
         this.getEmployeeInfo()
         this.getFiles()
+        this.getDependents()
     }
 }
 

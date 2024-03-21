@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateDependentsRequest;
 use App\Http\Controllers\AppBaseController;
 use App\Repositories\DependentsRepository;
 use Illuminate\Http\Request;
+use App\Models\Dependents;
 use Flash;
 
 class DependentsController extends AppBaseController
@@ -130,5 +131,23 @@ class DependentsController extends AppBaseController
 
     public function addDependents(Request $request) {
         return view('/dependents/add_dependents');
+    }
+
+    public function getDependents(Request $request) {
+        $employeeId = $request['EmployeeId'];
+        $data = Dependents::where('EmployeeId', $employeeId)
+            ->orderBy('DependentName')
+            ->get();
+
+        return response()->json($data, 200);
+    }
+
+    public function removeDependent(Request $request) {
+        $id = $request['id'];
+
+        Dependents::where('id', $id)
+            ->delete();
+
+        return response()->json('ok', 200);
     }
 }

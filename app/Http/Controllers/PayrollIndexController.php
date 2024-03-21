@@ -1647,11 +1647,16 @@ class PayrollIndexController extends AppBaseController
                 ->whereRaw("EmployeeId='" . $employeeId . "'")
                 ->first();
 
+            $leaveConversions = DB::table('LeaveConversions')
+                ->whereRaw("EmployeeId='" . $employeeId . "' AND Status IN ('Completed', 'Approved') AND Year='" . $year . "'")
+                ->get();
+
             $data = [
                 'Employee' => $employee,
                 'PayrollActual' => $payrollActual,
                 'ProjectedIncentives' => $projectedIncentives,
                 'Contributions' => $contributions,
+                'LeaveConversions' => $leaveConversions,
             ];
 
             return response()->json($data, 200);

@@ -60,6 +60,23 @@
                                     <td class="v-align text-right"><strong>{{ currentTaxesData.SalaryTotalTaxable }}</strong></td>
                                 </tr>
                                 <tr>
+                                    <td colspan="4" class="v-align text-muted">Leave Conversions</td>
+                                </tr>
+                                <tr>
+                                    <td class="v-align indent-1">Vacation</td>
+                                    <td class="v-align text-muted text-right"></td>
+                                    <td class="v-align text-right"></td>
+                                </tr>
+                                <tr>
+                                    <td class="v-align indent-1">Sick</td>
+                                    <td class="v-align text-muted text-right"></td>
+                                    <td class="v-align text-right"></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3" class="v-align indent-1"><strong>Total Taxable</strong></td>
+                                    <td class="v-align text-right"><strong>-</strong></td>
+                                </tr>
+                                <tr>
                                     <td class="v-align text-muted">Incentives & Allowances (Projection)</td>
                                     <td class="v-align text-muted text-right">Projected Amount</td>
                                     <td class="v-align text-muted text-right">Taxable Amount</td>
