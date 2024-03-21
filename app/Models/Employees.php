@@ -259,7 +259,7 @@ class Employees extends Model
                     ->leftJoin('Employees', 'users.employee_id', '=', 'Employees.id')
                     ->leftJoin('EmployeesDesignations', 'EmployeesDesignations.EmployeeId', '=', 'Employees.id')
                     ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
-                    ->select('users.id', 'Employees.FirstName', 'Employees.LastName', 'Employees.MiddleName', 'Employees.Suffix', 'Positions.Level', 'Positions.Position', 'Positions.ParentPositionId', 'Positions.id AS PositionId')
+                    ->select('users.id', 'Employees.id AS EmployeeId', 'Employees.FirstName', 'Employees.LastName', 'Employees.MiddleName', 'Employees.Suffix', 'Positions.Level', 'Positions.Position', 'Positions.ParentPositionId', 'Positions.id AS PositionId')
                     ->whereRaw("Positions.id='" . $parentPosId . "'")
                     ->first();
 
@@ -279,6 +279,7 @@ class Employees extends Model
                                 'PositionId' => $signatoryParents->PositionId,
                                 'ParentPositionId' => $signatoryParents->ParentPositionId,
                                 'Level' => $signatoryParents->Level,
+                                'EmployeeId' => $signatoryParents->EmployeeId,
                             ]);
                         } else {
                             if (in_array($signatoryParents->Level, $levelArrayFilter)) {
@@ -292,6 +293,7 @@ class Employees extends Model
                                     'PositionId' => $signatoryParents->PositionId,
                                     'ParentPositionId' => $signatoryParents->ParentPositionId,
                                     'Level' => $signatoryParents->Level,
+                                    'EmployeeId' => $signatoryParents->EmployeeId,
                                 ]);
                             }
                         }

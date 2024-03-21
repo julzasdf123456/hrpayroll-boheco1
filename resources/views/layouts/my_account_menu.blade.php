@@ -67,6 +67,12 @@
             </a>
         </li>
         <li class="nav-item">
+            <a href="{{ route('travelOrders.my-approvals') }}"
+               class="nav-link {{ Request::is('travelOrders.my-approvals*') ? 'active' : '' }}">
+                <i class="fas fa-plane-departure nav-icon"></i><p>Travel Orders</p>
+            </a>
+        </li>
+        <li class="nav-item">
             <a href="{{ route('tripTickets.my-approvals') }}"
                class="nav-link {{ Request::is('tripTickets.my-approvals*') ? 'active' : '' }}">
                 <i class="fas fa-car nav-icon"></i><p>Trip Tickets</p>

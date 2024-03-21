@@ -30,6 +30,7 @@ use App\Http\Controllers\LeaveBalancesController;
 use App\Http\Controllers\AttachedAccountsController;
 use App\Http\Controllers\EmployeeDayOffsController;
 use App\Http\Controllers\DependentsController;
+use App\Http\Controllers\TravelOrdersController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -408,4 +409,15 @@ Route::resource('employeeDayOffs', EmployeeDayOffsController::class);
 Route::resource('s-m-s-notifications', App\Http\Controllers\SMSNotificationsController::class);
 
 Route::get('/dependents/add-dependents', [DependentsController::class, 'addDependents'])->name('dependents.add-dependents');
+Route::get('/dependents/get-dependents', [DependentsController::class, 'getDependents'])->name('dependents.get-dependents');
+Route::get('/dependents/remove-dependent', [DependentsController::class, 'removeDependent'])->name('dependents.remove-dependent');
 Route::resource('dependents', DependentsController::class);
+
+Route::post('/travel_orders/create-order', [TravelOrdersController::class, 'createOrder'])->name('travelOrders.create-order');
+Route::get('/travel_orders/my-approvals', [TravelOrdersController::class, 'myAprovals'])->name('travelOrders.my-approvals');
+Route::get('/travel_orders/approve-ajax', [TravelOrdersController::class, 'approveAjax'])->name('travelOrders.approve-ajax');
+Route::resource('travelOrders', TravelOrdersController::class);
+
+Route::resource('travelOrderEmployees', App\Http\Controllers\TravelOrderEmployeesController::class);
+Route::resource('travelOrderDays', App\Http\Controllers\TravelOrderDaysController::class);
+Route::resource('travel-order-signatories', App\Http\Controllers\TravelOrderSignatoriesController::class);

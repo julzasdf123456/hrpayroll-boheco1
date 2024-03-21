@@ -57,7 +57,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td class="text-muted v-align">Disability (PWD)</td>
+                                <td class="text-muted v-align">Disability (PWD, Optional)</td>
                                 <td class="v-align">
                                     <select v-model="disability" class="form-control">
                                         <option value="">Totally normal</option>
@@ -78,9 +78,15 @@
                                 <td class="text-muted v-align">Make Beneficiary</td>
                                 <td class="v-align">
                                     <div class="custom-control custom-switch py-2">
-                                        <input type="checkbox" class="custom-control-input" :checked="isBeneficiary" id="isBeneficiary">
+                                        <input type="checkbox" class="custom-control-input" @change="updateBeneficiary(isBeneficiary)" :checked="isBeneficiary" id="isBeneficiary">
                                         <label class="custom-control-label text-muted" for="isBeneficiary" style="font-weight: normal">This will be added to your insurance beneficiaries</label>
                                     </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted v-align">Notes/Remarks</td>
+                                <td>
+                                    <textarea type="text" class="form-control" v-model="notes" placeholder="Remarks, comments, or notes" rows="3"></textarea>
                                 </td>
                             </tr>
                         </tbody>
@@ -88,7 +94,7 @@
                 </div>
             </div>
             <div class="card-footer">
-                <button class="btn btn-primary float-right"><i class="fas fa-check-circle ico-tab-mini"></i>Save</button>
+                <button @click="saveDependent()" class="btn btn-primary float-right"><i class="fas fa-check-circle ico-tab-mini"></i>Save</button>
             </div>
         </div>
     </div>
@@ -136,7 +142,9 @@ export default {
             birthday : '',
             occupation : '',
             isBeneficiary : false,
-            disability : ''
+            disability : '',
+            isBeneficiary : false,
+            notes : ''
         }
     },
     methods : {
@@ -174,6 +182,44 @@ export default {
         generateUniqueId() {
             return moment().valueOf() + "-" + this.generateRandomString(32);
         },
+        updateBeneficiary(cond) {
+            if (cond) {
+                this.isBeneficiary = false
+            } else {
+                this.isBeneficiary = true
+            }
+        },
+        saveDependent() {
+            if (this.isNull(this.fullname) | this.isNull(this.relationship) | this.isNull(this.birthday)) {
+                this.toast.fire({
+                    icon : 'info',
+                    text : 'Please fill in important fields!'
+                })
+            } else {
+                axios.post(`${ axios.defaults.baseURL }/dependents`, {
+                    id : this.generateUniqueId() + this.generateRandomString(),
+                    EmployeeId : this.employeeId,
+                    DependentName : this.fullname,
+                    Address : this.address,
+                    Relationship : this.relationship,
+                    Birthdate : this.birthday,
+                    IsBeneficiary : this.isBeneficiary ? 'Yes' : 'No',
+                    Occupation : this.occupation,
+                    Disability : this.disability,
+                    Notes : this.notes,
+                })
+                .then(response => {
+                    window.location.href = this.baseURL + "/my_account/personal-info"
+                })
+                .catch(error => {
+                    Swal.fire({
+                        icon : 'error',
+                        title : 'Error saving dependent!',
+                    });
+                    console.log(error)
+                });
+            }
+        }
     },
     created() {
         
