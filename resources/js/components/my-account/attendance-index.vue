@@ -16,7 +16,10 @@
         <div class="row mt-3">
             <div class="col-lg-12 mb-4">
                 <span class="text-muted">Start Filter From</span>
-                <flat-pickr v-model="startFrom" :config="pickerOptions" :readonly="false" class="form-control" style="width: 280px;" @on-change="getTripTickets()"></flat-pickr>
+                <br>
+                <flat-pickr v-model="startFrom" :config="pickerOptions" :readonly="false" class="form-control" style="width: 280px; display: inline-block;" @on-change="getTripTickets()"></flat-pickr>
+
+                <a target="_blank" :href="baseURL + '/trip_tickets/my-trip-tickets/' + userid" class="btn btn-primary float-right">Manage All</a>
             </div>
             <div class="col-lg-4 col-md-6" v-for="trips in tripTickets.data" :key="trips.id">
                 <div class="card shadow-none" style="height: 350px;">
@@ -177,6 +180,7 @@ export default {
             colorProfile : document.querySelector("meta[name='color-profile']").getAttribute('content'),
             tableInputTextColor : this.isNull(document.querySelector("meta[name='color-profile']").getAttribute('content')) ? 'text-dark' : 'text-white',
             employeeId : document.querySelector("meta[name='employee-id-current']").getAttribute('content'),
+            userid : document.querySelector("meta[name='user-id-current']").getAttribute('content'),
             toast : Swal.mixin({
                 toast: true,
                 position: 'top-end',
