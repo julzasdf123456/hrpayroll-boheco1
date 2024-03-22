@@ -11,7 +11,7 @@
     <div class="row">
         <div class="col-lg-12" style="margin-bottom: 26px;">
             <p class="text-center no-pads text-lg">Personal Information</p>
-            <p class="text-center no-pads text-muted d-sm-none d-md-block">Manage and view your personal information</p>
+            <p class="text-center no-pads text-muted d-none d-sm-block">Manage and view your personal information</p>
         </div>
     </div>
 
