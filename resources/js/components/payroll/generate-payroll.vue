@@ -64,6 +64,7 @@
             <span style="width: 10px !important; height: 10px !important; background-color: #e823ba; display: inline-block; border-radius: 50%; margin-left: 20px; margin-right: 5px;"></span> Trip Ticket
             <span style="width: 10px !important; height: 10px !important; background-color: #f2780c; display: inline-block; border-radius: 50%; margin-left: 20px; margin-right: 5px;"></span> Offset
             <span style="width: 10px !important; height: 10px !important; background-color: #0cf2c4; display: inline-block; border-radius: 50%; margin-left: 20px; margin-right: 5px;"></span> Leave
+            <span style="width: 10px !important; height: 10px !important; background-color: #3254a8; display: inline-block; border-radius: 50%; margin-left: 20px; margin-right: 5px;"></span> Travels
         </span>
     </div>
 
@@ -885,6 +886,12 @@ export default {
         getTripTicketDate(date, tripTickets) {
             return tripTickets.filter(obj => obj.DateOfTravel === date);
         },
+        getTravelDate(date, travels) {
+            return travels.filter(obj => obj.Day === date);
+        },
+        isDateInTravel(date, travels) {
+            return travels.some(obj => obj.Day === date);
+        },
         validateHours(maxHours, hoursTotal) {
             if (maxHours >= hoursTotal) {
                 return hoursTotal;
@@ -892,11 +899,12 @@ export default {
                 return maxHours;
             }
         },
-        getHoursAttended(attendanceData, scheduleArray, noAttendanceAllowed, date, dayOffDays, specialDutyDays, leaveDays, offsets, tripTickets, holidays) {
+        getHoursAttended(attendanceData, scheduleArray, noAttendanceAllowed, date, dayOffDays, specialDutyDays, leaveDays, offsets, tripTickets, holidays, travels) {
             var daySpelled = moment(date).format('YYYY-MM-DD');
             var leaveTotalHours = 0;
             var offsetTotalHours = 0;
             var tripTicketTotalHours = 0;
+            var travelTotalHours = 0;
 
             /**
              * ===========================================================
@@ -948,6 +956,22 @@ export default {
                 }
             } else {
                 tripTicketTotalHours = 0;
+            }
+            
+            /**
+             * ===========================================================
+             * CHECK IF HAS TRAVEL
+             * ===========================================================
+             */
+             if (this.isDateInTravel(date, travels)) {
+                var travels = this.getTravelDate(date, travels);
+                if (this.isNull(travels)) {
+                    travelTotalHours = 0;
+                } else {
+                    travelTotalHours = 8;
+                }
+            } else {
+                travelTotalHours = 0;
             }
 
             /**
@@ -1040,8 +1064,8 @@ export default {
                             return 'off';
                         } else {
                             if (hours < 0) {
-                                if (leaveTotalHours > 0 | offsetTotalHours > 0 | tripTicketTotalHours > 0) {
-                                    return this.validateHours(8, leaveTotalHours + offsetTotalHours + tripTicketTotalHours);
+                                if (leaveTotalHours > 0 | offsetTotalHours > 0 | tripTicketTotalHours > 0 | travelTotalHours > 0) {
+                                    return this.validateHours(8, leaveTotalHours + offsetTotalHours + tripTicketTotalHours + travelTotalHours);
                                 } else {
                                     return 'xTI/xTO';
                                 }
@@ -1050,13 +1074,13 @@ export default {
                                     return this.validateHours(8, hours + leaveTotalHours + offsetTotalHours + tripTicketTotalHours);
                                 } else {
                                     if (hours >= 4) {
-                                        if (leaveTotalHours > 0 | offsetTotalHours > 0 | tripTicketTotalHours > 0) {
-                                            return this.validateHours(8, hours + leaveTotalHours + offsetTotalHours + tripTicketTotalHours);
+                                        if (leaveTotalHours > 0 | offsetTotalHours > 0 | tripTicketTotalHours > 0 | travelTotalHours > 0) {
+                                            return this.validateHours(8, hours + leaveTotalHours + offsetTotalHours + tripTicketTotalHours + travelTotalHours);
                                         } else {
                                             return 4;
                                         }                                    
                                     } else {
-                                        return this.validateHours(4, hours + leaveTotalHours + offsetTotalHours + tripTicketTotalHours);
+                                        return this.validateHours(4, hours + leaveTotalHours + offsetTotalHours + tripTicketTotalHours + travelTotalHours);
                                     }
                                 }                        
                             }
@@ -1065,11 +1089,11 @@ export default {
                         if (!this.isNull(dayOffDays) && dayOffDays.includes(daySpelled) && !this.isDateInSpecialDuty(date, specialDutyDays)) {
                             return 'off';
                         } else {
-                            if (leaveTotalHours > 0 | offsetTotalHours > 0 | tripTicketTotalHours > 0) {
+                            if (leaveTotalHours > 0 | offsetTotalHours > 0 | tripTicketTotalHours > 0 | travelTotalHours > 0) {
                                 if (!isHalfDay) {
-                                    return this.validateHours(8, leaveTotalHours + offsetTotalHours + tripTicketTotalHours);
+                                    return this.validateHours(8, leaveTotalHours + offsetTotalHours + tripTicketTotalHours + travelTotalHours);
                                 } else {
-                                    return this.validateHours(4, leaveTotalHours + offsetTotalHours + tripTicketTotalHours);
+                                    return this.validateHours(4, leaveTotalHours + offsetTotalHours + tripTicketTotalHours + travelTotalHours);
                                 }
                             } else {
                                 return 'xTI/xTO';
@@ -1080,11 +1104,11 @@ export default {
                         if (!this.isNull(dayOffDays) && dayOffDays.includes(daySpelled) && !this.isDateInSpecialDuty(date, specialDutyDays)) {
                             return 'off';
                         } else {
-                            if (leaveTotalHours > 0 | offsetTotalHours > 0 | tripTicketTotalHours > 0) {
+                            if (leaveTotalHours > 0 | offsetTotalHours > 0 | tripTicketTotalHours > 0 | travelTotalHours > 0) {
                                 if (!isHalfDay) {
-                                    return this.validateHours(8, leaveTotalHours + offsetTotalHours + tripTicketTotalHours);
+                                    return this.validateHours(8, leaveTotalHours + offsetTotalHours + tripTicketTotalHours + travelTotalHours);
                                 } else {
-                                    return this.validateHours(4, leaveTotalHours + offsetTotalHours + tripTicketTotalHours);
+                                    return this.validateHours(4, leaveTotalHours + offsetTotalHours + tripTicketTotalHours + travelTotalHours);
                                 }
                             } else {
                                 return 'awol'; // absent
@@ -1100,7 +1124,7 @@ export default {
         round(value) {
             return Math.round((value + Number.EPSILON) * 100) / 100;
         },
-        beautifyDisplay(data, date, leaveDays, offsets, tripTickets) {
+        beautifyDisplay(data, date, leaveDays, offsets, tripTickets, travels) {
             if (data == 'awol') {
                 return `<div><span style="width: 10px !important; height: 10px !important; background-color: #f51836; display: inline-block; border-radius: 50%;"></span><div>`;
             } else if (data == 'off') {
@@ -1114,8 +1138,10 @@ export default {
                     return `<div><span style="width: 10px !important; height: 10px !important; background-color: #0cf2c4; display: inline-block; border-radius: 50%; margin-right: 10px;"></span>${data}<div>`;
                 } else if (this.isDateInOffset(date, offsets)) {
                     return `<div><span style="width: 10px !important; height: 10px !important; background-color: #f2780c; display: inline-block; border-radius: 50%; margin-right: 10px;"></span>${data}<div>`;
-                } else  if (this.isDateInTripTicket(date, tripTickets)) {
+                } else if (this.isDateInTripTicket(date, tripTickets)) {
                     return `<div><span style="width: 10px !important; height: 10px !important; background-color: #e823ba; display: inline-block; border-radius: 50%; margin-right: 10px;"></span>${data}<div>`;
+                } else if (this.isDateInTravel(date, travels)) {
+                    return `<div><span style="width: 10px !important; height: 10px !important; background-color: #3254a8; display: inline-block; border-radius: 50%; margin-right: 10px;"></span>${data}<div>`;
                 } else {
                     // IF PRESENT
                     return `<div><span style="width: 10px !important; height: 10px !important; background-color: #05b05d; display: inline-block; border-radius: 50%; margin-right: 10px;"></span>${data}<div>`;
@@ -1406,13 +1432,15 @@ export default {
                                 response.data['Employees'][i]['Offsets'],
                                 response.data['Employees'][i]['TripTickets'],
                                 response.data['Holidays'],
+                                response.data['Employees'][i]['TravelOrders']
                             );
 
                             attendanceChunks.push(this.beautifyDisplay(hours, 
                                 this.dateHeaders[j].name,
                                 response.data['Employees'][i]['LeaveDays'],
                                 response.data['Employees'][i]['Offsets'],
-                                response.data['Employees'][i]['TripTickets']));
+                                response.data['Employees'][i]['TripTickets'],
+                                response.data['Employees'][i]['TravelOrders']));
 
                             if (this.isNumber(hours)) {
                                 totalHoursRendered += parseFloat(hours);

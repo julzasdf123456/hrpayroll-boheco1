@@ -903,9 +903,20 @@ class PayrollIndexController extends AppBaseController
 
             $item->PowerBills = $totalBillAmount;
 
-            // DAY OFFST
+            // DAY OFFSET
             $item->DayOffs = DB::table('EmployeeDayOffs')
                 ->whereRaw("EmployeeDayOffs.EmployeeId='" . $item->id . "' AND (EmployeeDayOffs.DayOff BETWEEN '" . $from . "' AND '" . $to . "')")
+                ->get();
+
+            // TRAVEL ORDERS
+            $item->TravelOrders = DB::table('TravelOrderDays')
+                ->leftJoin('TravelOrders', 'TravelOrderDays.TravelOrderId', '=', 'TravelOrders.id')
+                ->leftJoin('TravelOrderEmployees', 'TravelOrderEmployees.TravelOrderId', '=', 'TravelOrders.id')
+                ->whereRaw("TravelOrderEmployees.EmployeeId='" . $item->id . "' AND (TravelOrderDays.Day BETWEEN '" . $from . "' AND '" . $to . "') AND TravelOrders.Status='APPROVED'")
+                ->select(
+                    'TravelOrderDays.Day'
+                )
+                ->orderByDesc('TravelOrders.DateFiled')
                 ->get();
         }
 

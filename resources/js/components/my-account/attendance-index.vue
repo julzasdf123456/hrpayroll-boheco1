@@ -28,7 +28,7 @@
                             </div>
                             <div class="col-lg-12 mt-3">
                                 <p class="text-muted ellipsize no-pads"><i class="fas fa-tools ico-tab-mini"></i>Travel Purpose</p>
-                                <p class="ellipsize-3 pl-4" style="height: 60px;" :title="trips.PurposeOfTravel">{{ trips.PurposeOfTravel.replace(/;/g, '\n') }}</p>
+                                <p class="ellipsize-3 pl-4" style="height: 60px;" :title="trips.PurposeOfTravel">{{ isNull(trips.PurposeOfTravel) ? '-' : trips.PurposeOfTravel.replace(/;/g, '\n') }}</p>
                             </div>
                             <div class="col-lg-12 mt-1">
                                 <p class="text-muted ellipsize no-pads"><i class="fas fa-map-marker-alt ico-tab-mini"></i>Destination(s)</p>
@@ -105,6 +105,52 @@
             </div>
         </div>
     </div>
+
+    <!-- TRAVEL ORDERS -->
+    <div class="section">
+        <div class="row">
+            <div class="col-10 relative">
+                <div class="botom-left-contents px-3">
+                    <p class="no-pads text-md">Your Travel Order History</p>
+                    <p class="no-pads text-muted">List of your BOHECO I official travels.</p>
+                </div>
+            </div>
+            <div class="col-2 center-contents">
+                <img style="width: 100% !important;" class="img-fluid" src="../../../../public/imgs/travels.png" alt="User profile picture">
+            </div>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-lg-12 mb-4">
+                <span class="text-muted">Start Filter From</span>
+                <flat-pickr v-model="startTravelFrom" :config="pickerOptions" :readonly="false" class="form-control" style="width: 280px;" @on-change="getTravels()"></flat-pickr>
+            </div>
+            <div class="col-lg-4 col-md-6" v-for="travel in travels.data" :key="travel.id">
+                <div class="card shadow-none" style="height: 300px;">
+                    <div class="card-body p-4">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <span class="badge bg-info mb-3">{{ travel.Status }}</span>
+                                <p class="ellipsize-2 mb-1" style="font-size: 1.3em;">{{ travel.Purpose }}</p>
+                                <span class="text-muted"><i class="fas fa-map-marker-alt ico-tab-mini"></i>{{ travel.Destination }}</span>
+                            </div>
+                            <div class="col-lg-12 mt-4">
+                                <span class="text-muted"><i class="fas fa-calendar ico-tab-mini"></i>Travel Days</span>
+                                <ul>
+                                    <li v-for="date in travel.Days">{{ moment(date.Day).format("MMM DD, YYYY (ddd)") }}</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+
+            <div class="col-lg-12">
+                <pagination :data="travels" :limit="6" @pagination-change-page="getTravels"></pagination>
+            </div>
+        </div>
+    </div>
 </template>
 
 <script>
@@ -146,6 +192,8 @@ export default {
             startFrom : moment().format("YYYY-MM-DD"),
             offsets : {},
             startOffsetFrom : moment().format("YYYY-MM-DD"),
+            travels : {},
+            startTravelFrom : moment().format("YYYY-MM-DD"),
         }
     },
     methods : {
@@ -220,6 +268,26 @@ export default {
                     text : 'Error getting offset data!\n' + error.response.data
                 })
             })
+        },
+        getTravels(page = 1) {
+            axios.get(`${ axios.defaults.baseURL }/travel_orders/get-travel-orders-ajax`, {
+                params : {
+                    page : page,
+                    EmployeeId : this.employeeId,
+                    Start : this.startTravelFrom,
+                }
+            })
+            .then(response => {
+                this.travels = response.data
+                console.log(response.data)
+            })
+            .catch(error => {
+                console.log(error)
+                this.toast.fire({
+                    icon : 'error',
+                    text : 'Error getting travel orders!\n' + error.response.data
+                })
+            })
         }
     },
     created() {
@@ -228,6 +296,7 @@ export default {
     mounted() {
         this.getTripTickets()
         this.getOffsets()
+        this.getTravels()
     }
 }
 

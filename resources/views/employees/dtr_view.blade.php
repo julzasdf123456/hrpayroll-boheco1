@@ -126,8 +126,8 @@
                         } else {
                             obj['title'] = 'LEAVE (' + leave[index]['Duration'] + ')'
                         }
-                        obj['backgroundColor'] = '#7a3041';
-                        obj['borderColor'] = '#7a3041';
+                        obj['backgroundColor'] = '#0cf2c4';
+                        obj['borderColor'] = '#0cf2c4';
                         obj['start'] = moment(leave[index]['LeaveDate']).format('YYYY-MM-DD');
 
                         obj['allDay'] = true;
@@ -142,8 +142,8 @@
                         var obj = {}
 
                         obj['title'] = 'TRIP'
-                        obj['backgroundColor'] = '#305375';
-                        obj['borderColor'] = '#305375';
+                        obj['backgroundColor'] = '#e823ba';
+                        obj['borderColor'] = '#e823ba';
                         obj['start'] = moment(tripTickets[index]['DateOfTravel']).format('YYYY-MM-DD');
 
                         obj['allDay'] = true;
@@ -158,8 +158,8 @@
                         var obj = {}
 
                         obj['title'] = 'OFFSET'
-                        obj['backgroundColor'] = '#c99402';
-                        obj['borderColor'] = '#c99402';
+                        obj['backgroundColor'] = '#f2780c';
+                        obj['borderColor'] = '#f2780c';
                         obj['start'] = moment(offsets[index]['DateOfOffset']).format('YYYY-MM-DD');
 
                         obj['allDay'] = true;
@@ -174,9 +174,25 @@
                         var obj = {}
 
                         obj['title'] = 'DAY OFF'
-                        obj['backgroundColor'] = '#de5e02';
-                        obj['borderColor'] = '#de5e02';
+                        obj['backgroundColor'] = '#1d8fcc';
+                        obj['borderColor'] = '#1d8fcc';
                         obj['start'] = moment(dayOffs[index]['DayOff']).format('YYYY-MM-DD');
+
+                        obj['allDay'] = true;
+                        scheds.push(obj)
+                    })
+                    
+                    /**
+                     * TRAVEL ORDERS
+                     **/
+                     var travels = res['TravelOrders']
+                    $.each(travels, function(index, element) {
+                        var obj = {}
+
+                        obj['title'] = 'TRAVEL'
+                        obj['backgroundColor'] = '#3254a8';
+                        obj['borderColor'] = '#3254a8';
+                        obj['start'] = moment(travels[index]['Day']).format('YYYY-MM-DD');
 
                         obj['allDay'] = true;
                         scheds.push(obj)

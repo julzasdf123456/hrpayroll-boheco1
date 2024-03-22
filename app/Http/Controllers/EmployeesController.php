@@ -153,6 +153,19 @@ class EmployeesController extends AppBaseController
             ->orderByDesc('DatetimeFiled')
             ->get();
 
+        $travelOrders = DB::table('TravelOrderEmployees')
+            ->leftJoin('TravelOrders', 'TravelOrderEmployees.TravelOrderId', '=', 'TravelOrders.id')
+            ->whereRaw("TravelOrderEmployees.EmployeeId='" . $id . "'")
+            ->select(
+                'TravelOrders.*',
+                DB::raw("(SELECT CONCAT(Day, ', ') 
+                    FROM TravelOrderDays 
+                    WHERE TravelOrderDays.TravelOrderId = TravelOrders.id
+                    FOR XML PATH('')) AS Days")
+            )
+            ->orderByDesc('TravelOrders.DateFiled')
+            ->get();
+
         $overtimes = Overtimes::where('EmployeeId', $id)->orderByDesc('created_at')->get();
 
         if ( Users::where('employee_id', $id)->first() != null) {
@@ -183,6 +196,7 @@ class EmployeesController extends AppBaseController
             'tripTickets' => $tripTickets,
             'overtimes' => $overtimes,
             'payrollSundries' => $payrollSundries,
+            'travelOrders' => $travelOrders,
         ]);
     }
 
@@ -566,11 +580,23 @@ class EmployeesController extends AppBaseController
                     ->select('DayOff')
                     ->get();
 
+                    // TRAVEL ORDERS
+            $travelOrders = DB::table('TravelOrderDays')
+                ->leftJoin('TravelOrders', 'TravelOrderDays.TravelOrderId', '=', 'TravelOrders.id')
+                ->leftJoin('TravelOrderEmployees', 'TravelOrderEmployees.TravelOrderId', '=', 'TravelOrders.id')
+                ->whereRaw("TravelOrderEmployees.EmployeeId='" . $employeeId . "' AND TravelOrders.Status='APPROVED'")
+                ->select(
+                    'TravelOrderDays.Day'
+                )
+                ->orderByDesc('TravelOrders.DateFiled')
+                ->get();
+
             $data['Biometrics'] = $attendanceData;
             $data['Leave'] = $leaveDays;
             $data['TripTickets'] = $tripTickets;
             $data['Offsets'] = $offsets;
             $data['DayOffs'] = $dayOffs;
+            $data['TravelOrders'] = $travelOrders;
 
             return response()->json($data, 200);
         } else {
