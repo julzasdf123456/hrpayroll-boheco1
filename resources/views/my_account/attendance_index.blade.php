@@ -12,6 +12,7 @@
 
 @section('content')
 <meta name="employee-id-current" content="{{ Auth::user()->employee_id }}">
+<meta name="user-id-current" content="{{ Auth::id() }}">
 <div class="content">
     <div class="row">
         <div class="col-lg-12" style="margin-bottom: 26px;">
