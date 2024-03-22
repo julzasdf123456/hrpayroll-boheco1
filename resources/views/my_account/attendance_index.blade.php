@@ -74,13 +74,19 @@
                                     </tr>
                                     <tr>
                                         <td style="width: 30px;">
-                                            <span class="color-legend" style="background-color: #305375;"></span>
+                                            <span class="color-legend" style="background-color: #e823ba;"></span>
                                         </td>
                                         <td>On a Trip</td>
                                     </tr>
                                     <tr>
                                         <td style="width: 30px;">
-                                            <span class="color-legend" style="background-color: #7a3041;"></span>
+                                            <span class="color-legend" style="background-color: #3254a8;"></span>
+                                        </td>
+                                        <td>Official Travel</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="width: 30px;">
+                                            <span class="color-legend" style="background-color: #0cf2c4;"></span>
                                         </td>
                                         <td>Leave</td>
                                     </tr>
@@ -92,7 +98,7 @@
                                     </tr>
                                     <tr>
                                         <td style="width: 30px;">
-                                            <span class="color-legend" style="background-color: #de5e02;"></span>
+                                            <span class="color-legend" style="background-color: #1d8fcc;"></span>
                                         </td>
                                         <td>Day-off</td>
                                     </tr>
@@ -240,7 +246,7 @@
                     /**
                      * INSERT LEAVE DATA
                      **/
-                    var leave = res['Leave']
+                     var leave = res['Leave']
                     $.each(leave, function(index, element) {
                         var obj = {}
 
@@ -249,8 +255,8 @@
                         } else {
                             obj['title'] = 'LEAVE (' + leave[index]['Duration'] + ')'
                         }
-                        obj['backgroundColor'] = '#7a3041';
-                        obj['borderColor'] = '#7a3041';
+                        obj['backgroundColor'] = '#0cf2c4';
+                        obj['borderColor'] = '#0cf2c4';
                         obj['start'] = moment(leave[index]['LeaveDate']).format('YYYY-MM-DD');
 
                         obj['allDay'] = true;
@@ -265,8 +271,8 @@
                         var obj = {}
 
                         obj['title'] = 'TRIP'
-                        obj['backgroundColor'] = '#305375';
-                        obj['borderColor'] = '#305375';
+                        obj['backgroundColor'] = '#e823ba';
+                        obj['borderColor'] = '#e823ba';
                         obj['start'] = moment(tripTickets[index]['DateOfTravel']).format('YYYY-MM-DD');
 
                         obj['allDay'] = true;
@@ -281,8 +287,8 @@
                         var obj = {}
 
                         obj['title'] = 'OFFSET'
-                        obj['backgroundColor'] = '#c99402';
-                        obj['borderColor'] = '#c99402';
+                        obj['backgroundColor'] = '#f2780c';
+                        obj['borderColor'] = '#f2780c';
                         obj['start'] = moment(offsets[index]['DateOfOffset']).format('YYYY-MM-DD');
 
                         obj['allDay'] = true;
@@ -292,19 +298,34 @@
                     /**
                      * DAY OFFS
                      **/
-                     var dayOffs = res['DayOffs']
+                    var dayOffs = res['DayOffs']
                     $.each(dayOffs, function(index, element) {
                         var obj = {}
 
                         obj['title'] = 'DAY OFF'
-                        obj['backgroundColor'] = '#de5e02';
-                        obj['borderColor'] = '#de5e02';
+                        obj['backgroundColor'] = '#1d8fcc';
+                        obj['borderColor'] = '#1d8fcc';
                         obj['start'] = moment(dayOffs[index]['DayOff']).format('YYYY-MM-DD');
 
                         obj['allDay'] = true;
                         scheds.push(obj)
                     })
 
+                    /**
+                     * TRAVEL ORDERS
+                     **/
+                     var travels = res['TravelOrders']
+                    $.each(travels, function(index, element) {
+                        var obj = {}
+
+                        obj['title'] = 'TRAVEL'
+                        obj['backgroundColor'] = '#3254a8';
+                        obj['borderColor'] = '#3254a8';
+                        obj['start'] = moment(travels[index]['Day']).format('YYYY-MM-DD');
+
+                        obj['allDay'] = true;
+                        scheds.push(obj)
+                    })
                     // scheds = scheds.filter(function (obj) { 
                     //     return obj.start !== '2024-01-17'
                     // })

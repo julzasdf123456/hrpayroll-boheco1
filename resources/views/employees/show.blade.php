@@ -166,6 +166,9 @@
                                         <a class="nav-link" id="trip-tickets-tab" data-toggle="pill" href="#trip-ticket-content" role="tab" aria-controls="trip-ticket-content" aria-selected="false">Trip Tickets</a>
                                     </li>
                                     <li class="nav-item">
+                                        <a class="nav-link" id="travel-orders-tab" data-toggle="pill" href="#travel-order-content" role="tab" aria-controls="travel-order-content" aria-selected="false">Travel Orders</a>
+                                    </li>
+                                    <li class="nav-item">
                                         <a class="nav-link" id="overtime-tab" data-toggle="pill" href="#overtime-content" role="tab" aria-controls="overtime-content" aria-selected="false">Overtime</a>
                                     </li>
                                     <li class="nav-item">
@@ -191,6 +194,9 @@
                                     </div>
                                     <div class="tab-pane fade" id="trip-ticket-content" role="tabpanel" aria-labelledby="trip-tickets-tab">
                                         @include('employees.tab_trip_tickets')
+                                    </div>
+                                    <div class="tab-pane fade" id="travel-order-content" role="tabpanel" aria-labelledby="travel-orders-tab">
+                                        @include('employees.tab_travel_orders')
                                     </div>
                                     <div class="tab-pane fade" id="overtime-content" role="tabpanel" aria-labelledby="overtime-tab">
                                         @include('employees.tab_overtime')

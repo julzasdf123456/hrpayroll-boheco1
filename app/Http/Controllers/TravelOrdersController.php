@@ -310,4 +310,27 @@ class TravelOrdersController extends AppBaseController
         
         return response()->json('ok', 200);
     }
+
+    public function getTravelOrdersAjax(Request $request) {
+        $employeeId = $request['EmployeeId'];
+        $start = $request['Start'];
+
+        $data = DB::table('TravelOrderEmployees')
+            ->leftJoin('TravelOrders', 'TravelOrderEmployees.TravelOrderId', '=', 'TravelOrders.id')
+            ->whereRaw("TravelOrderEmployees.EmployeeId='" . $employeeId . "' AND TravelOrders.DateFiled <= '" . $start . "'")
+            ->select(
+                'TravelOrders.*'
+            )
+            ->orderByDesc('TravelOrders.DateFiled')
+            ->paginate(6);
+
+        foreach($data as $item) {
+            $item->Days = DB::table('TravelOrderDays')
+                ->whereRaw("TravelOrderId='" . $item->id . "'")
+                ->select('Day')
+                ->get();
+        }
+
+        return response()->json($data, 200);
+    }
 }
