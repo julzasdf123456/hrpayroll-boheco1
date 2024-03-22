@@ -16,7 +16,7 @@
     </div>
 
     {{-- CONTENT LINEAR --}}
-    <div class="col-lg-8 offset-lg-2">
+    <div class="col-lg-8 offset-lg-2 mt-2">
         <div id="app">
             <personal-info></personal-info>
         </div>
