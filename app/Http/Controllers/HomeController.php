@@ -54,7 +54,7 @@ class HomeController extends Controller
 
     public function chatReeve(Request $request) {
         $query = $request['prompt'];
-        $apiKey = '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';
+        $apiKey = env('REEVE_API');
 
         try {
             $response = Http::withHeaders([
