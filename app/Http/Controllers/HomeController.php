@@ -71,9 +71,9 @@ class HomeController extends Controller
                 'model' => 'gpt-3.5-turbo',
             ]);
 
-            echo $response;
+            // echo $response;
             // $data = $response->json();
-            // return response()->json(['generatedText' => $response['choices'][0]['message']['content']]);
+            return response()->json(['generatedText' => $response['choices'][0]['message']['content']]);
         } catch (\Exception $e) {
             // echo $e->getMessage();
             return response()->json(['error' => $e->getMessage()], 500);
