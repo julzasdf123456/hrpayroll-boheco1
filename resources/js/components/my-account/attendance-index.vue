@@ -9,7 +9,7 @@
                 </div>
             </div>
             <div class="col-2 center-contents">
-                <img style="width: 75% !important;" class="img-fluid" src="../../../../public/imgs/trip-tickets.png" alt="User profile picture">
+                <img style="width: 75% !important;" class="img-fluid" :src="imgsPath + 'trip-tickets.png'" alt="User profile picture">
             </div>
         </div>
 
@@ -64,7 +64,7 @@
                 </div>
             </div>
             <div class="col-2 center-contents">
-                <img style="width: 80% !important;" class="img-fluid" src="../../../../public/imgs/offsets.png" alt="User profile picture">
+                <img style="width: 80% !important;" class="img-fluid" :src="imgsPath + 'offsets.png'" alt="User profile picture">
             </div>
         </div>
 
@@ -119,7 +119,7 @@
                 </div>
             </div>
             <div class="col-2 center-contents">
-                <img style="width: 100% !important;" class="img-fluid" src="../../../../public/imgs/travels.png" alt="User profile picture">
+                <img style="width: 100% !important;" class="img-fluid" :src="imgsPath + 'travels.png'" alt="User profile picture">
             </div>
         </div>
 
@@ -198,6 +198,7 @@ export default {
             startOffsetFrom : moment().format("YYYY-MM-DD"),
             travels : {},
             startTravelFrom : moment().format("YYYY-MM-DD"),
+            imgsPath : axios.defaults.imgsPath,
         }
     },
     methods : {

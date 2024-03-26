@@ -8,7 +8,7 @@
                 </div>
             </div>
             <div class="col-2 center-contents">
-                <img style="width: 80% !important;" class="img-fluid" src="../../../../public/imgs/overtime.png" alt="User profile picture">
+                <img style="width: 80% !important;" class="img-fluid" :src="imgsPath + 'overtime.png'" alt="User profile picture">
             </div>
         </div>
         <div class="card shadow-none mt-4">
@@ -121,7 +121,8 @@ export default {
             years : [],
             yearSelect : moment().format("YYYY"),
             overTimes : {},
-            showLoader : 'gone'
+            showLoader : 'gone',
+            imgsPath : axios.defaults.imgsPath,
         }
     },
     methods : {

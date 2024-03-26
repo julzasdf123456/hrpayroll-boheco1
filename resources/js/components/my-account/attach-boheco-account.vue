@@ -10,7 +10,7 @@
                         <span class="text-muted">You account attachments will be deducted monthly on your payroll</span>
                     </div>
                     <div class="col-2 center-contents">
-                        <img style="width: 100% !important;" class="img-fluid" src="../../../../public/imgs/attached-accounts.png" alt="User profile picture">
+                        <img style="width: 100% !important;" class="img-fluid" :src=" imgsPath + 'attached-accounts.png'" alt="User profile picture">
                     </div>
 
                     <div class="col-12 mt-3 table-responsive">
@@ -118,7 +118,8 @@ export default {
             }),
             results : {},
             search : '',
-            connectedAccounts : []
+            connectedAccounts : [],
+            imgsPath : axios.defaults.imgsPath,
         }
     },
     methods : {

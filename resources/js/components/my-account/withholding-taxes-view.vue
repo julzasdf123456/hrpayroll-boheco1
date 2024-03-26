@@ -11,7 +11,7 @@
                 </div>
             </div>
             <div class="col-2 center-contents">
-                <img style="width: 100% !important;" class="img-fluid" src="../../../../public/imgs/tax.png" alt="User profile picture">
+                <img style="width: 100% !important;" class="img-fluid" :src="imgsPath + 'tax.png'" alt="User profile picture">
             </div>
         </div>
 
@@ -184,7 +184,8 @@ export default {
             },
             years : [],
             yearSelect : moment().format("YYYY"),
-            currentTaxesData : {}
+            currentTaxesData : {},
+            imgsPath : axios.defaults.imgsPath,
         }
     },
     methods : {
