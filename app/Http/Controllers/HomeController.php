@@ -61,9 +61,9 @@ class HomeController extends Controller
                 'Content-Type' => 'application/json',
                 'Authorization' => 'Bearer ' . $apiKey,
             ])->post('https://api.openai.com/v1/chat/completions', [
-                'messages' => [[
+                'messages' => [{
                     "role" => "user", "content" => $query
-                ]],
+                }],
                 // 'max_tokens' => 1500, // Customize parameters as needed
                 'model' => 'gpt-3.5-turbo',
             ]);
