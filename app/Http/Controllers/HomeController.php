@@ -54,7 +54,7 @@ class HomeController extends Controller
 
     public function chatReeve(Request $request) {
         $query = $request['prompt'];
-        $apiKey = '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'; // Replace with your actual OpenAI API key
+        $apiKey = env('REEVE_API');
 
         try {
             $response = Http::withHeaders([
