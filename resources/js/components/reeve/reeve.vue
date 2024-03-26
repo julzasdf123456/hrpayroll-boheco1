@@ -33,6 +33,7 @@ export default {
         return {
             generatedText : '',
             prompt : '',
+            token : document.querySelector("meta[name='token']").getAttribute('content'),
         }
     },
     methods : {
@@ -43,7 +44,10 @@ export default {
                 $('#go-btn').addClass('disabled')
                 $('#loader').removeClass('gone')
                 try {
-                    const response = await axios.post(`/home/chat-reeve`, { prompt : this.prompt });
+                    const response = await axios.post(`/home/chat-reeve`, { 
+                        _token : this.token,
+                        prompt : this.prompt 
+                    });
                     // this.generatedText = response.data.generatedText;
                     $('#response tbody').prepend("<tr><td>" +
                             "<strong class='text-muted' style='padding-bottom: 12px;'><i class='fas fa-user-circle ico-tab'></i>" + this.prompt + "</strong><br><br>" +
