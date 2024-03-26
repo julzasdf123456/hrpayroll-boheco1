@@ -10,7 +10,7 @@
                 </div>
             </div>
             <div class="col-2 center-contents">
-                <img style="width: 100% !important;" class="img-fluid" src="../../../../public/imgs/personal-info.png" alt="User profile picture">
+                <img style="width: 100% !important;" class="img-fluid" :src="imgsPath + 'personal-info.png'" alt="User profile picture">
             </div>
         </div>
 
@@ -24,7 +24,7 @@
                     <tbody>
                         <tr>
                             <td class="text-muted v-align fixed-td-md">Profile Picture</td>
-                            <td class="text-right"><img style="width: 50px; !important;" class="img-fluid img-circle" src="../../../../public/imgs/prof-img.png" alt="User profile picture"></td>
+                            <td class="text-right"><img style="width: 50px; !important;" class="img-fluid img-circle" :src="imgsPath + 'prof-img.png'" alt="User profile picture"></td>
                         </tr>
                         <tr>
                             <td class="text-muted v-align fixed-td-md">Declared Name</td>
@@ -164,7 +164,7 @@
                 </div>
             </div>
             <div class="col-2 center-contents">
-                <img style="width: 100% !important;" class="img-fluid" src="../../../../public/imgs/files.png" alt="User profile picture">
+                <img style="width: 100% !important;" class="img-fluid" :src="imgsPath + 'files.png'" alt="User profile picture">
             </div>
         </div>
 
@@ -230,7 +230,8 @@ export default {
             }),
             files : {},
             employeeData : '',
-            dependents : []
+            dependents : [],
+            imgsPath : axios.defaults.imgsPath,
         }
     },
     methods : {

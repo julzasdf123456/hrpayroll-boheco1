@@ -11,7 +11,7 @@
                 </div>
             </div>
             <div class="col-2 center-contents">
-                <img style="width: 100% !important;" class="img-fluid" src="../../../../public/imgs/staff.png" alt="User profile picture">
+                <img style="width: 100% !important;" class="img-fluid" :src="imgsPath + 'staff.png'" alt="User profile picture">
             </div>
         </div>
 

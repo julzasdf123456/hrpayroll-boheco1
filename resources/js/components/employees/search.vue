@@ -16,7 +16,7 @@
             <div class="card shadow-none card-widget widget-user-2">
                 <div class="widget-user-header">
                     <div class="widget-user-image">
-                        <img class="img-circle elevation-2" src="../../../../public/imgs/prof-img.png" alt="User Avatar">
+                        <img class="img-circle elevation-2" :src=" imgsPath + '/prof-img.png'" alt="User Avatar">
                     </div>
                     <h3 class="widget-user-username" style="padding-left: 10px;"><strong>{{ employee.EmployeeName }}</strong></h3>
                     <span class="text-muted" style="margin-left: 20px;">{{ employee.Designation }}</span>
@@ -52,6 +52,7 @@ export default {
             isEditMode : false,
             employees : {},
             baseURL : axios.defaults.baseURL,
+            imgsPath : axios.defaults.imgsPath,
         }
     },
     methods : {
