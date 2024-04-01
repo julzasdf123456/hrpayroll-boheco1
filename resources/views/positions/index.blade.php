@@ -29,7 +29,7 @@
             <div class="card-header">
                 <div class="card-tools">
                     <form action="{{ route('positions.index') }}" method="GET">
-                        <select name="Department" class="form-control form-control-sm" style="width: 150px;">
+                        <select name="Department" class="form-control form-control-sm" style="width: 150px; display: inline;">
                             <option value="OGM">OGM</option>
                             <option value="ISD">ISD</option>
                             <option value="ESD">ESD</option>
