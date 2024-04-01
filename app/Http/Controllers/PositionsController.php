@@ -33,8 +33,15 @@ class PositionsController extends AppBaseController
      */
     public function index(Request $request)
     {
-        $positions = $this->positionsRepository->all();
-
+        $dept = $request['Department'];
+        if ($dept != null) {
+            $positions = Positions::where('Department', $dept)
+                ->orderBy('Department')
+                ->get();
+        } else {
+            $positions = $this->positionsRepository->all();
+        }
+        
         return view('positions.index', [
             'positions' => $positions,
             // 'supers' => Positions::whereIn('Level', ['General Manager', 'Manager', 'Chief', 'Head'])->orderBy('Position')->get(),
