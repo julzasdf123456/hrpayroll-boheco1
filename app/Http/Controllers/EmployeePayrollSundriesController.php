@@ -180,7 +180,7 @@ class EmployeePayrollSundriesController extends AppBaseController
                     ->leftJoin('EmployeePayrollSundries', 'EmployeePayrollSundries.EmployeeId', '=', 'Employees.id')
                     ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
                     ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
-                    ->whereRaw("Positions.Department='" . $department . "' AND Employees.OfficeDesignation NOT IN ('SUB-OFFICE')")
+                    ->whereRaw("Positions.Department='" . $department . "' AND (Employees.OfficeDesignation IS NULL OR Employees.OfficeDesignation NOT IN ('SUB-OFFICE'))")
                     ->select(
                         'Employees.id AS EmployeeIdNumber',
                         'FirstName',
