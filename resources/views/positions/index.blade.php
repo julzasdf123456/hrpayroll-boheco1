@@ -12,6 +12,8 @@
                        href="{{ route('positions.create') }}">
                         Add New
                     </a>
+
+                    <a href="{{ route('positions.tree-view') }}" class="btn btn-primary-skinny float-right ico-tab-mini">Tree View</a>
                 </div>
             </div>
         </div>

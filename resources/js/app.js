@@ -37,6 +37,7 @@ import Overtime from "./components/my-account/overtime.vue"
 import SuperViewAttendance from "./components/my-account/super-view-attendance.vue"
 import AddDependents from "./components/my-account/add-dependents.vue"
 import WithholdingTaxesView from "./components/my-account/withholding-taxes-view.vue"
+import TreeView from "./components/positions/tree-view.vue"
 
 const app = createApp({
     
@@ -66,5 +67,6 @@ app.component('overtime', Overtime);
 app.component('super-view-attendance', SuperViewAttendance);
 app.component('add-dependents', AddDependents);
 app.component('withholding-taxes-view', WithholdingTaxesView);
+app.component('tree-view',TreeView);
 
 app.mount("#app");

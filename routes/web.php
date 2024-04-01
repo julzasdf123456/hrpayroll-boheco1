@@ -31,6 +31,7 @@ use App\Http\Controllers\AttachedAccountsController;
 use App\Http\Controllers\EmployeeDayOffsController;
 use App\Http\Controllers\DependentsController;
 use App\Http\Controllers\TravelOrdersController;
+use App\Http\Controllers\PositionsController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -217,8 +218,10 @@ Route::get('/overtimes/manual-entry', [OvertimesController::class, 'manualEntry'
 Route::get('/overtimes/get-overtimes-by-employee', [OvertimesController::class, 'getOvertimesByEmployee'])->name('overtimes.get-overtimes-by-employee');
 Route::resource('overtimes', OvertimesController::class);
 
-Route::get('/positions/update-super', [App\Http\Controllers\PositionsController::class, 'updateSuper'])->name('positions.update-super');
-Route::resource('positions', App\Http\Controllers\PositionsController::class);
+Route::get('/positions/tree-view', [PositionsController::class, 'treeView'])->name('positions.tree-view');
+Route::get('/positions/update-super', [PositionsController::class, 'updateSuper'])->name('positions.update-super');
+Route::get('/positions/get-positions', [PositionsController::class, 'getPositions'])->name('positions.get-positions');
+Route::resource('positions', PositionsController::class);
 
 
 Route::get('/leaveDays/add-days', [App\Http\Controllers\LeaveDaysController::class, 'addDays'])->name('leaveDays.add-days');
