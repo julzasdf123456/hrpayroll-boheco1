@@ -25,7 +25,23 @@
 
         <div class="clearfix"></div>
 
-        <div class="card">
+        <div class="card shadow-none">
+            <div class="card-header">
+                <div class="card-tools">
+                    <form action="{{ route('positions.index') }}" method="GET">
+                        <select name="Department" class="form-control form-control-sm" style="width: 150px;">
+                            <option value="OGM">OGM</option>
+                            <option value="ISD">ISD</option>
+                            <option value="ESD">ESD</option>
+                            <option value="PGD">PGD</option>
+                            <option value="OSD">OSD</option>
+                            <option value="SEEAD">SEEAD</option>
+                        </select>
+
+                        <button class="btn btn-sm btn-primary" type="submit">Filter</button>
+                    </form>
+                </div>
+            </div>
             <div class="card-body p-0">
                 @include('positions.table')
 
@@ -35,7 +51,9 @@
                     </div>
                 </div>
             </div>
+            <div class="card-footer">
 
+            </div>
         </div>
     </div>
 
