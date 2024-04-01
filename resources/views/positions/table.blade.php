@@ -18,7 +18,7 @@
                 <td>{{ $position->Description }}</td>
                 <td>{{ $position->Level }}</td>
                 <td>
-                    <select class="form-control form-control-sm" id="ParentPosition-{{ $position->id }}" onchange="changePosition(`{{ $position->id }}`)">
+                    <select class="custom-select select2" id="ParentPosition-{{ $position->id }}" onchange="changePosition(`{{ $position->id }}`)">
                         <option value="">-- Select --</option>
                         @foreach ($supers as $item)
                             <option value="{{ $item->id }}" {{ $position->ParentPositionId == $item->id ? 'selected' : '' }}>{{ $item->Position }}</option>
