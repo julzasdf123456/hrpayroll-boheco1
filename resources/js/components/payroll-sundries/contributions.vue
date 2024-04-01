@@ -240,6 +240,7 @@ export default {
             philHealthEmployer : '',
             philHealthEmployee : '',
             fillInputsDisabled : true,
+            riceAndLaundry : '',
         }
     },
     methods : {
