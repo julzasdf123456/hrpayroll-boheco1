@@ -191,4 +191,17 @@ class PositionsController extends AppBaseController
 
         return response()->json($position, 200);
     }
+
+    public function treeView(Request $request) {
+        return view('/positions/tree_view');
+    }
+
+    public function getPositions(Request $request) {
+        $data = DB::table('Positions')
+            // ->where('Department', 'OGM')
+            ->orderBy('Position')
+            ->get();
+
+        return response()->json($data, 200);
+    }
 }

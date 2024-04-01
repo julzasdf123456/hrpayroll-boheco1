@@ -3,8 +3,7 @@
     "type": "module",
     "scripts": {
         "dev": "vite",
-        "build": "vite build",
-        "start" : "vite start"
+        "build": "vite build"
     },
     "devDependencies": {
         "@rollup/plugin-inject": "^5.0.5",
@@ -26,6 +25,7 @@
         "vue": "^3.2.36",
         "vue-flatpickr-component": "^11.0.3",
         "vue-router": "^4.3.0",
-        "vue-toasted": "^1.1.28"
+        "vue-toasted": "^1.1.28",
+        "vue-tree-chart-3": "^1.2.9"
     }
 }
