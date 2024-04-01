@@ -1,5 +1,5 @@
 <div class="table-responsive">
-    <table class="table table-hover" id="positions-table">
+    <table class="table table-hover table-sm" id="positions-table">
         <thead>
             <tr>
                 <th>Position</th>
