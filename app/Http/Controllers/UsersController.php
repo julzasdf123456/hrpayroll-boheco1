@@ -249,7 +249,7 @@ class UsersController extends AppBaseController
 
     public function leaveCredits($employeeId) {
         $employeeId = Auth::user()->employee_id;
-        
+
         $leaveBalances = LeaveBalances::where('EmployeeId', $employeeId)->first();
 
         $employee = DB::table('PayrollExpandedDetails')
@@ -262,6 +262,8 @@ class UsersController extends AppBaseController
                     'Positions.Position'
                 )
                 ->first();
+
+        dd($employee);
 
         $leaveBalanceDetails = LeaveBalanceDetails::where('EmployeeId', $employeeId)->orderByDesc('created_at')->get();
 
