@@ -55,6 +55,7 @@ Route::get('/home', [
 
 Route::post('/home/chat-reeve', [HomeController::class, 'chatReeve'])->name('home.chat-reeve');
 Route::get('/home/reeve', [HomeController::class, 'reeve'])->name('home.reeve');
+Route::get('/home/employee-finder', [HomeController::class, 'employee_finder'])->name('home.employee-finder');
 
 Route::get('/users/add_permissions/{id}', [UsersController::class, 'addRoles'])->name('users.add-roles');
 Route::post('/users/create-roles', [UsersController::class, 'createRoles']);

@@ -71,7 +71,35 @@
                                         <button onclick="showModal(`SoloParent`)" class="btn btn-link-muted btn-sm" title="View logs"><i class="fas fa-chevron-right"></i></button>
                                     </td>
                                 </tr>
-                                @if ($employees->Gender == 'Male')
+                                @if ($employees != null) 
+                                    @if ($employees->Gender == 'Male')
+                                        <tr>
+                                            <td class="text-muted">Paternity leave credits</td>
+                                            <td class="text-right">{{ $leaveBalances != null ? number_format($leaveBalances->Paternity, 1) . ' days' : '-' }}</td>
+                                            <td class="text-right">-</td>
+                                            <td class="text-right">
+                                                <button onclick="showModal(`Paternity`)" class="btn btn-link-muted btn-sm" title="View logs"><i class="fas fa-chevron-right"></i></button>
+                                            </td>
+                                        </tr>
+                                    @else
+                                        <tr>
+                                            <td class="text-muted">Maternity leave credits</td>
+                                            <td class="text-right">{{ $leaveBalances != null ? number_format($leaveBalances->Maternity, 1) . ' days' : '-' }}</td>
+                                            <td class="text-right">-</td>
+                                            <td class="text-right">
+                                                <button onclick="showModal(`Maternity`)" class="btn btn-link-muted btn-sm" title="View logs"><i class="fas fa-chevron-right"></i></button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-muted">Solo mom leave credits</td>
+                                            <td class="text-right">{{ $leaveBalances != null ? number_format($leaveBalances->MaternityForSoloMother, 1) . ' days' : '-' }}</td>
+                                            <td class="text-right">-</td>
+                                            <td class="text-right">
+                                                <button onclick="showModal(`MaternityForSoloMother`)" class="btn btn-link-muted btn-sm" title="View logs"><i class="fas fa-chevron-right"></i></button>
+                                            </td>
+                                        </tr>
+                                    @endif
+                                @else
                                     <tr>
                                         <td class="text-muted">Paternity leave credits</td>
                                         <td class="text-right">{{ $leaveBalances != null ? number_format($leaveBalances->Paternity, 1) . ' days' : '-' }}</td>
@@ -80,7 +108,6 @@
                                             <button onclick="showModal(`Paternity`)" class="btn btn-link-muted btn-sm" title="View logs"><i class="fas fa-chevron-right"></i></button>
                                         </td>
                                     </tr>
-                                @else
                                     <tr>
                                         <td class="text-muted">Maternity leave credits</td>
                                         <td class="text-right">{{ $leaveBalances != null ? number_format($leaveBalances->Maternity, 1) . ' days' : '-' }}</td>
@@ -97,7 +124,8 @@
                                             <button onclick="showModal(`MaternityForSoloMother`)" class="btn btn-link-muted btn-sm" title="View logs"><i class="fas fa-chevron-right"></i></button>
                                         </td>
                                     </tr>
-                                @endif     
+                                @endif
+                                     
                             </tbody>
                         </table>
                     </div>
