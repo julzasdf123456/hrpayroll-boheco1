@@ -79,4 +79,8 @@ class HomeController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
+
+    public function employeeFinder(Request $request) {
+        return view('employee_finder', []);
+    }
 }

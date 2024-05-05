@@ -38,6 +38,7 @@ import SuperViewAttendance from "./components/my-account/super-view-attendance.v
 import AddDependents from "./components/my-account/add-dependents.vue"
 import WithholdingTaxesView from "./components/my-account/withholding-taxes-view.vue"
 import TreeView from "./components/positions/tree-view.vue"
+import EmployeeFinder from "./components/common/employee-finder.vue"
 
 const app = createApp({
     
@@ -68,5 +69,6 @@ app.component('super-view-attendance', SuperViewAttendance);
 app.component('add-dependents', AddDependents);
 app.component('withholding-taxes-view', WithholdingTaxesView);
 app.component('tree-view',TreeView);
+app.component('employee-finder',EmployeeFinder);
 
 app.mount("#app");
