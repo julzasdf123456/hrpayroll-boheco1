@@ -248,6 +248,8 @@ class UsersController extends AppBaseController
     }
 
     public function leaveCredits($employeeId) {
+        $employeeId = Auth::user()->employee_id;
+        
         $leaveBalances = LeaveBalances::where('EmployeeId', $employeeId)->first();
 
         $employee = DB::table('PayrollExpandedDetails')
