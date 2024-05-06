@@ -252,8 +252,7 @@ class UsersController extends AppBaseController
 
         $leaveBalances = LeaveBalances::where('EmployeeId', $employeeId)->first();
 
-        $employee = DB::table('PayrollExpandedDetails')
-                ->leftJoin('Employees', 'PayrollExpandedDetails.EmployeeId', '=', 'Employees.id')
+        $employee = DB::table('Employees')
                 ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
                 ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
                 ->whereRaw("Employees.id='" . $employeeId . "'")
@@ -262,8 +261,6 @@ class UsersController extends AppBaseController
                     'Positions.Position'
                 )
                 ->first();
-
-        dd($employee);
 
         $leaveBalanceDetails = LeaveBalanceDetails::where('EmployeeId', $employeeId)->orderByDesc('created_at')->get();
 
