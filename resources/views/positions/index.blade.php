@@ -30,12 +30,12 @@
                 <div class="card-tools">
                     <form action="{{ route('positions.index') }}" method="GET">
                         <select name="Department" class="form-control form-control-sm" style="width: 150px; display: inline;">
-                            <option value="OGM">OGM</option>
-                            <option value="ISD">ISD</option>
-                            <option value="ESD">ESD</option>
-                            <option value="PGD">PGD</option>
-                            <option value="OSD">OSD</option>
-                            <option value="SEEAD">SEEAD</option>
+                            <option value="OGM" {{ isset($_GET['Department']) && $_GET['Department']==='OGM' ? 'selected' : '' }}>OGM</option>
+                            <option value="ISD" {{ isset($_GET['Department']) && $_GET['Department']==='ISD' ? 'selected' : '' }}>ISD</option>
+                            <option value="ESD" {{ isset($_GET['Department']) && $_GET['Department']==='ESD' ? 'selected' : '' }}>ESD</option>
+                            <option value="PGD" {{ isset($_GET['Department']) && $_GET['Department']==='PGD' ? 'selected' : '' }}>PGD</option>
+                            <option value="OSD" {{ isset($_GET['Department']) && $_GET['Department']==='OSD' ? 'selected' : '' }}>OSD</option>
+                            <option value="SEEAD" {{ isset($_GET['Department']) && $_GET['Department']==='SEEAD' ? 'selected' : '' }}>SEEAD</option>
                         </select>
 
                         <button class="btn btn-sm btn-primary" type="submit">Filter</button>
@@ -52,7 +52,7 @@
                 </div>
             </div>
             <div class="card-footer">
-
+                {{ $positions->withQueryString()->links() }}
             </div>
         </div>
     </div>

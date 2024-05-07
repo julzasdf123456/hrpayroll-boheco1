@@ -1,3 +1,8 @@
+@php
+    use App\Models\Positions;
+    use Illuminate\Support\Facades\DB;
+@endphp
+
 <!-- Designation Field -->
 <div class="form-group col-sm-12">
     <div class="row">
@@ -10,9 +15,24 @@
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fas fa-file-invoice"></i></span>
                 </div>
-                <select name="PositionId" id="PositionId" class="form-control">
-                    @foreach ($positions as $item)
-                        <option value="{{ $item->id }}" salary="{{ $item->BasicSalary }}">{{ $item->Position }}</option>
+                <select class="custom-select select2"  name="PositionId" id='PositionId'>
+                    @foreach ($departments as $department)
+                        <optgroup label="{{ $department->Department }}">
+                            @php
+                                // $positions = Positions::where('Department', $department->Department)->orderBy('Position')->get();
+                                $positions = DB::table('Positions')
+                                    ->where('Positions.Department', $department->Department)
+                                    ->select(
+                                        'Positions.*',
+                                        DB::raw("(SELECT TOP 1 e.FirstName + ' ' +  e.LastName  FROM EmployeesDesignations ed LEFT JOIN Employees e ON ed.EmployeeId=e.id WHERE ed.PositionId=Positions.id AND (e.EmploymentStatus IS NULL OR e.EmploymentStatus NOT IN('Retired','Resigned')) ORDER BY ed.created_at DESC) AS EmployeeName")
+                                    )
+                                    ->orderBy('Position')
+                                    ->get();
+                            @endphp
+                            @foreach ($positions as $item)
+                                <option value="{{ $item->id }}" {{ $employeesDesignations != null && $employeesDesignations->PositionId==$item->id ? 'selected' : '' }}><b>{{ $item->Position }} ({{ $item->BasicSalary != null ? number_format($item->BasicSalary, 2) : '-' }})</b> <span style="color: grey !important;">{{ $item->EmployeeName != null ? '- ' . $item->EmployeeName : '' }}</span></option>
+                            @endforeach
+                        </optgroup>
                     @endforeach
                 </select>
             </div>

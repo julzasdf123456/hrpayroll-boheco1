@@ -164,8 +164,8 @@ export default {
             employeeType : 'Regular',
             department : 'ESD',
             salaryPeriod : '',
-            from : '2024-02-22',
-            to : '2024-03-03',
+            from : '2024-04-18',
+            to : '2024-05-02',
             // TABLE COLUMNS
             dateHeaders : [],
             summaryHeaders : [],
@@ -1186,6 +1186,7 @@ export default {
             if (this.isDateInHoliday(date, holidays)) {
                 workingHours = 0;
             } else {
+                console.log(dayOffDays)
                 if (!this.isNull(dayOffDays) && dayOffDays.includes(daySpelled) && !this.isDateInSpecialDuty(date, specialDutyDays)) {
                     workingHours = 0;
                 } else {
@@ -1447,7 +1448,7 @@ export default {
                             }
 
                             totalWorkingHours += this.getTotalWorkingHours(this.dateHeaders[j].name, 
-                                response.data['Employees'][i]['DayOffDates'],
+                                this.dayOffDatesToArray(response.data['Employees'][i]['DayOffs']),
                                 response.data['Employees'][i]['SpecialDutyDays'], 
                                 response.data['Holidays']);
                         } 

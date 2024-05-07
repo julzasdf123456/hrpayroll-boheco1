@@ -33,19 +33,19 @@ class PositionsController extends AppBaseController
      */
     public function index(Request $request)
     {
-        $dept = $request['Department'];
+        $dept = isset($request['Department']) ? $request['Department'] : 'OGM';
         if ($dept != null) {
             $positions = Positions::where('Department', $dept)
-                ->orderBy('Department')
-                ->get();
+                ->orderBy('id')
+                ->paginate(30);
         } else {
             $positions = $this->positionsRepository->all();
         }
         
         return view('positions.index', [
-            'positions' => $positions,
-            // 'supers' => Positions::whereIn('Level', ['General Manager', 'Manager', 'Chief', 'Head'])->orderBy('Position')->get(),
-            'supers' => Positions::orderBy('Position')->get(),
+            'positions' => $positions->withQueryString(),
+            'supers' => Positions::whereIn('Level', ['General Manager', 'Manager', 'Chief', 'Supervisor'])->orderBy('Position')->get(),
+            // 'supers' => Positions::orderBy('Position')->get(),
         ]);
     }
 
@@ -193,6 +193,48 @@ class PositionsController extends AppBaseController
 
         if ($position != null) {
             $position->ParentPositionId = $superId;
+            $position->save();
+        }
+
+        return response()->json($position, 200);
+    }
+
+    public function updateLevel(Request $request) {
+        $positionId = $request['PositionId'];
+        $level = $request['Level'];
+
+        $position = Positions::find($positionId);
+
+        if ($position != null) {
+            $position->Level = $level;
+            $position->save();
+        }
+
+        return response()->json($position, 200);
+    }
+
+    public function updateSalary(Request $request) {
+        $positionId = $request['PositionId'];
+        $basicSalary = $request['BasicSalary'];
+
+        $position = Positions::find($positionId);
+
+        if ($position != null) {
+            $position->BasicSalary = $basicSalary;
+            $position->save();
+        }
+
+        return response()->json($position, 200);
+    }
+
+    public function updatePSACategory(Request $request) {
+        $positionId = $request['PositionId'];
+        $PSACategory = $request['PSACategory'];
+
+        $position = Positions::find($positionId);
+
+        if ($position != null) {
+            $position->PSACategory = $PSACategory;
             $position->save();
         }
 
