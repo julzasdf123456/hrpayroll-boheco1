@@ -112,8 +112,8 @@ class EmployeesController extends AppBaseController
         $employeeDesignations = DB::table('EmployeesDesignations')
             ->leftJoin('Positions', 'EmployeesDesignations.PositionId', '=', 'Positions.id')
             ->select('EmployeesDesignations.*', 'Positions.Position')
-            ->where('EmployeeId', $id)
-            ->orderByDesc('created_at')
+            ->where('EmployeesDesignations.EmployeeId', $id)
+            ->orderByDesc('EmployeesDesignations.created_at')
             ->get();
         $rankings = DB::table('Rankings')
             ->leftJoin('RankingRepository', 'Rankings.RankingRepositoryId', '=', 'RankingRepository.id')
@@ -274,14 +274,16 @@ class EmployeesController extends AppBaseController
 
     public function createDesignations($id) {
         $employee = $this->employeesRepository->find($id);
-        $positions = DB::table('Positions')
-            ->select('*')
-            ->orderBy('Position')
+        $departments = DB::table('Positions')
+            ->select('Department')
+            ->orderBy('Department')
+            ->groupBy('Department')
             ->get();
 
         return view('/employees/create_designations', [
             'employee' => $employee,
-            'positions' => $positions,
+            'departments' => $departments,
+            'employeesDesignations' => null,
         ]);
     }
 
@@ -837,6 +839,91 @@ class EmployeesController extends AppBaseController
             )
             ->where('Employees.id', $id)
             ->first();
+
+        return response()->json($data, 200);
+    }
+
+    public function getEmployeesOnLeaveToday(Request $request) {
+        $data = DB::table('LeaveDays')
+            ->leftJoin('LeaveApplications', 'LeaveDays.LeaveId', '=', 'LeaveApplications.id')
+            ->leftJoin('Employees', 'LeaveApplications.EmployeeId', '=', 'Employees.id')
+            ->whereRaw("LeaveDays.LeaveDate='" . date('Y-m-d') . "' AND LeaveApplications.Status='APPROVED'")
+            ->select(
+                'Employees.*',
+                'LeaveApplications.Content',
+                'LeaveApplications.LeaveType'
+            )
+            ->get();
+
+        return response()->json($data, 200);
+    }
+
+    public function getEmployeesOnTripToday(Request $request) {
+        $data = DB::table('TripTickets')
+            ->leftJoin('Employees', 'TripTickets.Driver', '=', 'Employees.id')
+            ->leftJoin(DB::raw("Employees AS e"), 'TripTickets.EmployeeId', '=', DB::raw("e.id"))
+            ->whereRaw("TripTickets.DateOfTravel='" . date('Y-m-d') . "' AND TripTickets.Status IN ('APPROVED', 'FILED')")
+            ->select(
+                'TripTickets.*',
+                'Employees.FirstName AS DriverFirstName',
+                'Employees.MiddleName AS DriverMiddleName',
+                'Employees.LastName AS DriverLastName',
+                'Employees.Suffix AS DriverSuffix',
+                'e.FirstName',
+                'e.MiddleName',
+                'e.LastName',
+                'e.Suffix',
+            )
+            ->get();
+
+        foreach($data as $item) {
+            $item->Destinations = DB::table('TripTicketDestinations')
+                ->whereRaw("TripTicketId='" . $item->id . "'")
+                ->orderBy('DestinationAddress')
+                ->get();
+
+            $item->Passengers = DB::table('TripTicketPassengers')
+                ->leftJoin('Employees', 'TripTicketPassengers.EmployeeId', '=', 'Employees.id')
+                ->whereRaw("TripTicketId='" . $item->id . "'")
+                ->select(
+                    'Employees.FirstName',
+                    'Employees.MiddleName',
+                    'Employees.LastName',
+                    'Employees.Suffix',
+                )
+                ->get();
+        }
+
+        return response()->json($data, 200);
+    }
+
+    public function getEmployeesOnOffsetToday(Request $request) {
+        $data = DB::table('OffsetApplications')
+            ->leftJoin('Employees', 'OffsetApplications.EmployeeId', '=', 'Employees.id')
+            ->whereRaw("OffsetApplications.DateOfOffset='" . date('Y-m-d') . "' AND OffsetApplications.Status='APPROVED'")
+            ->select(
+                'Employees.*',
+                'OffsetApplications.DateOfDuty',
+                'OffsetApplications.PurposeOfDuty',
+            )
+            ->get();
+
+        return response()->json($data, 200);
+    }
+
+    
+    public function getEmployeesOnTravelToday(Request $request) {
+        $data = DB::table('TravelOrderEmployees')
+            ->leftJoin('Employees', 'TravelOrderEmployees.EmployeeId', '=', 'Employees.id')
+            ->leftJoin('TravelOrders', 'TravelOrderEmployees.TravelOrderId', '=', 'TravelOrders.id')
+            ->leftJoin('TravelOrderDays', 'TravelOrders.id', '=', 'TravelOrderDays.TravelOrderId')
+            ->whereRaw("TravelOrderDays.Day='" . date('Y-m-d') . "' AND TravelOrders.Status='APPROVED'")
+            ->select(
+                'Employees.*',
+                'TravelOrders.Destination',
+                'TravelOrders.Purpose',
+            )
+            ->get();
 
         return response()->json($data, 200);
     }

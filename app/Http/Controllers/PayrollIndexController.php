@@ -903,7 +903,7 @@ class PayrollIndexController extends AppBaseController
 
             $item->PowerBills = $totalBillAmount;
 
-            // DAY OFFSET
+            // DAY OFFS
             $item->DayOffs = DB::table('EmployeeDayOffs')
                 ->whereRaw("EmployeeDayOffs.EmployeeId='" . $item->id . "' AND (EmployeeDayOffs.DayOff BETWEEN '" . $from . "' AND '" . $to . "')")
                 ->get();

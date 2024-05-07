@@ -43,7 +43,8 @@ class Positions extends Model
         'ParentPositionId',
         'Notes',
         'BasicSalary',
-        'Department'
+        'Department',
+        'PSACategory',
     ];
 
     /**
@@ -59,7 +60,8 @@ class Positions extends Model
         'ParentPositionId' => 'string',
         'Notes' => 'string',
         'BasicSalary' => 'string',
-        'Department' => 'string'
+        'Department' => 'string',
+        'PSACategory' => 'string',
     ];
 
     /**
@@ -76,7 +78,8 @@ class Positions extends Model
         'created_at' => 'nullable',
         'updated_at' => 'nullable',
         'BasicSalary' => 'nullable',
-        'Department' => 'nullable|string'
+        'Department' => 'nullable|string',
+        'PSACategory' => 'nullable|string',
     ];
 
     

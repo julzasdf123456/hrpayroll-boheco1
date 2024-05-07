@@ -13,7 +13,7 @@
 <!-- Level Field -->
 <div class="form-group col-sm-6">
     {!! Form::label('Level', 'Level:') !!}
-    {!! Form::select('Level', ['General Manager' => 'General Manager', 'Manager' => 'Manager', 'Chief' => 'Chief', 'Supervisor' => 'Supervisor', 'Officer' => 'Officer', 'Clerk' => 'Clerk', 'Employee' => 'Employee'], null, ['class' => 'form-control','maxlength' => 255,'maxlength' => 255]) !!}
+    {!! Form::select('Level', ['General Manager' => 'General Manager', 'Manager' => 'Manager', 'Chief' => 'Chief', 'Supervisor' => 'Supervisor', 'Officer' => 'Officer', 'Clerk' => 'Clerk', 'Rank and File' => 'Rank and File', 'Driver' => 'Driver'], null, ['class' => 'form-control','maxlength' => 255,'maxlength' => 255]) !!}
 </div>
 
 <!-- Parentpositionid Field -->

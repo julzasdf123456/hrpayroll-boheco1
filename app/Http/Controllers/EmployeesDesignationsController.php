@@ -46,7 +46,15 @@ class EmployeesDesignationsController extends AppBaseController
      */
     public function create()
     {
-        return view('employees_designations.create');
+        $departments = DB::table('Positions')
+            ->select('Department')
+            ->orderBy('Department')
+            ->groupBy('Department')
+            ->get();
+
+        return view('employees_designations.create', [
+            'departments' => $departments,
+        ]);
     }
 
     /**
@@ -113,14 +121,15 @@ class EmployeesDesignationsController extends AppBaseController
             return redirect(route('employeesDesignations.index'));
         }
 
-        $positions = DB::table('Positions')
-            ->select('*')
-            ->orderBy('Position')
+        $departments = DB::table('Positions')
+            ->select('Department')
+            ->orderBy('Department')
+            ->groupBy('Department')
             ->get();
 
         return view('employees_designations.edit', [
             'employeesDesignations' => $employeesDesignations,
-            'positions' => $positions
+            'departments' => $departments,
         ]);
     }
 

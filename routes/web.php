@@ -109,6 +109,10 @@ Route::get('/employees/fetch-files', [EmployeesController::class, 'fetchFiles'])
 Route::get('/employees/rename-file', [EmployeesController::class, 'renameFile'])->name('employees.rename-file');
 Route::post('/employees/trash-file', [EmployeesController::class, 'trashFile'])->name('employees.trash-file');
 Route::get('/employees/get-employee-full-ajax', [EmployeesController::class, 'getEmployeeFullAjax'])->name('employees.get-employee-full-ajax');
+Route::get('/employees/get-employees-onleave-today', [EmployeesController::class, 'getEmployeesOnLeaveToday'])->name('employees.get-employees-onleave-today');
+Route::get('/employees/get-employees-ontrip-today', [EmployeesController::class, 'getEmployeesOnTripToday'])->name('employees.get-employees-ontrip-today');
+Route::get('/employees/get-employees-onoffset-today', [EmployeesController::class, 'getEmployeesOnOffsetToday'])->name('employees.get-employees-onoffset-today');
+Route::get('/employees/get-employees-ontravel-today', [EmployeesController::class, 'getEmployeesOnTravelToday'])->name('employees.get-employees-ontravel-today');
 Route::resource('employees', EmployeesController::class);
 
 Route::resource('permissions', App\Http\Controllers\PermissionController::class);
@@ -222,6 +226,9 @@ Route::resource('overtimes', OvertimesController::class);
 Route::get('/positions/tree-view', [PositionsController::class, 'treeView'])->name('positions.tree-view');
 Route::get('/positions/update-super', [PositionsController::class, 'updateSuper'])->name('positions.update-super');
 Route::get('/positions/get-positions', [PositionsController::class, 'getPositions'])->name('positions.get-positions');
+Route::get('/positions/update-level', [PositionsController::class, 'updateLevel'])->name('positions.update-level');
+Route::get('/positions/update-salary', [PositionsController::class, 'updateSalary'])->name('positions.update-salary');
+Route::get('/positions/update-psa-category', [PositionsController::class, 'updatePSACategory'])->name('positions.update-psa-category');
 Route::resource('positions', PositionsController::class);
 
 

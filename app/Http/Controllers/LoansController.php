@@ -127,9 +127,16 @@ class LoansController extends AppBaseController
 
         $this->loansRepository->delete($id);
 
-        Flash::success('Loans deleted successfully.');
-
-        return redirect(route('loans.index'));
+        if ($loans->LoanFor === 'Pag-Ibig') {
+            return redirect(route('loans.pag-ibig'));
+        } elseif ($loans->LoanFor === 'SSS') {
+            return redirect(route('loans.sss'));
+        } elseif ($loans->LoanFor === 'Motorcycle') {
+            return redirect(route('loans.motorcycle'));
+        } else {
+            return redirect(route('loans.other-loans'));
+        }
+        
     }
 
     public function pagIbig(Request $request) {

@@ -9,7 +9,7 @@
 @push('page_scripts')
     <script>
         $(document).ready(function() {
-            // $('body').addClass('sidebar-collapse')
+            $('body').addClass('sidebar-collapse')
             $('#page-title').html("<span class='text-muted'>HR Admin </span> <strong>Dashboard</strong>")
         })
     </script>
