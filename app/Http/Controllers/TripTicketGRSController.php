@@ -168,6 +168,8 @@ class TripTicketGRSController extends AppBaseController
         $tripTicketId = $request['TripTicketId'];
         $purpose = $request['Purpose'];
 
+        $tt = TripTickets::find($tripTicketId);
+
         $id = IDGenerator::generateIDandRandString();
         $grs = new TripTicketGRS;
         $grs->id = $id;
@@ -175,6 +177,7 @@ class TripTicketGRSController extends AppBaseController
         $grs->TotalLiters = $noOfLiters;
         $grs->TripTicketId = $tripTicketId;
         $grs->Purpose = $purpose;
+        $grs->Vehicle = $tt != null ? $tt->Vehicle : null;
         $grs->save();
 
         // UPDATE TripTickets
@@ -220,5 +223,117 @@ class TripTicketGRSController extends AppBaseController
             'grs' => $grs,
             'signatory' => $signatory,
         ]);
+    }
+
+    public function saveGRSNoTripTicket(Request $request) {
+        $typeOfFuel = $request['TypeOfFuel'];
+        $noOfLiters = $request['TotalLiters'];
+        $purpose = $request['Purpose'];
+        $notes = $request['Notes'];
+        $vehicle = $request['Vehicle'];
+
+        $id = IDGenerator::generateIDandRandString();
+        $grs = new TripTicketGRS;
+        $grs->id = $id;
+        $grs->TypeOfFuel = $typeOfFuel;
+        $grs->TotalLiters = $noOfLiters;
+        $grs->Notes = $notes;
+        $grs->Purpose = $purpose;
+        $grs->Vehicle = $vehicle;
+        $grs->save();
+
+        return response()->json($id, 200);
+    }
+
+    public function createGRS(Request $request) {
+        $vehicles = Vehicles::orderBy('VehicleName')->get();
+        
+        return view('/trip_ticket_g_rs/create_grs', [
+            'vehicles' => $vehicles,
+        ]);
+    }
+
+    public function printGRSNoTT($grsId) {
+        $grs = TripTicketGRS::find($grsId);
+
+        return view('/trip_ticket_g_rs/print_grs_no_tt', [
+            'grs' => $grs,
+        ]);
+    }
+
+    public function allGRS(Request $request) {
+        return view('/trip_ticket_g_rs/all_grs', [
+            
+        ]);
+    }
+
+    public function getAllGRSRequisites(Request $request) {
+        $vehicles = Vehicles::orderBy('VehicleName')->get();
+
+        $data = [
+            'Vehicles' => $vehicles,
+        ];
+
+        return response()->json($data, 200);
+    }
+
+    public function getAllGRS(Request $request) {
+        $vehicle = $request['Vehicle'];
+        $withTT = $request['WithTT'];
+        $from = $request['From'];
+        $to = $request['To'];
+
+        if ($from != null && $to != null) {
+            if ($vehicle === 'All') {
+                if ($withTT === 'With Trip Tickets Only') {
+                    $data = TripTicketGRS::whereNotNull('TripTicketId')
+                        ->whereBetween('created_at', [$from, $to])
+                        ->orderByDesc('created_at')
+                        ->paginate(30);
+                } else {
+                    $data = TripTicketGRS::whereBetween('created_at', [$from, $to])
+                        ->orderByDesc('created_at')
+                        ->paginate(30);
+                }
+            } else {
+                if ($withTT === 'With Trip Tickets Only') {
+                    $data = TripTicketGRS::whereNotNull('TripTicketId')
+                        ->where('Vehicle', $vehicle)
+                        ->whereBetween('created_at', [$from, $to])
+                        ->orderByDesc('created_at')
+                        ->paginate(30);
+                } else {
+                    $data = TripTicketGRS::whereBetween('created_at', [$from, $to])
+                        ->where('Vehicle', $vehicle)
+                        ->orderByDesc('created_at')
+                        ->paginate(30);
+                }
+            }
+        } else {
+            if ($vehicle === 'All') {
+                if ($withTT === 'With Trip Tickets Only') {
+                    $data = TripTicketGRS::whereNotNull('TripTicketId')
+                        ->orderByDesc('created_at')
+                        ->paginate(30);
+                } else {
+                    $data = TripTicketGRS::orderByDesc('created_at')
+                        ->paginate(30);
+                }
+            } else {
+                if ($withTT === 'With Trip Tickets Only') {
+                    $data = TripTicketGRS::whereNotNull('TripTicketId')
+                        ->where('Vehicle', $vehicle)
+                        ->orderByDesc('created_at')
+                        ->paginate(30);
+                } else {
+                    $data = TripTicketGRS::orderByDesc('created_at')
+                        ->where('Vehicle', $vehicle)
+                        ->paginate(30);
+                }
+            }
+        }
+        
+
+        return response()->json($data, 200);
     }
 }

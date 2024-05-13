@@ -293,6 +293,12 @@ Route::resource('trip-ticket-signatories', App\Http\Controllers\TripTicketSignat
 Route::get('/trip_ticket_g_rs/print-grs/{ttId}/{grsId}', [TripTicketGRSController::class, 'printGRS'])->name('tripTicketGRS.print-grs');
 Route::get('/trip_ticket_g_rs/save-grs', [TripTicketGRSController::class, 'saveGRS'])->name('tripTicketGRS.save-grs');
 Route::get('/trip_ticket_g_rs/grs-requests', [TripTicketGRSController::class, 'grsRequests'])->name('tripTicketGRS.grs-requests');
+Route::post('/trip_ticket_g_rs/save-grs-no-trip-ticket', [TripTicketGRSController::class, 'saveGRSNoTripTicket'])->name('tripTicketGRS.save-grs-no-trip-ticket');
+Route::get('/trip_ticket_g_rs/create-grs', [TripTicketGRSController::class, 'createGRS'])->name('tripTicketGRS.create-grs');
+Route::get('/trip_ticket_g_rs/print-grs-no-tt/{grsId}', [TripTicketGRSController::class, 'printGRSNoTT'])->name('tripTicketGRS.print-grs-no-tt');
+Route::get('/trip_ticket_g_rs/all-grs', [TripTicketGRSController::class, 'allGRS'])->name('tripTicketGRS.all-grs');
+Route::get('/trip_ticket_g_rs/get-all-grs-requisites', [TripTicketGRSController::class, 'getAllGRSRequisites'])->name('tripTicketGRS.get-all-grs-requisites');
+Route::get('/trip_ticket_g_rs/get-all-grs', [TripTicketGRSController::class, 'getAllGRS'])->name('tripTicketGRS.get-all-grs');
 Route::resource('tripTicketGRS', TripTicketGRSController::class);
 
 Route::get('/offset_applications/reject', [OffsetApplicationsController::class, 'reject'])->name('offsetApplications.reject');

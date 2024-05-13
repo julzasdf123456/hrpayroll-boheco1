@@ -8,10 +8,13 @@
     <section class="content-header">
         <div class="container-fluid">
             <div class="row mb-2">
-                <div class="col-sm-6">
+                <div class="col-lg-6">
                     <h4>
                         Trip Ticket GRS Requests
                     </h4>
+                </div>
+                <div class="col-lg-6">
+                    <a href="{{ route('tripTicketGRS.all-grs') }}" class="float-right btn btn-primary-skinny">View All GRS</a>
                 </div>
             </div>
         </div>
@@ -39,7 +42,7 @@
                             </thead>
                             <tbody>
                                 @foreach ($tripTickets as $item)
-                                    <tr id="{{ $item->id }}">
+                                    <tr id="{{ $item->id }}" style="cursor: pointer;">
                                         <td onclick="expand(`{{ $item->id }}`)">{{ $item->id }}</td>
                                         <td onclick="expand(`{{ $item->id }}`)">{{ date('F d, Y', strtotime($item->DateOfTravel)) }}</td>
                                         <td onclick="expand(`{{ $item->id }}`)">{{ Employees::getMergeName($item) }}</td>
