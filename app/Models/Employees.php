@@ -358,6 +358,10 @@ class Employees extends Model
         return $interval->y;
     }
 
+
+    /**
+     * Returns a whole year longevity array
+     */
     public static function getWholeYearLongevity($employee, $year) {
         $dateHired = new DateTime($employee->DateHired);
         $startDate = date('Y-m-d', strtotime('January ' . date('d', strtotime($employee->DateHired)) . ', ' . $year));
