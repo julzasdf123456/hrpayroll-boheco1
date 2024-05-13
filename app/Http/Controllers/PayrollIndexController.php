@@ -609,6 +609,7 @@ class PayrollIndexController extends AppBaseController
                         'Employees.PayrollScheduleId',
                         'Employees.NoAttendanceAllowed',
                         'Employees.DayOffDates',
+                        'Employees.DateHired',
                         'Positions.BasicSalary AS SalaryAmount',
                         'Positions.Level',
                         'EmployeesDesignations.Status',
@@ -616,7 +617,7 @@ class PayrollIndexController extends AppBaseController
                         'PayrollSchedules.BreakStart',
                         'PayrollSchedules.BreakEnd',
                         'PayrollSchedules.EndTime',
-                        'EmployeePayrollSundries.Longevity',
+                        // 'EmployeePayrollSundries.Longevity',
                         'EmployeePayrollSundries.RiceAllowance',
                         'EmployeePayrollSundries.Insurances',
                         'EmployeePayrollSundries.PagIbigContribution',
@@ -642,6 +643,7 @@ class PayrollIndexController extends AppBaseController
                         'Employees.BiometricsUserId',
                         'Employees.PayrollScheduleId',
                         'Employees.NoAttendanceAllowed',
+                        'Employees.DateHired',
                         'Employees.DayOffDates',
                         'Positions.BasicSalary AS SalaryAmount',
                         'Positions.Level',
@@ -650,7 +652,7 @@ class PayrollIndexController extends AppBaseController
                         'PayrollSchedules.BreakStart',
                         'PayrollSchedules.BreakEnd',
                         'PayrollSchedules.EndTime',
-                        'EmployeePayrollSundries.Longevity',
+                        // 'EmployeePayrollSundries.Longevity',
                         'EmployeePayrollSundries.RiceAllowance',
                         'EmployeePayrollSundries.Insurances',
                         'EmployeePayrollSundries.PagIbigContribution',
@@ -902,6 +904,9 @@ class PayrollIndexController extends AppBaseController
                 ->get();
 
             $item->PowerBills = $totalBillAmount;
+
+            // LOGEVITY
+            $item->Longevity = Employees::getWholeYearLongevity($item, date('Y'));
 
             // DAY OFFS
             $item->DayOffs = DB::table('EmployeeDayOffs')

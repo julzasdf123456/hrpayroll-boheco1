@@ -1186,7 +1186,6 @@ export default {
             if (this.isDateInHoliday(date, holidays)) {
                 workingHours = 0;
             } else {
-                console.log(dayOffDays)
                 if (!this.isNull(dayOffDays) && dayOffDays.includes(daySpelled) && !this.isDateInSpecialDuty(date, specialDutyDays)) {
                     workingHours = 0;
                 } else {
@@ -1340,6 +1339,27 @@ export default {
             }
             return arr;
         },
+        getLongevity(longevity) {
+            var value = 0
+
+            for(let i=0; i<longevity.length; i++) {
+                const obj = longevity[i]
+
+                if (!this.isNull(obj)) {
+                    const currentLongevityMonth = moment(obj.Month).format('MMMM')
+                    const currentPeriod = moment(this.salaryPeriod).format('MMMM')
+
+                    if (currentLongevityMonth === currentPeriod) {
+                        value = obj.Longevity
+                        break
+                    }
+                } else {
+                    value = 0
+                }
+            }
+
+            return value
+        },
         generate() {
             if (this.isNull(this.employeeType) | this.isNull(this.department) | this.isNull(this.salaryPeriod) | this.isNull(this.from) | this.isNull(this.to)) {
                 Swal.fire({
@@ -1477,10 +1497,14 @@ export default {
                         summaryChunks.push(lateHours > 0 ? lateHours : '-'); 
                         // TOTAL AMOUNT ABSENT/LATE
                         summaryChunks.push(lateAmount > 0 ? `₱` + this.toMoney(lateAmount) : '-'); 
+
                         // LONGEVITY
-                        var longevity = this.isNull(response.data['Employees'][i]['Longevity']) ? 0 : parseFloat(response.data['Employees'][i]['Longevity']);
-                        console.log(this.salaryPeriod)
-                        longevity = this.isFifteenth(this.salaryPeriod) ? 0 : longevity;
+                        //old
+                        // var longevity = this.isNull(response.data['Employees'][i]['Longevity']) ? 0 : parseFloat(response.data['Employees'][i]['Longevity']);
+                        // longevity = this.isFifteenth(this.salaryPeriod) ? 0 : longevity;
+                        //new
+                        console.log(response.data['Employees'][i]['Longevity'])
+                        var longevity = this.isFifteenth(this.salaryPeriod) ? 0 : this.getLongevity(response.data['Employees'][i]['Longevity'])
                         summaryChunks.push(longevity > 0 ? `₱` + this.toMoney(longevity) : '-'); 
 
                         // RICE ALLOWANCE/LAUNDRY
