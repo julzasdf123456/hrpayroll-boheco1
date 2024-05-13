@@ -45,7 +45,7 @@
 @endcanany
 
 
-{{-- LEAVE --}}
+{{-- MANUAL ENTRIES --}}
 <li class="nav-item">
     <a href="#" class="nav-link">
         <i class="nav-icon fas fa-sign-out-alt"></i>
@@ -65,6 +65,12 @@
             <a href="{{ route('tripTickets.manual-entry') }}"
                class="nav-link {{ Request::is('tripTickets.manual-entry*') ? 'active' : '' }}">
                 <i class="fas fa-plane-departure nav-icon"></i><p>Trip Tickets</p>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="{{ route('tripTicketGRS.create-grs') }}"
+               class="nav-link {{ Request::is('tripTicketGRS.create-grs*') ? 'active' : '' }}">
+                <i class="fas fa-gas-pump nav-icon"></i><p>GRS</p>
             </a>
         </li>
         <li class="nav-item">

@@ -186,7 +186,7 @@
                 <table class="table" style="width: 100% !important;">
                     <tr>
                         <td style="width: 30%;">DATE:</td>
-                        <td class="underlined">{{ date('M d, Y', strtotime($tripTicket->DateOfTravel)) }}</td>
+                        <td class="underlined">{{ date('M d, Y') }}</td>
                     </tr>
                     <tr>
                         <td>GRS No:</td>
@@ -202,7 +202,7 @@
                     </tr>
                     <tr>
                         <td>Vehicle:</td>
-                        <td class="underlined">{{ $tripTicket->Vehicle }}</td>
+                        <td class="underlined">{{ $grs->Vehicle }}</td>
                     </tr>
                     <tr>
                         <td>Vehicle No.:</td>
@@ -212,7 +212,7 @@
                         <td style="text-align: left; vertical-align: top; padding-top: 10px;">Travel Purpose:</td>
                         <td style="padding-top: 10px;">
                             @php
-                                $purpose = explode(";", $tripTicket->PurposeOfTravel);
+                                $purpose = explode(";", $grs->Purpose);
                             @endphp
                             <ul style="height: 5.2em; overflow: hidden; text-overflow: '>>';">
                                 @for ($i = 0; $i<count($purpose); $i++)
@@ -225,19 +225,15 @@
 
                 <div class="row">
                     <div class="col-md-7">
-                        <h4 class="no-line-spacing center-text underlined">{{ Employees::getDriverMergeName($tripTicket) }}</h4>
+                        <h4 class="no-line-spacing center-text underlined"></h4>
                         <p class="no-line-spacing center-text"><i>Driver's Name over Signature</i></p>
                     </div>
                     <div class="col-md-5"></div>
                     <div class="col-md-5"></div>
                     <div class="col-md-7">
                         <br><br><br>
-                        @if ($signatory != null)
-                            <h4 class="no-line-spacing center-text underlined">{{ $signatory->name }}</h4>
-                        @else
-                            <h4 class="no-line-spacing center-text underlined"></h4>
-                        @endif
                         
+                        <h4 class="no-line-spacing center-text underlined"></h4>
                         <p class="no-line-spacing center-text"><i>Department Manager</i></p>
                     </div>
 
@@ -259,7 +255,10 @@
 <script type="text/javascript">   
     window.print();
 
+    // window.setTimeout(function(){
+    //     window.location.href = "{{ url('/') }}"
+    // }, 1000); 
     window.setTimeout(function(){
         window.history.go(-1)
-    }, 1000);   
+    }, 1000);    
 </script>

@@ -16,7 +16,8 @@ class TripTicketGRS extends Model
         'TotalLiters',
         'TypeOfFuel',
         'CarRatio',
-        'Notes'
+        'Notes',
+        'Vehicle'
     ];
 
     protected $casts = [
@@ -27,7 +28,8 @@ class TripTicketGRS extends Model
         'TotalLiters' => 'string',
         'TypeOfFuel' => 'string',
         'CarRatio' => 'string',
-        'Notes' => 'string'
+        'Notes' => 'string',
+        'Vehicle' => 'string',
     ];
 
     public static array $rules = [
@@ -39,7 +41,8 @@ class TripTicketGRS extends Model
         'CarRatio' => 'nullable|string|max:50',
         'Notes' => 'nullable|string|max:1000',
         'created_at' => 'nullable',
-        'updated_at' => 'nullable'
+        'updated_at' => 'nullable',
+        'Vehicle' => 'nullable|string',
     ];
 
     
