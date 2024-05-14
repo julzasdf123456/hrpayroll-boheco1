@@ -31,6 +31,10 @@
                                     @if ($employees->ContactNumbers != null)
                                         <span style="margin-left: 15px; margin-right: 15px;">|</span><i class="fas fa-phone ico-tab-mini"></i>{{ $employees->ContactNumbers }}
                                     @endif
+
+                                    @if ($employees->PositionStatus != null)
+                                        <span style="margin-left: 15px; margin-right: 15px;">|</span><i class="fas fa-info-circle ico-tab-mini"></i>{{ $employees->PositionStatus }}
+                                    @endif
                                 </span>
                             </span>
                         </div>
@@ -107,6 +111,10 @@
 
                                 <table class="table table-sm table-borderless" style="margin-top: 18px;">
                                     <tbody>
+                                        <tr>
+                                            <td><i class="fas text-muted fa-venus-mars"></i></td>
+                                            <td>{{ $employees->Gender }}</td>
+                                        </tr>
                                         <tr>
                                             <td><i class="fas text-muted fa-at"></i></td>
                                             <td>{{ $employees->EmailAddress }}</td>

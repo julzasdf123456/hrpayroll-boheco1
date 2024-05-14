@@ -93,6 +93,7 @@ class Employees extends Model
         'SSSNumber',
         'PhilHealthNumber',
         'PagIbigNumber',
+        'PositionStatus'
     ];
 
     /**
@@ -139,6 +140,7 @@ class Employees extends Model
         'SSSNumber' => 'string',
         'PhilHealthNumber' => 'string',
         'PagIbigNumber' => 'string',
+        'PositionStatus' => 'string',
     ];
 
     /**
@@ -186,6 +188,7 @@ class Employees extends Model
         'SSSNumber' => 'nullable|string',
         'PhilHealthNumber' => 'nullable|string',
         'PagIbigNumber' => 'nullable|string',
+        'PositionStatus' => 'nullable|string',
     ];
 
     public static function getMergeName($employee) {

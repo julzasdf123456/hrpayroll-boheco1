@@ -42,14 +42,14 @@ class LeaveBalances extends Model
     public $fillable = [
         'id',
         'EmployeeId',
-        'Vacation',
-        'Sick',
-        'Special',
-        'Maternity',
-        'MaternityForSoloMother',
-        'Paternity',
-        'SoloParent',
-        'Notes',
+        'Vacation', // minutes (days = bal / 8 / 60)
+        'Sick', // minutes (days = bal / 8 / 60)
+        'Special', // days
+        'Maternity', // days
+        'MaternityForSoloMother', // days
+        'Paternity', // days
+        'SoloParent', // days
+        'Notes', 
         'Month',
         'Year',
     ];
@@ -95,5 +95,49 @@ class LeaveBalances extends Model
         'Year' => 'nullable|string'
     ];
 
-    
+    public static function toDay($mins) {
+        if ($mins != null && is_numeric($mins)) {
+            return round($mins / 8 / 60, 2);
+        } else {
+            return 0;
+        }
+    }
+
+    public static function toExpanded($mins) {
+        if ($mins != null && is_numeric($mins) && $mins > 0) {
+            $days = (int) ($mins / 8 / 60);
+            
+            // hours
+            $exactDayInMins = $days * 8 * 60;
+            $excessMins = $mins - $exactDayInMins;
+            $hours = (int) ($excessMins / 60);
+
+            // mins
+            $totalMins = ($days * 8 * 60) + ($hours * 60);
+            $excessMins = $mins - $totalMins;
+
+            return $days . ' days, ' . $hours . ' hrs, ' . $excessMins . ' mins';
+        } else {
+            return 0 . ' days, ' . 0 . ' hrs, ' . 0 . ' mins';
+        }
+    }
+
+    public static function toExpandedHtml($mins) {
+        if ($mins != null && is_numeric($mins) && $mins > 0) {
+            $days = (int) ($mins / 8 / 60);
+            
+            // hours
+            $exactDayInMins = $days * 8 * 60;
+            $excessMins = $mins - $exactDayInMins;
+            $hours = (int) ($excessMins / 60);
+
+            // mins
+            $totalMins = ($days * 8 * 60) + ($hours * 60);
+            $excessMins = $mins - $totalMins;
+
+            return '<span class="text-lg text-primary">' . $days . '</span> days, <span class="text-lg text-primary">' . $hours . '</span> hrs, <span class="text-lg text-primary">' . $excessMins . '</span> mins';
+        } else {
+            return '<span class="text-lg text-primary">' . 0 . '</span> days, <span class="text-lg text-primary">' . 0 . '</span> hrs, <span class="text-lg text-primary">' . 0 . '</span> mins';
+        }
+    }
 }
