@@ -1,5 +1,6 @@
 @php
     use App\Models\Employees;
+    use App\Models\LeaveBalances;
 
     $colorProf = Auth::user()->ColorProfile;
 @endphp
@@ -46,16 +47,15 @@
                             <table class="table table-sm" style="margin-top: 18px;">
                                 <tbody>
                                     <tr>
-                                        <td class="text-muted" style="vertical-align: middle;">Vacation leave credit</td>
+                                        <td class="text-muted" style="vertical-align: middle;">Vacation</td>
                                         <td class="text-right">
-                                            <span class="text-primary text-lg">{{ $leaveBalances != null ? number_format($leaveBalances->Vacation, 1) : '0' }}</span>
-                                            <span class="text-muted"> days</span>
+                                            {!! $leaveBalances != null ? html_entity_decode(LeaveBalances::toExpandedHtml($leaveBalances->Vacation)) : '0' !!}
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td class="text-muted" style="vertical-align: middle;">Sick leave credit</td>
+                                        <td class="text-muted" style="vertical-align: middle;">Sick</td>
                                         <td class="text-right">
-                                            <span class="text-primary text-lg">{{ $leaveBalances != null ? number_format($leaveBalances->Sick, 1) : '0' }}</span>
+                                            {!! $leaveBalances != null ? html_entity_decode(LeaveBalances::toExpandedHtml($leaveBalances->Sick)) : '0' !!}
                                             <span class="text-muted"> days</span>
                                         </td>
                                     </tr>

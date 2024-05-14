@@ -1,11 +1,15 @@
+@php
+    use App\Models\LeaveBalances;
+@endphp
+
 @if ($leaveBalance != null)
     <table class="table table-borderless table-sm" style="margin-top: 24px;">
         <tr>
             <td class="text-center">
-                <span style="font-size: 3em; font-weight: bold">{{ number_format($leaveBalance->Vacation, 1) }}</span>
+                <span style="font-size: 3em; font-weight: bold">{{ number_format(LeaveBalances::toDay($leaveBalance->Vacation), 1) }}</span>
             </td>
             <td class="text-center">
-                <span style="font-size: 3em; font-weight: bold">{{ number_format($leaveBalance->Sick, 1) }}</span>
+                <span style="font-size: 3em; font-weight: bold">{{ number_format(LeaveBalances::toDay($leaveBalance->Sick), 1) }}</span>
             </td>
             <td class="text-center">
                 <span style="font-size: 3em; font-weight: bold">{{ number_format($leaveBalance->Special, 1) }}</span>
@@ -29,9 +33,13 @@
         </tr>
         <tr>
             <td class="text-center text-muted">
+                {{ LeaveBalances::toExpanded($leaveBalance->Vacation) }}
+                <br>
                 Vacation
             </td>
             <td class="text-center text-muted">
+                {{ LeaveBalances::toExpanded($leaveBalance->Sick) }}
+                <br>
                 Sick
             </td>
             <td class="text-center text-muted">

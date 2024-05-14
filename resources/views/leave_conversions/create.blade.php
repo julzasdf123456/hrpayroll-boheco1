@@ -1,5 +1,6 @@
 @php
     use App\Models\Employees;
+    use App\Models\LeaveBalances;
 @endphp
 @extends('layouts.app')
 
@@ -22,7 +23,7 @@
                                     <select class="custom-select select2"  name="EmployeeId" id="EmployeeId" style="width: 100%;" required>
                                         <option value="">-- Select --</option>
                                         @foreach ($employees as $item)
-                                            <option value="{{ $item->id }}" {{ Auth::user()->employee_id==$item->id ? 'selected' : '' }} sick="{{ $item->Sick }}" vacation="{{ $item->Vacation }}">{{ Employees::getMergeNameFormal($item) }}</option>
+                                            <option value="{{ $item->id }}" {{ Auth::user()->employee_id==$item->id ? 'selected' : '' }} sick="{{ LeaveBalances::toDay($item->Sick) }}" vacation="{{ LeaveBalances::toDay($item->Vacation) }}">{{ Employees::getMergeNameFormal($item) }}</option>
                                         @endforeach
                                     </select>
                                 </td>

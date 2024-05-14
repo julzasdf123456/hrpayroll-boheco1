@@ -78,6 +78,7 @@ class EmployeesDesignationsController extends AppBaseController
 
         if ($employee != null) {
             $employee->Designation = $employeesDesignations->id;
+            $employee->PositionStatus = $request['Status'];
             $employee->save();
         }
 
@@ -157,6 +158,7 @@ class EmployeesDesignationsController extends AppBaseController
 
         if ($employee != null) {
             $employee->Designation = $employeesDesignations->id;
+            $employee->PositionStatus = $request['Status'];
             $employee->save();
         }
 

@@ -1,5 +1,6 @@
 @php
     use App\Models\Employees;
+    use App\Models\LeaveBalances;
 @endphp
 @extends('layouts.app')
 
@@ -212,8 +213,8 @@
         }
 
         function updateLeaveBalancesTable() {
-            $('#balance-vacation').html(isNull(leaveBalances.Vacation) ? '...' : leaveBalances.Vacation + " <span class='text-muted'>days</span>")
-            $('#balance-sick').html(isNull(leaveBalances.Sick) ? '...' : leaveBalances.Sick + " <span class='text-muted'>days</span>")
+            $('#balance-vacation').html(isNull(leaveBalances.Vacation) ? '...' : leaveBalances.VacationExpanded)
+            $('#balance-sick').html(isNull(leaveBalances.Sick) ? '...' : leaveBalances.SickExpanded)
             $('#balance-special').html(isNull(leaveBalances.Special) ? '...' : leaveBalances.Special + " <span class='text-muted'>days</span>")
             $('#balance-maternity').html(isNull(leaveBalances.Maternity) ? '...' : leaveBalances.Maternity + " <span class='text-muted'>days</span>")
             $('#balance-maternity-solo-parent').html(isNull(leaveBalances.MaternityForSoloMother) ? '...' : leaveBalances.MaternityForSoloMother + " <span class='text-muted'>days</span>")
@@ -223,6 +224,8 @@
             // validate select
             $('input[name="LeaveType"]').prop('checked', false);
 
+            /**
+             * Disallow filing of leave if no more balance
             if (!isNull(leaveBalances.Vacation) && leaveBalances.Vacation > 0) {
                 $('#Vacation').prop('disabled', false)
             } else {
@@ -263,7 +266,7 @@
                 $('#SoloParent').prop('disabled', false)
             } else {
                 $('#SoloParent').prop('disabled', true)
-            }
+            }**/
         }
 
         /**
@@ -342,8 +345,9 @@
             } else {
                 $.ajax({
                     url : "{{ route('leaveApplications.manual-save') }}",
-                    type : "GET",
+                    type : "POST",
                     data : {
+                        _token : "{{ csrf_token() }}",
                         EmployeeId : employee,
                         LeaveType : leaveType,
                         Reason : reason,
@@ -358,11 +362,21 @@
 
                         // clear
                         leaveDates = []
-                        populateLeaveTable()
-                        $('#EmployeeId').val('').change()
+                        // populateLeaveTable()
+                        $('#dates-table tbody tr').remove()
+                        $('#EmployeeId').val('')
                         $('input[name="LeaveType"]').prop('checked', false)
                         $('#DateFiled').val('')
                         $('#Reason').val('')
+
+                        // clear leaves
+                        $('#balance-vacation').html('...')
+                        $('#balance-sick').html('...')
+                        $('#balance-special').html('...')
+                        $('#balance-maternity').html('...')
+                        $('#balance-maternity-solo-parent').html('...')
+                        $('#balance-paternity').html('...')
+                        $('#balance-solo-parent').html('...')
                     },
                     error : function(err) {
                         Toast.fire({

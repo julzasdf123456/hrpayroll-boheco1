@@ -157,7 +157,7 @@ Route::get('/leave_applications/reject-leave-ajax', [LeaveApplicationsController
 Route::get('/leave_applications/get-leaves-by-type', [LeaveApplicationsController::class, 'getLeavesByType'])->name('leaveApplications.get-leaves-by-type');
 Route::get('/leave_applications/manual-entries', [LeaveApplicationsController::class, 'manualEntries'])->name('leaveApplications.manual-entries');
 Route::get('/leave_applications/get-leave-balances-by-employee', [LeaveApplicationsController::class, 'getLeaveBalancesByEmployee'])->name('leaveApplications.get-leave-balances-by-employee');
-Route::get('/leave_applications/manual-save', [LeaveApplicationsController::class, 'manualSave'])->name('leaveApplications.manual-save');
+Route::post('/leave_applications/manual-save', [LeaveApplicationsController::class, 'manualSave'])->name('leaveApplications.manual-save');
 Route::get('/leave_applications/publish-leave/{id}', [LeaveApplicationsController::class, 'publishLeave'])->name('leaveApplications.publish-leave');
 Route::resource('leaveApplications', LeaveApplicationsController::class);
 
@@ -439,3 +439,4 @@ Route::resource('travelOrders', TravelOrdersController::class);
 Route::resource('travelOrderEmployees', App\Http\Controllers\TravelOrderEmployeesController::class);
 Route::resource('travelOrderDays', App\Http\Controllers\TravelOrderDaysController::class);
 Route::resource('travel-order-signatories', App\Http\Controllers\TravelOrderSignatoriesController::class);
+Route::resource('leaveExcessAbsences', App\Http\Controllers\LeaveExcessAbsencesController::class);

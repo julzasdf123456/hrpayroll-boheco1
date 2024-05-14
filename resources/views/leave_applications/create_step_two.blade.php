@@ -1,5 +1,6 @@
 @php
     use App\Models\Employees;
+    use App\Models\LeaveBalances;
 @endphp
 @extends('layouts.app')
 
@@ -19,7 +20,14 @@
             {{-- ADD DAYS --}}
             <div class="card shadow-none">
                 <div class="card-header border-0">
-                    <span class="card-title">Select Days <strong class="text-muted">({{ $leaveApplication->LeaveType }} available days: {{ $leaveBalance->Balance }})</strong></span>
+                    <span class="card-title">Select Days 
+                        <br> 
+                        @if ($leaveApplication->LeaveType === 'Vacation' | $leaveApplication->LeaveType === 'Sick')
+                            <strong class="text-muted">({{ $leaveApplication->LeaveType }} available: {{ LeaveBalances::toExpanded($leaveBalance->Balance) }})</strong></span>
+                        @else
+                            <strong class="text-muted">({{ $leaveApplication->LeaveType }} available days: {{ $leaveBalance->Balance }})</strong></span>
+                        @endif
+                        
                 </div>
                 <div class="card-body">
                     <div class="form-group">
@@ -113,7 +121,7 @@
                             <div class="col-5" style="margin-top: 20px;">
                                 <p class="text-center" style="padding: 0 !important; margin: 0 !important;">
                                     <u><strong>{{ Employees::getMergeName($item) }}</strong></u>
-                                    <button class="btn btn-xs float-right text-danger" title="Delete this signatory" onclick="deleteSignatory({{ $item->id }})"><i class="fas fa-trash"></i></button>
+                                    {{-- <button class="btn btn-xs float-right text-danger" title="Delete this signatory" onclick="deleteSignatory({{ $item->id }})"><i class="fas fa-trash"></i></button> --}}
                                 </p>
                                 <address class="text-center"><i>{{ $item->Position }}</i></address>                                
                             </div>

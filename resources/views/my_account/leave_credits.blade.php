@@ -1,5 +1,6 @@
 @php
     use App\Models\Employees;
+    use App\Models\LeaveBalances;
 
     $colorProf = Auth::user()->ColorProfile;
 @endphp
@@ -41,16 +42,16 @@
                             <tbody>
                                 <tr>
                                     <td class="text-muted">Vacation leave credits</td>
-                                    <td class="text-right">{{ $leaveBalances != null ? number_format($leaveBalances->Vacation, 1) . ' days' : '-' }}</td>
-                                    <td class="text-right">{{ $leaveBalances != null ? ($leaveBalances->Vacation >= 15 ? number_format($leaveBalances->Vacation - 15) . ' days' : '-') : '-' }}</td>
+                                    <td class="text-right">{{ $leaveBalances != null ? LeaveBalances::toExpanded($leaveBalances->Vacation) : '-' }}</td>
+                                    <td class="text-right">{{ $leaveBalances != null ? (LeaveBalances::toDay($leaveBalances->Vacation) >= 15 ? number_format(LeaveBalances::toDay($leaveBalances->Vacation) - 15) . ' days' : '-') : '-' }}</td>
                                     <td class="text-right">
                                         <button onclick="showModal(`Vacation`)" class="btn btn-link-muted btn-sm" title="View logs"><i class="fas fa-chevron-right"></i></button>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td class="text-muted">Sick leave credits</td>
-                                    <td class="text-right">{{ $leaveBalances != null ? number_format($leaveBalances->Sick, 1) . ' days' : '-' }}</td>
-                                    <td class="text-right">{{ $leaveBalances != null ? ($leaveBalances->Sick > 150 ? number_format($leaveBalances->Sick - 151) . ' days' : '-') : '-' }}</td>
+                                    <td class="text-right">{{ $leaveBalances != null ? LeaveBalances::toExpanded($leaveBalances->Sick) : '-' }}</td>
+                                    <td class="text-right">{{ $leaveBalances != null ? (LeaveBalances::toDay($leaveBalances->Sick) > 150 ? number_format(LeaveBalances::toDay($leaveBalances->Sick) - 151) . ' days' : '-') : '-' }}</td>
                                     <td class="text-right">
                                         <button onclick="showModal(`Sick`)" class="btn btn-link-muted btn-sm" title="View logs"><i class="fas fa-chevron-right"></i></button>
                                     </td>

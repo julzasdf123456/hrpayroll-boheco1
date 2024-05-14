@@ -291,8 +291,8 @@ class LeaveConversionsController extends AppBaseController
                 // UPDATE LeaveBalances
                 $leaveBalances = LeaveBalances::where('EmployeeId', $leaveConversion->EmployeeId)->first();
                 if ($leaveBalances != null) {
-                    $leaveBalances->Vacation = $leaveBalances->Vacation != null ? ($leaveBalances->Vacation - $leaveConversion->VacationDays) : 0;
-                    $leaveBalances->Sick = $leaveBalances->Sick != null ? ($leaveBalances->Sick - $leaveConversion->SickDays) : 0;
+                    $leaveBalances->Vacation = $leaveBalances->Vacation != null ? ($leaveBalances->Vacation - ($leaveConversion->VacationDays * 8 * 60)) : 0;
+                    $leaveBalances->Sick = $leaveBalances->Sick != null ? ($leaveBalances->Sick - ($leaveConversion->SickDays * 8 * 60)) : 0;
                     $leaveBalances->save();
 
                     // VACATION
