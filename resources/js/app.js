@@ -40,6 +40,7 @@ import WithholdingTaxesView from "./components/my-account/withholding-taxes-view
 import TreeView from "./components/positions/tree-view.vue"
 import EmployeeFinder from "./components/common/employee-finder.vue"
 import AllGRS from "./components/trip-tickets/all-grs.vue"
+import Chat from "./components/chat/chat.vue"
 
 const app = createApp({
     
@@ -72,5 +73,6 @@ app.component('withholding-taxes-view', WithholdingTaxesView);
 app.component('tree-view',TreeView);
 app.component('employee-finder',EmployeeFinder);
 app.component('all-grs', AllGRS);
+app.component('chat', Chat);
 
 app.mount("#app");

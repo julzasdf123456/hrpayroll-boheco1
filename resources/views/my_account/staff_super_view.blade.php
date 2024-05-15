@@ -85,6 +85,12 @@
                                     </tr>
                                     <tr>
                                         <td style="width: 30px;">
+                                            <span class="color-legend" style="background-color: #3254a8;"></span>
+                                        </td>
+                                        <td>Official Travel</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="width: 30px;">
                                             <span class="color-legend" style="background-color: #7a3041;"></span>
                                         </td>
                                         <td>Leave</td>
@@ -305,6 +311,22 @@
                         obj['backgroundColor'] = '#de5e02';
                         obj['borderColor'] = '#de5e02';
                         obj['start'] = moment(dayOffs[index]['DayOff']).format('YYYY-MM-DD');
+
+                        obj['allDay'] = true;
+                        scheds.push(obj)
+                    })
+
+                    /**
+                     * TRAVEL ORDERS
+                     **/
+                     var travels = res['TravelOrders']
+                    $.each(travels, function(index, element) {
+                        var obj = {}
+
+                        obj['title'] = 'TRAVEL'
+                        obj['backgroundColor'] = '#3254a8';
+                        obj['borderColor'] = '#3254a8';
+                        obj['start'] = moment(travels[index]['Day']).format('YYYY-MM-DD');
 
                         obj['allDay'] = true;
                         scheds.push(obj)
