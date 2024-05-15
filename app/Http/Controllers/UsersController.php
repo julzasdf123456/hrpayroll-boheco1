@@ -34,6 +34,7 @@ use App\Models\LeaveImageAttachments;
 use App\Models\DayOffSchedules;
 use App\Models\TripTickets;
 use App\Models\EmployeeDayOffs;
+use App\Models\LeaveExcessAbsences;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Flash;
@@ -264,10 +265,15 @@ class UsersController extends AppBaseController
 
         $leaveBalanceDetails = LeaveBalanceDetails::where('EmployeeId', $employeeId)->orderByDesc('created_at')->get();
 
+        $leaveBalanceExcess = LeaveExcessAbsences::where('EmployeeId', $employeeId)
+            ->orderByDesc('created_at')
+            ->get();
+
         return view('/my_account/leave_credits', [
             'employees' => $employee,
             'leaveBalances' => $leaveBalances,
             'leaveBalanceDetails' => $leaveBalanceDetails,
+            'leaveBalanceExcess' => $leaveBalanceExcess,
         ]);
     }
 

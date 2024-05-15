@@ -74,15 +74,16 @@
                         <label for="TypeOfLeave">Type of Leave</label>
                         <select class="form-control" name="TypeOfLeave" id="TypeOfLeave">
                             <option value="">-- Select --</option>
-                            <option value="1.25">Extra</option>
-                            <option value="1.25">Ordinary</option>
-                            <option value="1.25">Offday</option>
-                            <option value="2">Holiday</option>
+                            <option value="1.25">Rest Day</option>
+                            <option value="1.25">Regular Holiday</option>
+                            <option value="1.25">Regular Holiday + Rest Day</option>
+                            <option value="1.25">Special Non-Working Holiday</option>
+                            <option value="1.25">Special Non-Working Holiday + Rest Day</option>
                         </select>
                     </div>
                     <div class="col-lg-1 col-md-6">
                         <label for="MaxHours">Max Hours</label>
-                        <input type="number" step="any" id="MaxHours" class="form-control text-right" value="4">
+                        <input type="number" step="any" id="MaxHours" class="form-control text-right" value="8">
                     </div>
                     <div class="col-lg-12" style="margin-top: 5px;">
                         <button onclick="addToQueue()" class="btn btn-primary btn-sm float-right"><i class="fas fa-plus-circle ico-tab-mini"></i>Add To Queue</button>

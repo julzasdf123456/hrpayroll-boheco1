@@ -162,10 +162,10 @@ export default {
             }),
             // PAYROLL DATA
             employeeType : 'Regular',
-            department : 'ESD',
+            department : 'OGM',
             salaryPeriod : '',
-            from : '2024-04-18',
-            to : '2024-05-02',
+            from : '2024-05-01',
+            to : '2024-05-15',
             // TABLE COLUMNS
             dateHeaders : [],
             summaryHeaders : [],
@@ -1165,9 +1165,97 @@ export default {
             };
         },
         getSalaryPerHour(baseSalary) {
-            baseSalary = parseFloat(baseSalary);
+            baseSalary = parseFloat(baseSalary)
 
-            return this.round(((baseSalary * 12) / 302) / 8);
+            return this.round(((baseSalary * 12) / 302) / 8)
+        },
+        getSalaryPerDay(baseSalary) {
+            baseSalary = parseFloat(baseSalary)
+
+            return this.round((baseSalary * 12) / 302)
+        },
+        computeOvertime(overtimes, employeeData) {
+            var totalHours = 0;
+            var totalAmount = 0;
+            const baseSalary = employeeData['SalaryAmount'];
+            const salaryPerDay = this.getSalaryPerDay(baseSalary)
+            const salaryPerHour = this.getSalaryPerHour(baseSalary)
+
+            for (let i=0; i<overtimes.length; i++) {
+                const hours = parseFloat(overtimes[i]['TotalHours'])
+                totalHours += hours
+
+                if (overtimes[i]['TypeOfDay'] === 'Rest Day') {
+                    totalAmount += salaryPerHour * 1.3 * hours
+                } else if (overtimes[i]['TypeOfDay'] === 'Regular Holiday') {
+                    if (hours >= 8) {
+                        // get excess of 8 hours
+                        var excess8 = hours - 8
+
+                        // calculate first 8
+                        const first8 = salaryPerDay * 2
+                        // calculate excess of 8
+                        const excess8Amount = salaryPerHour * 2 * 1.3 * excess8
+
+                        totalAmount += (first8 + excess8Amount)
+                    } else {
+                        // compute hourly if duty is less than 8 hours
+                        totalAmount += salaryPerHour * 2 * hours
+                    }
+                } else if (overtimes[i]['TypeOfDay'] === 'Regular Holiday + Rest Day') {
+                    if (hours >= 8) {
+                        // get excess of 8 hours
+                        var excess8 = hours - 8
+
+                        // calculate first 8
+                        const first8 = salaryPerDay * 2 * 1.3
+                        // calculate excess of 8
+                        const excess8Amount = salaryPerHour * 2 * 1.3 * 1.3 * excess8
+
+                        totalAmount += (first8 + excess8Amount)
+                    } else {
+                        // compute hourly if duty is less than 8 hours
+                        totalAmount += salaryPerHour * 2 * 1.3 * hours
+                    }
+                } else if (overtimes[i]['TypeOfDay'] === 'Special Non-Working Holiday') {
+                    if (hours >= 8) {
+                        // get excess of 8 hours
+                        var excess8 = hours - 8
+
+                        // calculate first 8
+                        const first8 = salaryPerDay * 1.3
+                        // calculate excess of 8
+                        const excess8Amount = salaryPerHour * 1.3 * 1.3 * excess8
+
+                        totalAmount += (first8 + excess8Amount)
+                    } else {
+                        // compute hourly if duty is less than 8 hours
+                        totalAmount += salaryPerHour * 1.3 * hours
+                    }
+                } else if (overtimes[i]['TypeOfDay'] === 'Special Non-Working Holiday + Rest Day') {
+                    if (hours >= 8) {
+                        // get excess of 8 hours
+                        var excess8 = hours - 8
+
+                        // calculate first 8
+                        const first8 = (salaryPerDay * .5) + (salaryPerDay * 1.3)
+                        // calculate excess of 8
+                        const excess8Amount = salaryPerHour * 1.5 * 1.3 * excess8
+
+                        totalAmount += (first8 + excess8Amount)
+                    } else {
+                        // compute hourly if duty is less than 8 hours
+                        totalAmount += (salaryPerHour * .5 * hours) + (salaryPerHour * 1.3)
+                    }
+                } else {
+                    totalAmount += 0    
+                }
+            }
+
+            return {
+                'TotalHours' : totalHours,  
+                'TotalAmount' : totalAmount,
+            };
         },
         isFifteenth(term) {
             if (term.includes('15')) {
@@ -1475,7 +1563,6 @@ export default {
 
                         this.attendances.push(attendanceChunks);
 
-                        var overtimesData = this.getOvertimes(response.data['Employees'][i]['Overtimes'], response.data['Employees'][i]);
                         summaryChunks.push(totalHoursRendered > 0 ? this.round(totalHoursRendered) : '-');
                         // INSERT TOTAL WORKING HOURS
                         summaryChunks.push(totalWorkingHours > 0 ? this.round(totalWorkingHours) : '-'); 
@@ -1486,15 +1573,18 @@ export default {
                         summaryChunks.push(this.isNull(response.data['Employees'][i]['SalaryAmount']) ? (`₱` + 0) : (`₱` + this.toMoney(termWage)));
                         
                         // UPDATE OT HOURS
+                        var overtimesData = this.computeOvertime(response.data['Employees'][i]['Overtimes'], response.data['Employees'][i]);
                         summaryChunks.push(overtimesData['TotalHours'] > 0 ? overtimesData['TotalHours'] : '-'); 
                         // UPDATE OT AMOUNT
                         var otAmount = this.round(overtimesData['TotalAmount']);
                         summaryChunks.push(overtimesData['TotalAmount'] > 0 ? (`₱` + this.toMoney(otAmount)) : '-'); 
 
                         // TOTAL HOURS ABSENT/LATE
-                        var lateHours = this.round(totalWorkingHours - totalHoursRendered);
+                        var excessLeaveHours = this.isNull(response.data['Employees'][i]['ExcessLeaveAbsences']['TotalMinutes']) ? 0 : response.data['Employees'][i]['ExcessLeaveAbsences']['TotalMinutes']
+                        excessLeaveHours = excessLeaveHours / 60
+                        var lateHours = this.round((totalWorkingHours - totalHoursRendered) + excessLeaveHours);
                         var lateAmount = this.round(parseFloat(lateHours) * this.getSalaryPerHour(parseFloat(response.data['Employees'][i]['SalaryAmount'])));
-                        summaryChunks.push(lateHours > 0 ? lateHours : '-'); 
+                        summaryChunks.push(lateHours > 0 ? lateHours : '-')
                         // TOTAL AMOUNT ABSENT/LATE
                         summaryChunks.push(lateAmount > 0 ? `₱` + this.toMoney(lateAmount) : '-'); 
 

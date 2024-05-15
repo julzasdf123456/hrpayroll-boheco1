@@ -141,6 +141,7 @@
                             <div class="dropdown-menu">
                                 <button class="dropdown-item" data-toggle="modal" data-target="#modal-leave-logs">Leave credit logs</button>
                                 <button class="dropdown-item" data-toggle="modal" data-target="#modal-leave-conversion-logs">Leave conversion logs</button>
+                                <button class="dropdown-item" data-toggle="modal" data-target="#modal-excess-leave">Excess Leave Deductions</button>
                             </div>
                         </div>
                     </div>
@@ -179,6 +180,7 @@
 @include('employees.modal_leave_balance_details')
 @include('employees.modal_leave_conversion_logs')
 @include('my_account.modal_leave_individual_logs')
+@include('employees.modal_excess_leave')
 
 @push('page_scripts')
     <script>
