@@ -28,6 +28,7 @@ use App\Models\OffsetApplications;
 use App\Models\Overtimes;
 use App\Models\EmployeePayrollSundries;
 use App\Models\EmployeeDayOffs;
+use App\Models\LeaveExcessAbsences;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -176,6 +177,10 @@ class EmployeesController extends AppBaseController
         
         $payrollSundries = EmployeePayrollSundries::where('EmployeeId', $id)->first();
 
+        $leaveBalanceExcess = LeaveExcessAbsences::where('EmployeeId', $id)
+            ->orderByDesc('created_at')
+            ->get();
+
         if (empty($employees)) {
             Flash::error('Employees not found');
 
@@ -197,6 +202,7 @@ class EmployeesController extends AppBaseController
             'overtimes' => $overtimes,
             'payrollSundries' => $payrollSundries,
             'travelOrders' => $travelOrders,
+            'leaveBalanceExcess' => $leaveBalanceExcess,
         ]);
     }
 

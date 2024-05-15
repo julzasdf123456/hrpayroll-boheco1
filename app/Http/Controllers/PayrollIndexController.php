@@ -923,6 +923,11 @@ class PayrollIndexController extends AppBaseController
                 )
                 ->orderByDesc('TravelOrders.DateFiled')
                 ->get();
+
+            $item->ExcessLeaveAbsences = DB::table('LeaveExcessAbsences')
+                ->whereRaw("LeaveExcessAbsences.EmployeeId='" . $item->id . "' AND (LeaveExcessAbsences.LeaveDate BETWEEN '" . $from . "' AND '" . $to . "')")
+                ->select(DB::raw("SUM(HoursAbsent) AS TotalMinutes"))
+                ->first();
         }
 
         $holidays = DB::table('HolidaysList')

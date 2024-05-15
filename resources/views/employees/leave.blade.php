@@ -64,6 +64,7 @@
     </table>
 
     <div style="margin-bottom: 18px;">
+        <button class="btn btn-primary-skinny btn-sm float-right" data-toggle="modal" data-target="#modal-excess-leave" style="margin-bottom: 15px; margin-left: 5px;">Excess Leave Deductions</button>
         <button class="btn btn-primary-skinny btn-sm float-right" data-toggle="modal" data-target="#modal-leave-conversion-logs" style="margin-bottom: 15px; margin-left: 5px;">Leave Conversions</button>
         <button class="btn btn-primary-skinny btn-sm float-right" data-toggle="modal" data-target="#modal-leave-logs" style="margin-bottom: 15px;">Leave Credit Logs</button>
     </div>
@@ -110,3 +111,4 @@
 
 @include('employees.modal_leave_balance_details')
 @include('employees.modal_leave_conversion_logs')
+@include('employees.modal_excess_leave')
