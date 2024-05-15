@@ -1,0 +1,37 @@
+{
+	"authHost": "http://localhost/hr/public/index.php/home/chat",
+	"authEndpoint": "/broadcasting/auth",
+	"clients": [
+		{
+            "appId": "1803002",
+            "key": "4ae6c8e2ac55203f747a"
+        }
+	],
+	"database": "redis",
+	"databaseConfig": {
+		"redis": {
+            "host": "127.0.0.1",
+            "port": "6379"
+        }
+	},
+	"devMode": true,
+	"host": "127.0.0.1",
+	"port": "6379",
+	"protocol": "http",
+	"socketio": {},
+	"secureOptions": 67108864,
+	"sslCertPath": "",
+	"sslKeyPath": "",
+	"sslCertChainPath": "",
+	"sslPassphrase": "",
+	"subscribers": {
+		"http": true,
+		"redis": true
+	},
+	"apiOriginAllow": {
+		"allowCors": false,
+		"allowOrigin": "",
+		"allowMethods": "",
+		"allowHeaders": ""
+	}
+}

@@ -112,6 +112,12 @@
                 </a>
             </li>
 
+            <li class="nav-item">
+                <a class="nav-link" href="{{ route('home.chat') }}" title="Asphibi Messenger">
+                    <i class="fas fa-comment-dots"></i>
+                </a>
+            </li>
+
             <li class="nav-item dropdown">
                 <a class="nav-link" data-toggle="dropdown" href="#">
                     <i class="far fa-bell"></i>

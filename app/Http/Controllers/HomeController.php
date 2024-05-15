@@ -83,4 +83,8 @@ class HomeController extends Controller
     public function employeeFinder(Request $request) {
         return view('employee_finder', []);
     }
+
+    public function chat(Request $request) {
+        return view('/chat/index');
+    }
 }

@@ -56,6 +56,7 @@ Route::get('/home', [
 Route::post('/home/chat-reeve', [HomeController::class, 'chatReeve'])->name('home.chat-reeve');
 Route::get('/home/reeve', [HomeController::class, 'reeve'])->name('home.reeve');
 Route::get('/home/employee-finder', [HomeController::class, 'employee_finder'])->name('home.employee-finder');
+Route::get('/home/chat', [HomeController::class, 'chat'])->name('home.chat');
 
 Route::get('/users/add_permissions/{id}', [UsersController::class, 'addRoles'])->name('users.add-roles');
 Route::post('/users/create-roles', [UsersController::class, 'createRoles']);
@@ -440,3 +441,7 @@ Route::resource('travelOrderEmployees', App\Http\Controllers\TravelOrderEmployee
 Route::resource('travelOrderDays', App\Http\Controllers\TravelOrderDaysController::class);
 Route::resource('travel-order-signatories', App\Http\Controllers\TravelOrderSignatoriesController::class);
 Route::resource('leaveExcessAbsences', App\Http\Controllers\LeaveExcessAbsencesController::class);
+
+Route::get('/messages/get-message-thread', [App\Http\Controllers\MessagesController::class, 'getMessageThread'])->name('messages.get-message-thread');
+Route::post('/messages/store-messages', [App\Http\Controllers\MessagesController::class, 'storeMessages'])->name('messages.store-messages');
+Route::resource('messages', App\Http\Controllers\MessagesController::class);

@@ -981,3 +981,28 @@ ul.employee-tree ul.employee-tree {
     display: inline-block; 
     border-radius: 50%;
 }
+
+/**
+ * CHATS
+ */
+.chat-box {
+    position: fixed;
+    bottom: 0;
+    width: 50%;
+    background-color: #e6e6e6;
+    margin: 20px 30px;
+    border-radius: 30px;
+}
+
+.chat-input {
+    width: 100%;
+    padding: 10px 20px;
+    border: none;
+    background-color: transparent;
+    border-radius: 10px;
+}
+
+.chat-input:focus {
+    border: none;
+    outline: none;
+}
