@@ -6,6 +6,7 @@
     <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
     <meta name="color-profile" content="{{ Auth::user()->ColorProfile }}">
     <meta name="employee-id" content="{{ Auth::user()->employee_id }}">
+    <meta name="user-id" content="{{ Auth::id() }}">
 
     <link rel="stylesheet" href="{{ URL::asset('css/source_sans_pro.css'); }} ">
 

@@ -86,6 +86,14 @@ body.dark-mode .divider {
     text-overflow: ellipsis;
 }
 
+.ellipsize-1 {
+    display: -webkit-box;
+    -webkit-line-clamp: 1; /* Number of lines */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 .ellipsize-2 {
     display: -webkit-box;
     -webkit-line-clamp: 2; /* Number of lines */
@@ -985,24 +993,172 @@ ul.employee-tree ul.employee-tree {
 /**
  * CHATS
  */
-.chat-box {
-    position: fixed;
-    bottom: 0;
-    width: 50%;
-    background-color: #e6e6e6;
-    margin: 20px 30px;
-    border-radius: 30px;
-}
-
-.chat-input {
+ .chat-container {
+    display: flex;
+    flex-direction: column;
+    height: 92vh;
     width: 100%;
     padding: 10px 20px;
-    border: none;
-    background-color: transparent;
-    border-radius: 10px;
 }
 
-.chat-input:focus {
+.chat-select {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 10px;
+    border-bottom: 1px solid #e6e6e6;
+}
+
+.dark-mode .chat-select {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 10px;
+    border-bottom: 1px solid #4a525e;
+}
+
+/* Style the chat messages area */
+.chat-messages {rgb(87, 87, 87)rgb(87, 87, 87)
+    flex: 1; /* Allow the messages area to grow and take up remaining space */
+    overflow-y: auto; /* Add scrollbar when messages overflow */
+    padding: 10px;
+}
+
+/* Style individual chat messages */
+.message {
+    background-color: #f0f0f0;
+    padding: 5px 10px;
+    margin-bottom: 5px;
+}
+
+/* Style the chat input area */
+.chat-input {
+    display: flex;
+    align-items: center;
+    padding: 10px 10px 28px 10px;
+    background-color: transparent;
+    position: sticky;
+    bottom: 0;
+}
+
+.chat-input-form {
+    display: flex;
+    align-items: center;
+    background-color: white;
+    width: 100%;
+    border-radius: 15px;
+    padding: 10px 18px;
+}
+
+.dark-mode .chat-input-form {
+    background-color: #57636e;
+}
+
+/* Style the input field */
+.chat-input input {
+    flex: 1; /* Allow input to grow and take up remaining space */
+    padding: 8px;
     border: none;
+    border-radius: 5px;
+    background-color: transparent;
+    margin-right: 10px;
+}
+
+.dark-mode .chat-input input {
+    color: white;
+}
+
+.dark-mode .chat-input input::placeholder {
+    color: rgb(151, 155, 158);
+}
+
+.chat-input input:focus {
     outline: none;
+}
+
+/* Style the send button */
+.chat-input button {
+    width: 50px;
+    height: 50px;
+    background-color: transparent;
+    color: #1f8f77;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all .4s ease;
+}
+
+.dark-mode .chat-input button {
+    color: #ffffff;
+}
+
+.chat-input button i {
+    font-size: 1.3em;
+}
+
+.chat-input button:hover {
+    background-color: rgba(0, 0, 0, .05);
+}
+
+.chat-input button:active {
+    background-color: rgba(0, 0, 0, .15);
+}
+
+.bubble-container {
+    overflow: hidden;
+    width: 100%;
+    display: block;
+}
+
+.sender-bubble {
+    float: right;
+}
+
+.receiver-bubble {
+    float: left;
+}
+
+.sender-bubble div {
+    background-color: #47ad7a;
+    color: white;
+    /* box-shadow: 0 5px 10px rgba(0, 0, 0, 0.09); */
+    margin: 5px 10px 5px 30px;
+    border-top-left-radius: 18px;
+    border-top-right-radius: 18px;
+    border-bottom-left-radius: 18px;
+    padding: 18px 25px;
+    max-width: 80%;
+    min-width: 30%;
+    float: right;
+}
+
+.receiver-bubble div {
+    background-color: white;
+    /* box-shadow: 0 3px 6px rgba(0, 0, 0, 0.09); */
+    margin: 5px 30px 5px 10px;
+    border-top-left-radius: 18px;
+    border-top-right-radius: 18px;
+    border-bottom-right-radius: 18px;
+    padding: 18px 25px;
+    min-width: 30%;
+    max-width: 80%;
+}
+
+
+.dark-mode .receiver-bubble div {
+    background-color: #57636e;
+    color: white;
+}
+
+
+.dark-mode .sender-bubble div {
+    background-color: #459b88;
+    color: white;
+}
+
+.load-more-button {
+    width: 100%;
+    background-color: transparent;
+    color: #a2a8ad;
+    border: none;
 }
