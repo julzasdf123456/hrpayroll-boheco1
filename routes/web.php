@@ -32,6 +32,7 @@ use App\Http\Controllers\EmployeeDayOffsController;
 use App\Http\Controllers\DependentsController;
 use App\Http\Controllers\TravelOrdersController;
 use App\Http\Controllers\PositionsController;
+use App\Http\Controllers\MessagesController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -442,6 +443,9 @@ Route::resource('travelOrderDays', App\Http\Controllers\TravelOrderDaysControlle
 Route::resource('travel-order-signatories', App\Http\Controllers\TravelOrderSignatoriesController::class);
 Route::resource('leaveExcessAbsences', App\Http\Controllers\LeaveExcessAbsencesController::class);
 
-Route::get('/messages/get-message-thread', [App\Http\Controllers\MessagesController::class, 'getMessageThread'])->name('messages.get-message-thread');
-Route::post('/messages/store-messages', [App\Http\Controllers\MessagesController::class, 'storeMessages'])->name('messages.store-messages');
-Route::resource('messages', App\Http\Controllers\MessagesController::class);
+Route::get('/messages/get-message-thread', [MessagesController::class, 'getMessageThread'])->name('messages.get-message-thread');
+Route::post('/messages/store-messages', [MessagesController::class, 'storeMessages'])->name('messages.store-messages');
+Route::get('/messages/get-header-threads', [MessagesController::class, 'getHeaderThreads'])->name('messages.get-header-threads');
+Route::get('/messages/get-users', [MessagesController::class, 'getUsers'])->name('messages.get-users');
+Route::resource('messages', MessagesController::class);
+Route::resource('message-heads', App\Http\Controllers\MessageHeadsController::class);
