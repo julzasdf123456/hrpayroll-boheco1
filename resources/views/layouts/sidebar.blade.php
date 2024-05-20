@@ -31,6 +31,7 @@
                         'overtimes.create',
                         'attendanceConfirmations.create',
                         'leaveConversions.create',
+                        'home.chat',
                         'leaveApplications.my-approvals', 'tripTickets.my-approvals', 'offsetApplications.my-approvals', 'attendanceConfirmations.my-approvals', 'overtimes.my-approvals',
                         'travelOrders.create', 'travelOrders.my-approvals',
                         ]))

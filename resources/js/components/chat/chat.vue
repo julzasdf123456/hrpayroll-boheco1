@@ -34,9 +34,9 @@
                                 <tbody>
                                     <tr v-for="headers in headerThreads" :key="headers.id" style="cursor: pointer;" @click="selectTargeFromThreadList(headers.Receiver, headers.name)">
                                         <td>
-                                            <strong>{{ headers.name }}</strong>
+                                            <span :class="headers.Status === 'Unread' ? 'text-bold' : ''">{{ headers.name }}</span>
                                             <br>
-                                            <p class="text-muted no-pads ellipsize-1">{{ headers.LatestMessage }}</p>
+                                            <p :class="headers.Status === 'Unread' ? 'text-bold' : ''" class="text-muted no-pads ellipsize-1">{{ headers.LatestMessage }}</p>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -157,6 +157,21 @@ export default {
                 this.$nextTick(() => {
                     this.scrollToBottom() // Ensure the scroll happens after DOM updates
                 })
+
+                // add to headerThreads if new
+                const exists = this.headerThreads.some(obj => obj.Receiver === response.data.Receiver)
+                if (!exists) {
+                    const newHeader = {
+                        id : 'TMP_ID',
+                        Sender : this.userId,
+                        Receiver : response.data.Receiver,
+                        LatestMessage : response.data.Message,
+                        name : this.targetName,
+                        Status : response.data.Receiver === this.userId ? 'Unread' : 'Read',
+                    }
+
+                    this.headerThreads.unshift(newHeader)
+                }
             }).catch(error => {
                 console.log(error)
             })
@@ -231,9 +246,15 @@ export default {
             .listen('MessageSent', (e) => {
                 console.log(e)
                 if (!this.isNull(e.message.Receiver)) {
+                    // only show if message is for the current user
                     if (e.message.Sender === this.targetUser) {
                         this.messages.push(e.message)
                         this.displayedMessages.push(e.message)
+                    }
+
+                    // update heads if there are new messages for the current user
+                    if (e.message.Receiver === this.userId) {
+                        this.fetchHeaderThreads()
                     }
                 }
             })

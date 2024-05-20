@@ -147,7 +147,7 @@ class MessagesController extends AppBaseController
 
     public function storeMessages(Request $request) {
         $receiver = $request['Receiver'];
-        // save message header
+        // save message header for receiver
         $checkReceiver = MessageHeads::where('Receiver', $receiver)
             ->where('Sender', Auth::id())
             ->first();
@@ -157,12 +157,15 @@ class MessagesController extends AppBaseController
             $checkReceiver->Sender = Auth::id();
             $checkReceiver->Receiver = $receiver;
             $checkReceiver->LatestMessage = $request['Message'];
+            $checkReceiver->Status = 'Unread';
             $checkReceiver->save();
         } else {
             $checkReceiver->LatestMessage = $request['Message'];
+            $checkReceiver->Status = 'Unread';
             $checkReceiver->save();
         }
 
+        // save message header for sender
         $checkSender = MessageHeads::where('Receiver', Auth::id())
             ->where('Sender', $receiver)
             ->first();
@@ -172,9 +175,11 @@ class MessagesController extends AppBaseController
             $checkSender->Sender = $receiver;
             $checkSender->Receiver = Auth::id();
             $checkSender->LatestMessage = $request['Message'];
+            $checkSender->Status = 'Read';
             $checkSender->save();
         } else {
             $checkSender->LatestMessage = $request['Message'];
+            $checkSender->Status = 'Read';
             $checkSender->save();
         }
 

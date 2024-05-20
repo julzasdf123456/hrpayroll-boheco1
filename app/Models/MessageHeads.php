@@ -12,14 +12,16 @@ class MessageHeads extends Model
         'id',
         'Sender',
         'Receiver',
-        'LatestMessage'
+        'LatestMessage',
+        'Status',
     ];
 
     protected $casts = [
         'id' => 'string',
         'Sender' => 'string',
         'Receiver' => 'string',
-        'LatestMessage' => 'string'
+        'LatestMessage' => 'string',
+        'Status' => 'string',
     ];
 
     public static array $rules = [
@@ -27,7 +29,8 @@ class MessageHeads extends Model
         'Receiver' => 'nullable|string|max:50',
         'LatestMessage' => 'nullable|string|max:16',
         'created_at' => 'nullable',
-        'updated_at' => 'nullable'
+        'updated_at' => 'nullable',
+        'Status' => 'nullable|string',
     ];
 
     
