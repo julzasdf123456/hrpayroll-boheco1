@@ -15,6 +15,7 @@ use App\Models\EducationalAttainment;
 use App\Models\LeaveApplications;
 use App\Models\LeaveDays;
 use App\Models\Users;
+use App\Models\User;
 use App\Models\ProfessionalIDs;
 use App\Models\LeaveAttendanceDates;
 use App\Models\EmployeeImages;
@@ -169,11 +170,7 @@ class EmployeesController extends AppBaseController
 
         $overtimes = Overtimes::where('EmployeeId', $id)->orderByDesc('created_at')->get();
 
-        if ( Users::where('employee_id', $id)->first() != null) {
-            $leaveApplications = LeaveApplications::where('EmployeeId', Users::where('employee_id', $id)->first()->employee_id)->get();
-        } else {
-            $leaveApplications = null;
-        }
+        $leaveApplications = LeaveApplications::where('EmployeeId', $id)->get();
         
         $payrollSundries = EmployeePayrollSundries::where('EmployeeId', $id)->first();
 
@@ -186,6 +183,8 @@ class EmployeesController extends AppBaseController
 
             return redirect(route('employees.index'));
         }
+
+        $userData = User::where('employee_id', $id)->permission('create leave for others')->first();
 
         return view('employees.show', [
             'employees' => $employees, 
@@ -203,6 +202,7 @@ class EmployeesController extends AppBaseController
             'payrollSundries' => $payrollSundries,
             'travelOrders' => $travelOrders,
             'leaveBalanceExcess' => $leaveBalanceExcess,
+            'userData' => $userData,
         ]);
     }
 

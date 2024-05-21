@@ -33,6 +33,7 @@ use App\Http\Controllers\DependentsController;
 use App\Http\Controllers\TravelOrdersController;
 use App\Http\Controllers\PositionsController;
 use App\Http\Controllers\MessagesController;
+use App\Http\Controllers\LeaveUsersForOthersController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -160,7 +161,9 @@ Route::get('/leave_applications/get-leaves-by-type', [LeaveApplicationsControlle
 Route::get('/leave_applications/manual-entries', [LeaveApplicationsController::class, 'manualEntries'])->name('leaveApplications.manual-entries');
 Route::get('/leave_applications/get-leave-balances-by-employee', [LeaveApplicationsController::class, 'getLeaveBalancesByEmployee'])->name('leaveApplications.get-leave-balances-by-employee');
 Route::post('/leave_applications/manual-save', [LeaveApplicationsController::class, 'manualSave'])->name('leaveApplications.manual-save');
+Route::get('/leave_applications/file-for-coworker', [LeaveApplicationsController::class, 'fileForCoWorker'])->name('leaveApplications.file-for-coworker');
 Route::get('/leave_applications/publish-leave/{id}', [LeaveApplicationsController::class, 'publishLeave'])->name('leaveApplications.publish-leave');
+Route::post('/leave_applications/save-for-coworker', [LeaveApplicationsController::class, 'saveForCoWorker'])->name('leaveApplications.save-for-coworker');
 Route::resource('leaveApplications', LeaveApplicationsController::class);
 
 Route::resource('leaveSignatories', App\Http\Controllers\LeaveSignatoriesController::class);
@@ -449,3 +452,7 @@ Route::get('/messages/get-header-threads', [MessagesController::class, 'getHeade
 Route::get('/messages/get-users', [MessagesController::class, 'getUsers'])->name('messages.get-users');
 Route::resource('messages', MessagesController::class);
 Route::resource('message-heads', App\Http\Controllers\MessageHeadsController::class);
+
+Route::get('/leave_users_for_others/configure/{id}', [LeaveUsersForOthersController::class, 'configure'])->name('leaveUsersForOthers.configure');
+Route::post('/leave_users_for_others/post', [LeaveUsersForOthersController::class, 'save'])->name('leaveUsersForOthers.post');
+Route::resource('leaveUsersForOthers', LeaveUsersForOthersController::class);

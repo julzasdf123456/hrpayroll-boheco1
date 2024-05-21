@@ -240,7 +240,6 @@ class LeaveApplicationsController extends AppBaseController
         } else {
             $signatories = Employees::getSupers($leaveApplication->EmployeeId, ['Chief', 'Manager']);
         }
-        
 
         $rank = 1;
         if ($signatories != null) {
@@ -1408,5 +1407,99 @@ class LeaveApplicationsController extends AppBaseController
         }
 
         return redirect(route('home'));
+    }
+
+    public function fileForCoWorker(Request $request) {
+        $employees = DB::table('LeaveUsersForOthers')
+            ->leftJoin('Employees', 'LeaveUsersForOthers.EmployeeId', '=', 'Employees.id')
+            ->whereRaw("LeaveUsersForOthers.LeaveCreator='" . Auth::user()->employee_id . "'")
+            ->select('Employees.*')
+            ->orderBy('LastName')
+            ->get();
+    
+        $holidaysList = HolidaysList::whereRaw("HolidayDate > GETDATE()")->get();
+        $holidays = "";
+        $size = count($holidaysList);
+        $i = 0;
+        foreach($holidaysList as $item) {
+            if ($i == ($size - 1)) {
+                $holidays .= date('Y-m-d', strtotime($item->HolidayDate));
+            } else {
+                $holidays .= date('Y-m-d', strtotime($item->HolidayDate)) . ',';
+            }
+            $i++;
+        }
+
+        return view('/leave_applications/file_for_coworker', [
+            'employees' => $employees,
+            'holidays' => $holidays,
+        ]);
+    }
+
+    public function saveForCoWorker(Request $request) {
+        $employeeId = $request['EmployeeId'];
+        $leaveType = $request['LeaveType'];
+        $reason = $request['Reason'];
+        $dateFiled = $request['DateFiled'];
+        $days = $request['Days'];
+
+        // insert leave application
+        $id = IDGenerator::generateID();
+        $leave = new LeaveApplications;
+        $leave->id = $id;
+        $leave->EmployeeId = $employeeId;
+        $leave->Content = $reason;
+        $leave->Status = 'Filed';
+        $leave->LeaveType = $leaveType;
+        $leave->created_at = $dateFiled;
+        $leave->save();
+
+        $employee = DB::table('Employees')
+            ->leftJoin('EmployeesDesignations', 'EmployeesDesignations.EmployeeId', '=', 'Employees.id')
+            ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+            ->select('Positions.Department', 'Positions.ParentPositionId', 'Positions.Level')
+            ->whereRaw("Employees.id='" . $employeeId . "'")
+            ->first();
+
+        // inseert signatories
+        if (in_array($employee->Level, ['Chief', 'Manager'])) {
+            $signatories = Employees::getSupers($employeeId, ['Chief', 'Manager', 'General Manager']);
+        } else {
+            $signatories = Employees::getSupers($employeeId, ['Chief', 'Manager']);
+        }
+
+        $rank = 1;
+        if ($signatories != null) {
+            foreach($signatories as $signatory) {
+                $sigs = new LeaveSignatories;
+                // $sigs->id = IDGenerator::generateIDandRandString() . $rank;
+                $sigs->LeaveId = $id;
+                $sigs->EmployeeId = $signatory['id'];
+                $sigs->Rank = $rank;
+                $sigs->save();
+    
+                $rank++;
+            }
+        }
+
+        // insert days
+        for($i=0; $i<count($days); $i++) {
+            $totalMins = 0;
+            $leaveDays = 0;
+            
+            $leaveDay = new LeaveDays;
+            $leaveDay->id = IDGenerator::generateIDandRandString();
+            $leaveDay->LeaveId = $id;
+            $leaveDay->LeaveDate = $days[$i]['LeaveDate'];
+            if ($days[$i]['Duration'] === 'WHOLE') {
+                $leaveDay->Longevity = 1;
+            } else {
+                $leaveDay->Longevity = 0.5;
+            }
+            $leaveDay->Duration = $days[$i]['Duration'];
+            $leaveDay->save();
+        }
+
+        return response()->json($leave, 200);
     }
 }

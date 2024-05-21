@@ -74,10 +74,11 @@
                         <label for="TypeOfLeave">Type of Leave</label>
                         <select class="form-control" name="TypeOfLeave" id="TypeOfLeave">
                             <option value="">-- Select --</option>
-                            <option value="1.25">Extra</option>
-                            <option value="1.25">Ordinary</option>
-                            <option value="1.25">Offday</option>
-                            <option value="2">Holiday</option>
+                            <option value="1.25">Rest Day</option>
+                            <option value="1.25">Regular Holiday</option>
+                            <option value="1.25">Regular Holiday + Rest Day</option>
+                            <option value="1.25">Special Non-Working Holiday</option>
+                            <option value="1.25">Special Non-Working Holiday + Rest Day</option>
                         </select>
                     </div>
                     <div class="col-lg-1 col-md-6">

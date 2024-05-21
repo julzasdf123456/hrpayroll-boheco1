@@ -287,7 +287,6 @@ class OvertimesController extends AppBaseController
                     ->orderBy('Rank')
                     ->first();
                 
-                
                 // CHECK IF ALL SIGNATORIES ARE COMPLETED
                 if ($nextSignatory == null) {
                     // UPDATE STATUS IF COMPLETED

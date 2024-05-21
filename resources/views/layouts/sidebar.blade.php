@@ -25,7 +25,7 @@
                         'users.personal-info',
                         'users.staff-management', 'users.staff-day-off-schedules', 'users.staff-super-view',
                         'users.attendance-index',
-                        'leaveApplications.create', 'leaveApplications.create-step-two',
+                        'leaveApplications.create', 'leaveApplications.create-step-two', 'leaveApplications.file-for-coworker',
                         'tripTickets.create', 'tripTickets.edit', 'tripTickets.my-trip-tickets',
                         'offsetApplications.create',
                         'overtimes.create',

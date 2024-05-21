@@ -68,10 +68,15 @@
                                     <a class="dropdown-item" href="{{ route('employees.create-designations', [$employees->id]) }}"><i class="fas fa-hand-point-up ico-tab"></i>Create Promotion</a>
                                 @endif
                                 <div class="dropdown-divider"></div>
+                                {{-- ALLOW NO ATTENDANCE --}}
                                 @if ($employees->NoAttendanceAllowed != null)
                                     <button class="dropdown-item" onclick="disAllowNoAttendance(`{{ $employees->id }}`)"><i class="fas fa-times ico-tab"></i>Disable No Attendance</button>
                                 @else
                                     <button class="dropdown-item" onclick="allowNoAttendance(`{{ $employees->id }}`)"><i class="fas fa-fingerprint ico-tab"></i>Allow No Attendance</button>
+                                @endif
+                                {{-- ALLOW FILING OF LEAVE FOR OTHER PEOPLE --}}
+                                @if ($userData != null)
+                                    <a class="dropdown-item" href="{{ route('leaveUsersForOthers.configure', [$userData->id]) }}"><i class="fas fa-share-alt ico-tab"></i>Configure Filing for Others</a>
                                 @endif
                                 <a class="dropdown-item" href="{{ route('employees.upload-file', [$employees->id]) }}"><i class="fas fa-upload ico-tab"></i>Upload Files and Docs</a>
                             @endcanany
