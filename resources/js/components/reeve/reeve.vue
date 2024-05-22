@@ -49,7 +49,7 @@ export default {
                         prompt : this.prompt 
                     });
                     // this.generatedText = response.data.generatedText;
-                    $('#response tbody').prepend(`<tr><td>
+                    $('#response tbody').html(`<tr><td>
                             <strong class='text-muted' style='padding-bottom: 12px;'><i class='fas fa-user-circle ico-tab'></i>${ this.prompt }</strong><br><br>
                             ${ response.data.generatedText }
                         </td></tr>`)
