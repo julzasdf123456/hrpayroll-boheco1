@@ -1,31 +1,20 @@
 @extends('layouts.app')
-
 @section('content')
-    <section class="content-header">
-        <div class="container-fluid">
-            <div class="row mb-2">
-                <div class="col-sm-6">
-                    <h1>Travel Orders</h1>
-                </div>
-                <div class="col-sm-6">
-                    <a class="btn btn-primary float-right"
-                       href="{{ route('travelOrders.create') }}">
-                        Add New
-                    </a>
-                </div>
-            </div>
+<div class="row">
+    <div class="col-lg-12">
+        <div id="app">
+            <all-travel-orders></all-travel-orders>
         </div>
-    </section>
-
-    <div class="content px-3">
-
-        @include('flash::message')
-
-        <div class="clearfix"></div>
-
-        <div class="card">
-            @include('travel_orders.table')
-        </div>
+        @vite('resources/js/app.js')
     </div>
-
+</div>
 @endsection
+
+@push('page_scripts')
+    <script>
+        $(document).ready(function() {
+            // $('body').addClass('sidebar-collapse')
+            $('#page-title').html("<span class='text-muted'>Browse </span> <strong>All Travel Orders</strong>")
+        })
+    </script>
+@endpush

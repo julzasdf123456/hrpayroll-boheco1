@@ -41,6 +41,7 @@ import TreeView from "./components/positions/tree-view.vue"
 import EmployeeFinder from "./components/common/employee-finder.vue"
 import AllGRS from "./components/trip-tickets/all-grs.vue"
 import Chat from "./components/chat/chat.vue"
+import AllTravelOrders from "./components/travel-orders/all-travel-orders.vue"
 
 const app = createApp({
     
@@ -74,5 +75,6 @@ app.component('tree-view',TreeView);
 app.component('employee-finder',EmployeeFinder);
 app.component('all-grs', AllGRS);
 app.component('chat', Chat);
+app.component('all-travel-orders', AllTravelOrders);
 
 app.mount("#app");

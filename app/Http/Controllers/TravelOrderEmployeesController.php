@@ -122,8 +122,9 @@ class TravelOrderEmployeesController extends AppBaseController
 
         $this->travelOrderEmployeesRepository->delete($id);
 
-        Flash::success('Travel Order Employees deleted successfully.');
+        // Flash::success('Travel Order Employees deleted successfully.');
 
-        return redirect(route('travelOrderEmployees.index'));
+        // return redirect(route('travelOrderEmployees.index'));
+        return response()->json($travelOrderEmployees, 200);
     }
 }

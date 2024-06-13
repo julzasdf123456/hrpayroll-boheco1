@@ -160,6 +160,7 @@ class EmployeesController extends AppBaseController
             ->whereRaw("TravelOrderEmployees.EmployeeId='" . $id . "'")
             ->select(
                 'TravelOrders.*',
+                'TravelOrderEmployees.id AS TOEmployeeId',
                 DB::raw("(SELECT CONCAT(Day, ', ') 
                     FROM TravelOrderDays 
                     WHERE TravelOrderDays.TravelOrderId = TravelOrders.id
