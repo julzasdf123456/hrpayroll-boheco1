@@ -439,6 +439,8 @@ Route::post('/travel_orders/create-order', [TravelOrdersController::class, 'crea
 Route::get('/travel_orders/my-approvals', [TravelOrdersController::class, 'myAprovals'])->name('travelOrders.my-approvals');
 Route::get('/travel_orders/approve-ajax', [TravelOrdersController::class, 'approveAjax'])->name('travelOrders.approve-ajax');
 Route::get('/travel_orders/get-travel-orders-ajax', [TravelOrdersController::class, 'getTravelOrdersAjax'])->name('travelOrders.get-travel-orders-ajax');
+Route::get('/travel_orders/manual-entry', [TravelOrdersController::class, 'manualEntry'])->name('travelOrders.manual-entry');
+Route::get('/travel_orders/get-travel-orders-yearly', [TravelOrdersController::class, 'getTravelOrdersYearly'])->name('travelOrders.get-travel-orders-yearly');
 Route::resource('travelOrders', TravelOrdersController::class);
 
 Route::resource('travelOrderEmployees', App\Http\Controllers\TravelOrderEmployeesController::class);

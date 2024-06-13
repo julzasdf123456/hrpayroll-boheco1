@@ -8,9 +8,7 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-12">
-                    <h4>
-                        File a Travel Order
-                    </h4>
+                    <h4><strong>MANUAL ENTRY: </strong> Travel Order</h4>
                 </div>
             </div>
         </div>
@@ -223,7 +221,7 @@
                         Purpose : purpose,
                         Dates : dates,
                         Employees : employees,
-                        ManualEntry : 'No',
+                        ManualEntry : 'Yes',
                     },
                     success : function(res) {
                         Toast.fire({

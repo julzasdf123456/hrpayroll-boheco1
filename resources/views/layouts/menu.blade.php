@@ -44,7 +44,6 @@
 </li>
 @endcanany
 
-
 {{-- MANUAL ENTRIES --}}
 <li class="nav-item">
     <a href="#" class="nav-link">
@@ -64,7 +63,7 @@
         <li class="nav-item">
             <a href="{{ route('tripTickets.manual-entry') }}"
                class="nav-link {{ Request::is('tripTickets.manual-entry*') ? 'active' : '' }}">
-                <i class="fas fa-plane-departure nav-icon"></i><p>Trip Tickets</p>
+                <i class="fas fa-car nav-icon"></i><p>Trip Tickets</p>
             </a>
         </li>
         <li class="nav-item">
@@ -89,6 +88,12 @@
             <a href="{{ route('attendanceConfirmations.manual-entry') }}"
                class="nav-link {{ Request::is('attendanceConfirmations.manual-entry*') ? 'active' : '' }}">
                 <i class="fas fa-fingerprint nav-icon"></i><p>Attendance Confirmation</p>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="{{ route('travelOrders.manual-entry') }}"
+               class="nav-link {{ Request::is('travelOrders.manual-entry*') ? 'active' : '' }}">
+                <i class="fas fa-plane-departure nav-icon"></i><p>Travel Order</p>
             </a>
         </li>
     </ul>
@@ -129,6 +134,27 @@
                 <a href="{{ route('tripTickets.log-vehicle-arrivals') }}" class="nav-link {{ Request::is('tripTickets.log-vehicle-arrivals') ? 'active' : '' }}">
                     <i class="nav-icon fas fa-plane-arrival"></i>
                     <p>Vehicle Arrivals</p>
+                </a>
+            </li>
+        @endcanany
+    </ul>
+</li>
+
+{{-- ISSUANCES --}}
+<li class="nav-item">
+    <a href="#" class="nav-link">
+        <i class="nav-icon fas fa-folder-open"></i>
+        <p>
+            Issuances
+            <i class="right fas fa-caret-left"></i>
+        </p>
+    </a>
+    <ul class="nav nav-treeview">
+        @canany(['create travel order', 'god permission'])
+            <li class="nav-item">
+                <a href="{{ route('travelOrders.index') }}" class="nav-link {{ Request::is('travelOrders.index') ? 'active' : '' }}">
+                    <i class="nav-icon fas fa-plane-departure"></i>
+                    <p>Travel Orders</p>
                 </a>
             </li>
         @endcanany

@@ -146,6 +146,7 @@ class TravelOrdersController extends AppBaseController
         $purpose = $request['Purpose'];
         $dates = $request['Dates'];
         $employees = $request['Employees'];
+        $manual = $request['ManualEntry'];
 
         $id = IDGenerator::generateID();
         $travel = new TravelOrders;
@@ -154,6 +155,9 @@ class TravelOrdersController extends AppBaseController
         $travel->Destination = $destination;
         $travel->Purpose = $purpose;
         $travel->UserId = Auth::id();
+        if ($manual === 'Yes') {
+            $travel->Status = 'APPROVED';
+        }
         $travel->save();
 
         // save employees
@@ -174,39 +178,41 @@ class TravelOrdersController extends AppBaseController
             $travelDate->save();
         }
 
-        // signatories
-        // FIND NEXT SIGNATORY
-        $signatories = Employees::getSupers(Auth::user()->employee_id, ['Manager', 'General Manager']);
+        if ($manual === 'No') {
+            // signatories
+            // FIND NEXT SIGNATORY
+            $signatories = Employees::getSupers(Auth::user()->employee_id, ['Manager', 'General Manager']);
 
-        $rank = 1;
-        foreach($signatories as $signatory) {
-            $sigs = new TravelOrderSignatories;
-            $sigs->id = IDGenerator::generateIDandRandString() . $rank;
-            $sigs->TravelOrderId = $id;
-            $sigs->UserId = $signatory['id'];
-            $sigs->Rank = $rank;
-            $sigs->save();
+            $rank = 1;
+            foreach($signatories as $signatory) {
+                $sigs = new TravelOrderSignatories;
+                $sigs->id = IDGenerator::generateIDandRandString() . $rank;
+                $sigs->TravelOrderId = $id;
+                $sigs->UserId = $signatory['id'];
+                $sigs->Rank = $rank;
+                $sigs->save();
 
-            if ($rank == 1) {
-                $employee = Employees::find($signatory['EmployeeId']);
+                if ($rank == 1) {
+                    $employee = Employees::find($signatory['EmployeeId']);
 
-                if ($employee != null) {
-                    /**
-                     * =========================================================================
-                     * SEND SMS
-                     * =========================================================================
-                     */
-                    if ($employee != null && $employee->ContactNumbers != null) {
-                        SMSNotifications::sendSMS($employee->ContactNumbers, 
-                            "HR System - Travel Order Approval:\n\n" . Auth::user()->name . " has filed a new Travel Order for " . $purpose . " in " . $destination . " that needs your approval.",
-                            "HR-Travel Order",
-                            $id
-                        );
+                    if ($employee != null) {
+                        /**
+                         * =========================================================================
+                         * SEND SMS
+                         * =========================================================================
+                         */
+                        if ($employee != null && $employee->ContactNumbers != null) {
+                            SMSNotifications::sendSMS($employee->ContactNumbers, 
+                                "HR System - Travel Order Approval:\n\n" . Auth::user()->name . " has filed a new Travel Order for " . $purpose . " in " . $destination . " that needs your approval.",
+                                "HR-Travel Order",
+                                $id
+                            );
+                        }
                     }
                 }
-            }
 
-            $rank++;
+                $rank++;
+            }
         }
 
         return response()->json($travel, 200);
@@ -332,5 +338,36 @@ class TravelOrdersController extends AppBaseController
         }
 
         return response()->json($data, 200);
+    }
+
+    public function manualEntry(Request $request) {
+        return view('/travel_orders/manual_entry', [
+            'employees' => Employees::orderBy('LastName')->get(),
+        ]);
+    }
+
+    public function getTravelOrdersYearly(Request $request) {
+        $year = $request['Year'];
+
+        $from = $year . '-01-01';
+        $to = $year . '-12-31';
+
+        $travelOrders = DB::table('TravelOrders')
+            ->whereRaw("TravelOrders.DateFiled BETWEEN '" . $from . "' AND '" . $to . "'")
+            ->select(
+                'TravelOrders.*',
+                DB::raw("(SELECT CONCAT(Day, ', ') 
+                    FROM TravelOrderDays 
+                    WHERE TravelOrderDays.TravelOrderId = TravelOrders.id
+                    FOR XML PATH('')) AS Days"),
+                DB::raw("(SELECT CONCAT(LastName, ', ', FirstName, ':') 
+                    FROM TravelOrderEmployees te LEFT JOIN Employees e ON te.EmployeeId=e.id
+                    WHERE te.TravelOrderId = TravelOrders.id
+                    FOR XML PATH('')) AS Employees"),
+            )
+            ->orderByDesc('TravelOrders.DateFiled')
+            ->paginate(6);
+
+        return response()->json($travelOrders, 200);
     }
 }
