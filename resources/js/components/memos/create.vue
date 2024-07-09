@@ -140,7 +140,12 @@ export default {
                 showConfirmButton: false,
                 timer: 3000
             }),
-            editor: null,
+            editor: new Editor({
+                content: '<p></p>',
+                extensions: [
+                    StarterKit,
+                ],
+            }),
             content : '',
             title : '',
             memoNumber : '',
@@ -213,7 +218,7 @@ export default {
     },
     mounted() {
         this.editor = new Editor({
-            content: '<p>I’m running Tiptap with Vue.js. 🎉</p>',
+            content: '<p></p>',
             extensions: [
                 StarterKit,
             ],
