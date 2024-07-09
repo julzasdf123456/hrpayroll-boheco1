@@ -135,9 +135,19 @@ class TravelOrdersController extends AppBaseController
 
         $this->travelOrdersRepository->delete($id);
 
-        Flash::success('Travel Orders deleted successfully.');
+        // delete employees
+        TravelOrderEmployees::where('TravelOrderId', $id)->delete();
 
-        return redirect(route('travelOrders.index'));
+        // delete days
+        TravelOrderDays::where('TravelOrderId', $id)->delete();
+
+        // delete signatories
+        TravelOrderSignatories::where('TravelOrderId', $id)->delete();
+
+        // Flash::success('Travel Orders deleted successfully.');
+
+        // return redirect(route('travelOrders.index'));
+        return response()->json($travelOrders, 200);
     }
 
     public function createOrder(Request $request) {
@@ -366,7 +376,7 @@ class TravelOrdersController extends AppBaseController
                     FOR XML PATH('')) AS Employees"),
             )
             ->orderByDesc('TravelOrders.DateFiled')
-            ->paginate(6);
+            ->paginate(18);
 
         return response()->json($travelOrders, 200);
     }

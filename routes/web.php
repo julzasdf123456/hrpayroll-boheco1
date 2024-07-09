@@ -34,6 +34,7 @@ use App\Http\Controllers\TravelOrdersController;
 use App\Http\Controllers\PositionsController;
 use App\Http\Controllers\MessagesController;
 use App\Http\Controllers\LeaveUsersForOthersController;
+use App\Http\Controllers\MemorandumsController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -458,3 +459,8 @@ Route::resource('message-heads', App\Http\Controllers\MessageHeadsController::cl
 Route::get('/leave_users_for_others/configure/{id}', [LeaveUsersForOthersController::class, 'configure'])->name('leaveUsersForOthers.configure');
 Route::post('/leave_users_for_others/post', [LeaveUsersForOthersController::class, 'save'])->name('leaveUsersForOthers.post');
 Route::resource('leaveUsersForOthers', LeaveUsersForOthersController::class);
+
+Route::get('/memorandums/create-memo', [MemorandumsController::class, 'createMemo'])->name('memorandums.create-memo');
+Route::resource('memorandums', MemorandumsController::class);
+
+Route::resource('memorandumEmployees', App\Http\Controllers\MemorandumEmployeesController::class);

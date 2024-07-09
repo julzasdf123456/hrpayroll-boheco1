@@ -1166,3 +1166,14 @@ ul.employee-tree ul.employee-tree {
 .text-bold {
     font-weight: bold !important;
 }
+
+/**
+ * TIPTAP
+ */
+.tiptap {
+    outline: none;
+    border: 1px solid #d2d5d6;
+    border-radius: 12px;
+    padding: 12px 14px;
+    min-height: 250px;
+}

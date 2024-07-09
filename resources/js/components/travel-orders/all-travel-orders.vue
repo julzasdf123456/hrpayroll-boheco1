@@ -1,56 +1,34 @@
 <template>
     <div class="row p-2">
         <div class="col-lg-12 mb-3">
-            <select v-model="year" class="form-control form-control-sm float-right" style="width: 150px;">
+            <select v-model="year" class="form-control form-control-sm float-right" style="width: 150px;" @change="getTravelOrders">
                 <option v-for="y in yearsData" :value="y">{{ y }}</option>
             </select>
         </div>
 
         <div class="col-lg-4 col-md-6 mt-3" v-for="to in travelOrders.data" :key="to.id">
             <div class="card shadow-none" style="height: 100%;">
-                <div class="card-body">
-                    <div class="timeline mb-0">
-                        <div style="margin-bottom: 0px !important; padding-bottom: 5px !important;">
-                            <i style="font-size: .8em !important;" class="fas fa-map-marker-alt bg-gray"></i>
-                            <div class="timeline-item shadow-none" style="margin-top: 0px !important; padding-top: 0px !important;">
-                                <div class="timeline-body" style="margin-top: 0px !important; padding-top: 0px !important;">
-                                    <span>{{ moment(to.DateFiled).format("MMMM DD, YYYY (ddd)") }}</span>
-                                    <br>
-                                    <span class="text-muted text-sm">{{ to.Destination }}</span>
-                                </div>
-                            </div>
-                        </div>
+                <div class="card-header border-0 pt-2 pb-0 mb-0">
+                    <span class="badge" :class="isNull(to.Status) ? 'bg-warning' : 'bg-success'">{{ isNull(to.Status) ? 'PENDING' : to.Status }}</span>
 
-                        <div style="margin-bottom: 0px !important; padding-bottom: 5px !important;" title="Purpose">
-                            <i style="font-size: .8em !important;" class="fas fa-hammer bg-gray"></i>
-                            <div class="timeline-item shadow-none" style="margin-top: 0px !important; padding-top: 0px !important;">
-                                <div class="timeline-body" style="margin-top: 0px !important; padding-top: 0px !important;">
-                                    <p class="no-pads">{{ to.Purpose }}</p>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div style="margin-bottom: 0px !important; padding-bottom: 5px !important;" title="Dates">
-                            <i style="font-size: .8em !important;" class="fas fa-calendar bg-gray"></i>
-                            <div class="timeline-item shadow-none" style="margin-top: 0px !important; padding-top: 0px !important;">
-                                <div class="timeline-body" style="margin-top: 0px !important; padding-top: 0px !important;">
-                                    <p class="no-pads" v-html="toDays(to.Days)"></p>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div style="margin-bottom: 0px !important; padding-bottom: 5px !important;" title="Employees">
-                            <i style="font-size: .8em !important;" class="fas fa-user bg-gray"></i>
-                            <div class="timeline-item shadow-none" style="margin-top: 0px !important; padding-top: 0px !important;">
-                                <div class="timeline-body" style="margin-top: 0px !important; padding-top: 0px !important;">
-                                    <p class="no-pads" v-html="toEmployees(to.Employees)"></p>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="card-tools">
+                        <button @click="deleteOrder(to.id)" class="btn btn-link btn-sm float-right"><i class="fas fa-trash text-gray"></i></button>
                     </div>
                 </div>
-                <div class="card-footer">
-                    <button class="btn btn-link btn-sm float-right"><i class="fas fa-trash text-gray"></i></button>
+                <div class="card-body mt-0 pt-0">
+                    <p class="mt-3">{{ to.Purpose }}</p>
+                    
+                    <span>{{ moment(to.DateFiled).format("MMMM DD, YYYY (ddd)") }}</span>
+                    <br>
+                    <span class="text-muted text-sm"><i class="fas fa-map-marker-alt ico-tab-mini"></i>{{ to.Destination }}</span>
+                    
+                    <div class="divider my-3"></div>
+
+                    <span class="text-muted text-sm">Days Covered</span>
+                    <p class="no-pads" v-html="toDays(to.Days)"></p>
+
+                    <span class="text-muted text-sm">Employees</span>
+                    <p class="no-pads" v-html="toEmployees(to.Employees)"></p>
                 </div>
             </div>
         </div>
@@ -174,7 +152,7 @@ export default {
 
                 for(let i=0; i<datas.length; i++) {
                     if (!this.isNull(datas[i]) && (i < datas.length-1)) {
-                        employees += "<li>" + datas[i] + "</li>"
+                        employees += "<li><strong>" + datas[i] + "</strong></li>"
                     }
                 }
 
@@ -182,6 +160,33 @@ export default {
 
                 return employees
             }
+        },
+        deleteOrder(id) {
+            Swal.fire({
+                title: "Delete Travel Order?",
+                text : `This will also delete the employee's travel order attendance. This can't be undone`,
+                showCancelButton: true,
+                confirmButtonText: "Delete",
+                confirmButtonColor: '#e03822',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    axios.delete(`${ axios.defaults.baseURL }/travelOrders/${id}`)
+                    .then(response => {
+                        this.travelOrders.data = this.travelOrders.data.filter(obj => obj.id !== id)
+                        this.toast.fire({
+                            icon : 'success',
+                            text : 'Travel order removed!'
+                        })
+                    })
+                    .catch(error => {
+                        console.log(error)
+                        this.toast.fire({
+                            icon : 'error',
+                            text : 'Error removing travel order!\n' + error.response.data
+                        })
+                    })
+                }
+            })
         }
     },
     created() {
