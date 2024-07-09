@@ -217,12 +217,12 @@ export default {
         }
     },
     mounted() {
-        this.editor = new Editor({
-            content: '<p></p>',
-            extensions: [
-                StarterKit,
-            ],
-        })
+        // this.editor = new Editor({
+        //     content: '<p></p>',
+        //     extensions: [
+        //         StarterKit,
+        //     ],
+        // })
 
         this.getEmployees()
     },
