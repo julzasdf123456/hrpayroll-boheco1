@@ -158,6 +158,15 @@
                 </a>
             </li>
         @endcanany
+
+        @canany(['god permission', 'manage memo'])
+            <li class="nav-item">
+                <a href="{{ route('memorandums.index') }}" class="nav-link {{ Request::is('memorandums*') ? 'active' : '' }}">
+                    <i class="nav-icon fas fa-file"></i>
+                    <p>Memorandums</p>
+                </a>
+            </li>
+        @endcanany
     </ul>
 </li>
 
@@ -493,3 +502,4 @@
     </ul>
 </li>
 @endcanany
+

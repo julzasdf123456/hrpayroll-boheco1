@@ -68,6 +68,9 @@ You can also check out our other paid products on [CodeCanyon](https://codecanyo
 - php artisan infyom:scaffold Post --fromTable --table=posts --connection=server_name
 
 
+### NEW PACKAGES
+- npm install @tiptap/vue-3 @tiptap/pm @tiptap/starter-kit
+
 ### COLORS
 - Red - #e03822
 - Green - #3a9971

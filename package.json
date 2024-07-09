@@ -13,6 +13,9 @@
         "vite": "^4.0.0"
     },
     "dependencies": {
+        "@tiptap/pm": "^2.4.0",
+        "@tiptap/starter-kit": "^2.4.0",
+        "@tiptap/vue-3": "^2.4.0",
         "@vitejs/plugin-vue": "^4.3.4",
         "bootstrap": "^5.3.1",
         "bstreeview": "^1.2.0",
