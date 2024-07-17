@@ -35,6 +35,7 @@ use App\Http\Controllers\PositionsController;
 use App\Http\Controllers\MessagesController;
 use App\Http\Controllers\LeaveUsersForOthersController;
 use App\Http\Controllers\MemorandumsController;
+use App\Http\Controllers\TestController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -464,3 +465,6 @@ Route::get('/memorandums/create-memo', [MemorandumsController::class, 'createMem
 Route::resource('memorandums', MemorandumsController::class);
 
 Route::resource('memorandumEmployees', App\Http\Controllers\MemorandumEmployeesController::class);
+
+Route::get('/test/it-exam', [TestController::class, 'itExam'])->name('test.it-exam');
+Route::get('/test/account-view/{acctNo}', [TestController::class, 'accountView'])->name('test.account-view');
