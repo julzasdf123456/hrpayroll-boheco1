@@ -44,6 +44,10 @@ import Chat from "./components/chat/chat.vue"
 import AllTravelOrders from "./components/travel-orders/all-travel-orders.vue"
 import CreateMemo from "./components/memos/create.vue"
 
+// Tests
+import AccountView from "./components/tests/account-view.vue"
+import ITExam from "./components/tests/it-exam.vue"
+
 const app = createApp({
     
 });
@@ -78,5 +82,8 @@ app.component('all-grs', AllGRS);
 app.component('chat', Chat);
 app.component('all-travel-orders', AllTravelOrders);
 app.component('create-memo', CreateMemo);
+
+app.component('account-view', AccountView);
+app.component('it-exam', ITExam);
 
 app.mount("#app");
