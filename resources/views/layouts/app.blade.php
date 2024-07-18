@@ -92,7 +92,7 @@
 
         <ul class="navbar-nav ml-auto">
             {{-- FILE SHORTCUT --}}
-            {{-- @if (!in_array(Route::currentRouteName(), ['tripTickets.log-vehicle-trips', 'tripTickets.log-vehicle-arrivals']))
+            @if (!in_array(Route::currentRouteName(), ['tripTickets.log-vehicle-trips', 'tripTickets.log-vehicle-arrivals']))
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="file-menu" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">File </a>
                     <div class="dropdown-menu" aria-labelledby="file-menu">
@@ -108,7 +108,7 @@
                         <a href="{{ route('leaveConversions.create') }}" class="dropdown-item" title="File for a leave to cash conversion">Leave Conversion</a>
                     </div>
                 </li>
-            @endif --}}
+            @endif
 
             <li class="nav-item">
                 <a class="nav-link" href="{{ route('home.reeve') }}" title="Ask Reeve for Help">
