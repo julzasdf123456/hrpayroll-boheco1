@@ -262,4 +262,8 @@ class LeaveBalancesController extends AppBaseController
 
         return response()->json($leaveBalances, 200);
     }
+
+    public function balances(Request $request) {
+        return view('/leave_balances/balances');
+    }
 }

@@ -18,6 +18,7 @@ import { createApp } from 'vue/dist/vue.esm-bundler.js';
 import EmployeesSearch from "./components/employees/search.vue"
 import FilesList from "./components/employees/files-list.vue"
 import LeaveBalancesBatchEdit from "./components/employees/leave-balances-batch-edit.vue"
+import LeaveBalances from "./components/employees/leave-balances.vue"
 import Reeve from "./components/reeve/reeve.vue"
 import GeneratePayroll from "./components/payroll/generate-payroll.vue"
 import MultiplePayrollDeductions from "./components/payroll/multiple-payroll-deductions.vue"
@@ -82,6 +83,7 @@ app.component('all-grs', AllGRS);
 app.component('chat', Chat);
 app.component('all-travel-orders', AllTravelOrders);
 app.component('create-memo', CreateMemo);
+app.component('leave-balances', LeaveBalances);
 
 app.component('account-view', AccountView);
 app.component('it-exam', ITExam);
