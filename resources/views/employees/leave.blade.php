@@ -6,29 +6,29 @@
     <table class="table table-borderless table-sm" style="margin-top: 24px;">
         <tr>
             <td class="text-center">
-                <span style="font-size: 2em; font-weight: bold">{{ LeaveBalances::toExpanded($leaveBalance->Vacation) }}</span>
+                <span style="font-size: 1.5em; font-weight: bold">{{ LeaveBalances::toExpanded($leaveBalance->Vacation) }}</span>
             </td>
             <td class="text-center">
-                <span style="font-size: 2em; font-weight: bold">{{ LeaveBalances::toExpanded($leaveBalance->Sick) }}</span>
+                <span style="font-size: 1.5em; font-weight: bold">{{ LeaveBalances::toExpanded($leaveBalance->Sick) }}</span>
             </td>
             <td class="text-center">
-                <span style="font-size: 2em; font-weight: bold">{{ number_format($leaveBalance->Special, 1) }} days</span>
+                <span style="font-size: 1.5em; font-weight: bold">{{ number_format($leaveBalance->Special, 1) }} days</span>
             </td>
             @if ($employees->Gender == 'Male')
                 <td class="text-center">
-                    <span style="font-size: 2em; font-weight: bold">{{ number_format($leaveBalance->Paternity, 1) }} days</span>
+                    <span style="font-size: 1.5em; font-weight: bold">{{ number_format($leaveBalance->Paternity, 1) }} days</span>
                 </td>
             @else
                 <td class="text-center">
-                    <span style="font-size: 2em; font-weight: bold">{{ number_format($leaveBalance->Maternity, 1) }} days</span>
+                    <span style="font-size: 1.5em; font-weight: bold">{{ number_format($leaveBalance->Maternity, 1) }} days</span>
                 </td>       
                 <td class="text-center">
-                    <span style="font-size: 2em; font-weight: bold">{{ number_format($leaveBalance->MaternityForSoloMother, 1) }} days</span>
+                    <span style="font-size: 1.5em; font-weight: bold">{{ number_format($leaveBalance->MaternityForSoloMother, 1) }} days</span>
                 </td>
             @endif     
             
             <td class="text-center">
-                <span style="font-size: 2em; font-weight: bold">{{ number_format($leaveBalance->SoloParent, 1) }} days</span>
+                <span style="font-size: 1.5em; font-weight: bold">{{ number_format($leaveBalance->SoloParent, 1) }} days</span>
             </td>
         </tr>
         <tr>
