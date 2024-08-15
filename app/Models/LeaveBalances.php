@@ -140,4 +140,28 @@ class LeaveBalances extends Model
             return '<span class="text-lg text-primary">' . 0 . '</span> days, <span class="text-lg text-primary">' . 0 . '</span> hrs, <span class="text-lg text-primary">' . 0 . '</span> mins';
         }
     }
+
+    public static function toBalanceArray($mins) {
+        if ($mins != null && is_numeric($mins) && $mins > 0) {
+            $days = (int) ($mins / 8 / 60);
+            
+            // hours
+            $exactDayInMins = $days * 8 * 60;
+            $excessMins = $mins - $exactDayInMins;
+            $hours = (int) ($excessMins / 60);
+
+            // mins
+            $totalMins = ($days * 8 * 60) + ($hours * 60);
+            $excessMins = $mins - $totalMins;
+
+            // return [
+            //     'Days' => $days,
+            //     'Hours' => $hours,
+            //     'Minutes' => $excessMins,
+            // ];
+            return [ $days, $hours, $excessMins ];
+        } else {
+            return 0 . ' days, ' . 0 . ' hrs, ' . 0 . ' mins';
+        }
+    }
 }
