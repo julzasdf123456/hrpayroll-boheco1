@@ -262,6 +262,7 @@ Route::get('/leave_balances/batch-edit', [LeaveBalancesController::class, 'batch
 Route::get('/leave_balances/get-merge-data', [LeaveBalancesController::class, 'getMergeData'])->name('leaveBalances.get-merge-data');
 Route::post('/leave_balances/update-value', [LeaveBalancesController::class, 'updateValue'])->name('leaveBalances.update-value');
 Route::get('/leave_balances/balances', [LeaveBalancesController::class, 'balances'])->name('leaveBalances.balances');
+Route::get('/leave_balances/print-balances/{dept}', [LeaveBalancesController::class, 'printBalances'])->name('leaveBalances.print-balances');
 Route::resource('leaveBalances', LeaveBalancesController::class);
 
 

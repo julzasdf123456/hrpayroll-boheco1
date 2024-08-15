@@ -266,4 +266,44 @@ class LeaveBalancesController extends AppBaseController
     public function balances(Request $request) {
         return view('/leave_balances/balances');
     }
+
+    public function printBalances($department) {
+        if ($department == 'All') {
+            $data = DB::table('Employees')
+                ->leftJoin('LeaveBalances', 'Employees.id', '=', 'LeaveBalances.EmployeeId')
+                ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+                ->leftJoin('Positions', 'EmployeesDesignations.PositionId', '=', 'Positions.id')
+                ->whereRaw("(EmploymentStatus IS NULL OR EmploymentStatus NOT IN ('Resigned', 'Retired'))")
+                ->select(
+                    'LeaveBalances.*',
+                    'FirstName',
+                    'LastName',
+                    'MiddleName',
+                    'Suffix',
+                    'Gender'
+                )
+                ->orderBy('LastName')
+                ->get();
+        } else {
+            $data = DB::table('Employees')
+                ->leftJoin('LeaveBalances', 'Employees.id', '=', 'LeaveBalances.EmployeeId')
+                ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+                ->leftJoin('Positions', 'EmployeesDesignations.PositionId', '=', 'Positions.id')
+                ->whereRaw("Positions.Department='" . $department . "' AND (EmploymentStatus IS NULL OR EmploymentStatus NOT IN ('Resigned', 'Retired'))")
+                ->select(
+                    'LeaveBalances.*',
+                    'FirstName',
+                    'LastName',
+                    'MiddleName',
+                    'Suffix',
+                    'Gender'
+                )
+                ->orderBy('LastName')
+                ->get();
+        }
+
+        return view('/leave_balances/print_balances', [
+            'data' => $data,
+        ]);
+    }
 }

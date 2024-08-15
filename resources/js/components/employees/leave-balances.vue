@@ -3,6 +3,7 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-lg-12">
+                    <a class="btn btn-default btn-sm float-right ml-1" title="Print" :href="origin + '/hr/public/index.php/leave_balances/print-balances/' + department"><i class="fas fa-print"></i></a>
                     <select v-model="department" @change="getEmployees()" class="form-control form-control-sm float-right" style="width: 160px;">
                         <option value="All">All</option>
                         <option value="ESD">ESD</option>
@@ -95,6 +96,7 @@ export default {
                 showConfirmButton: false,
                 timer: 3000
             }),
+            origin : window.location.origin,
         }
     },
     methods : {
@@ -223,7 +225,7 @@ export default {
                 console.log(err)
                 return 0
             }
-        }
+        },
     },
     created() {
         
