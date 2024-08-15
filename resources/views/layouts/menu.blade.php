@@ -32,7 +32,27 @@
                 <p>Employee Configurations</p>
             </a>
         </li>  
-        
+    </ul>
+</li>
+@endcanany
+
+{{-- EMPLOYEES --}}
+<li class="nav-item">
+    <a href="#" class="nav-link">
+        <i class="nav-icon fas fa-umbrella-beach"></i>
+        <p>
+            Leave
+            <i class="right fas fa-caret-left"></i>
+        </p>
+    </a>
+    <ul class="nav nav-treeview">
+        <li class="nav-item">
+            <a href="{{ route('leaveBalances.balances') }}"
+               class="nav-link {{ Request::is('leaveBalances.balances*') ? 'active' : '' }}">
+               <i class="fas fa-list nav-icon"></i>
+                <p>Balances</p>
+            </a>
+        </li>  
         <li class="nav-item">
             <a href="{{ route('leaveBalances.batch-edit') }}"
                class="nav-link {{ Request::is('leaveBalances.batch-edit*') ? 'active' : '' }}">
@@ -42,7 +62,6 @@
         </li>  
     </ul>
 </li>
-@endcanany
 
 {{-- MANUAL ENTRIES --}}
 <li class="nav-item">
