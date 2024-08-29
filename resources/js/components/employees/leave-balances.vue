@@ -60,7 +60,6 @@
             </div>
         </div>
     </section>
-
     
     <div class="right-bottom" style="bottom: 0px !important;">
         <p id="msg-display" class="msg-display shadow" style="font-size: .8em;"><i class="fas fa-check-circle ico-tab-mini text-success"></i>saved!</p>
