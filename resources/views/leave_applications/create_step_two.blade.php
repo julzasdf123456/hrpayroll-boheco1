@@ -86,7 +86,7 @@
                     <span class="text-muted"><i>Preview</i></span>
                     <h4 class="text-center px-0 mx-0"><strong>{{ env('APP_COMPANY') }}</strong></h4>
                     <p class="text-center">{{ env('APP_ADDRESS') }}</p>
-                  
+
                     <span>
                         <strong>Date Filed: </strong>{{ date('F d, Y', strtotime($leaveApplication->created_at)) }}
                         {{-- <br>
