@@ -3,8 +3,26 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-lg-12">
-                    <a class="btn btn-default btn-sm float-right ml-1" title="Print" :href="origin + '/hr/public/index.php/leave_balances/print-balances/' + department"><i class="fas fa-print"></i></a>
-                    <select v-model="department" @change="getEmployees()" class="form-control form-control-sm float-right" style="width: 160px;">
+                    
+                    <a class="btn btn-default btn-sm float-right ml-1" title="Print" :href="origin + '/hr/public/index.php/leave_balances/print-balances/' + department + '/' + month + '/' + year"><i class="fas fa-print"></i></a>
+                    <input type="text" maxlength="4" v-model="year" class="form-control form-control-sm float-right ml-1" style="width: 80px;">
+                    <select v-model="month" class="form-control form-control-sm float-right" style="width: 160px;">
+                        <option value="Jan">Jan</option>
+                        <option value="Feb">Feb</option>
+                        <option value="Mar">Mar</option>
+                        <option value="Apr">Apr</option>
+                        <option value="May">May</option>
+                        <option value="Jun">Jun</option>
+                        <option value="Jul">Jul</option>
+                        <option value="Aug">Aug</option>
+                        <option value="Sep">Sep</option>
+                        <option value="Oct">Oct</option>
+                        <option value="Nov">Nov</option>
+                        <option value="Dec">Dec</option>
+                    </select>
+                    
+                    <!-- department select -->
+                    <select v-model="department" @change="getEmployees()" class="form-control form-control-sm" style="width: 160px;">
                         <option value="All">All</option>
                         <option value="ESD">ESD</option>
                         <option value="ISD">ISD</option>
@@ -96,6 +114,8 @@ export default {
                 timer: 3000
             }),
             origin : window.location.origin,
+            year : moment().format('YYYY'),
+            month : ''
         }
     },
     methods : {

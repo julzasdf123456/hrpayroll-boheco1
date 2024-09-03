@@ -267,15 +267,16 @@ class LeaveBalancesController extends AppBaseController
         return view('/leave_balances/balances');
     }
 
-    public function printBalances($department) {
+    public function printBalances($department, $month, $year) {
         if ($department == 'All') {
             $data = DB::table('Employees')
-                ->leftJoin('LeaveBalances', 'Employees.id', '=', 'LeaveBalances.EmployeeId')
+                ->leftJoin('LeaveBalanceMonthlyImage', 'Employees.id', '=', 'LeaveBalanceMonthlyImage.EmployeeId')
                 ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
                 ->leftJoin('Positions', 'EmployeesDesignations.PositionId', '=', 'Positions.id')
                 ->whereRaw("(EmploymentStatus IS NULL OR EmploymentStatus NOT IN ('Resigned', 'Retired'))")
+                ->whereRaw("LeaveBalanceMonthlyImage.Month='" . $month . "' AND LeaveBalanceMonthlyImage.Year='" . $year . "'")
                 ->select(
-                    'LeaveBalances.*',
+                    'LeaveBalanceMonthlyImage.*',
                     'FirstName',
                     'LastName',
                     'MiddleName',
@@ -286,12 +287,13 @@ class LeaveBalancesController extends AppBaseController
                 ->get();
         } else {
             $data = DB::table('Employees')
-                ->leftJoin('LeaveBalances', 'Employees.id', '=', 'LeaveBalances.EmployeeId')
+                ->leftJoin('LeaveBalanceMonthlyImage', 'Employees.id', '=', 'LeaveBalanceMonthlyImage.EmployeeId')
                 ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
                 ->leftJoin('Positions', 'EmployeesDesignations.PositionId', '=', 'Positions.id')
                 ->whereRaw("Positions.Department='" . $department . "' AND (EmploymentStatus IS NULL OR EmploymentStatus NOT IN ('Resigned', 'Retired'))")
+                ->whereRaw("LeaveBalanceMonthlyImage.Month='" . $month . "' AND LeaveBalanceMonthlyImage.Year='" . $year . "'")
                 ->select(
-                    'LeaveBalances.*',
+                    'LeaveBalanceMonthlyImage.*',
                     'FirstName',
                     'LastName',
                     'MiddleName',
@@ -304,6 +306,8 @@ class LeaveBalancesController extends AppBaseController
 
         return view('/leave_balances/print_balances', [
             'data' => $data,
+            'month' => $month,
+            'year' => $year
         ]);
     }
 }

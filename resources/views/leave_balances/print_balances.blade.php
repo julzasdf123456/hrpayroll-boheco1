@@ -65,7 +65,7 @@
         margin: 10px auto;
         height: 3px;
         background-color: #dedede;
-      -webkit-print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
     } 
 
     p {
@@ -140,13 +140,13 @@
     }
 
     .text-muted {
-      color: #898989;
-      -webkit-print-color-adjust: exact;
+        color: #898989;
+        -webkit-print-color-adjust: exact;
     }
 
     .no-pad {
-      margin: 0px; 
-      padding: 0px;
+        margin: 0px; 
+        padding: 0px;
     }
 
     .table {
@@ -176,7 +176,7 @@
         <p class="text-center"><strong>{{ env('APP_COMPANY') }}</strong></p>
         <p class="text-center">{{ env('APP_LOCATION') }}</p>
 
-        <p class="text-center" style="margin-top: 10px;"><strong>LEAVE CREDIT BALANCES AS OF {{ strtoupper(date('M d, Y')) }}</strong></p>
+        <p class="text-center" style="margin-top: 10px;"><strong>LEAVE CREDIT BALANCES AS OF {{ strtoupper(date('F d, Y', strtotime('last day of ' . $month . ' ' . $year))) }}</strong></p>
     </div>
 
     {{-- male --}}
