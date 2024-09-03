@@ -63,6 +63,19 @@
                         </div>
                     </div>
 
+                    <!-- FOR SPECIAL LEAVE Field -->
+                    <div class="form-group mb-3" id="special-dropdown">
+                        <span class="text-muted">Select Reason</span>
+                        <select name="SpecialReason" id="SpecialReason" class="form-control">
+                            <option value="Enrollment">Enrollment</option>
+                            <option value="Graduation">Graduation</option>
+                            <option value="Birthday">Birthday</option>
+                            <option value="Medical Examination">Medical Examination</option>
+                            <option value="Wedding Anniversary">Wedding Anniversary</option>
+                            <option value="Fiesta">Fiesta</option>
+                        </select> 
+                    </div>
+
                     <div class="form-group mb-3">
                         <span class="text-muted">Reason</span>
                         <input type="text" name="Reason" id="Reason" class="form-control"/>
@@ -393,6 +406,30 @@
                 leaveDates = []
                 populateLeaveTable()
                 getLeaveBalances(this.value)
+            })
+
+            $('#special-dropdown').hide()
+
+            $('input[type=radio][name=LeaveType]').change(function() {
+                var value = this.value
+
+                if (value == 'Special') {
+                    $('#special-dropdown').show()
+                    $('#Reason').attr('readonly', true)
+                    $('#Reason').val($('#SpecialReason').val())
+                } else if (value == 'Sick') {
+                    $('#special-dropdown').hide()
+                    $('#Reason').removeAttr('readonly')
+                    $('#Reason').val(null)
+                } else if (value == 'Paternity' | value == 'Maternity') {
+                    $('#special-dropdown').hide()   
+                    $('#Reason').val(null)   
+                    $('#Reason').attr('readonly', true)
+                } else {           
+                    $('#special-dropdown').hide()   
+                    $('#Reason').val(null)  
+                    $('#Reason').removeAttr('readonly')
+                }
             })
         })
     </script>
