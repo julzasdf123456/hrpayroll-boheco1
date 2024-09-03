@@ -115,7 +115,7 @@ export default {
             }),
             origin : window.location.origin,
             year : moment().format('YYYY'),
-            month : moment().format('MMM')
+            month : ''
         }
     },
     methods : {
