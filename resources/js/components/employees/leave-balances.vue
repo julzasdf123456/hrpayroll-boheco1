@@ -6,7 +6,7 @@
                     
                     <a class="btn btn-default btn-sm float-right ml-1" title="Print" :href="origin + '/hr/public/index.php/leave_balances/print-balances/' + department + '/' + month + '/' + year"><i class="fas fa-print"></i></a>
                     <input type="text" maxlength="4" v-model="year" class="form-control form-control-sm float-right ml-1" style="width: 80px;">
-                    <select v-model="month" class="form-control form-control-sm float-right" style="width: 160px;">
+                    <select v-model="month" class="form-control form-control-sm float-right ml-2" style="width: 160px;">
                         <option value="Jan">Jan</option>
                         <option value="Feb">Feb</option>
                         <option value="Mar">Mar</option>
@@ -22,7 +22,7 @@
                     </select>
                     
                     <!-- department select -->
-                    <select v-model="department" @change="getEmployees()" class="form-control form-control-sm" style="width: 160px;">
+                    <select v-model="department" @change="getEmployees()" class="form-control form-control-sm float-right" style="width: 160px;">
                         <option value="All">All</option>
                         <option value="ESD">ESD</option>
                         <option value="ISD">ISD</option>
@@ -100,7 +100,7 @@ export default {
     },
     data() {
         return {
-            department : 'OGM',
+            department : 'All',
             employeeType : 'Regular',
             isDisplayed : 'gone',
             isButtonDisabled : false,
@@ -115,7 +115,7 @@ export default {
             }),
             origin : window.location.origin,
             year : moment().format('YYYY'),
-            month : ''
+            month : moment().format('MMM')
         }
     },
     methods : {
