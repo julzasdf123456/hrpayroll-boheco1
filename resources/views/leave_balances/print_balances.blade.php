@@ -93,7 +93,7 @@
 
     .thirty {
         display: inline-table; 
-        width: 30%;
+        width: 32.5%;
     }
 
     .seventy {
@@ -218,6 +218,35 @@
                 @endforeach
             </tbody>
         </table>
+    </div>
+
+    <div style="margin-top: 20px;">
+        <div class="thirty">
+            <p>Prepared By:</p>
+            <br>
+            <br>
+            <br>
+            <p><strong>{{ env("HR") }}</strong></p>
+            <p>Head, Human Resources Development Section</p>
+        </div>
+
+        <div class="thirty">
+            <p>Checked By:</p>
+            <br>
+            <br>
+            <br>
+            <p><strong>{{ env("MCPD_CHIEF") }}</strong></p>
+            <p>Chief, MCPD Division</p>
+        </div>
+        
+        <div class="thirty">
+            <p>Noted By:</p>
+            <br>
+            <br>
+            <br>
+            <p><strong>{{ env("ISD_MANAGER") }}</strong></p>
+            <p>Manager, ISD</p>
+        </div>
     </div>
 </div>
 <script type="text/javascript">
