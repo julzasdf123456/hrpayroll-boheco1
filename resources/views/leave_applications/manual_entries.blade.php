@@ -431,6 +431,10 @@
                     $('#Reason').removeAttr('readonly')
                 }
             })
+
+            $('#SpecialReason').on('change', function() {
+                $('#Reason').val(this.value)
+            })
         })
     </script>
 @endpush
