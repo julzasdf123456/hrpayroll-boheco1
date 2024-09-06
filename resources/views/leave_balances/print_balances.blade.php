@@ -174,7 +174,6 @@
 
     <div>
         <p class="text-center"><strong>{{ env('APP_COMPANY') }}</strong></p>
-        <p class="text-center">{{ env('APP_LOCATION') }}</p>
 
         <p class="text-center" style="margin-top: 10px;"><strong>LEAVE CREDIT BALANCES AS OF {{ strtoupper(date('F d, Y', strtotime('last day of ' . $month . ' ' . $year))) }}</strong></p>
     </div>
@@ -185,6 +184,7 @@
         <table class="table">
             <thead>
                 <tr>
+                    <th rowspan="2"></th>
                     <th class="text-center" rowspan="2">Employees</th>
                     <th class="text-center" colspan="3">Vacation</th>
                     <th class="text-center" colspan="3">Sick</th>
@@ -200,12 +200,16 @@
                 </tr>
             </thead>
             <tbody>
+                @php
+                    $i=1;
+                @endphp
                 @foreach ($data as $item)
                     @php
                         $vacation = LeaveBalances::toBalanceArray($item->Vacation);
                         $sick = LeaveBalances::toBalanceArray($item->Sick);
                     @endphp
                     <tr>
+                        <td>{{ $i }}</td>
                         <td>{{ strtoupper($item->LastName) . ', ' . strtoupper($item->FirstName) }}</td>
                         <td class="text-right">{{ $vacation != null ? ((isset($vacation[0]) && $vacation[0] != null ? $vacation[0] : '0')) : '' }}</td>
                         <td class="text-right">{{ $vacation != null ? ((isset($vacation[1]) && $vacation[1] != null ? $vacation[1] : '0')) : '' }}</td>
@@ -215,6 +219,9 @@
                         <td class="text-right">{{ $sick != null ? ((isset($sick[2]) && $sick[2] != null ? $sick[2] : '0')) : '' }}</td>
                         <td class="text-right">{{ $item->Special }}</td>
                     </tr>
+                    @php
+                        $i++;
+                    @endphp
                 @endforeach
             </tbody>
         </table>
