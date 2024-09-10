@@ -16,7 +16,7 @@
                 <div class="card-body table-responsive p-0">
                     <table class="table table-hover table-borderless">
                         <tbody>
-                            <tr style="border-bottom: 1px solid #dbdbdb; padding-bottom: 20px;">
+                            <tr>
                                 <td style="max-width: 100px;">Employee</td>
                                 <td></td>
                                 <td>
@@ -26,6 +26,13 @@
                                             <option value="{{ $item->id }}" {{ Auth::user()->employee_id==$item->id ? 'selected' : '' }} sick="{{ LeaveBalances::toDay($item->Sick) }}" vacation="{{ LeaveBalances::toDay($item->Vacation) }}">{{ Employees::getMergeNameFormal($item) }}</option>
                                         @endforeach
                                     </select>
+                                </td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #dbdbdb; padding-bottom: 20px;">
+                                <td>Date Filed</td>
+                                <td></td>
+                                <td>
+                                    <input type="date" class="form-control" id="DateFiled" value="{{ date('Y-m-d') }}">
                                 </td>
                             </tr>
                             <tr>
@@ -160,6 +167,7 @@
             var sick = $('#sick').val()
             var employeeId = $('#EmployeeId').val()
             var employeeName = $('#EmployeeId option:selected').text()
+            var dateFiled = $('#DateFiled').val()
 
             if (isNull(employeeId) | (isNull(sick) && isNull(vacation))) {
                 Toast.fire({
@@ -176,6 +184,7 @@
                     EmployeeName : employeeName,
                     Vacation : vacation,
                     Sick : sick,
+                    DateFiled : dateFiled,
                 })
             }
 

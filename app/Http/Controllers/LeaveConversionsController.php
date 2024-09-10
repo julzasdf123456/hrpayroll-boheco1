@@ -197,6 +197,7 @@ class LeaveConversionsController extends AppBaseController
                 $leaveConversion->Year = date('Y');
                 $leaveConversion->Status = 'Filed';
                 $leaveConversion->UserId = Auth::id();
+                $leaveConversion->DateFiled = $item['DateFiled'];
                 $leaveConversion->save();
 
                 UserFootprints::logSource('Requested Leave Conversion', 
