@@ -32,3 +32,4 @@ Route::get('get-version', [Biometrics::class, 'getVersion']);
  */
 Route::get('get-random-notification', [SMSNotificationsAPI::class, 'getRandomNotification']);
 Route::get('update-sms', [SMSNotificationsAPI::class, 'updateSMSNotification']);
+Route::get('insert-bio-attendance', [SMSNotificationsAPI::class, 'insertSMSNotifForBiometricAttendance']);

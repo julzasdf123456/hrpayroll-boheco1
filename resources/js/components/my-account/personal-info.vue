@@ -65,7 +65,10 @@
                     <tbody>
                         <tr>
                             <td class="text-muted v-align fixed-td-md">Contact Numbers</td>
-                            <td class="v-align">{{ isNull(employeeData.ContactNumbers) ? '-' : employeeData.ContactNumbers }}</td>
+                            <td class="v-align">
+                                {{ isNull(employeeData.ContactNumbers) ? '-' : employeeData.ContactNumbers }}
+                                <button @click="updateContactNumbers(employeeData.ContactNumbers)" class="btn btn-xs btn-link-muted float-right"><i class="fas fa-pen"></i></button>
+                            </td>
                         </tr>
                         <tr>
                             <td class="text-muted v-align fixed-td-md">Email Address</td>
@@ -182,9 +185,9 @@
                             <td class="text-right v-align">
                                 <div class="dropdown">
                                     <a class="btn btn-link-muted float-right" href="#" role="button" data-toggle="dropdown" aria-expanded="false" style="margin-right: 15px;">
-                                      <i class="fas fa-ellipsis-v"></i>
+                                        <i class="fas fa-ellipsis-v"></i>
                                     </a>
-                                  
+
                                     <div class="dropdown-menu">
                                         <a target="_blank" class="dropdown-item" :href="filePath + '' + employeeId + '/' + file.file"><i class="fas fa-external-link-alt ico-tab-mini"></i>View</a>
                                     </div>
@@ -193,6 +196,26 @@
                         </tr>
                     </tbody>
                 </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- modal edit contanct -->
+    <div ref="modalEditContact" class="modal fade" aria-hidden="true" style="display: none;">
+        <div class="modal-dialog modal-md">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span>Edit Contact Numbers</span>
+                </div>
+                <div class="modal-body table-responsive">
+                    <div class="form-group">
+                        <label for="ItemPublic">Your Contact Number</label>
+                        <input type="text" class="form-control" v-model="contactNumber" style="width: 100%;" required placeholder="Separate with comma if more than one">
+                    </div>
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <button type="button" class="btn btn-sm btn-primary float-right" @click="saveContactNumber()"><i class="fas fa-check ico-tab-mini"></i>Update</button>
+                </div>
             </div>
         </div>
     </div>
@@ -232,6 +255,7 @@ export default {
             employeeData : '',
             dependents : [],
             imgsPath : axios.defaults.imgsPath,
+            contactNumber : '',
         }
     },
     methods : {
@@ -355,6 +379,38 @@ export default {
                         })
                     })
                 }
+            })
+        },
+        updateContactNumbers(contactNumber) {
+            let modalElement = this.$refs.modalEditContact
+            $(modalElement).modal('show')
+
+            this.contactNumber = contactNumber
+        },
+        saveContactNumber() {
+            axios.post(`${ axios.defaults.baseURL }/employees/update-ajax/${this.employeeId}`, {
+                id : this.employeeId,
+                ContactNumbers : this.contactNumber,
+            })
+            .then(response => {
+                this.toast.fire({
+                    icon : 'success',
+                    text : 'Contact numbers updated!'
+                })
+
+                if (!this.isNull(this.employeeData)) {
+                    this.employeeData.ContactNumbers = this.contactNumber
+                }
+
+                let modalElement = this.$refs.modalEditContact
+                $(modalElement).modal('hide')
+            })
+            .catch(error => {
+                console.log(error.response)
+                this.toast.fire({
+                    icon : 'error',
+                    text : 'Error updating contact numbers!'
+                })
             })
         }
     },

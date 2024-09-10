@@ -253,6 +253,18 @@ class EmployeesController extends AppBaseController
         return redirect(route('employees.index'));
     }
 
+    public function updateAjax($id, Request $request)
+    {
+        $employees = Employees::find($id);
+
+        if ($employees != null) {
+            $employees->ContactNumbers = $request['ContactNumbers'];
+            $employees->save();
+        }
+
+        return response()->json($employees, 200);
+    }
+
     /**
      * Remove the specified Employees from storage.
      *
@@ -917,7 +929,6 @@ class EmployeesController extends AppBaseController
 
         return response()->json($data, 200);
     }
-
     
     public function getEmployeesOnTravelToday(Request $request) {
         $data = DB::table('TravelOrderEmployees')

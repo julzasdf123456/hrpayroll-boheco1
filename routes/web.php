@@ -118,6 +118,7 @@ Route::get('/employees/get-employees-onleave-today', [EmployeesController::class
 Route::get('/employees/get-employees-ontrip-today', [EmployeesController::class, 'getEmployeesOnTripToday'])->name('employees.get-employees-ontrip-today');
 Route::get('/employees/get-employees-onoffset-today', [EmployeesController::class, 'getEmployeesOnOffsetToday'])->name('employees.get-employees-onoffset-today');
 Route::get('/employees/get-employees-ontravel-today', [EmployeesController::class, 'getEmployeesOnTravelToday'])->name('employees.get-employees-ontravel-today');
+Route::post('/employees/update-ajax/{id}', [EmployeesController::class, 'updateAjax'])->name('employees.update-ajax');
 Route::resource('employees', EmployeesController::class);
 
 Route::resource('permissions', App\Http\Controllers\PermissionController::class);
