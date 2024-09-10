@@ -273,7 +273,7 @@ class LeaveBalancesController extends AppBaseController
                 ->leftJoin('LeaveBalanceMonthlyImage', 'Employees.id', '=', 'LeaveBalanceMonthlyImage.EmployeeId')
                 ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
                 ->leftJoin('Positions', 'EmployeesDesignations.PositionId', '=', 'Positions.id')
-                ->whereRaw("(EmploymentStatus IS NULL OR EmploymentStatus NOT IN ('Resigned', 'Retired'))")
+                ->whereRaw("(EmploymentStatus IS NULL OR EmploymentStatus NOT IN ('Resigned', 'Retired')) AND EmployeesDesignations.Status IN ('Regular')")
                 ->whereRaw("LeaveBalanceMonthlyImage.Month='" . $month . "' AND LeaveBalanceMonthlyImage.Year='" . $year . "'")
                 ->select(
                     'LeaveBalanceMonthlyImage.*',
@@ -290,7 +290,7 @@ class LeaveBalancesController extends AppBaseController
                 ->leftJoin('LeaveBalanceMonthlyImage', 'Employees.id', '=', 'LeaveBalanceMonthlyImage.EmployeeId')
                 ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
                 ->leftJoin('Positions', 'EmployeesDesignations.PositionId', '=', 'Positions.id')
-                ->whereRaw("Positions.Department='" . $department . "' AND (EmploymentStatus IS NULL OR EmploymentStatus NOT IN ('Resigned', 'Retired'))")
+                ->whereRaw("Positions.Department='" . $department . "' AND (EmploymentStatus IS NULL OR EmploymentStatus NOT IN ('Resigned', 'Retired')) AND EmployeesDesignations.Status IN ('Regular')")
                 ->whereRaw("LeaveBalanceMonthlyImage.Month='" . $month . "' AND LeaveBalanceMonthlyImage.Year='" . $year . "'")
                 ->select(
                     'LeaveBalanceMonthlyImage.*',
