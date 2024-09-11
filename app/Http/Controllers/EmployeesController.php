@@ -259,6 +259,7 @@ class EmployeesController extends AppBaseController
 
         if ($employees != null) {
             $employees->ContactNumbers = $request['ContactNumbers'];
+            $employees->EmailAddress = $request['EmailAddress'];
             $employees->save();
         }
 
