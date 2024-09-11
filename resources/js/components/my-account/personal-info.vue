@@ -24,7 +24,10 @@
                     <tbody>
                         <tr>
                             <td class="text-muted v-align fixed-td-md">Profile Picture</td>
-                            <td class="text-right"><img style="width: 50px !important;" class="img-fluid img-circle" :src="imgsPath + 'prof-img.png'" alt="User profile picture"></td>
+                            <td class="text-right">
+                                <img @click="uploadPhoto()" title="Upload a profile picture" style="height: 50px !important; width: 50px !important; cursor: pointer; object-fit: cover;" class="img-fluid img-circle" :src="imagePreview" alt="n/a">
+                                <input type="file" ref="fileInput" @change="onFileChange" class="gone" />
+                            </td>
                         </tr>
                         <tr>
                             <td class="text-muted v-align fixed-td-md">Declared Name</td>
@@ -268,6 +271,7 @@ export default {
             colorProfile : document.querySelector("meta[name='color-profile']").getAttribute('content'),
             tableInputTextColor : this.isNull(document.querySelector("meta[name='color-profile']").getAttribute('content')) ? 'text-dark' : 'text-white',
             employeeId : document.querySelector("meta[name='employee-id']").getAttribute('content'),
+            imgsPath : axios.defaults.imgsPath,
             toast : Swal.mixin({
                 toast: true,
                 position: 'top-end',
@@ -277,9 +281,10 @@ export default {
             files : {},
             employeeData : '',
             dependents : [],
-            imgsPath : axios.defaults.imgsPath,
             contactNumber : '',
-            emailAddress : ''
+            emailAddress : '',
+            selectedFile: null,
+            imagePreview : null,
         }
     },
     methods : {
@@ -347,6 +352,14 @@ export default {
             })
             .then(response => {
                 this.employeeData = response.data
+
+                if (!this.isNull(this.employeeData)) {
+                    if (!this.isNull(this.employeeData.ProfilePicture)) {
+                        this.imagePreview = this.imgsPath + "/profiles/" + this.employeeId + '.jpg'
+                    } else {
+                        this.imagePreview = this.imgsPath + 'prof-img.png'
+                    }
+                }
             })
             .catch(error => {
                 console.log(error)
@@ -471,6 +484,52 @@ export default {
                 })
             })
         },
+        // upload photo
+        uploadPhoto() {
+            this.$refs.fileInput.click();
+        },
+        onFileChange(event) {
+            this.selectedFile = event.target.files[0];
+
+            // Generate a preview of the image
+            const reader = new FileReader();
+            reader.readAsDataURL(this.selectedFile);
+            reader.onload = e => {
+                this.imagePreview = e.target.result // Update image preview
+            }
+
+            this.uploadImage()
+        },
+        async uploadImage() {
+            if (!this.selectedFile) {
+                alert('Please select a file');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('image', this.selectedFile)
+            formData.append('employeeId', this.employeeId)
+
+            try {
+                const response = await axios.post(`${ axios.defaults.baseURL }/employees/upload-profile-image`, formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                });
+
+                console.log('Upload successful:', response.data)
+                this.toast.fire({
+                    icon : 'success',
+                    text : 'Profile picture uploaded and updated!'
+                })
+            } catch (error) {
+                console.error('Error uploading the file:', error.response)
+                this.toast.fire({
+                    icon : 'error',
+                    text : 'Error uploading profile picture!'
+                })
+            }
+        },
     },
     created() {
         
@@ -479,6 +538,8 @@ export default {
         this.getEmployeeInfo()
         this.getFiles()
         this.getDependents()
+
+        this.imagePreview = this.imgsPath + 'prof-img.png'
     }
 }
 

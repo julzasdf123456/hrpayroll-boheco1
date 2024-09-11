@@ -33,6 +33,7 @@ use App\Models\LeaveExcessAbsences;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+// use Illuminate\Support\Facades\File;
 use Flash;
 use Response;
 use File;
@@ -329,7 +330,8 @@ class EmployeesController extends AppBaseController
                     'Positions.Position as Designation',
                     'Employees.EmailAddress',
                     'Towns.Town',
-                    'Barangays.Barangays'   
+                    'Barangays.Barangays',
+                    'Employees.ProfilePicture',   
                 )
                 ->orderBy('Employees.LastName')
                 ->paginate(20);
@@ -349,7 +351,8 @@ class EmployeesController extends AppBaseController
                     'Positions.Position as Designation',
                     'Employees.EmailAddress',
                     'Towns.Town',
-                    'Barangays.Barangays' 
+                    'Barangays.Barangays' ,
+                    'Employees.ProfilePicture',  
                 )
                 ->orderByDesc('Employees.created_at')
                 ->paginate(20);
@@ -837,6 +840,16 @@ class EmployeesController extends AppBaseController
             ->where('Employees.id', $id)
             ->first();
 
+        // check profile pic
+        $profilePic = public_path() . "/imgs/profiles/" . $id . ".jpg";
+
+        // Check if the file exists
+        if (File::exists($profilePic)) {
+            $data->ProfilePicture = $profilePic;
+        } else {
+            $data->ProfilePicture = null;
+        }
+
         return response()->json($data, 200);
     }
 
@@ -932,5 +945,26 @@ class EmployeesController extends AppBaseController
             ->update(['ContactNumbers' => $contact]);
 
         return response()->json('ok', 200);
+    }
+
+    public function uploadProfileImage(Request $request) {
+        $request->validate([
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:60048',
+        ]);
+
+        // Store the uploaded image in the 'public/uploads' directory
+        if ($request->file('image')) {
+            $image = $request->file('image');
+            $imageName = $request['employeeId'] . '.jpg';
+            $image->move(public_path() . "/imgs/profiles/", $imageName);
+            
+            // update empoyees
+            Employees::where('id', $request['employeeId'])
+            ->update(['ProfilePicture' => $request['employeeId'] . ".jpg"]);
+
+            return response()->json(['success' => 'Image uploaded successfully!', 'image' => $imageName]);
+        }
+
+        return response()->json(['error' => 'Image upload failed'], 400);
     }
 }

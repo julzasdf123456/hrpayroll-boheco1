@@ -25,7 +25,14 @@
     {{-- IMG --}}
     <div class="center-contents">
         <div style="display: block; margin-bottom: 18px;">
-            <img style="width: 112px !important;" class="profile-user-img img-fluid img-circle" src="{{ asset('imgs/prof-img.png') }}" alt="User profile picture">
+            @php
+                $profilePic = Employees::getProfilePic($employee->id);
+            @endphp
+            @if ($profilePic != null)
+                <img width="112px" height="112px" style="object-fit: cover; height: 112px !important; width: 112px !important;" class="profile-user-img img-fluid img-circle" src="{{ $profilePic }}" alt="User profile picture">
+            @else
+                <img style="object-fit: cover; height: 112px !important; width: 112px !important;" class="profile-user-img img-fluid img-circle" src="{{ asset('imgs/prof-img.png') }}" alt="User profile picture">
+            @endif
         </div>
     </div>
 

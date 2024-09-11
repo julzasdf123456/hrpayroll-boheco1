@@ -7,13 +7,14 @@
     <meta name="color-profile" content="{{ Auth::user()->ColorProfile }}">
     <meta name="employee-id" content="{{ Auth::user()->employee_id }}">
     <meta name="user-id" content="{{ Auth::id() }}">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <link rel="stylesheet" href="{{ URL::asset('css/source_sans_pro.css'); }} ">
 
     <link rel="stylesheet" href="{{ URL::asset('css/all.css'); }} ">
 
     <link rel="stylesheet" href="{{ URL::asset('css/bootstrap4toggle.css'); }} ">
-          
+
     <link rel="stylesheet" href="{{ URL::asset('css/adminlte.min.css'); }} ">
 
     <link rel="stylesheet" href="{{ URL::asset('css/bootstrapdatetimepicker.min.css'); }} ">
@@ -70,11 +71,16 @@
 
     @stack('page_css')
     <style>
-        
+        .img-cover {
+            object-fit: cover !important;
+        }
     </style>
 </head>
 @php
+    use App\Models\Employees;
+
     $userCache = Auth::user();
+    $profilePic = Employees::getProfilePic($userCache->employee_id);
 @endphp
 <body class="hold-transition sidebar-mini layout-fixed {{ $userCache->ColorProfile }}">
 <div class="wrapper">
@@ -137,17 +143,27 @@
 
             <li class="nav-item dropdown user-menu">
                 <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
-                    <img src="{{ URL::asset('imgs/logo.png'); }}"
-                         class="user-image img-circle" alt="User Image"> 
+                    @if ($profilePic != null)
+                        <img src="{{ $profilePic }}"
+                            class="user-image img-circle img-cover" alt="User Image"> 
+                    @else
+                        <img src="{{ URL::asset('imgs/prof-img.png'); }}"
+                            class="user-image img-circle img-cover" alt="User Image"> 
+                    @endif
+                    
                     <span class="d-none d-md-inline">{{ Auth::user()->name }}</span>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
                     <!-- User image -->
                     <li class="user-header">
                         {{-- <img src="https://boheco1.com/wp-content/uploads/2018/06/boheco-1-1024x1012.png" class="user-image img-circle elevation-2" alt="User Image"> --}}
-                        <img src="{{ URL::asset('imgs/logo.png'); }}"
-                             class="img-circle"
-                             alt="User Image"> 
+                        @if ($profilePic != null)
+                            <img src="{{ $profilePic }}"
+                                class="user-image img-circle img-cover" alt="User Image"> 
+                        @else
+                            <img src="{{ URL::asset('imgs/prof-img.png'); }}"
+                                class="user-image img-circle img-cover" alt="User Image"> 
+                        @endif
                         <br>
                         <h4 style="margin-top: 10px;"> {{ Auth::check() ? Auth::user()->name : '' }} </h4>
                     </li>
