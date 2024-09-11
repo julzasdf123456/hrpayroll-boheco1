@@ -69,8 +69,6 @@ You can also check out our other paid products on [CodeCanyon](https://codecanyo
 
 
 ### NEW PACKAGES
-- npm install @tiptap/vue-3 @tiptap/pm @tiptap/starter-kit
-new
 - npm install vuedraggable@next
 - npm install jsplumb
 

@@ -24,7 +24,7 @@
                     <tbody>
                         <tr>
                             <td class="text-muted v-align fixed-td-md">Profile Picture</td>
-                            <td class="text-right"><img style="width: 50px; !important;" class="img-fluid img-circle" :src="imgsPath + 'prof-img.png'" alt="User profile picture"></td>
+                            <td class="text-right"><img style="width: 50px !important;" class="img-fluid img-circle" :src="imgsPath + 'prof-img.png'" alt="User profile picture"></td>
                         </tr>
                         <tr>
                             <td class="text-muted v-align fixed-td-md">Declared Name</td>
@@ -72,7 +72,10 @@
                         </tr>
                         <tr>
                             <td class="text-muted v-align fixed-td-md">Email Address</td>
-                            <td class="v-align">{{ isNull(employeeData.EmailAddress) ? '-' : employeeData.EmailAddress }}</td>
+                            <td class="v-align">
+                                {{ isNull(employeeData.EmailAddress) ? '-' : employeeData.EmailAddress }}
+                                <button @click="updateEmail(employeeData.EmailAddress)" class="btn btn-xs btn-link-muted float-right"><i class="fas fa-pen"></i></button>
+                            </td>
                         </tr>
                         <tr>
                             <td class="text-muted v-align fixed-td-md">Current Address</td>
@@ -219,6 +222,26 @@
             </div>
         </div>
     </div>
+
+    <!-- modal edit email -->
+    <div ref="modalEditEmail" class="modal fade" aria-hidden="true" style="display: none;">
+        <div class="modal-dialog modal-md">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span>Edit Email Address</span>
+                </div>
+                <div class="modal-body table-responsive">
+                    <div class="form-group">
+                        <label for="ItemPublic">Your Email Address</label>
+                        <input type="text" class="form-control" v-model="emailAddress" style="width: 100%;" required placeholder="Separate with comma if more than one">
+                    </div>
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <button type="button" class="btn btn-sm btn-primary float-right" @click="saveEmailAddress()"><i class="fas fa-check ico-tab-mini"></i>Update</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </template>
 
 <script>
@@ -256,6 +279,7 @@ export default {
             dependents : [],
             imgsPath : axios.defaults.imgsPath,
             contactNumber : '',
+            emailAddress : ''
         }
     },
     methods : {
@@ -391,6 +415,7 @@ export default {
             axios.post(`${ axios.defaults.baseURL }/employees/update-ajax/${this.employeeId}`, {
                 id : this.employeeId,
                 ContactNumbers : this.contactNumber,
+                EmailAddress : this.employeeData.EmailAddress,
             })
             .then(response => {
                 this.toast.fire({
@@ -412,7 +437,40 @@ export default {
                     text : 'Error updating contact numbers!'
                 })
             })
-        }
+        },
+        updateEmail(email) {
+            let modalElement = this.$refs.modalEditEmail
+            $(modalElement).modal('show')
+
+            this.emailAddress = email
+        },
+        saveEmailAddress() {
+            axios.post(`${ axios.defaults.baseURL }/employees/update-ajax/${this.employeeId}`, {
+                id : this.employeeId,
+                ContactNumbers : this.employeeData.ContactNumbers,
+                EmailAddress : this.emailAddress,
+            })
+            .then(response => {
+                this.toast.fire({
+                    icon : 'success',
+                    text : 'Email address updated!'
+                })
+
+                if (!this.isNull(this.employeeData)) {
+                    this.employeeData.EmailAddress = this.emailAddress
+                }
+
+                let modalElement = this.$refs.modalEditEmail
+                $(modalElement).modal('hide')
+            })
+            .catch(error => {
+                console.log(error.response)
+                this.toast.fire({
+                    icon : 'error',
+                    text : 'Error updating email address!'
+                })
+            })
+        },
     },
     created() {
         
