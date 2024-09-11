@@ -53,6 +53,7 @@
                         <th>Date Hired</th>
                         <th>Biometrics ID</th>
                         <th>Pitakard No.</th>
+                        <th>Contact Nos.</th>
                     </thead>
                     <tbody>
                         @foreach ($employees as $item)
@@ -90,6 +91,9 @@
                                 </td>
                                 <td style="width: 220px;">
                                     <input id="pitakard-{{ $item->id }}" onchange="updatePitakard(`{{ $item->id }}`)" type="text" class="form-control form-control-sm" value="{{ $item->PrimaryBankNumber }}">
+                                </td>
+                                <td style="width: 220px;">
+                                    <input id="contact-{{ $item->id }}" onchange="updateContact(`{{ $item->id }}`)" type="text" class="form-control form-control-sm" value="{{ $item->ContactNumbers }}">
                                 </td>
                             </tr>
                         @endforeach
@@ -267,6 +271,31 @@
                     }
                 })
             }            
+        }
+
+        function updateContact(id) {
+            var contact = $('#contact-' + id).val()
+
+            $.ajax({
+                url : "{{ route('employees.update-contact-numbers') }}",
+                type : "GET",
+                data : {
+                    id : id,
+                    ContactNumbers : contact
+                },
+                success : function(res) {
+                    Toast.fire({
+                        icon : 'success',
+                        text : 'Contact number updated!'
+                    })
+                },
+                error : function(err) {
+                    Toast.fire({
+                        icon : 'error',
+                        text : 'Error updating contact number!'
+                    })
+                }
+            })           
         }
     </script>
 @endpush

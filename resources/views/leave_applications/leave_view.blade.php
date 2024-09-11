@@ -164,7 +164,20 @@
             </div>
             <div class="card-footer">
                 <a href="{{ route('home') }}" class="btn btn-default">Home</a>
-                <button class="btn btn-danger float-right" id="deleteLeave"><i class="fas fa-trash ico-tab-mini"></i>Trash Leave</button>
+                @php
+                    $earliestLeaveDay = $leaveDays[0];
+                    $earliestDate = null;
+
+                    if ($earliestLeaveDay != null) {
+                        $earliestDate = date('Y-m-d', strtotime($earliestLeaveDay->LeaveDate));
+                    }
+                @endphp
+                @if ($earliestDate != null && $earliestDate > date('Y-m-d') && $leaveApplication->Status !== 'APPROVED')
+                    <button class="btn btn-danger float-right" id="deleteLeave"><i class="fas fa-trash ico-tab-mini"></i>Trash Leave</button>
+                @else
+                    <span class="float-right text-muted">This leave is no longer cancellable.</span>
+                @endif
+                
             </div>
         </div>
     </div>

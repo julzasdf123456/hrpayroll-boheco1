@@ -14,22 +14,26 @@
             <td class="text-center">
                 <span style="font-size: 1.5em; font-weight: bold">{{ number_format($leaveBalance->Special, 1) }} days</span>
             </td>
-            @if ($employees->Gender == 'Male')
-                <td class="text-center">
-                    <span style="font-size: 1.5em; font-weight: bold">{{ number_format($leaveBalance->Paternity, 1) }} days</span>
-                </td>
-            @else
-                <td class="text-center">
-                    <span style="font-size: 1.5em; font-weight: bold">{{ number_format($leaveBalance->Maternity, 1) }} days</span>
-                </td>       
-                <td class="text-center">
-                    <span style="font-size: 1.5em; font-weight: bold">{{ number_format($leaveBalance->MaternityForSoloMother, 1) }} days</span>
-                </td>
-            @endif     
-            
+            @if ($employees->Father === 'Yes') 
+            <td class="text-center">
+                <span style="font-size: 1.5em; font-weight: bold">{{ number_format($leaveBalance->Paternity, 1) }} days</span>
+            </td>
+            @endif
+            @if ($employees->Mother === 'Yes') 
+            <td class="text-center">
+                <span style="font-size: 1.5em; font-weight: bold">{{ number_format($leaveBalance->Maternity, 1) }} days</span>
+            </td>
+            @endif
+            @if ($employees->SoloMother === 'Yes')   
+            <td class="text-center">
+                <span style="font-size: 1.5em; font-weight: bold">{{ number_format($leaveBalance->MaternityForSoloMother, 1) }} days</span>
+            </td>
+            @endif
+            @if ($employees->SoloParent === 'Yes') 
             <td class="text-center">
                 <span style="font-size: 1.5em; font-weight: bold">{{ number_format($leaveBalance->SoloParent, 1) }} days</span>
             </td>
+            @endif
         </tr>
         <tr>
             <td class="text-center text-muted">
@@ -45,21 +49,26 @@
             <td class="text-center text-muted">
                 Special
             </td>
-            @if ($employees->Gender == 'Male')
-                <td class="text-center text-muted">
-                    Paternity
-                </td>
-            @else
-                <td class="text-center text-muted">
-                    Maternity
-                </td>
-                <td class="text-center text-muted">
-                    Maternity for <br> Solo Mother
-                </td>
+            @if ($employees->Father === 'Yes') 
+            <td class="text-center text-muted">
+                Paternity
+            </td>
             @endif
+            @if ($employees->Mother === 'Yes') 
+            <td class="text-center text-muted">
+                Maternity
+            </td>
+            @endif
+            @if ($employees->SoloMother === 'Yes') 
+            <td class="text-center text-muted">
+                Maternity for <br> Solo Mother
+            </td>
+            @endif
+            @if ($employees->SoloParent === 'Yes') 
             <td class="text-center text-muted">
                 Solo Parent
             </td>
+            @endif
         </tr>
     </table>
 

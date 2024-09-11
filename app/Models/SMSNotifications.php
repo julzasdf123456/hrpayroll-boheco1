@@ -55,7 +55,7 @@ class SMSNotifications extends Model
             for($i=0; $i<count($contactNos); $i++) {
                 $contactNo = trim($contactNos[$i]);
                 // check if number is valid (8 digit up)
-                if (strlen($contactNo) > 8) {
+                if (strlen($contactNo) > 9) {
                     $sms = new SMSNotifications;
                     $sms->id = IDGenerator::generateIDandRandString();
                     $sms->ContactNumber = $contactNo;

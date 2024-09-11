@@ -42,7 +42,7 @@
         </div>
 
         <!-- recipients -->
-         <div class="col-lg-4">
+        <div class="col-lg-4">
             <div class="card shadow-none">
                 <div class="card-header border-0">
                     <span class="card-title">Set Recipients</span>
@@ -108,7 +108,7 @@
                     <button class="btn btn-primary" @click="submit">Submit Memo</button>
                 </div>
             </div>
-         </div>
+        </div>
             
     </div>
 </template>
@@ -146,9 +146,9 @@ export default {
                     StarterKit,
                 ],
             }),
-            content : '',
-            title : '',
-            memoNumber : '',
+            content : null,
+            title : null,
+            memoNumber : null,
             memoType : 'Information',
             departments : [],
             sendSms : '',
@@ -213,7 +213,14 @@ export default {
             console.log(this.selectedEmployees)
         },
         submit() {
-            console.log(this.departments)
+            if (this.isNull(this.memoNumber) | this.isNull(this.title) | this.isNull(this.editor.getText())) {
+                this.toast.fire({
+                    icon : 'warning',
+                    text : 'Please make sure Memo Number, Memo Title, and Content are filled!'
+                })
+            } else {
+                
+            }
         }
     },
     mounted() {

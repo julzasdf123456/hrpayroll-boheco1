@@ -93,7 +93,11 @@ class Employees extends Model
         'SSSNumber',
         'PhilHealthNumber',
         'PagIbigNumber',
-        'PositionStatus'
+        'PositionStatus',
+        'SoloMother',
+        'SoloParent',
+        'Mother',
+        'Father',
     ];
 
     /**
@@ -141,6 +145,10 @@ class Employees extends Model
         'PhilHealthNumber' => 'string',
         'PagIbigNumber' => 'string',
         'PositionStatus' => 'string',
+        'SoloMother' => 'string',
+        'SoloParent' => 'string',
+        'Mother' => 'string',
+        'Father' => 'string',
     ];
 
     /**
@@ -189,6 +197,10 @@ class Employees extends Model
         'PhilHealthNumber' => 'nullable|string',
         'PagIbigNumber' => 'nullable|string',
         'PositionStatus' => 'nullable|string',
+        'SoloMother' => 'nullable|string',
+        'SoloParent' => 'nullable|string',
+        'Mother' => 'nullable|string',
+        'Father' => 'nullable|string',
     ];
 
     public static function getMergeName($employee) {
@@ -285,7 +297,8 @@ class Employees extends Model
                                 'EmployeeId' => $signatoryParents->EmployeeId,
                             ]);
                         } else {
-                            if (in_array($signatoryParents->Level, $levelArrayFilter)) {
+                            // check if direct ni GM
+                            if ($i==0 && $signatoryParents->Level === 'General Manager') {
                                 array_push($signatories, [
                                     'id' => $signatoryParents->id,
                                     'FirstName' => $signatoryParents->FirstName,
@@ -298,6 +311,21 @@ class Employees extends Model
                                     'Level' => $signatoryParents->Level,
                                     'EmployeeId' => $signatoryParents->EmployeeId,
                                 ]);
+                            } else {
+                                if (in_array($signatoryParents->Level, $levelArrayFilter)) {
+                                    array_push($signatories, [
+                                        'id' => $signatoryParents->id,
+                                        'FirstName' => $signatoryParents->FirstName,
+                                        'LastName' => $signatoryParents->LastName,
+                                        'MiddleName' => $signatoryParents->MiddleName,
+                                        'Suffix' => $signatoryParents->Suffix,
+                                        'Position' => $signatoryParents->Position,
+                                        'PositionId' => $signatoryParents->PositionId,
+                                        'ParentPositionId' => $signatoryParents->ParentPositionId,
+                                        'Level' => $signatoryParents->Level,
+                                        'EmployeeId' => $signatoryParents->EmployeeId,
+                                    ]);
+                                }
                             }
                         }
 

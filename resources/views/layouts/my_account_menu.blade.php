@@ -49,6 +49,14 @@
     </a>
 </li>
 
+{{-- <li class="nav-item">
+    <a href="{{ route('taskHeads.kanban') }}"
+       class="nav-link {{ Request::is('taskHeads.kanban*') ? 'active' : '' }}">
+       <i class="fas fa-tasks nav-icon"></i>
+        <p>Task Master</p>
+    </a>
+</li> --}}
+
 {{-- APPROVALS --}}
 <li class="nav-item">
     <a href="#" class="nav-link">

@@ -96,7 +96,7 @@
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="file-menu" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">File </a>
                     <div class="dropdown-menu" aria-labelledby="file-menu">
-                        <a href="{{ route('leaveApplications.create') }}" class="dropdown-item" title="File for leave">Leave for Myself</a>
+                        <a href="{{ route('leaveApplications.file-leave') }}" class="dropdown-item" title="File for leave">Leave for Myself</a>
                         @canany('create leave for others')
                         <a href="{{ route('leaveApplications.file-for-coworker') }}" class="dropdown-item" title="File for leave">Leave for my Co-Worker</a>
                         @endcanany

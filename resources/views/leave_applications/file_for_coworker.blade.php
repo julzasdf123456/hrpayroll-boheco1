@@ -14,10 +14,11 @@
             </div>
         </div>
     </section>
-
-    <div class="row">
-        <div class="col-lg-7">           
-            {{-- LEAVE FORM --}}
+    
+    <div class="row">        
+        {{-- LEAVE FORM --}}
+        <div class="col-lg-7">          
+            {{-- LEAVE FORM --}} 
             <div class="card shadow-none">
                 <div class="card-body">
                     <div class="form-group mb-4">
@@ -44,20 +45,20 @@
                             <input class="form-check-input" type="radio" name="LeaveType" id="Special" value="Special">
                             <label class="form-check-label" for="Special">Special</label>
                         </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="LeaveType" id="Paternity" value="Paternity">
-                                <label class="form-check-label" for="Paternity">Paternity</label>
-                            </div>
+                        <div class="form-check gone" id="op-paternity">
+                            <input class="form-check-input" type="radio" name="LeaveType" id="Paternity" value="Paternity">
+                            <label class="form-check-label" for="Paternity">Paternity</label>
+                        </div>
 
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="LeaveType" id="Maternity" value="Maternity">
-                                <label class="form-check-label" for="Maternity">Maternity</label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="LeaveType" id="MaternityForSoloMother" value="MaternityForSoloMother">
-                                <label class="form-check-label" for="MaternityForSoloMother">Maternity For Solo Mother</label>
-                            </div>
-                        <div class="form-check">
+                        <div class="form-check gone" id="op-maternity">
+                            <input class="form-check-input" type="radio" name="LeaveType" id="Maternity" value="Maternity">
+                            <label class="form-check-label" for="Maternity">Maternity</label>
+                        </div>
+                        <div class="form-check gone" id="op-maternity-solo">
+                            <input class="form-check-input" type="radio" name="LeaveType" id="MaternityForSoloMother" value="MaternityForSoloMother">
+                            <label class="form-check-label" for="MaternityForSoloMother">Maternity For Solo Mother</label>
+                        </div>
+                        <div class="form-check gone" id="op-solo">
                             <input class="form-check-input" type="radio" name="LeaveType" id="SoloParent" value="SoloParent">
                             <label class="form-check-label" for="SoloParent">Solo Parent</label>
                         </div>
@@ -70,7 +71,7 @@
 
                     <div class="form-group mb-3">
                         <span class="text-muted">Date Filed</span>
-                        <input type="text" name="DateFiled" id="DateFiled" class="form-control"/>
+                        <input type="text" name="DateFiled" id="DateFiled" class="form-control" value="{{ date('Y-m-d') }}"/>
                         @push('page_scripts')
                             <script type="text/javascript">
                                 $('#DateFiled').datetimepicker({
@@ -116,13 +117,16 @@
                     @endpush
                 </div>
                 <div class="card-footer">
-                    <button onclick="saveLeave()" class="btn btn-primary float-right"><i class="fas fa-check-circle ico-tab-mini"></i>Publish Leave</button>
+                    <button id="saveLeave" onclick="saveLeave()" class="btn btn-primary float-right"><i class="fas fa-check-circle ico-tab-mini"></i>Publish Leave</button>
+
+                    <p class="text-muted gone" id="not-allowed-note">Non-regular employees are not allowed to file leave yet.</p>
                 </div>
             </div>
         </div>
 
         {{-- LEAVE BALANCES HERE --}}
         <div class="col-lg-5">
+            {{-- LEAVA BALANCES --}}
             <div class="card shadow-none">
                 <div class="card-header">
                     <span class="card-title">Leave Balances</span>
@@ -162,31 +166,40 @@
                     </table>
                 </div>
             </div>
+
+            {{-- SIGNATORIES --}}
+            <div class="card shadow-none">
+                <div class="card-header">
+                    <span class="card-title">Signatories</span>
+                </div>
+                <div class="card-body table-responsive">
+                    <div class="card bg-danger gone" id="alert-no-sig">
+                        <div class="card-body">
+                            <h4><i class="fas fa-exclamation-triangle ico-tab"></i>Oops!</h4>
+                            <p>No signatory found for this employee! Contact IT for troubleshooting.</p>
+                        </div>
+                    </div>
+                    <table id="signatories-table" class="table table-hover">
+                        <tbody>
+
+                        </tbody>
+                    </table>
+                </div>
+                <div class="card-footer">
+
+                </div>
+            </div>
         </div>
     </div>
+    
 @endsection
 
 @push('page_scripts')
     <script>
         var leaveDates = []
         var leaveBalances = []
-        function deleteSignatory(id) {
-            if (confirm('Are you sure you want to delete this signatory?')) {
-                $.ajax({
-                    url : "{{ route('leaveApplications.remove-leave-signatory') }}",
-                    type : 'GET',
-                    data : {
-                        id : id
-                    },
-                    success : function(res) {
-                        location.reload()
-                    },
-                    error : function(err) {
-                        alert('An error has occurred while attempting to remove signatory.')
-                    }
-                })
-            }
-        }
+        var signatories = []
+        var otherSigs = []
 
         /**
          * LEAVE BALANCES 
@@ -201,7 +214,8 @@
                 },
                 success : function(res) {
                     leaveBalances = res
-                    updateLeaveBalancesTable()
+                    updateLeaveBalancesTable(res.EmployeeData)
+                    getSignatories(employeeId, res.EmployeeData)
                 },
                 error : function(err) {
                     Toast.fire({
@@ -212,18 +226,136 @@
             })
         }
 
-        function updateLeaveBalancesTable() {
+        function updateLeaveBalancesTable(employeeData) {
+            if (employeeData.Mother === 'Yes') {
+                $('#balance-maternity').html(isNull(leaveBalances.Maternity) ? '...' : leaveBalances.Maternity + " <span class='text-muted'>days</span>")
+                $('#op-maternity').removeClass('gone')
+            } else {
+                $('#balance-maternity').html("")
+                $('#op-maternity').addClass('gone')
+            }
+
+            if (employeeData.SoloMother === 'Yes') {
+                $('#balance-maternity-solo-parent').html(isNull(leaveBalances.MaternityForSoloMother) ? '...' : leaveBalances.MaternityForSoloMother + " <span class='text-muted'>days</span>")
+                $('#op-maternity-solo').removeClass('gone')
+            } else {
+                $('#balance-maternity-solo-parent').html("")
+                $('#op-maternity-solo').addClass('gone')
+            }
+
+            if (employeeData.SoloParent === 'Yes') {
+                $('#balance-solo-parent').html(isNull(leaveBalances.SoloParent) ? '...' : leaveBalances.SoloParent + " <span class='text-muted'>days</span>")
+                $('#op-solo').removeClass('gone')
+            } else {
+                $('#balance-solo-parent').html("")
+                $('#op-solo').addClass('gone')
+            }
+
+            if (employeeData.Father === 'Yes') {
+                $('#balance-paternity').html(isNull(leaveBalances.Paternity) ? '...' : leaveBalances.Paternity + " <span class='text-muted'>days</span>")
+                $('#op-paternity').removeClass('gone')
+            } else {
+                $('#balance-paternity').html("")
+                $('#op-paternity').addClass('gone')
+            }
+
             $('#balance-vacation').html(isNull(leaveBalances.Vacation) ? '...' : leaveBalances.VacationExpanded)
             $('#balance-sick').html(isNull(leaveBalances.Sick) ? '...' : leaveBalances.SickExpanded)
             $('#balance-special').html(isNull(leaveBalances.Special) ? '...' : leaveBalances.Special + " <span class='text-muted'>days</span>")
-            $('#balance-maternity').html(isNull(leaveBalances.Maternity) ? '...' : leaveBalances.Maternity + " <span class='text-muted'>days</span>")
-            $('#balance-maternity-solo-parent').html(isNull(leaveBalances.MaternityForSoloMother) ? '...' : leaveBalances.MaternityForSoloMother + " <span class='text-muted'>days</span>")
-            $('#balance-paternity').html(isNull(leaveBalances.Paternity) ? '...' : leaveBalances.Paternity + " <span class='text-muted'>days</span>")
-            $('#balance-solo-parent').html(isNull(leaveBalances.SoloParent) ? '...' : leaveBalances.SoloParent + " <span class='text-muted'>days</span>")
-
+            
             // validate select
             $('input[name="LeaveType"]').prop('checked', false);
 
+        }
+
+        function getSignatories(employeeId, employeeData) {
+            signatories = []
+            otherSigs = []
+            $('#signatories-table tbody tr').remove()
+
+            $.ajax({
+                url : "{{ route('leaveApplications.get-signatories-for-employee') }}",
+                type : "GET",
+                data : {
+                    EmployeeId : employeeId,
+                },
+                success : function(res) {
+                    if (isNull(res.Signatories) | res.length < 1 | res.Signatories.length < 1) {
+                        $('#alert-no-sig').removeClass('gone')
+                        $('#saveLeave').addClass('gone')
+                    } else {
+                        $('#alert-no-sig').addClass('gone')
+                        $('#saveLeave').removeClass('gone')
+                        
+                        // don't allow leave filing if not regular
+                        if (employeeData.PositionStatus === 'Regular') {
+                            $('#saveLeave').removeClass('gone')
+                            $('#not-allowed-note').addClass('gone')
+                        } else {
+                            $('#saveLeave').addClass('gone')
+                            $('#not-allowed-note').removeClass('gone')
+                        }
+
+                        signatories = res.Signatories
+                        otherSigs = res.OtherSignatories
+                        updateSignatoriesTable()
+                    }
+                },
+                error : function(err) {
+                    Toast.fire({
+                        icon : 'error',
+                        text : 'Error getting signatories for this employee'
+                    })
+                }
+            })
+        }
+
+        function updateSignatoriesTable() {
+            $.each(signatories, function(i, el) {
+                $('#signatories-table tbody').append(`
+                    <tr>
+                        <td>
+                            <span class='text-muted text-sm'>Approver #${ i+1 }</span>
+                            <br>
+                            <select class="custom-select select2">
+                                ` + setSignatoryOptions(signatories[i].id) + `
+                            </select>
+                        </td>
+                    </tr>
+                `)
+            })
+        }
+
+        function setSignatoryOptions(parentSignatorySelect) {
+            var opts = ``
+            for(let x=0; x<otherSigs.length; x++) {
+                var selected = otherSigs[x].id===parentSignatorySelect ? 'selected' : ''
+                opts += `<option value='${ otherSigs[x].id }' ${ selected }>${ otherSigs[x].LastName + ', ' + otherSigs[x].FirstName }</option>`
+            }
+
+            return opts
+        }
+
+        function getSelectedSignatories() {
+            var signatoryUserIds= []
+            const table = document.getElementById('signatories-table');
+
+            const tds = table.getElementsByTagName('td');
+
+            for (let i = 0; i < tds.length; i++) {
+                const select = tds[i].querySelector('select');
+                
+                if (select) {
+                    const selectedOption = select.options[select.selectedIndex].value;
+                    
+                    signatoryUserIds.push({
+                        Rank : i+1,
+                        UserId : selectedOption
+                    })
+                }
+            }
+
+            return signatoryUserIds
         }
 
         /**
@@ -310,6 +442,7 @@
                         Reason : reason,
                         DateFiled : dateFiled,
                         Days : leaveDates,
+                        Signatories : getSelectedSignatories(),
                     },
                     success : function(res) {
                         Toast.fire({
@@ -319,11 +452,14 @@
 
                         // clear
                         leaveDates = []
+                        signatories = []
+                        otherSigs = []
+                        $('#signatories-table tbody tr').remove()
+
                         // populateLeaveTable()
                         $('#dates-table tbody tr').remove()
                         $('#EmployeeId').val('')
                         $('input[name="LeaveType"]').prop('checked', false)
-                        $('#DateFiled').val('')
                         $('#Reason').val('')
 
                         // clear leaves
@@ -336,13 +472,14 @@
                         $('#balance-solo-parent').html('...')
                     },
                     error : function(err) {
+                        console.log(err)
                         Toast.fire({
                             icon : 'error',
                             text : 'Leave failed!'
                         })
                     }
                 })
-            }
+            } 
         }
 
         $(document).ready(function() {   
