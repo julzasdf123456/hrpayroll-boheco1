@@ -44,6 +44,7 @@ import AllGRS from "./components/trip-tickets/all-grs.vue"
 import Chat from "./components/chat/chat.vue"
 import AllTravelOrders from "./components/travel-orders/all-travel-orders.vue"
 import CreateMemo from "./components/memos/create.vue"
+import Kanban from "./components/tasks/kanban.vue"
 
 // Tests
 import AccountView from "./components/tests/account-view.vue"
@@ -84,6 +85,7 @@ app.component('chat', Chat);
 app.component('all-travel-orders', AllTravelOrders);
 app.component('create-memo', CreateMemo);
 app.component('leave-balances', LeaveBalances);
+app.component('kanban', Kanban);
 
 app.component('account-view', AccountView);
 app.component('it-exam', ITExam);

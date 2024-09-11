@@ -22,6 +22,7 @@
         "daterangepicker": "^3.1.0",
         "flatpickr": "^4.6.13",
         "jquery": "^3.7.1",
+        "jsplumb": "^2.15.6",
         "laravel-echo": "^1.16.1",
         "laravel-vue-pagination": "^4.1.1",
         "moment": "^2.29.4",
@@ -32,6 +33,7 @@
         "vue-flatpickr-component": "^11.0.3",
         "vue-router": "^4.3.0",
         "vue-toasted": "^1.1.28",
-        "vue-tree-chart-3": "^1.2.9"
+        "vue-tree-chart-3": "^1.2.9",
+        "vuedraggable": "^4.1.0"
     }
 }

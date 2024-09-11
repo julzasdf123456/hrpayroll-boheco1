@@ -466,3 +466,79 @@
         </div>
     </div> 
 </div>
+
+<div class="divider"></div>
+
+<p><i>Leave Profile</i></p>
+
+<div class="form-group col-sm-12">
+    <div class="row">
+        <div class="col-lg-3 col-md-5">
+            {!! Form::label('Mother', 'Is Employee a Mother?') !!}
+        </div>
+
+        <div class="col-lg-9 col-md-7">
+            <div class="input-group-radio">
+                <input type="radio" id="MotherYes" name="Mother" value="Yes" class="custom-radio" {{ isset($employees) && $employees->Mother==='Yes' ? 'checked' : '' }}>
+                <label for="MotherYes" class="custom-radio-label">Yes</label>
+
+                <input type="radio" id="MotherNo" name="Mother" value="" class="custom-radio" {{ isset($employees) && $employees->Mother==='Yes' ? '' : 'checked' }}>
+                <label for="MotherNo" class="custom-radio-label">No</label>
+            </div>
+        </div>
+    </div> 
+</div>
+
+<div class="form-group col-sm-12">
+    <div class="row">
+        <div class="col-lg-3 col-md-5">
+            {!! Form::label('SoloMother', 'Is Employee a Solo Mother?') !!}
+        </div>
+
+        <div class="col-lg-9 col-md-7">
+            <div class="input-group-radio">
+                <input type="radio" id="SoloMotherYes" name="SoloMother" value="Yes" class="custom-radio" {{ isset($employees) && $employees->SoloMother==='Yes' ? 'checked' : '' }}>
+                <label for="SoloMotherYes" class="custom-radio-label">Yes</label>
+
+                <input type="radio" id="SoloMotherNo" name="SoloMother" value="" class="custom-radio" {{ isset($employees) && $employees->SoloMother==='Yes' ? '' : 'checked' }}>
+                <label for="SoloMotherNo" class="custom-radio-label">No</label>
+            </div>
+        </div>
+    </div> 
+</div>
+
+<div class="form-group col-sm-12">
+    <div class="row">
+        <div class="col-lg-3 col-md-5">
+            {!! Form::label('SoloParent', 'Is Employee also a Solo Parent?') !!}
+        </div>
+
+        <div class="col-lg-9 col-md-7">
+            <div class="input-group-radio">
+                <input type="radio" id="SoloParentYes" name="SoloParent" value="Yes" class="custom-radio" {{ isset($employees) && $employees->SoloParent==='Yes' ? 'checked' : '' }}>
+                <label for="SoloParentYes" class="custom-radio-label">Yes</label>
+
+                <input type="radio" id="SoloParentNo" name="SoloParent" value="" class="custom-radio" {{ isset($employees) && $employees->SoloParent==='Yes' ? '' : 'checked' }}>
+                <label for="SoloParentNo" class="custom-radio-label">No</label>
+            </div>
+        </div>
+    </div> 
+</div>
+
+<div class="form-group col-sm-12">
+    <div class="row">
+        <div class="col-lg-3 col-md-5">
+            {!! Form::label('Father', 'Is Employee a Father?') !!}
+        </div>
+
+        <div class="col-lg-9 col-md-7">
+            <div class="input-group-radio">
+                <input type="radio" id="FatherYes" name="Father" value="Yes" class="custom-radio" {{ isset($employees) && $employees->Father==='Yes' ? 'checked' : '' }}>
+                <label for="FatherYes" class="custom-radio-label">Yes</label>
+
+                <input type="radio" id="FatherNo" name="Father" value="" class="custom-radio" {{ isset($employees) && $employees->Father==='Yes' ? '' : 'checked' }}>
+                <label for="FatherNo" class="custom-radio-label">No</label>
+            </div>
+        </div>
+    </div> 
+</div>

@@ -250,7 +250,7 @@ class EmployeesController extends AppBaseController
 
         Flash::success('Employees updated successfully.');
 
-        return redirect(route('employees.index'));
+        return redirect(route('employees.show', [$id]));
     }
 
     public function updateAjax($id, Request $request)
@@ -319,7 +319,7 @@ class EmployeesController extends AppBaseController
                 ->orWhere('Employees.LastName', 'LIKE', '%' . $param . '%')
                 ->orWhere('Employees.id', 'LIKE', '%' . $param . '%')
                 ->select('Employees.id', 
-                    DB::raw("CONCAT(LastName, ' ,', FirstName, ' ', MiddleName, ' ', Suffix) AS EmployeeName"),
+                    DB::raw("CONCAT(LastName, ', ', FirstName, ' ', MiddleName, ' ', Suffix) AS EmployeeName"),
                     'Employees.StreetCurrent',
                     'Employees.BarangayCurrent',
                     'Employees.TownCurrent',
@@ -339,7 +339,7 @@ class EmployeesController extends AppBaseController
                 ->leftJoin('Barangays', 'Employees.BarangayCurrent', '=', 'Barangays.id')
                 ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
                 ->select('Employees.id', 
-                    DB::raw("CONCAT(LastName, ' ,', FirstName, ' ', MiddleName, ' ', Suffix) AS EmployeeName"),
+                    DB::raw("CONCAT(LastName, ', ', FirstName, ' ', MiddleName, ' ', Suffix) AS EmployeeName"),
                     'Employees.StreetCurrent',
                     'Employees.BarangayCurrent',
                     'Employees.TownCurrent',
@@ -353,29 +353,6 @@ class EmployeesController extends AppBaseController
                 ->orderByDesc('Employees.created_at')
                 ->paginate(20);
         }
-
-        // $response = "";
-
-        // foreach($results as $item) {
-        //     $response .= '<tr>' . 
-        //         '<div class="card">' . 
-        //             '<div class="card-body px-5">' .
-        //                 '<td width="70px;"><img width="65px" src="https://www.seekpng.com/png/detail/966-9665493_my-profile-icon-blank-profile-image-circle.png" class="rounded-circle" alt="Profile"></td>' .
-        //                 '<td>' .
-        //                     '<h4>' .
-        //                         '<a href="' . route("employees.show", [$item->id]) . '">' . Employees::getMergeName($item) . '</a>' .
-        //                     '</h4>' .
-        //                     '<span>' . Employees::getCurrentAddress($item) . '</span>' .
-        //                 '</td>' .
-        //                 '<td>' .
-        //                     '<span>ID: ' . $item->id . '</span><br>' .
-        //                     '<span>Contact No.: ' . $item->ContactNumbers . '</span><br>' .
-        //                     '<span>Email: ' . $item->EmailAddress . '</span>' .
-        //                 '</td>' .
-        //             '</div>' .                            
-        //         '</div' .                        
-        //     '</tr>';
-        // }
 
         return response()->json($results, 200);
     }
@@ -944,5 +921,15 @@ class EmployeesController extends AppBaseController
             ->get();
 
         return response()->json($data, 200);
+    }
+    
+    public function updateContactNumbers(Request $request) {
+        $contact = $request['ContactNumbers'];
+        $id = $request['id'];
+
+        Employees::where('id', $id)
+            ->update(['ContactNumbers' => $contact]);
+
+        return response()->json('ok', 200);
     }
 }

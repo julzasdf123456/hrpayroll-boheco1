@@ -303,7 +303,7 @@ class UsersController extends AppBaseController
         if (empty($leaveApplications)) {
             Flash::error('Leave Applications not found');
 
-            return redirect(route('leaveApplications.index'));
+            return redirect(route('home'));
         }
 
         $leaveDays = LeaveDays::where('LeaveId', $id)->orderBy('LeaveDate')->get();

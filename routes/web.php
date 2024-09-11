@@ -36,6 +36,7 @@ use App\Http\Controllers\MessagesController;
 use App\Http\Controllers\LeaveUsersForOthersController;
 use App\Http\Controllers\MemorandumsController;
 use App\Http\Controllers\TestController;
+use App\Http\Controllers\TaskHeadsController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -119,6 +120,7 @@ Route::get('/employees/get-employees-ontrip-today', [EmployeesController::class,
 Route::get('/employees/get-employees-onoffset-today', [EmployeesController::class, 'getEmployeesOnOffsetToday'])->name('employees.get-employees-onoffset-today');
 Route::get('/employees/get-employees-ontravel-today', [EmployeesController::class, 'getEmployeesOnTravelToday'])->name('employees.get-employees-ontravel-today');
 Route::post('/employees/update-ajax/{id}', [EmployeesController::class, 'updateAjax'])->name('employees.update-ajax');
+Route::get('/employees/update-contact-numbers', [EmployeesController::class, 'updateContactNumbers'])->name('employees.update-contact-numbers');
 Route::resource('employees', EmployeesController::class);
 
 Route::resource('permissions', App\Http\Controllers\PermissionController::class);
@@ -167,6 +169,8 @@ Route::post('/leave_applications/manual-save', [LeaveApplicationsController::cla
 Route::get('/leave_applications/file-for-coworker', [LeaveApplicationsController::class, 'fileForCoWorker'])->name('leaveApplications.file-for-coworker');
 Route::get('/leave_applications/publish-leave/{id}', [LeaveApplicationsController::class, 'publishLeave'])->name('leaveApplications.publish-leave');
 Route::post('/leave_applications/save-for-coworker', [LeaveApplicationsController::class, 'saveForCoWorker'])->name('leaveApplications.save-for-coworker');
+Route::get('/leave_applications/get-signatories-for-employee', [LeaveApplicationsController::class, 'getSignatoriesForEmployee'])->name('leaveApplications.get-signatories-for-employee');
+Route::get('/leave_applications/file-leave', [LeaveApplicationsController::class, 'fileLeave'])->name('leaveApplications.file-leave');
 Route::resource('leaveApplications', LeaveApplicationsController::class);
 
 Route::resource('leaveSignatories', App\Http\Controllers\LeaveSignatoriesController::class);
@@ -472,3 +476,8 @@ Route::resource('memorandumEmployees', App\Http\Controllers\MemorandumEmployeesC
 Route::get('/test/it-exam', [TestController::class, 'itExam'])->name('test.it-exam');
 Route::get('/test/account-view/{acctNo}', [TestController::class, 'accountView'])->name('test.account-view');
 Route::resource('leave-balance-monthly-images', App\Http\Controllers\LeaveBalanceMonthlyImageController::class);
+
+Route::get('/task_heads/kanban', [TaskHeadsController::class, 'kanban'])->name('taskHeads.kanban');
+Route::resource('taskHeads', TaskHeadsController::class);
+
+Route::resource('taskChecklists', App\Http\Controllers\TaskChecklistsController::class);

@@ -126,18 +126,17 @@
                                         </td>
                                     </tr>
                                 @endif
-                                     
                             </tbody>
                         </table>
                     </div>
                     <div class="card-footer">
-                        <a href="{{ route('leaveApplications.create') }}" class="btn btn-primary">File a Leave <i class="fas fa-external-link-alt ico-tab-left-mini"></i></a>
+                        <a href="{{ route('leaveApplications.file-leave') }}" class="btn btn-primary">File a Leave <i class="fas fa-external-link-alt ico-tab-left-mini"></i></a>
 
                         <div class="dropdown float-right">
                             <a class="btn btn-primary-skinny dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-expanded="false">
-                              More Options
+                                More Options
                             </a>
-                          
+
                             <div class="dropdown-menu">
                                 <button class="dropdown-item" data-toggle="modal" data-target="#modal-leave-logs">Leave credit logs</button>
                                 <button class="dropdown-item" data-toggle="modal" data-target="#modal-leave-conversion-logs">Leave conversion logs</button>
