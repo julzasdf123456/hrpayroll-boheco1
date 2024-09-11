@@ -69,7 +69,7 @@
                                         <select class="custom-select select2"  name="EmployeeId" id="EmployeeId" style="width: 100%;" required>
                                             <option value="">-- Select --</option>
                                             @foreach ($employees as $item)
-                                                <option value="{{ $item->id }}">{{ Employees::getMergeNameFormal($item) }}</option>
+                                                <option value="{{ $item->id }}" {{ $item->id===Auth::user()->employee_id ? 'selected' : '' }}>{{ Employees::getMergeNameFormal($item) }}</option>
                                             @endforeach
                                         </select>
                                     </td>
@@ -77,7 +77,7 @@
                                 <tr title="Filed By:">
                                     <td class="text-muted">Purpose Of Travel</td>
                                     <td>
-                                        <textarea class="form-control form-control-sm" name="PurposeOfTravel" id="PurposeOfTravel" rows="4" placeholder="Seprate with semicolon (;) if more than one"></textarea>
+                                        <textarea class="form-control form-control-sm" name="PurposeOfTravel" id="PurposeOfTravel" rows="4" placeholder="Seprate with semicolon (;) if more than one" required></textarea>
                                     </td>
                                 </tr>
                                 <tr title="Filed By:">
@@ -200,7 +200,7 @@
                                         <tr>
                                             <td><i class="fas fa-user-edit ico-tab-mini"></i>Default Signatory</td>
                                             <td>
-                                                <select style="width: 100%;" class="custom-select select2" id="Signatory" name="Signatory">
+                                                <select style="width: 100%;" class="custom-select select2" id="Signatory" name="Signatory" required>
                                                     <option value="">-- Select --</option>                                                    
                                                 </select>
                                             </td>
@@ -225,6 +225,8 @@
 @push('page_scripts')
     <script>
         $(document).ready(function() {
+            getDefaultSignatories($('#EmployeeId').val())
+
             $('#EmployeeId').on('change', function() {
                 $('#Vehicle').val('').change()
 
@@ -381,6 +383,7 @@
 
         function getDefaultSignatories(employeeId) {
             $('#Signatory option').remove()
+            $('#Signatory optgroup').remove()
             $('#Signatory').append('<option value="">-- Select --</option>')
 
             $.ajax({
@@ -390,15 +393,39 @@
                     EmployeeId : employeeId,
                 },
                 success : function(res) {
-                    if (!jQuery.isEmptyObject(res)) {
-             
-                        $.each(res, function(index, element) {
+                    var defaultSignatory = res.Signatories
+                    var otherSignatory = res.OtherSignatories
+
+                    // default sginatories
+                    if (!jQuery.isEmptyObject(defaultSignatory)) {
+                        $('#Signatory').append(`<optgroup label="Default Signatories">`)
+                        $.each(defaultSignatory, function(index, element) {
                             $('#Signatory').append(addSignatoryOptions(
-                                res[index]['id'], 
-                                serializeEmployeeName(res[index]['FirstName'], res[index]['MiddleName'], res[index]['LastName'], res[index]['Suffix']), 
-                                (res[index]['Level'] == "Manager" ? true : (index == 0 ? true : false)) // set manager first, if no manager is detected, switch to first array
-                            ))
+                                    defaultSignatory[index]['id'], 
+                                    serializeEmployeeName(defaultSignatory[index]['FirstName'], defaultSignatory[index]['MiddleName'], defaultSignatory[index]['LastName'], defaultSignatory[index]['Suffix']), 
+                                    (defaultSignatory[index]['Level'] == "Manager" ? true : (index == 0 ? true : false)) // set manager first, if no manager is detected, switch to first array
+                                )
+                            )
                         })
+                        $('#Signatory').append(`</optgroup>`)
+                    }
+
+                    // other signatories
+                    if (!jQuery.isEmptyObject(otherSignatory)) {
+                        $('#Signatory').append(`<optgroup label="Other Signatories">`)
+                        $.each(otherSignatory, function(index, element) {
+                            var checkDefault = defaultSignatory.find(obj => obj.id === otherSignatory[index]['id'])
+
+                            if (isNull(checkDefault)) {
+                                $('#Signatory').append(addSignatoryOptions(
+                                        otherSignatory[index]['id'], 
+                                        serializeEmployeeName(otherSignatory[index]['FirstName'], otherSignatory[index]['MiddleName'], otherSignatory[index]['LastName'], otherSignatory[index]['Suffix']), 
+                                        false // set manager first, if no manager is detected, switch to first array
+                                    )
+                                )
+                            }
+                        })
+                        $('#Signatory').append(`</optgroup>`)
                     }
                 },
                 error : function(xhr, status, error) {

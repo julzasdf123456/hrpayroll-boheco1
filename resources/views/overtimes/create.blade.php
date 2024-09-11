@@ -73,7 +73,7 @@
                     <div class="col-lg-2 col-md-6">
                         <label for="TypeOfLeave">Type of Leave</label>
                         <select class="form-control" name="TypeOfLeave" id="TypeOfLeave">
-                            <option value="">-- Select --</option>
+                            <option value=""></option>
                             <option value="1.25">Rest Day</option>
                             <option value="1.25">Regular Holiday</option>
                             <option value="1.25">Regular Holiday + Rest Day</option>
@@ -187,7 +187,7 @@
             var typeOfLeaveValue = $('#TypeOfLeave').val()
             var maxHours = isNull($('#MaxHours').val()) ? null : parseFloat($('#MaxHours').val())
 
-            if (isNull(employeeId) | isNull(purpose) | isNull(startDate) | isNull(endDate) | isNull(typeOfLeaveValue)) {
+            if (isNull(employeeId) | isNull(purpose) | isNull(startDate) | isNull(endDate)) {
                 Toast.fire({
                     icon : 'info',
                     text : 'Please fill in all fields'

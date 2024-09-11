@@ -18,6 +18,7 @@ use App\Models\AttendanceData;
 use App\Models\SMSNotifications;
 use App\Models\Users;
 use App\Models\TripTicketGRS;
+use App\Models\TripTicketPassengers;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Flash;
@@ -112,7 +113,7 @@ class TripTicketsController extends AppBaseController
                 if ($employee != null && $employee->ContactNumbers != null) {
                     if ($requisitioner != null) {
                         SMSNotifications::sendSMS($employee->ContactNumbers, 
-                            "HR System - Trip Ticket Approval:\n\n" . $requisitioner->FirstName . " " . $requisitioner->LastName . " has filed a trip ticket that needs your approval.",
+                            "HRS Trip Ticket Approval\n\nHello " . $employee->FirstName . ", " . $requisitioner->FirstName . " " . $requisitioner->LastName . " has filed a trip ticket that needs your approval.",
                             "HR-Trip Ticket",
                             $tripTickets->id
                         );
@@ -293,14 +294,19 @@ class TripTicketsController extends AppBaseController
             ->orderByDesc('EmployeesDesignations.DateStarted')
             ->first();
 
-        if ($employee != null) {
-            if ($employee->ParentPositionId != null) {
-                $signatories = Employees::getSupers($employeeId, ['Chief', 'Manager', 'General Manager']);
+        $otherSignatories = DB::table('users')
+            ->leftJoin('Employees', 'users.employee_id', '=', 'Employees.id')
+            ->leftJoin('EmployeesDesignations', 'EmployeesDesignations.EmployeeId', '=', 'Employees.id')
+            ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+            ->select('users.id', 'Employees.id AS EmployeeId', 'Employees.FirstName', 'Employees.LastName', 'Employees.MiddleName', 'Employees.Suffix', 'Positions.Level', 'Positions.Position', 'Positions.ParentPositionId', 'Positions.id AS PositionId')
+            ->whereRaw("Positions.Level IN ('Supervisor', 'Chief', 'Manager', 'General Manager')")
+            ->get();
 
-                return response()->json($signatories, 200);
-            } else {
-                return response()->json('This employee has no immediate supervisor, there cannot be assigned a signatory. Please assign supervisor first, or contact IT or HR for more info', 403);
-            }            
+        $signatories = [];
+        if ($employee != null) {
+            $signatories = Employees::getSupers($employeeId, ['Chief', 'Manager', 'General Manager']);
+
+            return response()->json(['Signatories' => $signatories, 'OtherSignatories' => $otherSignatories], 200);           
         } else {
             return response()->json('Employee not found!', 404);
         }
@@ -435,7 +441,7 @@ class TripTicketsController extends AppBaseController
         $employee = Employees::find(Users::find($tripTicket->UserId)->employee_id);
         if ($employee != null && $employee->ContactNumbers != null) {
             SMSNotifications::sendSMS($employee->ContactNumbers, 
-                "HR System - Trip Ticket Approval:\n\n" . Auth::user()->name . " has APPROVED your trip ticket with Ref. No. " . $id . ".",
+                "HRS Trip Ticket Approval\n\nHello " . $employee->FirstName . ", " . Auth::user()->name . " has APPROVED your trip ticket with Ref. No. " . $id . ".",
                 "HR-Trip Ticket",
                 $id
             );
@@ -520,49 +526,52 @@ class TripTicketsController extends AppBaseController
         }
 
         // INSERT TO ATTENDANCES
-        $employee = Employees::find($tripTicket->EmployeeId);
+        $passengers = TripTicketPassengers::where('TripTicketId', $id)->get();
+        foreach ($passengers as $item) {
+            $employee = Employees::find($item->EmployeeId);
 
-        if ($employee != null) {
-            $user = Users::where('employee_id', $employee->id)->first();
-            // INSERT START MORNING IN
-            $attendance = new AttendanceData;
-            $attendance->id = IDGenerator::generateIDandRandString();
-            $attendance->BiometricUserId = $employee->BiometricsUserId;
-            $attendance->EmployeeId = $employee->id;
-            $attendance->UserId = $user != null ? $user->id : null;
-            $attendance->Timestamp = date('Y-m-d', strtotime($tripTicket->DateOfTravel)) . ' 07:31:00';
-            $attendance->AbsentPermission = 'TRIP TICKET';
-            $attendance->save();
+            if ($employee != null) {
+                $user = Users::where('employee_id', $employee->id)->first();
+                // INSERT START MORNING IN
+                $attendance = new AttendanceData;
+                $attendance->id = IDGenerator::generateIDandRandString();
+                $attendance->BiometricUserId = $employee->BiometricsUserId;
+                $attendance->EmployeeId = $employee->id;
+                $attendance->UserId = $user != null ? $user->id : null;
+                $attendance->Timestamp = date('Y-m-d', strtotime($tripTicket->DateOfTravel)) . ' 07:31:00';
+                $attendance->AbsentPermission = 'TRIP TICKET';
+                $attendance->save();
 
-            // INSERT START MORNING OUT
-            $attendance = new AttendanceData;
-            $attendance->id = IDGenerator::generateIDandRandString();
-            $attendance->BiometricUserId = $employee->BiometricsUserId;
-            $attendance->EmployeeId = $employee->id;
-            $attendance->UserId = $user != null ? $user->id : null;
-            $attendance->Timestamp = date('Y-m-d', strtotime($tripTicket->DateOfTravel)) . ' 12:05:00';
-            $attendance->AbsentPermission = 'TRIP TICKET';
-            $attendance->save();
+                // INSERT START MORNING OUT
+                $attendance = new AttendanceData;
+                $attendance->id = IDGenerator::generateIDandRandString();
+                $attendance->BiometricUserId = $employee->BiometricsUserId;
+                $attendance->EmployeeId = $employee->id;
+                $attendance->UserId = $user != null ? $user->id : null;
+                $attendance->Timestamp = date('Y-m-d', strtotime($tripTicket->DateOfTravel)) . ' 12:05:00';
+                $attendance->AbsentPermission = 'TRIP TICKET';
+                $attendance->save();
 
-            // INSERT START AFTERNOON IN
-            $attendance = new AttendanceData;
-            $attendance->id = IDGenerator::generateIDandRandString();
-            $attendance->BiometricUserId = $employee->BiometricsUserId;
-            $attendance->EmployeeId = $employee->id;
-            $attendance->UserId = $user != null ? $user->id : null;
-            $attendance->Timestamp = date('Y-m-d', strtotime($tripTicket->DateOfTravel)) . ' 12:45:00';
-            $attendance->AbsentPermission = 'TRIP TICKET';
-            $attendance->save();
+                // INSERT START AFTERNOON IN
+                $attendance = new AttendanceData;
+                $attendance->id = IDGenerator::generateIDandRandString();
+                $attendance->BiometricUserId = $employee->BiometricsUserId;
+                $attendance->EmployeeId = $employee->id;
+                $attendance->UserId = $user != null ? $user->id : null;
+                $attendance->Timestamp = date('Y-m-d', strtotime($tripTicket->DateOfTravel)) . ' 12:45:00';
+                $attendance->AbsentPermission = 'TRIP TICKET';
+                $attendance->save();
 
-            // INSERT START AFTERNOON OUT
-            $attendance = new AttendanceData;
-            $attendance->id = IDGenerator::generateIDandRandString();
-            $attendance->BiometricUserId = $employee->BiometricsUserId;
-            $attendance->EmployeeId = $employee->id;
-            $attendance->UserId = $user != null ? $user->id : null;
-            $attendance->Timestamp = date('Y-m-d', strtotime($tripTicket->DateOfTravel)) . ' 17:05:00';
-            $attendance->AbsentPermission = 'TRIP TICKET';
-            $attendance->save();
+                // INSERT START AFTERNOON OUT
+                $attendance = new AttendanceData;
+                $attendance->id = IDGenerator::generateIDandRandString();
+                $attendance->BiometricUserId = $employee->BiometricsUserId;
+                $attendance->EmployeeId = $employee->id;
+                $attendance->UserId = $user != null ? $user->id : null;
+                $attendance->Timestamp = date('Y-m-d', strtotime($tripTicket->DateOfTravel)) . ' 17:05:00';
+                $attendance->AbsentPermission = 'TRIP TICKET';
+                $attendance->save();
+            }
         }
 
         return response()->json('ok', 200);

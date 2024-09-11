@@ -70,7 +70,7 @@
                                 <tr title="Filed By:">
                                     <td class="text-muted">Purpose Of Travel</td>
                                     <td>
-                                        <textarea class="form-control form-control-sm" name="PurposeOfTravel" id="PurposeOfTravel" rows="4" placeholder="Seprate with semicolon (;) if more than one">{{ $tripTickets->PurposeOfTravel }}</textarea>
+                                        <textarea class="form-control form-control-sm" name="PurposeOfTravel" id="PurposeOfTravel" rows="4" placeholder="Seprate with semicolon (;) if more than one" required>{{ $tripTickets->PurposeOfTravel }}</textarea>
                                     </td>
                                 </tr>
                                 <tr title="Filed By:">
@@ -231,7 +231,7 @@
                     </div>
 
                     <div class="card-footer">
-                        <button class="btn btn-success float-right" type="submit"><i class="fas fa-check-circle ico-tab-mini"></i> Submit Trip Ticket</button>
+                        <button class="btn btn-success float-right" type="submit"><i class="fas fa-check-circle ico-tab-mini"></i> Update Trip Ticket</button>
                     </div>
                 </div>
             </div>
@@ -411,6 +411,7 @@
 
         function getDefaultSignatories(employeeId) {
             $('#Signatory option').remove()
+            $('#Signatory optgroup').remove()
             $('#Signatory').append('<option value="">-- Select --</option>')
 
             $.ajax({
@@ -420,15 +421,39 @@
                     EmployeeId : employeeId,
                 },
                 success : function(res) {
-                    if (!jQuery.isEmptyObject(res)) {
-             
-                        $.each(res, function(index, element) {
+                    var defaultSignatory = res.Signatories
+                    var otherSignatory = res.OtherSignatories
+
+                    // default sginatories
+                    if (!jQuery.isEmptyObject(defaultSignatory)) {
+                        $('#Signatory').append(`<optgroup label="Default Signatories">`)
+                        $.each(defaultSignatory, function(index, element) {
                             $('#Signatory').append(addSignatoryOptions(
-                                res[index]['id'], 
-                                serializeEmployeeName(res[index]['FirstName'], res[index]['MiddleName'], res[index]['LastName'], res[index]['Suffix']), 
-                                (res[index]['Level'] == "Manager" ? true : (index == 0 ? true : false)) // set manager first, if no manager is detected, switch to first array
-                            ))
+                                    defaultSignatory[index]['id'], 
+                                    serializeEmployeeName(defaultSignatory[index]['FirstName'], defaultSignatory[index]['MiddleName'], defaultSignatory[index]['LastName'], defaultSignatory[index]['Suffix']), 
+                                    (defaultSignatory[index]['Level'] == "Manager" ? true : (index == 0 ? true : false)) // set manager first, if no manager is detected, switch to first array
+                                )
+                            )
                         })
+                        $('#Signatory').append(`</optgroup>`)
+                    }
+
+                    // other signatories
+                    if (!jQuery.isEmptyObject(otherSignatory)) {
+                        $('#Signatory').append(`<optgroup label="Other Signatories">`)
+                        $.each(otherSignatory, function(index, element) {
+                            var checkDefault = defaultSignatory.find(obj => obj.id === otherSignatory[index]['id'])
+
+                            if (isNull(checkDefault)) {
+                                $('#Signatory').append(addSignatoryOptions(
+                                        otherSignatory[index]['id'], 
+                                        serializeEmployeeName(otherSignatory[index]['FirstName'], otherSignatory[index]['MiddleName'], otherSignatory[index]['LastName'], otherSignatory[index]['Suffix']), 
+                                        false // set manager first, if no manager is detected, switch to first array
+                                    )
+                                )
+                            }
+                        })
+                        $('#Signatory').append(`</optgroup>`)
                     }
                 },
                 error : function(xhr, status, error) {
