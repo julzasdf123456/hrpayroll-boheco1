@@ -121,6 +121,7 @@ Route::get('/employees/get-employees-onoffset-today', [EmployeesController::clas
 Route::get('/employees/get-employees-ontravel-today', [EmployeesController::class, 'getEmployeesOnTravelToday'])->name('employees.get-employees-ontravel-today');
 Route::post('/employees/update-ajax/{id}', [EmployeesController::class, 'updateAjax'])->name('employees.update-ajax');
 Route::get('/employees/update-contact-numbers', [EmployeesController::class, 'updateContactNumbers'])->name('employees.update-contact-numbers');
+Route::post('/employees/upload-profile-image', [EmployeesController::class, 'uploadProfileImage'])->name('employees.upload-profile-image');
 Route::resource('employees', EmployeesController::class);
 
 Route::resource('permissions', App\Http\Controllers\PermissionController::class);

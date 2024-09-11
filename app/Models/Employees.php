@@ -7,8 +7,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Barangays;
 use App\Models\Towns;
+use App\Models\Employees;
 use Illuminate\Support\Facades\DB;
 use \DateTime;
+use File;
 
 /**
  * Class Employees
@@ -98,6 +100,7 @@ class Employees extends Model
         'SoloParent',
         'Mother',
         'Father',
+        'ProfilePicture'
     ];
 
     /**
@@ -149,6 +152,7 @@ class Employees extends Model
         'SoloParent' => 'string',
         'Mother' => 'string',
         'Father' => 'string',
+        'ProfilePicture' => 'string',
     ];
 
     /**
@@ -201,6 +205,7 @@ class Employees extends Model
         'SoloParent' => 'nullable|string',
         'Mother' => 'nullable|string',
         'Father' => 'nullable|string',
+        'ProfilePicture' => 'nullable|string',
     ];
 
     public static function getMergeName($employee) {
@@ -372,7 +377,8 @@ class Employees extends Model
         $employees = DB::table('Employees')
             ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
             ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
-            ->select('Employees.id', 'Employees.FirstName', 'Employees.LastName', 'Employees.MiddleName', 'Employees.Suffix', 'Positions.Position', 'Positions.id AS PositionId', 'Positions.Department', 'Positions.ParentPositionId')
+            ->select('Employees.id', 'Employees.FirstName', 'Employees.LastName', 'Employees.MiddleName', 'Employees.Suffix', 'Employees.ProfilePicture',
+                'Positions.Position', 'Positions.id AS PositionId', 'Positions.Department', 'Positions.ParentPositionId')
             ->whereRaw("Positions.Department='" . $department . "'")
             ->orderByDesc('Employees.FirstName')
             ->get();
@@ -388,7 +394,6 @@ class Employees extends Model
 
         return $interval->y;
     }
-
 
     /**
      * Returns a whole year longevity array
@@ -469,5 +474,17 @@ class Employees extends Model
 
     public static function filePath() {
         return public_path() . "/files/";
+    }
+
+    public static function getProfilePic($employeeId) {
+        // check profile pic
+        $profilePic = public_path() . "/imgs/profiles/" . $employeeId . ".jpg";
+
+        // Check if the file exists
+        if (File::exists($profilePic)) {
+            return asset("/imgs/profiles/" . $employeeId . ".jpg");
+        } else {
+            return null;
+        }
     }
 }

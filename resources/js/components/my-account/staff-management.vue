@@ -136,13 +136,14 @@ export default {
                         MiddleName : employees[i]['MiddleName'],
                         Suffix : employees[i]['Suffix'],
                         Position : employees[i]['Position'],
+                        ProfilePicture : employees[i]['ProfilePicture'],
                         IsOpen : false,
                         Child : null
                     })
                 }
 
                 this.tree = this.processTree(this.tree)
-                // console.log(this.tree)
+                console.log(this.tree)
                 this.treeHtml = this.treeToHtml(this.tree)
             })
             .catch(error => {
@@ -203,7 +204,7 @@ export default {
             for (let node of tree) {
                 html += `<li  class='employee-tree-list'>` +
                             `<div style="display: inline-block; vertical-align: middle;">` +
-                                `<img src='${ this.imgsPath }/prof-img.png' class='img-circle'></img>` +
+                                (this.isNull(node.ProfilePicture) ? `<img src='${ this.imgsPath }/prof-img.png' class='img-circle'></img>` : `<img src='${ this.imgsPath }/profiles/${ node.ProfilePicture }' class='img-circle img-cover' style='width: 36px; height: 36px;'></img>`) +
                             `</div>` +
                             `<div style="display: inline-block; height: inherit; vertical-align: middle;">` +
                                 `<strong class='ico-tab-mini'>${node.FirstName} ${node.LastName}</strong>` +  this.checkAttendanceToday(node.id, this.tripsToday, this.dayOffsToday, this.offsetsToday, this.leaveToday) +

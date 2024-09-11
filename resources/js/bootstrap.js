@@ -23,7 +23,7 @@ import Pusher from 'pusher-js';
 import Echo from "laravel-echo"
 
 window.axios = axios;
-
+window.axios.defaults.headers.common['X-CSRF-TOKEN'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.axios.defaults.baseURL = 'http://192.168.12.2/hr/public/index.php';
 window.axios.defaults.filePath = 'http://192.168.12.2/hr/public/files/';
