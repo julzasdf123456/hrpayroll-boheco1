@@ -2,7 +2,6 @@
     use App\Models\Employees;
 
     $colorProf = Auth::user()->ColorProfile;
-    $profilePic = Employees::getProfilePic(Auth::user()->employee_id);
 @endphp
 @extends('layouts.app')
 
@@ -15,8 +14,8 @@
                 <div class="col-lg-8">
                     <div style="display: flex; padding-top: 15px; padding-bottom: 15px;">
                         <div style="width: 88px; display: inline;">
-                            @if ($profilePic != null)
-                                <img id="prof-img" style="width: 75px !important; height: 75px !important;" class="profile-user-img img-fluid img-circle img-cover" src="{{ $profilePic }}" alt="User profile picture">
+                            @if ($employees->ProfilePicture != null)
+                                <img id="prof-img" style="width: 75px !important; height: 75px !important;" class="profile-user-img img-fluid img-circle img-cover" src="{{ asset('imgs/profiles/') . "/" . $employees->ProfilePicture }}" alt="User profile picture">
                             @else
                                 <img id="prof-img" style="width: 75px !important; height: 75px !important;" class="profile-user-img img-fluid img-circle img-cover" src="{{ asset('imgs/prof-img.png') }}" alt="User profile picture">
                             @endif
