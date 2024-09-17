@@ -423,8 +423,7 @@
                     $('#Reason').val(null)
                 } else if (value == 'Paternity' | value == 'Maternity') {
                     $('#special-dropdown').hide()   
-                    $('#Reason').val(null)   
-                    $('#Reason').attr('readonly', true)
+                    $('#Reason').removeAttr('readonly')
                 } else {           
                     $('#special-dropdown').hide()   
                     $('#Reason').val(null)  
