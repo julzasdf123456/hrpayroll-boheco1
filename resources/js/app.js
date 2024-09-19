@@ -46,6 +46,7 @@ import AllTravelOrders from "./components/travel-orders/all-travel-orders.vue"
 import CreateMemo from "./components/memos/create.vue"
 import Kanban from "./components/tasks/kanban.vue"
 import ViewAllLeave from "./components/employees/view-all-leave.vue"
+import LeaveList from "./components/employees/leave-list.vue"
 
 // Tests
 import AccountView from "./components/tests/account-view.vue"
@@ -88,6 +89,7 @@ app.component('create-memo', CreateMemo);
 app.component('leave-balances', LeaveBalances);
 app.component('kanban', Kanban);
 app.component('view-all-leave', ViewAllLeave);
+app.component('leave-list', LeaveList);
 
 app.component('account-view', AccountView);
 app.component('it-exam', ITExam);

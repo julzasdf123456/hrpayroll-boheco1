@@ -62,9 +62,9 @@
 
                     <div class="dropdown">
                         <a class="btn btn-primary-skinny dropdown-toggle float-right {{ $colorProf != null ? 'text-white' : '' }}" href="#" role="button" data-toggle="dropdown" aria-expanded="false" style="margin-right: 15px;">
-                          Actions
+                            Actions
                         </a>
-                      
+
                         <div class="dropdown-menu">
                             @canany('god permission', 'employees update')
                                 <a class="dropdown-item" href="{{ route('employees.edit', [$employees->id]) }}"><i class="fas fa-pen ico-tab"></i>Edit Details</a>
