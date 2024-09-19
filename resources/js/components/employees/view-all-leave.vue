@@ -1,14 +1,22 @@
 <template>
-    <div class="row">
-        <form class="col-md-6 offset-md-3" @submit.prevent="view">
-            <div class="input-group">
-                <input v-model="search" @keyup="view" type="text" class="form-control" placeholder="Search name, employee ID, etc..." name="params" autofocus>
-                <div class="input-group-append">
-                    <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i></button>
-                </div>
-            </div>   
-        </form>
-    </div>
+    <form class="row" @submit.prevent="view">
+        <div class="col-md-5 offset-md-2 input-group">
+            <input v-model="search" @keyup="view" type="text" class="form-control" placeholder="Search name, employee ID, etc..." name="params" autofocus>
+        </div>   
+        <div class="col-md-3" style="display: flex; flex-direction: row; column-gap: 5px;">
+            <select v-model="type" @change="view" class="form-control" style="width: 230px;">
+                <option value="All">All Leave</option>
+                <option value="Vacation">Vacation</option>
+                <option value="Sick">Sick</option>
+                <option value="Special">Special</option>
+                <option value="Paternity">Paternity</option>
+                <option value="Maternity">Maternity</option>
+                <option value="MaternityForSoloMother">Maternity For Solo Mother</option>
+                <option value="SoloParent">Solo Parent</option>
+            </select>
+            <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i></button>
+        </div>
+    </form>
 
     <div class="row">
         <div class="col-lg-12 mt-3">
@@ -43,8 +51,7 @@
                 </table>
             </div>
 
-            
-            <pagination :data="results" :limit="30" @pagination-change-page="view"></pagination>
+            <pagination :data="results" :limit="16" @pagination-change-page="view"></pagination>
         </div>
     </div>
 </template>
@@ -78,7 +85,8 @@ export default {
                 showConfirmButton: false,
                 timer: 3000
             }),
-            results : {}
+            results : {},
+            type : 'All'
         }
     },
     methods : {
@@ -94,6 +102,7 @@ export default {
                 params : {
                     page : page,
                     search : this.search,
+                    type : this.type,
                 }  
             }) // IF PORT 80 DIRECT FROM APACHE
             .then(response => {
