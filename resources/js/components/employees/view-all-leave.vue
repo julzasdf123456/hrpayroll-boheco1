@@ -22,16 +22,22 @@
                         <th>Total Days</th>
                         <th>Reason</th>
                         <th>Status</th>
+                        <th></th>
                     </thead>
                     <tbody>
-                        <tr v-for="leave in results.data" :key="leave.id" @click="leaveView(leave.id)" style="cursor: pointer;">
-                            <td :title="leave.LeaveType"><i class="ico-tab-mini fas" :class="getIconType(leave.LeaveType)"></i> {{ leave.LeaveType }}</td>
-                            <td class="v-align">{{ leave.FirstName + ', ' + leave.LastName }}</td>
-                            <td class="v-align">{{ moment(leave.created_at).format("MMM DD, YYY") }}</td>
-                            <td class="v-align" v-html="getDaysConcat(leave.Days)"></td>
-                            <td class="v-align">{{ validateTotalCredits(leave.LeaveType, leave.TotalCredits) }} days</td>
-                            <td class="v-align">{{leave.Content }}</td>
-                            <td class="v-align text-center"><span class="badge" :class="getStatusBadgeColor(leave.Status)">{{leave.Status }}</span></td>
+                        <tr v-for="leave in results.data" :key="leave.id" style="cursor: pointer;">
+                            <td @click="leaveView(leave.id)" class="v-align" :title="leave.LeaveType"><i class="ico-tab-mini fas" :class="getIconType(leave.LeaveType)"></i> {{ leave.LeaveType }}</td>
+                            <td class="v-align">
+                                <a target="_blank" :href="baseURL + '/employees/' + leave.EmployeeId">{{ leave.LastName + ', ' + leave.FirstName }}</a>
+                            </td>
+                            <td @click="leaveView(leave.id)" class="v-align">{{ moment(leave.created_at).format("MMM DD, YYY") }}</td>
+                            <td @click="leaveView(leave.id)" class="v-align" v-html="getDaysConcat(leave.Days)"></td>
+                            <td @click="leaveView(leave.id)" class="v-align">{{ validateTotalCredits(leave.LeaveType, leave.TotalCredits) }} days</td>
+                            <td @click="leaveView(leave.id)" class="v-align">{{leave.Content }}</td>
+                            <td @click="leaveView(leave.id)" class="v-align text-center"><span class="badge" :class="getStatusBadgeColor(leave.Status)">{{leave.Status }}</span></td>
+                            <td class="v-align text-right">
+                                <button @click="trashLeave(leave.id)" class="btn btn-xs btn-danger"><i class="fas fa-trash ico-tab-mini"></i>Delete</button>
+                            </td>
                         </tr>
                     </tbody>
                 </table>
@@ -84,7 +90,7 @@ export default {
             }
         },
         view (page = 1) {
-            axios.get(`${ axios.defaults.baseURL }/leave_applications/search-leave`, {
+            axios.get(`${ this.baseURL }/leave_applications/search-leave`, {
                 params : {
                     page : page,
                     search : this.search,
@@ -135,7 +141,7 @@ export default {
             return days
         },
         leaveView(id) {
-            window.location.href = `${ axios.defaults.baseURL }/leaveApplications/` + id
+            window.location.href = `${ this.baseURL }/leaveApplications/` + id
         },
         validateTotalCredits(type, credits) {
             if (type === 'Sick' | type === 'Vacation') {
@@ -143,6 +149,40 @@ export default {
             } else {
                 return credits * 1
             }
+        },
+        trashLeave(id) {
+            Swal.fire({
+                title: 'Deletion Confirmation',
+                text : 'You sure you wanna delete this leave?',
+                showDenyButton: true,
+                confirmButtonText: 'Delete',
+                denyButtonText: `Close`,
+                }).then((result) => {
+                /* Read more about isConfirmed, isDenied below */
+                if (result.isConfirmed) {
+                    axios.get(`${ axios.defaults.baseURL }/leave_applications/delete-leave`, {
+                        params : {
+                            id : id,
+                        }  
+                    }) // IF PORT 80 DIRECT FROM APACHE
+                    .then(response => {
+                        this.toast.fire({
+                            icon : 'success',
+                            text : 'Leave removed!'
+                        })
+                        location.reload()
+                    })
+                    .catch(error => {
+                        console.log(error.response)
+                        Swal.fire({
+                            text : 'Error deleting leave! Contact IT support for more.',
+                            icon : 'error'
+                        })
+                    })
+                } else if (result.isDenied) {
+                    
+                }
+            })
         }
     },
     created() {
