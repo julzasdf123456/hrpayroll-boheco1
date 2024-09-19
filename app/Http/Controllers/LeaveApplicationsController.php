@@ -1722,35 +1722,67 @@ class LeaveApplicationsController extends AppBaseController
 
     public function searchLeave(Request $request) {
         $params = $request['search'];
+        $type = $request['type'];
 
         if (isset($params)) {
-            $data = DB::table('LeaveApplications')
-                ->leftJoin('Employees', 'LeaveApplications.EmployeeId', '=', 'Employees.id')
-                ->where('Employees.FirstName', 'LIKE', '%' . $params . '%')
-                ->orWhere('Employees.MiddleName', 'LIKE', '%' . $params . '%')
-                ->orWhere('Employees.LastName', 'LIKE', '%' . $params . '%')
-                ->orWhere('Employees.id', 'LIKE', '%' . $params . '%')
-                ->select(
-                    'LeaveApplications.*',
-                    'Employees.FirstName',
-                    'Employees.LastName',
-                    'Employees.MiddleName',
-                    'Employees.Suffix',
-                )
-                ->orderByDesc('LeaveApplications.created_at')
-                ->get();
+            if ($type === 'All') {
+                $data = DB::table('LeaveApplications')
+                    ->leftJoin('Employees', 'LeaveApplications.EmployeeId', '=', 'Employees.id')
+                    ->where('Employees.FirstName', 'LIKE', '%' . $params . '%')
+                    ->orWhere('Employees.MiddleName', 'LIKE', '%' . $params . '%')
+                    ->orWhere('Employees.LastName', 'LIKE', '%' . $params . '%')
+                    ->orWhere('Employees.id', 'LIKE', '%' . $params . '%')
+                    ->select(
+                        'LeaveApplications.*',
+                        'Employees.FirstName',
+                        'Employees.LastName',
+                        'Employees.MiddleName',
+                        'Employees.Suffix',
+                    )
+                    ->orderByDesc('LeaveApplications.created_at')
+                    ->get();
+            } else {
+                $data = DB::table('LeaveApplications')
+                    ->leftJoin('Employees', 'LeaveApplications.EmployeeId', '=', 'Employees.id')
+                    ->where('LeaveType', $type)
+                    ->whereRaw("(Employees.FirstName LIKE '%" . $params . "%' OR Employees.MiddleName LIKE '%" . $params . "%' OR Employees.LastName LIKE '%" . $params . "%' OR Employees.id LIKE '%" . $params . "%')")
+                    ->select(
+                        'LeaveApplications.*',
+                        'Employees.FirstName',
+                        'Employees.LastName',
+                        'Employees.MiddleName',
+                        'Employees.Suffix',
+                    )
+                    ->orderByDesc('LeaveApplications.created_at')
+                    ->get();
+            }
         } else {
-            $data = DB::table('LeaveApplications')
-                ->leftJoin('Employees', 'LeaveApplications.EmployeeId', '=', 'Employees.id')
-                ->select(
-                    'LeaveApplications.*',
-                    'Employees.FirstName',
-                    'Employees.LastName',
-                    'Employees.MiddleName',
-                    'Employees.Suffix',
-                )
-                ->orderByDesc('LeaveApplications.created_at')
-                ->get();
+            if ($type === 'All') {
+                $data = DB::table('LeaveApplications')
+                    ->leftJoin('Employees', 'LeaveApplications.EmployeeId', '=', 'Employees.id')
+                    ->select(
+                        'LeaveApplications.*',
+                        'Employees.FirstName',
+                        'Employees.LastName',
+                        'Employees.MiddleName',
+                        'Employees.Suffix',
+                    )
+                    ->orderByDesc('LeaveApplications.created_at')
+                    ->get();
+            } else {
+                $data = DB::table('LeaveApplications')
+                    ->leftJoin('Employees', 'LeaveApplications.EmployeeId', '=', 'Employees.id')
+                    ->where('LeaveType', $type)
+                    ->select(
+                        'LeaveApplications.*',
+                        'Employees.FirstName',
+                        'Employees.LastName',
+                        'Employees.MiddleName',
+                        'Employees.Suffix',
+                    )
+                    ->orderByDesc('LeaveApplications.created_at')
+                    ->get();
+            }
         }
 
         foreach($data as $item) {
@@ -1759,7 +1791,7 @@ class LeaveApplicationsController extends AppBaseController
                 ->get();
         }
 
-        $data = IDGenerator::paginate($data, 30);
+        $data = IDGenerator::paginate($data, 16);
 
         return response()->json($data, 200);
     }
