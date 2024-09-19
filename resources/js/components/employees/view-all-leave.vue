@@ -19,6 +19,7 @@
                         <th>Employee</th>
                         <th>Date Filed</th>
                         <th>Leave Days</th>
+                        <th>Total Days</th>
                         <th>Reason</th>
                         <th>Status</th>
                     </thead>
@@ -28,6 +29,7 @@
                             <td class="v-align">{{ leave.FirstName + ', ' + leave.LastName }}</td>
                             <td class="v-align">{{ moment(leave.created_at).format("MMM DD, YYY") }}</td>
                             <td class="v-align" v-html="getDaysConcat(leave.Days)"></td>
+                            <td class="v-align">{{ validateTotalCredits(leave.LeaveType, leave.TotalCredits) }} days</td>
                             <td class="v-align">{{leave.Content }}</td>
                             <td class="v-align text-center"><span class="badge" :class="getStatusBadgeColor(leave.Status)">{{leave.Status }}</span></td>
                         </tr>
@@ -135,6 +137,13 @@ export default {
         leaveView(id) {
             window.location.href = `${ axios.defaults.baseURL }/leaveApplications/` + id
         },
+        validateTotalCredits(type, credits) {
+            if (type === 'Sick' | type === 'Vacation') {
+                return credits / 8 / 60
+            } else {
+                return credits * 1
+            }
+        }
     },
     created() {
         
