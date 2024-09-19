@@ -1795,4 +1795,31 @@ class LeaveApplicationsController extends AppBaseController
 
         return response()->json($data, 200);
     }
+
+    public function getLeaveByEmployee(Request $request) {
+        $employeeId = $request['EmployeeId'];
+
+        $data = DB::table('LeaveApplications')
+                    ->leftJoin('Employees', 'LeaveApplications.EmployeeId', '=', 'Employees.id')
+                    ->where('EmployeeId', $employeeId)
+                    ->select(
+                        'LeaveApplications.*',
+                        'Employees.FirstName',
+                        'Employees.LastName',
+                        'Employees.MiddleName',
+                        'Employees.Suffix',
+                    )
+                    ->orderByDesc('LeaveApplications.created_at')
+                    ->get();
+
+        foreach($data as $item) {
+            $item->Days = DB::table('LeaveDays')
+                ->where('LeaveId', $item->id)
+                ->get();
+        }
+
+        $data = IDGenerator::paginate($data, 15);
+
+        return response()->json($data, 200);
+    }
 }

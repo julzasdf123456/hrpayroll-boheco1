@@ -172,7 +172,7 @@ class EmployeesController extends AppBaseController
 
         $overtimes = Overtimes::where('EmployeeId', $id)->orderByDesc('created_at')->get();
 
-        $leaveApplications = LeaveApplications::where('EmployeeId', $id)->get();
+        // $leaveApplications = LeaveApplications::where('EmployeeId', $id)->get();
         
         $payrollSundries = EmployeePayrollSundries::where('EmployeeId', $id)->first();
 
@@ -194,7 +194,7 @@ class EmployeesController extends AppBaseController
             'rankings' => $rankings,
             'educationalAttainment' => $educationalAttainment,
             'ids' => $ids,
-            'leaveApplications' => $leaveApplications,
+            // 'leaveApplications' => $leaveApplications,
             'payslips' => $payslips,
             'workSchedules' => $workSchedules,
             'leaveBalance' => $leaveBalance,
