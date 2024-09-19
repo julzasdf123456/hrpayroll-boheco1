@@ -711,302 +711,326 @@ class LeaveApplicationsController extends AppBaseController
             /**
              * FILTER IF SICK LEAVE, NEEDS TO BE APPROVED BY HR
             */
-            if ($leaveApplication->LeaveType == 'Sick') {
-                $leaveApplication->Status = 'FOR REVIEW';
-                $leaveApplication->save();
-            } else {
-                $leaveApplication->Status = 'APPROVED';
-                $leaveApplication->save();
+            // if ($leaveApplication->LeaveType == 'Sick') {
+            //     $leaveApplication->Status = 'FOR REVIEW';
+            //     $leaveApplication->save();
+            // } else {
+                
+            // }     
 
-                /**
-                 * =========================================================================
-                 * SEND SMS
-                 * =========================================================================
-                 */
-                if ($employee != null && $employee->ContactNumbers != null) {
-                    SMSNotifications::sendSMS($employee->ContactNumbers, 
-                        "HRS Leave Approval\n\nHello " . $employee->FirstName . ", " . Users::find($leaveSignatory->EmployeeId)->name . " has APPROVED your " . $leaveApplication->LeaveType . " leave.",
-                        "HR-Leave",
-                        $id
-                    );
+            /**
+             * =========================================================================
+             * SEND SMS
+             * =========================================================================
+             */
+            if ($employee != null && $employee->ContactNumbers != null) {
+                SMSNotifications::sendSMS($employee->ContactNumbers, 
+                    "HRS Leave Approval\n\nHello " . $employee->FirstName . ", " . Users::find($leaveSignatory->EmployeeId)->name . " has APPROVED your " . $leaveApplication->LeaveType . " leave.",
+                    "HR-Leave",
+                    $id
+                );
+            }
+
+            // PLOT LEAVE DAYS TO ATTENDANCE DATA
+            $leaveDays = LeaveDays::where('LeaveId', $id)->get();
+            $totalDays = 0.0;
+            $totalCredits = 0;
+            foreach($leaveDays as $item) {
+                $totalMins = 0;
+                $leaveDays = 0;
+
+                if ($item->Duration == 'WHOLE') {
+                    // increment total minutes for vacation and sick leave
+                    if ($leaveApplication->LeaveType === 'Vacation' | $leaveApplication->LeaveType === 'Sick') {
+                        $totalMins = (8 * 60);
+                    } else {
+                        $leaveDays = 1;
+                    }
+
+                    // INSERT START MORNING IN
+                    $attendance = new AttendanceData;
+                    $attendance->id = IDGenerator::generateIDandRandString();
+                    $attendance->BiometricUserId = $employee->BiometricsUserId;
+                    $attendance->EmployeeId = $employee->id;
+                    $attendance->UserId = $user->id;
+                    $attendance->Timestamp = date('Y-m-d', strtotime($item->LeaveDate)) . ' 07:31:00';
+                    $attendance->AbsentPermission = 'LEAVE';
+                    $attendance->save();
+
+                    // INSERT START MORNING OUT
+                    $attendance = new AttendanceData;
+                    $attendance->id = IDGenerator::generateIDandRandString();
+                    $attendance->BiometricUserId = $employee->BiometricsUserId;
+                    $attendance->EmployeeId = $employee->id;
+                    $attendance->UserId = $user->id;
+                    $attendance->Timestamp = date('Y-m-d', strtotime($item->LeaveDate)) . ' 12:05:00';
+                    $attendance->AbsentPermission = 'LEAVE';
+                    $attendance->save();
+
+                    // INSERT START AFTERNOON IN
+                    $attendance = new AttendanceData;
+                    $attendance->id = IDGenerator::generateIDandRandString();
+                    $attendance->BiometricUserId = $employee->BiometricsUserId;
+                    $attendance->EmployeeId = $employee->id;
+                    $attendance->UserId = $user->id;
+                    $attendance->Timestamp = date('Y-m-d', strtotime($item->LeaveDate)) . ' 12:45:00';
+                    $attendance->AbsentPermission = 'LEAVE';
+                    $attendance->save();
+
+                    // INSERT START AFTERNOON OUT
+                    $attendance = new AttendanceData;
+                    $attendance->id = IDGenerator::generateIDandRandString();
+                    $attendance->BiometricUserId = $employee->BiometricsUserId;
+                    $attendance->EmployeeId = $employee->id;
+                    $attendance->UserId = $user->id;
+                    $attendance->Timestamp = date('Y-m-d', strtotime($item->LeaveDate)) . ' 17:05:00';
+                    $attendance->AbsentPermission = 'LEAVE';
+                    $attendance->save();
+
+                    $totalDays += 1;
+                } elseif ($item->Duration == 'AM') {
+                    // increment total minutes for vacation and sick leave
+                    if ($leaveApplication->LeaveType === 'Vacation' | $leaveApplication->LeaveType === 'Sick') {
+                        $totalMins = (4 * 60);
+                    } else {
+                        $leaveDays = .5;
+                    }
+
+                    // INSERT START MORNING IN
+                    $attendance = new AttendanceData;
+                    $attendance->id = IDGenerator::generateIDandRandString();
+                    $attendance->BiometricUserId = $employee->BiometricsUserId;
+                    $attendance->EmployeeId = $employee->id;
+                    $attendance->UserId = $user->id;
+                    $attendance->Timestamp = date('Y-m-d', strtotime($item->LeaveDate)) . ' 07:31:00';
+                    $attendance->AbsentPermission = 'LEAVE';
+                    $attendance->save();
+
+                    // INSERT START MORNING OUT
+                    $attendance = new AttendanceData;
+                    $attendance->id = IDGenerator::generateIDandRandString();
+                    $attendance->BiometricUserId = $employee->BiometricsUserId;
+                    $attendance->EmployeeId = $employee->id;
+                    $attendance->UserId = $user->id;
+                    $attendance->Timestamp = date('Y-m-d', strtotime($item->LeaveDate)) . ' 12:05:00';
+                    $attendance->AbsentPermission = 'LEAVE';
+                    $attendance->save();
+
+                    $totalDays += .5;
+                } elseif ($item->Duration == 'PM') {
+                    // increment total minutes for vacation and sick leave
+                    if ($leaveApplication->LeaveType === 'Vacation' | $leaveApplication->LeaveType === 'Sick') {
+                        $totalMins = (4 * 60);
+                    } else {
+                        $leaveDays = .5;
+                    }
+
+                    // INSERT START AFTERNOON IN
+                    $attendance = new AttendanceData;
+                    $attendance->id = IDGenerator::generateIDandRandString();
+                    $attendance->BiometricUserId = $employee->BiometricsUserId;
+                    $attendance->EmployeeId = $employee->id;
+                    $attendance->UserId = $user->id;
+                    $attendance->Timestamp = date('Y-m-d', strtotime($item->LeaveDate)) . ' 12:45:00';
+                    $attendance->AbsentPermission = 'LEAVE';
+                    $attendance->save();
+
+                    // INSERT START AFTERNOON OUT
+                    $attendance = new AttendanceData;
+                    $attendance->id = IDGenerator::generateIDandRandString();
+                    $attendance->BiometricUserId = $employee->BiometricsUserId;
+                    $attendance->EmployeeId = $employee->id;
+                    $attendance->UserId = $user->id;
+                    $attendance->Timestamp = date('Y-m-d', strtotime($item->LeaveDate)) . ' 17:05:00';
+                    $attendance->AbsentPermission = 'LEAVE';
+                    $attendance->save();
+
+                    $totalDays += .5;
                 }
 
-                // PLOT LEAVE DAYS TO ATTENDANCE DATA
-                $leaveDays = LeaveDays::where('LeaveId', $id)->get();
-                $totalDays = 0.0;
-                foreach($leaveDays as $item) {
-                    $totalMins = 0;
-                    $leaveDays = 0;
+                // update balance
+                $leaveBalances = LeaveBalances::where('EmployeeId', $leaveApplication->EmployeeId)->first();
+                if ($leaveBalances != null) {
+                    if ($leaveApplication->LeaveType == 'Sick') {                        
+                        $balance = floatval($leaveBalances->Sick);
+                        $mins = $totalMins;
 
-                    if ($item->Duration == 'WHOLE') {
-                        // increment total minutes for vacation and sick leave
-                        if ($leaveApplication->LeaveType === 'Vacation' | $leaveApplication->LeaveType === 'Sick') {
-                            $totalMins = (8 * 60);
+                        if ($balance < $mins) {
+                            // save sobra nga leave as absent inside LeaveExcessAbsences
+                            $excessInMins = ($mins - $balance);
+                            $lea = new LeaveExcessAbsences;
+                            $lea->id = IDGenerator::generateIDandRandString();
+                            $lea->EmployeeId = $leaveApplication->EmployeeId;
+                            $lea->HoursAbsent = $excessInMins;
+                            $lea->LeaveDate = $item->LeaveDate;
+                            $lea->Notes = 'Excess leave application (Sick leave)';
+                            $lea->save();
+
+                            $balance = 0;
+                            $totalCredits += $balance;
                         } else {
-                            $leaveDays = 1;
-                        }
+                            $balance = $balance - $mins;
+                            $totalCredits += $mins;
+                        }                        
 
-                        // INSERT START MORNING IN
-                        $attendance = new AttendanceData;
-                        $attendance->id = IDGenerator::generateIDandRandString();
-                        $attendance->BiometricUserId = $employee->BiometricsUserId;
-                        $attendance->EmployeeId = $employee->id;
-                        $attendance->UserId = $user->id;
-                        $attendance->Timestamp = date('Y-m-d', strtotime($item->LeaveDate)) . ' 07:31:00';
-                        $attendance->AbsentPermission = 'LEAVE';
-                        $attendance->save();
+                        $leaveBalances->Sick = $balance;
 
-                        // INSERT START MORNING OUT
-                        $attendance = new AttendanceData;
-                        $attendance->id = IDGenerator::generateIDandRandString();
-                        $attendance->BiometricUserId = $employee->BiometricsUserId;
-                        $attendance->EmployeeId = $employee->id;
-                        $attendance->UserId = $user->id;
-                        $attendance->Timestamp = date('Y-m-d', strtotime($item->LeaveDate)) . ' 12:05:00';
-                        $attendance->AbsentPermission = 'LEAVE';
-                        $attendance->save();
+                    } elseif ($leaveApplication->LeaveType == 'Vacation') {
+                        $balance = floatval($leaveBalances->Vacation);
+                        $mins = $totalMins;
+                        
+                        if ($balance < $mins) {
+                            // save sobra nga leave as absent inside LeaveExcessAbsences
+                            $excessInMins = ($mins - $balance);
+                            $lea = new LeaveExcessAbsences;
+                            $lea->id = IDGenerator::generateIDandRandString();
+                            $lea->EmployeeId = $leaveApplication->EmployeeId;
+                            $lea->HoursAbsent = $excessInMins;
+                            $lea->LeaveDate = $item->LeaveDate;
+                            $lea->Notes = 'Excess leave application (Vacation leave)';
+                            $lea->save();
 
-                        // INSERT START AFTERNOON IN
-                        $attendance = new AttendanceData;
-                        $attendance->id = IDGenerator::generateIDandRandString();
-                        $attendance->BiometricUserId = $employee->BiometricsUserId;
-                        $attendance->EmployeeId = $employee->id;
-                        $attendance->UserId = $user->id;
-                        $attendance->Timestamp = date('Y-m-d', strtotime($item->LeaveDate)) . ' 12:45:00';
-                        $attendance->AbsentPermission = 'LEAVE';
-                        $attendance->save();
-
-                        // INSERT START AFTERNOON OUT
-                        $attendance = new AttendanceData;
-                        $attendance->id = IDGenerator::generateIDandRandString();
-                        $attendance->BiometricUserId = $employee->BiometricsUserId;
-                        $attendance->EmployeeId = $employee->id;
-                        $attendance->UserId = $user->id;
-                        $attendance->Timestamp = date('Y-m-d', strtotime($item->LeaveDate)) . ' 17:05:00';
-                        $attendance->AbsentPermission = 'LEAVE';
-                        $attendance->save();
-
-                        $totalDays += 1;
-                    } elseif ($item->Duration == 'AM') {
-                        // increment total minutes for vacation and sick leave
-                        if ($leaveApplication->LeaveType === 'Vacation' | $leaveApplication->LeaveType === 'Sick') {
-                            $totalMins = (4 * 60);
+                            $balance = 0;
+                            $totalCredits += $balance;
                         } else {
-                            $leaveDays = .5;
-                        }
+                            $balance = $balance - $mins;
+                            $totalCredits += $mins;
+                        } 
 
-                        // INSERT START MORNING IN
-                        $attendance = new AttendanceData;
-                        $attendance->id = IDGenerator::generateIDandRandString();
-                        $attendance->BiometricUserId = $employee->BiometricsUserId;
-                        $attendance->EmployeeId = $employee->id;
-                        $attendance->UserId = $user->id;
-                        $attendance->Timestamp = date('Y-m-d', strtotime($item->LeaveDate)) . ' 07:31:00';
-                        $attendance->AbsentPermission = 'LEAVE';
-                        $attendance->save();
+                        $leaveBalances->Vacation = $balance;
+                    } elseif ($leaveApplication->LeaveType == 'Special') {
+                        $balance = floatval($leaveBalances->Special);
+                        $daysL = $leaveDays;
+                        
+                        if ($balance < $daysL) {
+                            $balance = 0;
 
-                        // INSERT START MORNING OUT
-                        $attendance = new AttendanceData;
-                        $attendance->id = IDGenerator::generateIDandRandString();
-                        $attendance->BiometricUserId = $employee->BiometricsUserId;
-                        $attendance->EmployeeId = $employee->id;
-                        $attendance->UserId = $user->id;
-                        $attendance->Timestamp = date('Y-m-d', strtotime($item->LeaveDate)) . ' 12:05:00';
-                        $attendance->AbsentPermission = 'LEAVE';
-                        $attendance->save();
+                            // save sobra nga leave as absent inside LeaveExcessAbsences
+                            $excessInMins = round(($daysL - $balance) * 8 * 60, 2);
+                            $lea = new LeaveExcessAbsences;
+                            $lea->id = IDGenerator::generateIDandRandString();
+                            $lea->EmployeeId = $leaveApplication->EmployeeId;
+                            $lea->HoursAbsent = $excessInMins;
+                            $lea->LeaveDate = $item->LeaveDate;
+                            $lea->Notes = 'Excess leave application (Special leave)';
+                            $lea->save();
 
-                        $totalDays += .5;
-                    } elseif ($item->Duration == 'PM') {
-                        // increment total minutes for vacation and sick leave
-                        if ($leaveApplication->LeaveType === 'Vacation' | $leaveApplication->LeaveType === 'Sick') {
-                            $totalMins = (4 * 60);
+                            $totalCredits += $balance;
                         } else {
-                            $leaveDays = .5;
-                        }
+                            $balance = $balance - $daysL;
+                            $totalCredits += $daysL;
+                        } 
 
-                        // INSERT START AFTERNOON IN
-                        $attendance = new AttendanceData;
-                        $attendance->id = IDGenerator::generateIDandRandString();
-                        $attendance->BiometricUserId = $employee->BiometricsUserId;
-                        $attendance->EmployeeId = $employee->id;
-                        $attendance->UserId = $user->id;
-                        $attendance->Timestamp = date('Y-m-d', strtotime($item->LeaveDate)) . ' 12:45:00';
-                        $attendance->AbsentPermission = 'LEAVE';
-                        $attendance->save();
+                        $leaveBalances->Special = $balance;
+                    } elseif ($leaveApplication->LeaveType == 'Paternity') {
+                        $balance = floatval($leaveBalances->Paternity);
+                        $daysL = $leaveDays;
+                        
+                        if ($balance < $daysL) {
+                            $balance = 0;
 
-                        // INSERT START AFTERNOON OUT
-                        $attendance = new AttendanceData;
-                        $attendance->id = IDGenerator::generateIDandRandString();
-                        $attendance->BiometricUserId = $employee->BiometricsUserId;
-                        $attendance->EmployeeId = $employee->id;
-                        $attendance->UserId = $user->id;
-                        $attendance->Timestamp = date('Y-m-d', strtotime($item->LeaveDate)) . ' 17:05:00';
-                        $attendance->AbsentPermission = 'LEAVE';
-                        $attendance->save();
+                            // save sobra nga leave as absent inside LeaveExcessAbsences
+                            $excessInMins = round(($daysL - $balance) * 8 * 60, 2);
+                            $lea = new LeaveExcessAbsences;
+                            $lea->id = IDGenerator::generateIDandRandString();
+                            $lea->EmployeeId = $leaveApplication->EmployeeId;
+                            $lea->HoursAbsent = $excessInMins;
+                            $lea->LeaveDate = $item->LeaveDate;
+                            $lea->Notes = 'Excess leave application (Paternity leave)';
+                            $lea->save();
+                            
+                            $totalCredits += $balance;
+                        } else {
+                            $balance = $balance - $daysL;
+                            $totalCredits += $daysL;
+                        } 
 
-                        $totalDays += .5;
+                        $leaveBalances->Paternity = $balance;
+                    } elseif ($leaveApplication->LeaveType == 'Maternity') {
+                        $balance = floatval($leaveBalances->Maternity);
+                        $daysL = $leaveDays;
+                        
+                        if ($balance < $daysL) {
+                            $balance = 0;
+
+                            // save sobra nga leave as absent inside LeaveExcessAbsences
+                            $excessInMins = round(($daysL - $balance) * 8 * 60, 2);
+                            $lea = new LeaveExcessAbsences;
+                            $lea->id = IDGenerator::generateIDandRandString();
+                            $lea->EmployeeId = $leaveApplication->EmployeeId;
+                            $lea->HoursAbsent = $excessInMins;
+                            $lea->LeaveDate = $item->LeaveDate;
+                            $lea->Notes = 'Excess leave application (Maternity leave)';
+                            $lea->save();
+                            
+                            $totalCredits += $balance;
+                        } else {
+                            $balance = $balance - $daysL;
+                            $totalCredits += $daysL;
+                        } 
+
+                        $leaveBalances->Maternity = $balance;
+                    } elseif ($leaveApplication->LeaveType == 'MaternityForSoloMother') {
+                        $balance = floatval($leaveBalances->MaternityForSoloMother);
+                        $daysL = $leaveDays;
+                        
+                        if ($balance < $daysL) {
+                            $balance = 0;
+
+                            // save sobra nga leave as absent inside LeaveExcessAbsences
+                            $excessInMins = round(($daysL - $balance) * 8 * 60, 2);
+                            $lea = new LeaveExcessAbsences;
+                            $lea->id = IDGenerator::generateIDandRandString();
+                            $lea->EmployeeId = $leaveApplication->EmployeeId;
+                            $lea->HoursAbsent = $excessInMins;
+                            $lea->LeaveDate = $item->LeaveDate;
+                            $lea->Notes = 'Excess leave application (Maternity For Solo Mother leave)';
+                            $lea->save();
+                            
+                            $totalCredits += $balance;
+                        } else {
+                            $balance = $balance - $daysL;
+                            $totalCredits += $daysL;
+                        } 
+
+                        $leaveBalances->MaternityForSoloMother = $balance;
+                    } elseif ($leaveApplication->LeaveType == 'SoloParent') {
+                        $balance = floatval($leaveBalances->SoloParent);
+                        $daysL = $leaveDays;
+                        
+                        if ($balance < $daysL) {
+                            $balance = 0;
+                            
+                            // save sobra nga leave as absent inside LeaveExcessAbsences
+                            $excessInMins = round(($daysL - $balance) * 8 * 60, 2);
+                            $lea = new LeaveExcessAbsences;
+                            $lea->id = IDGenerator::generateIDandRandString();
+                            $lea->EmployeeId = $leaveApplication->EmployeeId;
+                            $lea->HoursAbsent = $excessInMins;
+                            $lea->LeaveDate = $item->LeaveDate;
+                            $lea->Notes = 'Excess leave application (Solo Parent leave)';
+                            $lea->save();
+                            
+                            $totalCredits += $balance;
+                        } else {
+                            $balance = $balance - $daysL;
+                            $totalCredits += $daysL;
+                        } 
+
+                        $leaveBalances->SoloParent = $balance;
                     }
 
-                    // update balance
-                    $leaveBalances = LeaveBalances::where('EmployeeId', $leaveApplication->EmployeeId)->first();
-                    if ($leaveBalances != null) {
-                        if ($leaveApplication->LeaveType == 'Sick') {                        
-                            $balance = floatval($leaveBalances->Sick);
-                            $mins = $totalMins;
+                    $leaveBalances->save();
+                }
+            }  
+            
+            $leaveApplication->TotalCredits = $totalCredits;
+            $leaveApplication->Status = 'APPROVED';
+            $leaveApplication->save();
 
-                            if ($balance < $mins) {
-                                // save sobra nga leave as absent inside LeaveExcessAbsences
-                                $excessInMins = ($mins - $balance);
-                                $lea = new LeaveExcessAbsences;
-                                $lea->id = IDGenerator::generateIDandRandString();
-                                $lea->EmployeeId = $leaveApplication->EmployeeId;
-                                $lea->HoursAbsent = $excessInMins;
-                                $lea->LeaveDate = $item->LeaveDate;
-                                $lea->Notes = 'Excess leave application (Sick leave)';
-                                $lea->save();
-
-                                $balance = 0;
-                            } else {
-                                $balance = $balance - $mins;
-                            }                        
-
-                            $leaveBalances->Sick = $balance;
-
-                        } elseif ($leaveApplication->LeaveType == 'Vacation') {
-                            $balance = floatval($leaveBalances->Vacation);
-                            $mins = $totalMins;
-                            
-                            if ($balance < $mins) {
-                                // save sobra nga leave as absent inside LeaveExcessAbsences
-                                $excessInMins = ($mins - $balance);
-                                $lea = new LeaveExcessAbsences;
-                                $lea->id = IDGenerator::generateIDandRandString();
-                                $lea->EmployeeId = $leaveApplication->EmployeeId;
-                                $lea->HoursAbsent = $excessInMins;
-                                $lea->LeaveDate = $item->LeaveDate;
-                                $lea->Notes = 'Excess leave application (Vacation leave)';
-                                $lea->save();
-
-                                $balance = 0;
-                            } else {
-                                $balance = $balance - $mins;
-                            } 
-
-                            $leaveBalances->Vacation = $balance;
-                        } elseif ($leaveApplication->LeaveType == 'Special') {
-                            $balance = floatval($leaveBalances->Special);
-                            $daysL = $leaveDays;
-                            
-                            if ($balance < $daysL) {
-                                $balance = 0;
-
-                                // save sobra nga leave as absent inside LeaveExcessAbsences
-                                $excessInMins = round(($daysL - $balance) * 8 * 60, 2);
-                                $lea = new LeaveExcessAbsences;
-                                $lea->id = IDGenerator::generateIDandRandString();
-                                $lea->EmployeeId = $leaveApplication->EmployeeId;
-                                $lea->HoursAbsent = $excessInMins;
-                                $lea->LeaveDate = $item->LeaveDate;
-                                $lea->Notes = 'Excess leave application (Special leave)';
-                                $lea->save();
-                            } else {
-                                $balance = $balance - $daysL;
-                            } 
-
-                            $leaveBalances->Special = $balance;
-                        } elseif ($leaveApplication->LeaveType == 'Paternity') {
-                            $balance = floatval($leaveBalances->Paternity);
-                            $daysL = $leaveDays;
-                            
-                            if ($balance < $daysL) {
-                                $balance = 0;
-
-                                // save sobra nga leave as absent inside LeaveExcessAbsences
-                                $excessInMins = round(($daysL - $balance) * 8 * 60, 2);
-                                $lea = new LeaveExcessAbsences;
-                                $lea->id = IDGenerator::generateIDandRandString();
-                                $lea->EmployeeId = $leaveApplication->EmployeeId;
-                                $lea->HoursAbsent = $excessInMins;
-                                $lea->LeaveDate = $item->LeaveDate;
-                                $lea->Notes = 'Excess leave application (Paternity leave)';
-                                $lea->save();
-                            } else {
-                                $balance = $balance - $daysL;
-                            } 
-
-                            $leaveBalances->Paternity = $balance;
-                        } elseif ($leaveApplication->LeaveType == 'Maternity') {
-                            $balance = floatval($leaveBalances->Maternity);
-                            $daysL = $leaveDays;
-                            
-                            if ($balance < $daysL) {
-                                $balance = 0;
-
-                                // save sobra nga leave as absent inside LeaveExcessAbsences
-                                $excessInMins = round(($daysL - $balance) * 8 * 60, 2);
-                                $lea = new LeaveExcessAbsences;
-                                $lea->id = IDGenerator::generateIDandRandString();
-                                $lea->EmployeeId = $leaveApplication->EmployeeId;
-                                $lea->HoursAbsent = $excessInMins;
-                                $lea->LeaveDate = $item->LeaveDate;
-                                $lea->Notes = 'Excess leave application (Maternity leave)';
-                                $lea->save();
-                            } else {
-                                $balance = $balance - $daysL;
-                            } 
-
-                            $leaveBalances->Maternity = $balance;
-                        } elseif ($leaveApplication->LeaveType == 'MaternityForSoloMother') {
-                            $balance = floatval($leaveBalances->MaternityForSoloMother);
-                            $daysL = $leaveDays;
-                            
-                            if ($balance < $daysL) {
-                                $balance = 0;
-
-                                // save sobra nga leave as absent inside LeaveExcessAbsences
-                                $excessInMins = round(($daysL - $balance) * 8 * 60, 2);
-                                $lea = new LeaveExcessAbsences;
-                                $lea->id = IDGenerator::generateIDandRandString();
-                                $lea->EmployeeId = $leaveApplication->EmployeeId;
-                                $lea->HoursAbsent = $excessInMins;
-                                $lea->LeaveDate = $item->LeaveDate;
-                                $lea->Notes = 'Excess leave application (Maternity For Solo Mother leave)';
-                                $lea->save();
-                            } else {
-                                $balance = $balance - $daysL;
-                            } 
-
-                            $leaveBalances->MaternityForSoloMother = $balance;
-                        } elseif ($leaveApplication->LeaveType == 'SoloParent') {
-                            $balance = floatval($leaveBalances->SoloParent);
-                            $daysL = $leaveDays;
-                            
-                            if ($balance < $daysL) {
-                                $balance = 0;
-                                
-                                // save sobra nga leave as absent inside LeaveExcessAbsences
-                                $excessInMins = round(($daysL - $balance) * 8 * 60, 2);
-                                $lea = new LeaveExcessAbsences;
-                                $lea->id = IDGenerator::generateIDandRandString();
-                                $lea->EmployeeId = $leaveApplication->EmployeeId;
-                                $lea->HoursAbsent = $excessInMins;
-                                $lea->LeaveDate = $item->LeaveDate;
-                                $lea->Notes = 'Excess leave application (Solo Parent leave)';
-                                $lea->save();
-                            } else {
-                                $balance = $balance - $daysL;
-                            } 
-
-                            $leaveBalances->SoloParent = $balance;
-                        }
-
-                        $leaveBalances->save();
-                    }
-                }  
-                // UPDATE LEAVE DAYS STATUS
-                LeaveDays::where('LeaveId', $id)
-                    ->update(['Status' => 'APPROVED']);
-            }                    
+            // UPDATE LEAVE DAYS STATUS
+            LeaveDays::where('LeaveId', $id)
+                ->update(['Status' => 'APPROVED']);               
         }
         
         return response()->json('ok', 200);
@@ -1032,12 +1056,7 @@ class LeaveApplicationsController extends AppBaseController
             $totalBalDays += floatval($item->Longevity);
         }
 
-        $balanceToAdd = 0;
-        if (in_array($leaveApplication->LeaveType, ['Vacation', 'Sick'])) {
-            $balanceToAdd = $totalBalDays * 8 * 60;
-        } else {
-            $balanceToAdd = $totalBalDays;
-        }
+        $balanceToAdd = $leaveApplication->TotalCredits != null ? $leaveApplication->TotalCredits : 0;
 
         $balances = LeaveBalances::where('EmployeeId', $leaveApplication->EmployeeId)->orderByDesc('created_at')->first();
         if ($balances != null && $leaveApplication->Status === 'APPROVED') {
@@ -1254,7 +1273,8 @@ class LeaveApplicationsController extends AppBaseController
         $leave->Status = 'APPROVED';
         $leave->LeaveType = $leaveType;
         $leave->created_at = $dateFiled;
-        $leave->save();
+
+        $totalCredits = 0;
 
         // insert days
         for($i=0; $i<count($days); $i++) {
@@ -1307,12 +1327,13 @@ class LeaveApplicationsController extends AppBaseController
                         $lea->save();
 
                         $balance = 0;
+                        $totalCredits += $balance;
                     } else {
                         $balance = $balance - $mins;
+                        $totalCredits += $mins;
                     }                        
 
                     $leaveBalances->Sick = $balance;
-
                 } elseif ($leaveType == 'Vacation') {
                     $balance = floatval($leaveBalances->Vacation);
                     $mins = $totalMins;
@@ -1329,8 +1350,10 @@ class LeaveApplicationsController extends AppBaseController
                         $lea->save();
 
                         $balance = 0;
+                        $totalCredits += $balance;
                     } else {
                         $balance = $balance - $mins;
+                        $totalCredits += $mins;
                     } 
 
                     $leaveBalances->Vacation = $balance;
@@ -1350,8 +1373,11 @@ class LeaveApplicationsController extends AppBaseController
                         $lea->LeaveDate = $days[$i]['LeaveDate'];
                         $lea->Notes = 'Excess leave application (Special leave)';
                         $lea->save();
+
+                        $totalCredits += $balance;
                     } else {
                         $balance = $balance - $daysL;
+                        $totalCredits += $daysL;
                     } 
 
                     $leaveBalances->Special = $balance;
@@ -1371,8 +1397,11 @@ class LeaveApplicationsController extends AppBaseController
                         $lea->LeaveDate = $days[$i]['LeaveDate'];
                         $lea->Notes = 'Excess leave application (Paternity leave)';
                         $lea->save();
+                        
+                        $totalCredits += $balance;
                     } else {
                         $balance = $balance - $daysL;
+                        $totalCredits += $daysL;
                     } 
 
                     $leaveBalances->Paternity = $balance;
@@ -1392,8 +1421,11 @@ class LeaveApplicationsController extends AppBaseController
                         $lea->LeaveDate = $days[$i]['LeaveDate'];
                         $lea->Notes = 'Excess leave application (Maternity leave)';
                         $lea->save();
+                        
+                        $totalCredits += $balance;
                     } else {
                         $balance = $balance - $daysL;
+                        $totalCredits += $daysL;
                     } 
 
                     $leaveBalances->Maternity = $balance;
@@ -1413,8 +1445,11 @@ class LeaveApplicationsController extends AppBaseController
                         $lea->LeaveDate = $days[$i]['LeaveDate'];
                         $lea->Notes = 'Excess leave application (Maternity For Solo Mother leave)';
                         $lea->save();
+                        
+                        $totalCredits += $balance;
                     } else {
                         $balance = $balance - $daysL;
+                        $totalCredits += $daysL;
                     } 
 
                     $leaveBalances->MaternityForSoloMother = $balance;
@@ -1434,16 +1469,21 @@ class LeaveApplicationsController extends AppBaseController
                         $lea->LeaveDate = $days[$i]['LeaveDate'];
                         $lea->Notes = 'Excess leave application (Solo Parent leave)';
                         $lea->save();
+                        
+                        $totalCredits += $balance;
                     } else {
                         $balance = $balance - $daysL;
+                        $totalCredits += $daysL;
                     } 
 
                     $leaveBalances->SoloParent = $balance;
                 }
-
                 $leaveBalances->save();
             }
         }
+
+        $leave->TotalCredits = $totalCredits;
+        $leave->save();
 
         return response()->json($leave, 200);
     }
@@ -1674,5 +1714,53 @@ class LeaveApplicationsController extends AppBaseController
         } else {
             return abort(403, 'You are not authorized to access this module');
         }
+    }
+
+    public function viewAllLeave(Request $request) {
+        return view('/leave_applications/all_leave', []);
+    }
+
+    public function searchLeave(Request $request) {
+        $params = $request['search'];
+
+        if (isset($params)) {
+            $data = DB::table('LeaveApplications')
+                ->leftJoin('Employees', 'LeaveApplications.EmployeeId', '=', 'Employees.id')
+                ->where('Employees.FirstName', 'LIKE', '%' . $params . '%')
+                ->orWhere('Employees.MiddleName', 'LIKE', '%' . $params . '%')
+                ->orWhere('Employees.LastName', 'LIKE', '%' . $params . '%')
+                ->orWhere('Employees.id', 'LIKE', '%' . $params . '%')
+                ->select(
+                    'LeaveApplications.*',
+                    'Employees.FirstName',
+                    'Employees.LastName',
+                    'Employees.MiddleName',
+                    'Employees.Suffix',
+                )
+                ->orderByDesc('LeaveApplications.created_at')
+                ->get();
+        } else {
+            $data = DB::table('LeaveApplications')
+                ->leftJoin('Employees', 'LeaveApplications.EmployeeId', '=', 'Employees.id')
+                ->select(
+                    'LeaveApplications.*',
+                    'Employees.FirstName',
+                    'Employees.LastName',
+                    'Employees.MiddleName',
+                    'Employees.Suffix',
+                )
+                ->orderByDesc('LeaveApplications.created_at')
+                ->get();
+        }
+
+        foreach($data as $item) {
+            $item->Days = DB::table('LeaveDays')
+                ->where('LeaveId', $item->id)
+                ->get();
+        }
+
+        $data = IDGenerator::paginate($data, 30);
+
+        return response()->json($data, 200);
     }
 }

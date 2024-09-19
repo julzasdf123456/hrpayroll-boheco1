@@ -172,7 +172,7 @@
                         $earliestDate = date('Y-m-d', strtotime($earliestLeaveDay->LeaveDate));
                     }
                 @endphp
-                @if ($earliestDate != null && $earliestDate > date('Y-m-d') && $leaveApplication->Status !== 'APPROVED')
+                @if ($earliestDate != null && $earliestDate > date('Y-m-d')/* && $leaveApplication->Status !== 'APPROVED'*/)
                     <button class="btn btn-danger float-right" id="deleteLeave"><i class="fas fa-trash ico-tab-mini"></i>Trash Leave</button>
                 @else
                     <span class="float-right text-muted">This leave is no longer cancellable.</span>

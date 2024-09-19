@@ -5,6 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class IDGenerator extends Model
 {
@@ -39,5 +42,11 @@ class IDGenerator extends Model
 
     public static function generateBillNumber($areaCode) {
         return $areaCode . substr(IDGenerator::generateID(), 6);
+    }
+
+    public static function paginate($items, $perPage = 5, $page = null, $options = []) {
+        $page = $page ?: (Paginator::resolveCurrentPage() ?: 1);
+        $items = $items instanceof Collection ? $items : Collection::make($items);
+        return new LengthAwarePaginator($items->forPage($page, $perPage), $items->count(), $perPage, $page, $options);
     }
 }
