@@ -61,10 +61,10 @@
             </a>
         </li>    
         <li class="nav-item">
-            <a href="{{ route('leaveBalances.batch-edit') }}"
-               class="nav-link {{ Request::is('leaveBalances.batch-edit*') ? 'active' : '' }}">
-               <i class="fas fa-sort-amount-down nav-icon"></i>
-                <p>Leave Applications</p>
+            <a href="{{ route('leaveApplications.view-all-leave') }}"
+               class="nav-link {{ Request::is('leaveApplications.view-all-leave*') ? 'active' : '' }}">
+               <i class="fas fa-search nav-icon"></i>
+                <p>All Leave</p>
             </a>
         </li>  
     </ul>

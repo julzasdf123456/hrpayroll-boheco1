@@ -45,6 +45,7 @@ class LeaveApplications extends Model
         'Content',
         'Status',
         'LeaveType',
+        'TotalCredits'
     ];
 
     /**
@@ -60,7 +61,8 @@ class LeaveApplications extends Model
         'NumberOfDays' => 'integer',
         'Content' => 'string',
         'Status' => 'string',
-        'LeaveType' => 'string'
+        'LeaveType' => 'string',
+        'TotalCredits' => 'string',
     ];
 
     /**
@@ -77,7 +79,8 @@ class LeaveApplications extends Model
         'Status' => 'nullable|string|max:255',
         'created_at' => 'nullable',
         'updated_at' => 'nullable',
-        'LeaveType' => 'nullable|string'
+        'LeaveType' => 'nullable|string',
+        'TotalCredits' => 'nullable|string',
     ];
 
     

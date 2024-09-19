@@ -172,6 +172,8 @@ Route::get('/leave_applications/publish-leave/{id}', [LeaveApplicationsControlle
 Route::post('/leave_applications/save-for-coworker', [LeaveApplicationsController::class, 'saveForCoWorker'])->name('leaveApplications.save-for-coworker');
 Route::get('/leave_applications/get-signatories-for-employee', [LeaveApplicationsController::class, 'getSignatoriesForEmployee'])->name('leaveApplications.get-signatories-for-employee');
 Route::get('/leave_applications/file-leave', [LeaveApplicationsController::class, 'fileLeave'])->name('leaveApplications.file-leave');
+Route::get('/leave_applications/view-all-leave', [LeaveApplicationsController::class, 'viewAllLeave'])->name('leaveApplications.view-all-leave');
+Route::get('/leave_applications/search-leave', [LeaveApplicationsController::class, 'searchLeave'])->name('leaveApplications.search-leave');
 Route::resource('leaveApplications', LeaveApplicationsController::class);
 
 Route::resource('leaveSignatories', App\Http\Controllers\LeaveSignatoriesController::class);
