@@ -237,6 +237,9 @@ Route::get('/overtimes/approve', [OvertimesController::class, 'approve'])->name(
 Route::get('/overtimes/reject', [OvertimesController::class, 'reject'])->name('overtimes.reject');
 Route::get('/overtimes/manual-entry', [OvertimesController::class, 'manualEntry'])->name('overtimes.manual-entry');
 Route::get('/overtimes/get-overtimes-by-employee', [OvertimesController::class, 'getOvertimesByEmployee'])->name('overtimes.get-overtimes-by-employee');
+Route::get('/overtimes/due-for-payroll', [OvertimesController::class, 'dueForPayroll'])->name('overtimes.due-for-payroll');
+Route::get('/overtimes/get-due-for-payroll-data', [OvertimesController::class, 'getDueForPayrollData'])->name('overtimes.get-due-for-payroll-data');
+Route::post('/overtimes/save-approve-by-finance', [OvertimesController::class, 'saveApproveByFinance'])->name('overtimes.save-approve-by-finance');
 Route::resource('overtimes', OvertimesController::class);
 
 Route::get('/positions/tree-view', [PositionsController::class, 'treeView'])->name('positions.tree-view');

@@ -48,22 +48,22 @@
     <ul class="nav nav-treeview">
         <li class="nav-item">
             <a href="{{ route('leaveBalances.balances') }}"
-               class="nav-link {{ Request::is('leaveBalances.balances*') ? 'active' : '' }}">
-               <i class="fas fa-list nav-icon"></i>
+                class="nav-link {{ Request::is('leaveBalances.balances*') ? 'active' : '' }}">
+                <i class="fas fa-list nav-icon"></i>
                 <p>Balances</p>
             </a>
         </li>  
         <li class="nav-item">
             <a href="{{ route('leaveBalances.batch-edit') }}"
-               class="nav-link {{ Request::is('leaveBalances.batch-edit*') ? 'active' : '' }}">
-               <i class="fas fa-sort-amount-down nav-icon"></i>
+                class="nav-link {{ Request::is('leaveBalances.batch-edit*') ? 'active' : '' }}">
+                <i class="fas fa-sort-amount-down nav-icon"></i>
                 <p>Leave Balance Conf.</p>
             </a>
         </li>    
         <li class="nav-item">
             <a href="{{ route('leaveApplications.view-all-leave') }}"
-               class="nav-link {{ Request::is('leaveApplications.view-all-leave*') ? 'active' : '' }}">
-               <i class="fas fa-search nav-icon"></i>
+                class="nav-link {{ Request::is('leaveApplications.view-all-leave*') ? 'active' : '' }}">
+                <i class="fas fa-search nav-icon"></i>
                 <p>All Leave</p>
             </a>
         </li>  
@@ -163,6 +163,29 @@
                 </a>
             </li>
         @endcanany
+    </ul>
+</li>
+
+{{-- OVERTIMES --}}
+<li class="nav-item">
+    <a href="#" class="nav-link">
+        <i class="nav-icon fas fa-clock"></i>
+        <p>
+            Overtimes
+            <i class="right fas fa-caret-left"></i>
+        </p>
+    </a>
+    <ul class="nav nav-treeview">
+        {{-- @canany('god permission') --}}
+        @canany('approve leave conversion', 'god permission')
+        <li class="nav-item">
+            <a href="{{ route('overtimes.due-for-payroll') }}"
+                class="nav-link {{ Request::is('overtimes.due-for-payroll*') ? 'active' : '' }}">
+                <i class="fas fa-user-clock nav-icon"></i><p>Due For Payroll</p>
+            </a>
+        </li>
+        @endcanany
+        {{-- @endcanany --}}
     </ul>
 </li>
 
