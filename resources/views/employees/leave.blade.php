@@ -80,7 +80,7 @@
 @endif
 
 <div style="padding-top: 56px;">
-    <p class="text-muted">Latest Leave Applications</p>
+    <p class="text-muted">Leave Applications</p>
     <div id="app">
         <leave-list></leave-list>
     </div>

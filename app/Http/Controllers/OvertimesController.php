@@ -290,7 +290,7 @@ class OvertimesController extends AppBaseController
                 // CHECK IF ALL SIGNATORIES ARE COMPLETED
                 if ($nextSignatory == null) {
                     // UPDATE STATUS IF COMPLETED
-                    $overtime->Status='APPROVED';
+                    $overtime->Status='FOR ACCOUNTING CHECKING';
                     $overtime->save();
                 }
             }
@@ -352,5 +352,58 @@ class OvertimesController extends AppBaseController
             ->paginate(10);
 
         return response()->json($data, 200);
+    }
+
+    public function dueForPayroll(Request $request) {
+        return view('/overtimes/due_for_payroll');
+    }
+
+    public function getDueForPayrollData(Request $request) {
+        $overtimes = DB::table('Overtimes')
+            ->leftJoin('users', 'Overtimes.UserId', '=', 'users.id')
+            ->leftJoin('Employees', 'Overtimes.EmployeeId', '=', 'Employees.id')
+            ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+            ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+            ->whereRaw("Overtimes.Status='FOR ACCOUNTING CHECKING'")
+            ->select('Overtimes.*',
+                'Employees.FirstName',
+                'Employees.MiddleName',
+                'Employees.LastName',
+                'Employees.Suffix',
+                'Employees.BiometricsUserId',
+                'Positions.BasicSalary AS SalaryAmount',
+                'users.name')
+            ->orderBy('Employees.LastName')
+            ->get();
+
+        return response()->json($overtimes, 200);
+    }
+
+    public function saveApproveByFinance(Request $request) {
+        $id = $request['id'];
+        $Notes = $request['Notes'];
+        $TypeOfDay = $request['TypeOfDay'];
+        $TotalHours = $request['TotalHours'];
+        $MaxHourThreshold = $request['MaxHourThreshold'];
+        $OTAmount = $request['OTAmount'];
+        $From = $request['From'];
+        $To = $request['To'];
+
+        $ots = Overtimes::find($id);
+
+        if ($ots != null) {
+            $ots->Notes = $Notes;
+            $ots->TypeOfDay = $TypeOfDay;
+            $ots->TotalHours = $TotalHours;
+            $ots->MaxHourThreshold = $MaxHourThreshold;
+            $ots->From = $From;
+            $ots->To = $To;
+            $ots->Status = 'APPROVED';
+            $ots->OTAmount = $OTAmount;
+            $ots->FinanceUserApproved = Auth::id();
+            $ots->save();
+        }
+
+        return response()->json('ok', 200);
     }
 }

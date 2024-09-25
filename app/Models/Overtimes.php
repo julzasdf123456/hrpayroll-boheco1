@@ -46,6 +46,8 @@ class Overtimes extends Model
         'TotalHours',
         'MaxHourThreshold',
         'Status',
+        'OTAmount',
+        'FinanceUserApproved',
     ];
 
     /**
@@ -68,6 +70,8 @@ class Overtimes extends Model
         'Status' => 'string',
         'From' => 'string',
         'To' => 'string',
+        'OTAmount' => 'string',
+        'FinanceUserApproved' => 'string',
     ];
 
     /**
@@ -91,6 +95,8 @@ class Overtimes extends Model
         'TotalHours' => 'nullable|string',        
         'MaxHourThreshold' => 'nullable|string',
         'Status' => 'nullable|string',
+        'OTAmount' => 'nullable|string',
+        'FinanceUserApproved' => 'nullable|string',
     ];
 
     public static function getStatusColor($status) {

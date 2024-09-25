@@ -26,10 +26,10 @@
             </div>
         </div>
     </div>
- </div>
+</div>
 
- @push('page_scripts')
-     <script>
+@push('page_scripts')
+    <script>
         $(document).ready(function() {
 
         })
@@ -73,5 +73,5 @@
                         "<td><button onclick='insertTime(`" + timestamp + "`, `" + type + "`, `" + index + "`)' class='btn btn-xs btn-success float-right'><i class='fas fa-check-circle'></i></button></td>" +
                     "</tr>"
         }
-     </script>
- @endpush
+    </script>
+@endpush
