@@ -38,7 +38,7 @@
                             <td class="v-align">
                                 <a target="_blank" :href="baseURL + '/employees/' + leave.EmployeeId">{{ leave.LastName + ', ' + leave.FirstName }}</a>
                             </td>
-                            <td @click="leaveView(leave.id)" class="v-align">{{ moment(leave.created_at).format("MMM DD, YYY") }}</td>
+                            <td @click="leaveView(leave.id)" class="v-align">{{ moment(leave.created_at).format("MMM DD, YYYY") }}</td>
                             <td @click="leaveView(leave.id)" class="v-align" v-html="getDaysConcat(leave.Days)"></td>
                             <td @click="leaveView(leave.id)" class="v-align">{{ validateTotalCredits(leave.LeaveType, leave.TotalCredits) }} days</td>
                             <td @click="leaveView(leave.id)" class="v-align">{{leave.Content }}</td>

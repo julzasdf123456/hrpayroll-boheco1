@@ -48,6 +48,7 @@ import Kanban from "./components/tasks/kanban.vue"
 import ViewAllLeave from "./components/employees/view-all-leave.vue"
 import LeaveList from "./components/employees/leave-list.vue"
 import DueForPayroll from "./components/overtimes/due-for-payroll.vue"
+import MemoIndex from "./components/memos/memo-index.vue"
 
 // Tests
 import AccountView from "./components/tests/account-view.vue"
@@ -92,6 +93,7 @@ app.component('kanban', Kanban);
 app.component('view-all-leave', ViewAllLeave);
 app.component('leave-list', LeaveList);
 app.component('due-for-payroll', DueForPayroll);
+app.component('memo-index', MemoIndex);
 
 app.component('account-view', AccountView);
 app.component('it-exam', ITExam);

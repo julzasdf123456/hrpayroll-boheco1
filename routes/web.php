@@ -476,6 +476,10 @@ Route::post('/leave_users_for_others/post', [LeaveUsersForOthersController::clas
 Route::resource('leaveUsersForOthers', LeaveUsersForOthersController::class);
 
 Route::get('/memorandums/create-memo', [MemorandumsController::class, 'createMemo'])->name('memorandums.create-memo');
+Route::get('/memorandums/search-memo', [MemorandumsController::class, 'searchMemo'])->name('memorandums.search-memo');
+Route::get('/memorandums/print-memo/{memoid}/{printEmployees}', [MemorandumsController::class, 'printMemo'])->name('memorandums.print-memo');
+Route::post('/memorandums/trash-memo', [MemorandumsController::class, 'trashMemo'])->name('memorandums.trash-memo');
+Route::get('/memorandums/get-memo-respondents', [MemorandumsController::class, 'getMemoRespondents'])->name('memorandums.get-memo-respondents');
 Route::resource('memorandums', MemorandumsController::class);
 
 Route::resource('memorandumEmployees', App\Http\Controllers\MemorandumEmployeesController::class);

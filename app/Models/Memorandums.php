@@ -14,7 +14,9 @@ class Memorandums extends Model
         'MemoTitle',
         'MemoContent',
         'Status',
-        'MemoType'
+        'MemoType',
+        'MemoRawText',
+        'UserId'
     ];
 
     protected $casts = [
@@ -24,16 +26,20 @@ class Memorandums extends Model
         'MemoContent' => 'string',
         'Status' => 'string',
         'MemoType' => 'string',
+        'MemoRawText' => 'string',
+        'UserId' => 'string',
     ];
 
     public static array $rules = [
         'MemoNumber' => 'nullable|string|max:50',
-        'MemoTitle' => 'nullable|string|max:1000',
-        'MemoContent' => 'nullable|string|max:16',
+        'MemoTitle' => 'nullable|string',
+        'MemoContent' => 'nullable|string',
         'Status' => 'nullable|string|max:50',
         'created_at' => 'nullable',
         'updated_at' => 'nullable',
         'MemoType' => 'nullable|string',
+        'MemoRawText' => 'nullable|string',
+        'UserId' => 'nullable|string',
     ];
 
     

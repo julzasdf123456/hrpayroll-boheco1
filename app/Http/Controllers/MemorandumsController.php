@@ -7,6 +7,13 @@ use App\Http\Requests\UpdateMemorandumsRequest;
 use App\Http\Controllers\AppBaseController;
 use App\Repositories\MemorandumsRepository;
 use Illuminate\Http\Request;
+use App\Models\IDGenerator;
+use App\Models\Employees;
+use App\Models\MemorandumEmployees;
+use App\Models\SMSNotifications;
+use App\Models\Memorandums;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use Flash;
 
 class MemorandumsController extends AppBaseController
@@ -45,12 +52,83 @@ class MemorandumsController extends AppBaseController
     public function store(CreateMemorandumsRequest $request)
     {
         $input = $request->all();
+        $input['UserId'] = Auth::id();
 
         $memorandums = $this->memorandumsRepository->create($input);
 
-        Flash::success('Memorandums saved successfully.');
+        // insert selected employees first
+        MemorandumEmployees::where('MemoId', $input['id'])->delete();
+        $employees = $input['SelectedEmployees'];
+        if (isset($employees) && $employees != null) {
+            foreach($employees as $item) {
+                if ($item != null) {
+                    MemorandumEmployees::create([
+                        'id' => IDGenerator::generateIDandRandString(),
+                        'MemoId' => $input['id'],
+                        'EmployeeId' => $item['id'],
+                    ]);
+                }
+            }
+        }
 
-        return redirect(route('memorandums.index'));
+        // insert by department
+        $depts = $input['Departments'];
+        if (isset($depts) && $depts != null) {
+            foreach($depts as $item) {
+                if ($item == 'SUB-OFFICE') {
+                    $employees = DB::table('Employees')
+                        ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+                        ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+                        ->select('Employees.*',
+                        )
+                        ->where('Employees.OfficeDesignation', $item)
+                        ->whereRaw("(EmploymentStatus IS NULL OR EmploymentStatus NOT IN ('Resigned', 'Retired'))")
+                        ->get();
+                } else {
+                    $employees = DB::table('Employees')
+                        ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+                        ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+                        ->select('Employees.*',
+                        )
+                        ->where('Positions.Department', $item)
+                        ->whereRaw("Employees.OfficeDesignation NOT IN ('" . $item . "') AND (EmploymentStatus IS NULL OR EmploymentStatus NOT IN ('Resigned', 'Retired'))")
+                        ->get();
+                }
+
+                if ($employees != null) {
+                    foreach ($employees as $emp) {
+                        MemorandumEmployees::create([
+                            'id' => IDGenerator::generateIDandRandString(),
+                            'MemoId' => $input['id'],
+                            'EmployeeId' => $emp->id,
+                        ]);
+                    }
+                }
+            }
+        }
+
+        // send sms
+        if (isset($input['SendSMS']) && ($input['SendSMS'] == true | $input['SendSMS'] === 'true')) {
+            $recipients = DB::table('MemorandumEmployees')
+                ->leftJoin('Employees', 'MemorandumEmployees.EmployeeId', '=', 'Employees.id')
+                ->whereRaw("MemorandumEmployees.MemoId='" . $input['id'] . "' AND ContactNumbers IS NOT NULL AND LEN(ContactNumbers) > 9")
+                ->select('Employees.*', 'MemorandumEmployees.id AS MemoId')
+                ->get();
+
+            if ($recipients != null) {
+                foreach ($recipients as $item) {
+                    if ($item != null && $item->ContactNumbers != null) {
+                        SMSNotifications::sendSMS($item->ContactNumbers, 
+                            "HRS Memo Info\n\nHello " . $item->FirstName . ", \n\n" . $input['MemoRawText'] . "\n\nMemo No.: " . $input['MemoNumber'],
+                            "HR-Memo SMS",
+                            $item->MemoId
+                        );
+                    }
+                }
+            }
+        }
+
+        return response()->json($memorandums, 200);
     }
 
     /**
@@ -131,5 +209,73 @@ class MemorandumsController extends AppBaseController
         return view('/memorandums/create_memo', [
 
         ]);
+    }
+
+    public function searchMemo(Request $request) {
+        $params = $request['params'];
+
+        if (!isset($params)) {
+            $data = DB::table('Memorandums')
+                ->whereRaw("Status NOT IN('TRASH')")
+                ->select('Memorandums.*', DB::raw("(SELECT COUNT(id) FROM MemorandumEmployees WHERE MemoId=Memorandums.id) AS Count"))
+                ->orderByDesc('created_at')
+                ->paginate(12);
+        } else {
+            $data = DB::table('Memorandums')
+                ->whereRaw("Status NOT IN('TRASH')")
+                ->whereRaw("(MemoNumber LIKE '%" . $params . "%' OR MemoTitle LIKE '%" . $params . "%')")
+                ->select('Memorandums.*', DB::raw("(SELECT COUNT(id) FROM MemorandumEmployees WHERE MemoId=Memorandums.id) AS Count"))
+                ->orderByDesc('created_at')
+                ->paginate(12);
+        }
+
+        return response()->json($data, 200);
+    }
+
+    public function printMemo($memoNo, $printEmployees) {
+        $memo = Memorandums::find($memoNo);
+        if ($memo != null) {
+            $employees = DB::table('MemorandumEmployees')
+                ->leftJoin('Employees', 'MemorandumEmployees.EmployeeId', '=', 'Employees.id')
+                ->whereRaw("MemorandumEmployees.MemoId='" . $memo->id . "'")
+                ->select('Employees.*', 'MemorandumEmployees.id AS MemoId')
+                ->orderBy('Employees.LastName')
+                ->get();
+        } else {
+            $employees = [];
+        }
+
+        return view('/memorandums/print_memo', [
+            'memo' => $memo,
+            'employees' => $employees,
+            'printOption' => $printEmployees,
+        ]);
+    }
+
+    public function trashMemo(Request $request) {
+        $id = $request['id'];
+
+        $memo = Memorandums::find($id);
+
+        if ($memo != null) {
+            $memo->Status = 'TRASH';
+            $memo->UserId = Auth::id();
+            $memo->save();
+        }
+
+        return response()->json($memo, 200);
+    }
+
+    public function getMemoRespondents(Request $request) {
+        $id = $request['id'];
+
+        $data = DB::table('MemorandumEmployees')
+            ->leftJoin('Employees', 'MemorandumEmployees.EmployeeId', '=', 'Employees.id')
+            ->whereRaw("MemorandumEmployees.MemoId='" . $id . "'")
+            ->select('Employees.*', 'MemorandumEmployees.id AS MemoId')
+            ->orderBy('LastName')
+            ->get();
+
+        return response()->json($data, 200);
     }
 }
