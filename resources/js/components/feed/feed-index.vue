@@ -34,6 +34,11 @@
                             </div>
         
                             <p class="px-2 pt-4" v-html="res.PostContent"></p>
+
+                            <!-- images uploaded -->
+                            <div class="post-images">
+                                <img v-for="img in res.Images" alt="" :src="postImgPath + '/' + res.id + '/' + img" @click="viewImg(res.id, img)">
+                            </div>
                         </div>
 
                         <!-- interact buttons -->
@@ -45,7 +50,7 @@
 
                         <!-- create comments -->
                         <div class="col-lg-12 mt-3" v-if="res.CommentEnabled">
-                            <input type="text" class="form-control py-4" autofocus placeholder="Comment..." v-model="res.ActiveComment" @keyup.enter="comment(res.ActiveComment, res.id)">
+                            <input type="text" class="form-control py-4" placeholder="Comment..." v-model="res.ActiveComment" @keyup.enter="comment(res.ActiveComment, res.id)">
                         </div>
 
                         <!-- comments -->
@@ -98,11 +103,18 @@
                         </div>
 
                         <div class="col-lg-12 pt-4">
-                            <textarea class="form-control p-3" placeholder="What'ya wanna talk about?" rows="10" v-model="postContent" autofocus></textarea>
+                            <textarea class="form-control p-3" placeholder="What'ya wanna talk about?" rows="3" v-model="postContent" autofocus></textarea>
+
+                            <div v-if="imageUrls.length" class="post-image-preview">
+                                <div v-for="(imageUrl, index) in imageUrls" :key="index" class="image-item">
+                                    <img :src="imageUrl" :alt="'Selected Picture ' + (index + 1)" />
+                                </div>
+                            </div>
                         </div>
 
                         <div class="col-lg-12 pt-4">
-                            <button class="btn btn-link-muted" title="Attach image"><i class="fas fa-image"></i></button>
+                            <button @click="triggerFileUpload" class="btn btn-link-muted" title="Attach image"><i class="fas fa-image"></i></button>
+                            <input type="file" ref="fileInput" @change="onFileChange" accept="image/*" multiple style="display: none">
 
                             <button @click="publishPost" class="btn btn-primary float-right">Post</button>
                         </div>
@@ -112,6 +124,18 @@
         </div>
     </div>
 
+    <!-- IMAGE MODAL -->
+    <div ref="modalViewImage" class="modal fade" id="modal-view-image" aria-hidden="true" style="display: none;">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content px-4 py-3">
+                <div class="modal-body">
+                    <div style="width: 100%;">
+                        <img :src="activeImage" alt="" style="width: 100%; object-fit: cover;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </template>
 
 <script>
@@ -138,6 +162,7 @@ export default {
             employees : {},
             baseURL : axios.defaults.baseURL,
             imgsPath : axios.defaults.imgsPath,
+            postImgPath : axios.defaults.postImagePath,
             results : {},
             toast : Swal.mixin({
                 toast: true,
@@ -151,6 +176,9 @@ export default {
             imagePreview : null,
             postPrivacy : 'Show to Everyone',
             postContent : '',
+            imageUrls : [],
+            selectedFiles: [],
+            activeImage : null,
         }
     },
     methods : {
@@ -196,6 +224,9 @@ export default {
         },
         generateUniqueId() {
             return moment().valueOf() + "-" + this.generateRandomString(32);
+        },
+        generateID() {
+            return moment().valueOf()
         },
         getEmployeeInfo() {
             this.employeeData = null
@@ -270,23 +301,30 @@ export default {
             $(modalElement).modal('show')
         },
         publishPost() {
-            axios.post(`${ this.baseURL }/posts`, {
-                _token : this.token,
-                id : this.generateUniqueId(),
-                PostContent : this.postContent,
-                PostRawText : this.postContent,
-                Priority : 3,
-                PostType : 'REGULAR POST',
-                Privacy : this.postPrivacy,
+            // create a form data
+            const formData = new FormData()
+            this.selectedFiles.forEach((file, index) => {
+                formData.append(`images[]`, file)
+            })
+
+            formData.append('_token', this.token)
+            formData.append('id', this.generateID())
+            formData.append('PostContent', this.postContent)
+            formData.append('PostRawText', this.postContent)
+            formData.append('Priority', 3)
+            formData.append('PostType', 'REGULAR POST')
+            formData.append('Privacy', this.postPrivacy)
+
+            axios.post(`${ this.baseURL }/posts`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
             })
             .then(response => {
                 let modalElement = this.$refs.modalMakePost
                 $(modalElement).modal('hide')
 
-                this.toast.fire({
-                    icon : 'success',
-                    text : 'Post published!'
-                })
+                this.getPosts(20)
             })
             .catch(error => {
                 console.log(error.response)
@@ -297,6 +335,7 @@ export default {
             })
         },
         getPosts(take = 20) {
+            this.results = []
             axios.get(`${ this.baseURL }/posts/get-posts`, {
                 params : {
                     Take : take,
@@ -405,6 +444,28 @@ export default {
                     text : 'Error saving comment!'
                 })
             })
+        },
+        triggerFileUpload() {
+            // Trigger the hidden file input click event
+            this.$refs.fileInput.click()
+        },
+        onFileChange(event) {
+            const files = event.target.files; // Get all selected files
+            if (files && files.length) {
+                this.imageUrls = []
+                this.selectedFiles = []
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    this.imageUrls.push(URL.createObjectURL(file))
+                    this.selectedFiles.push(file)
+                }
+            }
+        },
+        viewImg(id, img) {
+            this.activeImage = this.postImgPath + '/' + id + '/' + img
+
+            let modalElement = this.$refs.modalViewImage
+            $(modalElement).modal('show')
         }
     },
     created() {

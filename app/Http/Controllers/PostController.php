@@ -16,7 +16,9 @@ use App\Models\PostReactions;
 use App\Models\PostComments;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use Flash;
+use File;
 
 class PostController extends AppBaseController
 {
@@ -58,7 +60,18 @@ class PostController extends AppBaseController
 
         $post = $this->postRepository->create($input);
 
-        // Flash::success('Post saved successfully.');
+        // store photos
+
+        $uploadedImages = [];
+        if ($request->hasFile('images')) {
+            $path = Post::path() . $input['id'] . "/";
+            File::makeDirectory($path, $mode = 0777, true, true);
+
+            foreach ($request->file('images') as $key => $image) {
+                $imageName = $key . '-' . $input['id'] . '.' . $image->getClientOriginalExtension();
+                $image->move($path, $imageName);
+            }
+        }
 
         return redirect(route('posts.index'));
     }
@@ -174,6 +187,19 @@ class PostController extends AppBaseController
                 ->orderByDesc('PostComments.created_at')
                 ->take(3)
                 ->get();
+
+            // get images
+            $dir = Post::path() . $item->id;
+
+            if (is_dir($dir)) {
+                $files = scandir(Post::path() . $item->id);
+                $files = array_diff($files, array('.', '..'));
+                $imgs = [];
+                foreach($files as $file) {
+                    array_push($imgs, $file);
+                }
+                $item->Images = $imgs;
+            }
         }
 
         return response()->json($posts, 200);
