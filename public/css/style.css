@@ -1227,3 +1227,36 @@ body.dark-mode .post-input-holder {
     justify-content: start;
     position: relative;
 }
+
+.post-image-preview {
+    display: flex;
+    flex-wrap: wrap;
+    justify-items: center;
+    flex-direction: row;
+    column-gap: 5px;
+    row-gap: 5px;
+    width: 100%;
+}
+
+.post-image-preview img {
+    max-width: 190px;
+    width: 190px;
+}
+
+.post-images {
+    display: flex;              /* Arrange the images in a row */
+    overflow-x: auto;           /* Enable horizontal scrolling */
+    white-space: nowrap;        /* Prevent line breaks inside the container */
+    scroll-behavior: smooth;    /* Smooth scrolling */
+    width: 100%;                /* Adjust the width of the container */
+    max-width: 100%;             /* Optional padding for spacing */
+    box-sizing: border-box;     /* Make padding part of the width */
+}
+
+.post-images img {
+    max-height: 240px;          /* Adjust the image height */
+    margin-right: 6px;         /* Add some space between images */
+    object-fit: cover;          /* Ensure the images cover their area without distortion */
+    cursor: pointer;            /* Optional: Make the images clickable */
+    border-radius: 8px;
+}

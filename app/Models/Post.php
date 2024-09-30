@@ -47,5 +47,7 @@ class Post extends Model
         'ReactionCount' => 'nullable|string',
     ];
 
-    
+    public static function path() {
+        return public_path() . "/posts/";
+    }
 }
