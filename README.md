@@ -6,8 +6,7 @@
 - php artisan infyom:scaffold Post --fromTable --table=posts --connection=server_name
 
 ### NEW TABLES
-- Posts
-- PostReactions
+- PostComments
 
 ### NEW PACKAGES
 
