@@ -20,6 +20,7 @@
             <div v-for="res in results" class="card shadow-none mt-2">
                 <div class="card-body p-4">
                     <div class="row">
+                        <!-- posot body -->
                         <div class="col-lg-12">
                             <div class="post-box">
                                 <div>
@@ -32,13 +33,41 @@
                                 </div>
                             </div>
         
-                            <p class="px-2 pt-4 pb-2" v-html="res.PostContent"></p>
+                            <p class="px-2 pt-4" v-html="res.PostContent"></p>
                         </div>
 
+                        <!-- interact buttons -->
                         <div class="col-lg-12">
-                            <button class="btn btn-link-muted float-right" title="Repost"><i class="fas fa-retweet"></i></button>
-                            <button class="btn btn-link-muted float-right" title="Comment"><i class="far fa-comments"></i></button>
-                            <button @click="react(res.id)" class="btn btn-link-muted float-right" title="Like"><i :class="reactHasMe(res.id)"></i> <span class="text-xs">{{ isNull(res.ReactionCount) ? 0 : res.ReactionCount }}</span></button>
+                            <button @click="react(res.id)" class="btn btn-link-muted" title="Like"><i :class="reactHasMe(res.id)"></i> <span class="text-xs">{{ isNull(res.ReactionCount) ? 0 : res.ReactionCount }}</span></button>
+                            <button @click="() => { res.CommentEnabled ? res.CommentEnabled = false : res.CommentEnabled = true }" class="btn btn-link-muted" title="Comment"><i class="far fa-comments"></i></button>
+                            <button class="btn btn-link-muted" title="Repost"><i class="fas fa-retweet"></i></button>
+                        </div>
+
+                        <!-- create comments -->
+                        <div class="col-lg-12 mt-3" v-if="res.CommentEnabled">
+                            <input type="text" class="form-control py-4" autofocus placeholder="Comment..." v-model="res.ActiveComment" @keyup.enter="comment(res.ActiveComment, res.id)">
+                        </div>
+
+                        <!-- comments -->
+                        <div class="col-lg-12 pl-4">
+                            <!-- <div class="divider mb-3" v-if="!isNull(res.LatestComments)"></div> -->
+                            <div class="comment-box mt-4" v-for="cmnts in res.LatestComments">
+                                <div>
+                                    <img v-if="!isNull(cmnts.ProfilePicture)" style="height: 32px !important; width: 32px !important; object-fit: cover;" class="img-circle" :src="imgsPath + '/profiles/' + cmnts.ProfilePicture" alt="n/a">
+                                    <img v-if="isNull(cmnts.ProfilePicture)" style="height: 32px !important; width: 32px !important; object-fit: cover;" class="img-circle" :src="imgsPath + '/prof-img.png'" alt="n/a">
+                                </div>
+                                <div>
+                                    <p class="text-sm no-pads"><strong>{{ cmnts.FirstName + ' ' + cmnts.LastName }}</strong></p>
+                                    <p class="no-pads text-xs text-muted">{{ moment(cmnts.created_at).format('ddd, MMM DD, YYYY, hh:mm A') }}</p>
+
+                                    <p class="mt-3 mb-0">{{ cmnts.Comment }}</p>
+
+                                    <div class="post-box mt-1">
+                                        <button class="btn btn-comment btn-xs no-pads" title="Like"><i class="far fa-heart"></i></button>
+                                        <button class="btn btn-comment btn-xs no-pads" title="Reply">Reply</button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -342,6 +371,40 @@ export default {
             } else {
                 return 'far fa-heart'
             }
+        },
+        comment(comment, id) {
+            axios.post(`${ this.baseURL }/posts/comment`, {
+                _token : this.token,
+                Type : 'COMMENT',
+                PostId : id,
+                id : this.generateUniqueId(),
+                CommenterUserId : this.userId,
+                Comment : comment,
+            })
+            .then(response => {
+                // add comments to display queue
+                let addedComment = response.data
+                let post = this.results.find(obj => obj.id === id)
+                let comments = []
+
+                if (!this.isNull(post)) {
+                    comments = post.LatestComments
+
+                    comments.push(addedComment)
+                } else {
+                    comments = post.LatestComments
+                }
+
+                // update comments
+                this.results = this.results.map(obj => obj.id === id ? { ...obj, ActiveComment : null, CommentEnabled : false, LatestComments : comments } : obj)
+            })
+            .catch(error => {
+                console.log(error.response)
+                this.toast.fire({
+                    icon : 'error',
+                    text : 'Error saving comment!'
+                })
+            })
         }
     },
     created() {

@@ -496,5 +496,7 @@ Route::resource('taskChecklists', App\Http\Controllers\TaskChecklistsController:
 
 Route::get('/posts/get-posts', [PostController::class, 'getPosts'])->name('posts.get-posts');
 Route::post('/posts/react', [PostController::class, 'react'])->name('posts.react');
+Route::post('/posts/comment', [PostController::class, 'comment'])->name('posts.comment');
 Route::resource('posts', PostController::class);
 Route::resource('postReactions', App\Http\Controllers\PostReactionsController::class);
+Route::resource('postComments', App\Http\Controllers\PostCommentsController::class);

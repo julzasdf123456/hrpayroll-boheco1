@@ -418,6 +418,15 @@ body.dark-mode .btn-link-muted {
     transition: all .4s ease;
 }
 
+.btn-comment,
+body.dark-mode .btn-comment {
+    color: #898e92 !important;
+    transition: all .4s ease;
+    padding: 0 !important;
+    margin: 0 !important;
+    text-align: left;
+}
+
 .btn-link-muted:hover {
     color: #41464b !important;
 }
@@ -1208,4 +1217,13 @@ body.dark-mode .post-input-holder {
     align-items: center;
     padding: 10px;
     width: 100%;
+}
+
+.comment-box {
+    display: flex; 
+    flex-direction: row; 
+    column-gap: 10px; 
+    align-items: start;
+    justify-content: start;
+    position: relative;
 }

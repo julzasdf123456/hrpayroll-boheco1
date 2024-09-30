@@ -13,6 +13,7 @@ use App\Models\MemorandumEmployees;
 use App\Models\SMSNotifications;
 use App\Models\Post;
 use App\Models\PostReactions;
+use App\Models\PostComments;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Flash;
@@ -158,6 +159,21 @@ class PostController extends AppBaseController
             $item->Reactions = PostReactions::where('PostId', $item->id)
                 ->select('UserId')
                 ->get();
+
+            $item->LatestComments = DB::table('PostComments')
+                ->leftJoin('users', 'PostComments.CommenterUserId', '=', 'users.id')
+                ->leftJoin('Employees', 'users.employee_id', '=', 'Employees.id')
+                ->whereRaw("PostComments.PostId='" . $item->id . "'")
+                ->select(
+                    'PostComments.*', 
+                    'Employees.FirstName', 
+                    'Employees.LastName', 
+                    'Employees.ProfilePicture',
+                    'Employees.id AS EmployeeId'
+                )
+                ->orderByDesc('PostComments.created_at')
+                ->take(3)
+                ->get();
         }
 
         return response()->json($posts, 200);
@@ -203,4 +219,26 @@ class PostController extends AppBaseController
 
         return response()->json($reactionCount, 200);
     }
+
+    public function comment(Request $request) {
+        $input = $request->all();
+
+        $userData = DB::table('users')
+            ->leftJoin('Employees', 'users.employee_id', '=', 'Employees.id')
+            ->whereRaw("users.id='" . $input['CommenterUserId'] . "'")
+            ->select('Employees.*')
+            ->first();
+
+        $comment = PostComments::create($input);
+        
+        if ($userData != null) {
+            $comment->FirstName = $userData->FirstName;
+            $comment->LastName = $userData->LastName;
+            $comment->ProfilePicture = $userData->ProfilePicture;
+            $comment->EmployeeId = $userData->id;
+        }
+
+        return response()->json($comment, 200);
+    }
+
 }
