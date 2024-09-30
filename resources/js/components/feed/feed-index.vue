@@ -38,7 +38,7 @@
                         <div class="col-lg-12">
                             <button class="btn btn-link-muted float-right" title="Repost"><i class="fas fa-retweet"></i></button>
                             <button class="btn btn-link-muted float-right" title="Comment"><i class="far fa-comments"></i></button>
-                            <button @click="react(res.id)" class="btn btn-link-muted float-right" title="Like"><i class="far fa-heart"></i> <span class="text-xs">{{ res.Reactions.length }}</span></button>
+                            <button @click="react(res.id)" class="btn btn-link-muted float-right" title="Like"><i :class="reactHasMe(res.id)"></i> <span class="text-xs">{{ isNull(res.ReactionCount) ? 0 : res.ReactionCount }}</span></button>
                         </div>
                     </div>
                 </div>
@@ -102,6 +102,7 @@ export default {
         return {
             token : document.querySelector("meta[name='csrf-token']").getAttribute('content'),
             employeeId : document.querySelector("meta[name='employee-id']").getAttribute('content'),
+            userId : document.querySelector("meta[name='user-id']").getAttribute('content'),
             moment : moment,
             search : '',
             isEditMode : false,
@@ -124,12 +125,34 @@ export default {
         }
     },
     methods : {
-        isNull (item) {
-            if (jquery.isEmptyObject(item)) {
+        isNull (value) {
+            // Check for null or undefined
+            if (value === null || value === undefined) {
                 return true;
-            } else {
-                return false;
             }
+
+            // Check for empty string
+            if (typeof value === 'string' && value.trim() === '') {
+                return true;
+            }
+
+            // Check for empty array
+            if (Array.isArray(value) && value.length === 0) {
+                return true;
+            }
+
+            // Check for empty object
+            if (typeof value === 'object' && !Array.isArray(value) && Object.keys(value).length === 0) {
+                return true;
+            }
+
+            // Check for NaN
+            if (typeof value === 'number' && isNaN(value)) {
+                return true;
+            }
+
+            // If none of the above, it's not null, empty, or undefined
+            return false;
         },
         generateRandomString(length) {
             const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -268,7 +291,8 @@ export default {
                 PostId : id,
             })
             .then(response => {
-                
+                this.updateReaction(id, response.data)
+                this.reactHasMe(id)
             })
             .catch(error => {
                 console.log(error.response)
@@ -277,6 +301,47 @@ export default {
                     text : 'Error sending react!'
                 })
             })
+        },
+        updateReaction(id, count) {
+            // add or deduct reaction
+            let post = this.results.find(obj => obj.id === id)
+            let reactions = []
+
+            if (!this.isNull(post)) {
+                reactions = post.Reactions
+
+                let me = reactions.find(obj => obj.UserId === this.userId)
+
+                if (this.isNull(me)) {
+                    reactions.push({
+                        UserId : this.userId
+                    })
+                } else {
+                    reactions = reactions.filter(obj => obj.UserId !== this.userId)
+                }
+            }
+
+            // update results
+            this.results = this.results.map(obj => obj.id === id ? { ...obj, ReactionCount : count, Reactions : reactions } : obj )
+        },
+        reactHasMe(id) {
+            let post = this.results.find(obj => obj.id === id)
+
+            if (!this.isNull(post)) {
+                let reactions = post.Reactions
+
+                let me = reactions.find(obj => obj.UserId === this.userId)
+
+                if (this.isNull(me)) {
+                    // i didnt react
+                    return 'far fa-heart'
+                } else {
+                    // i reacted
+                    return 'fas fa-heart text-danger'
+                }
+            } else {
+                return 'far fa-heart'
+            }
         }
     },
     created() {
