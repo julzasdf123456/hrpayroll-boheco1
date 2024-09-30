@@ -171,14 +171,18 @@ class PostController extends AppBaseController
         $reaction = PostReactions::where('UserId', $userId)->where('PostId', $postId)->first();
         $post = Post::find($postId);
 
+        $reactionCount = 0;
+
         if ($reaction != null) {
             $reaction->delete();
 
             // update post react count
             $cnt = $post->ReactionCount != null ? intval($post->ReactionCount) : 0;
             if ($cnt > 0) {
-                $post->ReactionCount = $cnt - 1;
+                $reactionCount = $cnt - 1;
+                $post->ReactionCount = $reactionCount;
             } else {
+                $reactionCount = 0;
                 $post->ReactionCount = 0;
             }
             $post->save();
@@ -192,10 +196,11 @@ class PostController extends AppBaseController
 
             // updadte post react count
             $cnt = $post->ReactionCount != null ? intval($post->ReactionCount) : 0;
-            $post->ReactionCount = $cnt + 1;
+            $reactionCount = $cnt + 1;
+            $post->ReactionCount = $reactionCount;
             $post->save();
         }
 
-        return response()->json($reaction, 200);
+        return response()->json($reactionCount, 200);
     }
 }
