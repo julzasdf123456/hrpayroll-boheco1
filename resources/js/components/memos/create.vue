@@ -109,7 +109,6 @@
                 </div>
             </div>
         </div>
-            
     </div>
 </template>
 
@@ -133,6 +132,7 @@ export default {
             baseURL : axios.defaults.baseURL,
             filePath : axios.defaults.filePath,
             colorProfile : document.querySelector("meta[name='color-profile']").getAttribute('content'),
+            token : document.querySelector("meta[name='csrf-token']").getAttribute('content'),
             tableInputTextColor : this.isNull(document.querySelector("meta[name='color-profile']").getAttribute('content')) ? 'text-dark' : 'text-white',
             toast : Swal.mixin({
                 toast: true,
@@ -151,7 +151,7 @@ export default {
             memoNumber : null,
             memoType : 'Information',
             departments : [],
-            sendSms : '',
+            sendSms : false,
             employees : [],
             employeeSelect : '',
             selectedEmployees : [],
@@ -219,7 +219,33 @@ export default {
                     text : 'Please make sure Memo Number, Memo Title, and Content are filled!'
                 })
             } else {
-                
+                axios.post(`${ this.baseURL }/memorandums`, {
+                    _token : this.token,
+                    id : this.generateUniqueId(),
+                    MemoNumber : this.memoNumber,
+                    MemoTitle : this.title,
+                    MemoContent : this.editor.getHTML(),
+                    Status : 'PENDING',
+                    MemoType : this.memoType,
+                    MemoRawText : this.editor.getText(),
+                    SendSMS : this.sendSms,
+                    Departments: this.departments,
+                    SelectedEmployees : this.selectedEmployees,
+                })
+                .then(response => {
+                    this.toast.fire({
+                        icon : 'success',
+                        text : 'Memo with memo number ' + this.memoNumber + ' disseminated.'
+                    })
+                    window.location.href = this.baseURL + '/memorandums'
+                })
+                .catch(error => {
+                    Swal.fire({
+                        icon : 'error',
+                        title : 'Error saving memo!',
+                    });
+                    console.log(error.response)
+                })
             }
         }
     },

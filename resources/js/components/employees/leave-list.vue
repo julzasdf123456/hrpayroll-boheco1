@@ -13,7 +13,7 @@
                 <tr v-for="leave in results.data" :key="leave.id" style="cursor: pointer;">
                     <td @click="leaveView(leave.id)" class="v-align" :title="leave.LeaveType"><i class="fas" :class="getIconType(leave.LeaveType)"></i></td>
                     <td @click="leaveView(leave.id)" class="v-align">
-                        {{ moment(leave.created_at).format("MMM DD, YYY") }}
+                        {{ moment(leave.created_at).format("MMM DD, YYYY") }}
                         <br>
                         <span class="badge" :class="getStatusBadgeColor(leave.Status)">{{leave.Status }}</span>
                     </td>
