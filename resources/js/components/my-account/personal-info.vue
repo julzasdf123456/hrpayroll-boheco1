@@ -345,7 +345,7 @@ export default {
         },
         getEmployeeInfo() {
             this.employeeData = null
-            axios.get(`${ axios.defaults.baseURL }/employees/get-employee-full-ajax`, {
+            axios.get(`${ this.baseURL }/employees/get-employee-full-ajax`, {
                 params : {
                     EmployeeId : this.employeeId,
                 }
