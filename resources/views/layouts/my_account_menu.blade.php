@@ -2,6 +2,14 @@
     $empId = Auth::user()->employee_id;
 @endphp
 <li class="nav-item">
+    <a href="{{ route('posts.index') }}"
+       class="nav-link {{ Request::is('posts.index*') ? 'active' : '' }}">
+       <i class="fas fa-share-alt-square nav-icon"></i>
+        <p>News Feed</p>
+    </a>
+</li>
+
+<li class="nav-item">
     <a href="{{ route('users.my-account-index', [$empId]) }}"
        class="nav-link {{ Request::is('users.my-account-index*') ? 'active' : '' }}">
        <i class="fas fa-user-circle nav-icon"></i>

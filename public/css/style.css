@@ -1177,3 +1177,35 @@ ul.employee-tree ul.employee-tree {
     padding: 12px 14px;
     min-height: 250px;
 }
+
+/**
+ * POSTS
+ */
+.post-box {
+    display: flex; 
+    flex-direction: row; 
+    column-gap: 20px; 
+    align-items: center;
+    justify-content: start;
+    position: relative;
+}
+
+.post-input-holder {
+    border-radius: 16px; 
+    border: 1px solid #afb5b8;
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    padding: 10px;
+    width: 100%;
+}
+
+body.dark-mode .post-input-holder {
+    border-radius: 16px; 
+    border: 1px solid #5f6568;
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    padding: 10px;
+    width: 100%;
+}

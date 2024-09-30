@@ -37,6 +37,7 @@ use App\Http\Controllers\LeaveUsersForOthersController;
 use App\Http\Controllers\MemorandumsController;
 use App\Http\Controllers\TestController;
 use App\Http\Controllers\TaskHeadsController;
+use App\Http\Controllers\PostController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -492,3 +493,8 @@ Route::get('/task_heads/kanban', [TaskHeadsController::class, 'kanban'])->name('
 Route::resource('taskHeads', TaskHeadsController::class);
 
 Route::resource('taskChecklists', App\Http\Controllers\TaskChecklistsController::class);
+
+Route::get('/posts/get-posts', [PostController::class, 'getPosts'])->name('posts.get-posts');
+Route::post('/posts/react', [PostController::class, 'react'])->name('posts.react');
+Route::resource('posts', PostController::class);
+Route::resource('postReactions', App\Http\Controllers\PostReactionsController::class);

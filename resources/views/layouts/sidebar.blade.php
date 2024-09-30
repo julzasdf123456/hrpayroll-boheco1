@@ -34,7 +34,8 @@
                         'home.chat', 'home.chat-reeve', 'home.reeve',
                         'leaveApplications.my-approvals', 'tripTickets.my-approvals', 'offsetApplications.my-approvals', 'attendanceConfirmations.my-approvals', 'overtimes.my-approvals',
                         'travelOrders.create', 'travelOrders.my-approvals',
-                        'taskHeads.kanban'
+                        'taskHeads.kanban',
+                        'posts.index',
                         ]))
                     {{-- MY ACCOUNTS --}}
                     @include('layouts.my_account_menu')
