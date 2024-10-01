@@ -960,7 +960,7 @@ class EmployeesController extends AppBaseController
             
             // update empoyees
             Employees::where('id', $request['employeeId'])
-            ->update(['ProfilePicture' => $request['employeeId'] . ".jpg"]);
+                ->update(['ProfilePicture' => $request['employeeId'] . ".jpg"]);
 
             return response()->json(['success' => 'Image uploaded successfully!', 'image' => $imageName]);
         }
