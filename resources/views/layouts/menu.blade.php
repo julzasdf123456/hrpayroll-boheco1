@@ -242,7 +242,7 @@
     </ul>
 </li>
 
-@canany('god permission')
+@canany('god permission', 'create payroll')
 {{-- PAYROLL --}}
 <li class="nav-item">
     <a href="#" class="nav-link">
@@ -287,7 +287,7 @@
 </li>
 @endcanany
 
-@canany('god permission')
+@canany('god permission', 'create payroll')
 {{-- INCENTIVES SIDE --}}
 <li class="nav-item">
     <a href="#" class="nav-link">
@@ -346,7 +346,7 @@
 @endcanany
 
 {{-- DEDUCTIONS AND LOANS --}}
-@canany('god permission')
+@canany('god permission', 'create payroll')
 <li class="nav-item">
     <a href="#" class="nav-link">
         <i class="nav-icon fas fa-minus-circle"></i>
