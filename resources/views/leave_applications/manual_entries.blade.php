@@ -183,6 +183,7 @@
     <script>
         var leaveDates = []
         var leaveBalances = []
+        var leaveBalanceCounter = -1
         function deleteSignatory(id) {
             if (confirm('Are you sure you want to delete this signatory?')) {
                 $.ajax({
@@ -289,16 +290,28 @@
             $(`#${id}`).remove() 
             leaveDates = leaveDates.filter(obj => obj.LeaveDate !== id)       
             populateLeaveTable()  
+            validateBalanceAlert()
         }
 
         function addDates(start, end) {
             enumerateDaysBetweenDates(start, end)
             //filter duplicate dates
             leaveDates = leaveDates.filter((obj, index, self) =>
-                    index === self.findIndex((t) => t.LeaveDate === obj.LeaveDate)
-                )
+                index === self.findIndex((t) => t.LeaveDate === obj.LeaveDate)
+            )
 
             populateLeaveTable(leaveDates)
+            validateBalanceAlert()
+        }
+
+        function validateBalanceAlert() {
+            if (leaveBalanceCounter < leaveDates.length) {
+                Swal.fire({
+                    icon : 'warning',
+                    title : 'Insufficient Leave Balance',
+                    text : 'This employee has exceeded his/her leave balances!'
+                })
+            }
         }
 
         function enumerateDaysBetweenDates(startDate, endDate) {
@@ -429,6 +442,41 @@
                     $('#Reason').val(null)  
                     $('#Reason').removeAttr('readonly')
                 }
+
+                // filter leave balance
+                if (!isNull(leaveBalances)) {
+                    if (value === 'Vacation') {
+                        leaveBalanceCounter = isNull(leaveBalances.Vacation) ? 0 : parseFloat(leaveBalances.Vacation)
+
+                        if (leaveBalanceCounter) {
+                            leaveBalanceCounter = Math.round(((leaveBalanceCounter / 8 / 60) + Number.EPSILON) * 100) / 100
+                        } else {
+                            leaveBalanceCounter = -1
+                        }
+                    } else if (value === 'Sick') { 
+                        leaveBalanceCounter = isNull(leaveBalances.Sick) ? 0 : parseFloat(leaveBalances.Sick)
+
+                        if (leaveBalanceCounter) {
+                            leaveBalanceCounter = Math.round(((leaveBalanceCounter / 8 / 60) + Number.EPSILON) * 100) / 100
+                        } else {
+                            leaveBalanceCounter = -1
+                        }
+                    } else if (value === 'Special') {
+                        leaveBalanceCounter = isNull(leaveBalances.Special) ? 0 : parseFloat(leaveBalances.Special)
+                    } else if (value === 'Paternity') {
+                        leaveBalanceCounter = isNull(leaveBalances.Paternity ) ? 0 : parseFloat(leaveBalances.Paternity )
+                    } else if (value === 'Maternity') {
+                        leaveBalanceCounter = isNull(leaveBalances.Maternity) ? 0 : parseFloat(leaveBalances.Maternity)
+                    } else if (value === 'MaternityForSoloMother') {
+                        leaveBalanceCounter = isNull(leaveBalances.MaternityForSoloMother) ? 0 : parseFloat(leaveBalances.MaternityForSoloMother)
+                    } else {
+                        leaveBalanceCounter = isNull(leaveBalances.SoloParent) ? 0 : parseFloat(leaveBalances.SoloParent)
+                    }
+                } else {
+                    leaveBalanceCounter = -1
+                }
+
+                console.log(leaveBalanceCounter)
             })
 
             $('#SpecialReason').on('change', function() {
