@@ -132,9 +132,11 @@ class OffsetApplicationsController extends AppBaseController
 
         $this->offsetApplicationsRepository->delete($id);
 
-        Flash::success('Offset Applications deleted successfully.');
+        return response()->json($offsetApplications, 200);
 
-        return redirect(route('offsetApplications.index'));
+        // Flash::success('Offset Applications deleted successfully.');
+
+        // return redirect(route('offsetApplications.index'));
     }
 
     public function saveOffsetApplications(Request $request) {

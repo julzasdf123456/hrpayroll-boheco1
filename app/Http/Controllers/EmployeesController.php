@@ -30,6 +30,7 @@ use App\Models\Overtimes;
 use App\Models\EmployeePayrollSundries;
 use App\Models\EmployeeDayOffs;
 use App\Models\LeaveExcessAbsences;
+use App\Models\AttendaneConfirmations;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -172,7 +173,7 @@ class EmployeesController extends AppBaseController
 
         $overtimes = Overtimes::where('EmployeeId', $id)->orderByDesc('created_at')->get();
 
-        // $leaveApplications = LeaveApplications::where('EmployeeId', $id)->get();
+        $offsets = OffsetApplications::where('EmployeeId', $id)->orderByDesc('created_at')->get();
         
         $payrollSundries = EmployeePayrollSundries::where('EmployeeId', $id)->first();
 
@@ -188,13 +189,14 @@ class EmployeesController extends AppBaseController
 
         $userData = User::where('employee_id', $id)->permission('create leave for others')->first();
 
+        $attendanceConfirmations = AttendaneConfirmations::where("EmployeeId", $id)->orderByDesc('created_at')->get();
+
         return view('employees.show', [
             'employees' => $employees, 
             'employeeDesignations' => $employeeDesignations,
             'rankings' => $rankings,
             'educationalAttainment' => $educationalAttainment,
             'ids' => $ids,
-            // 'leaveApplications' => $leaveApplications,
             'payslips' => $payslips,
             'workSchedules' => $workSchedules,
             'leaveBalance' => $leaveBalance,
@@ -205,6 +207,8 @@ class EmployeesController extends AppBaseController
             'travelOrders' => $travelOrders,
             'leaveBalanceExcess' => $leaveBalanceExcess,
             'userData' => $userData,
+            'offsets' => $offsets,
+            'attendanceConfirmations' => $attendanceConfirmations, 
         ]);
     }
 

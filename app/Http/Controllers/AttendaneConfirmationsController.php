@@ -219,9 +219,62 @@ class AttendaneConfirmationsController extends AppBaseController
 
         $this->attendaneConfirmationsRepository->delete($id);
 
-        Flash::success('Attendane Confirmations deleted successfully.');
+        $employee = Employees::find($attendaneConfirmations->EmployeeId);
+        $user = Users::where('employee_id', $employee->id)->first();
 
-        return redirect(route('attendaneConfirmations.index'));
+        // DELETE START MORNING IN
+        if ($attendaneConfirmations->AMIn != null) {
+            AttendanceData::where('BiometricUserId', $employee->BiometricsUserId)
+                ->where('EmployeeId', $employee->id)
+                ->where('Timestamp', $attendaneConfirmations->AMIn)
+                ->delete();
+        }            
+
+        // DELETE START MORNING OUT
+        if ($attendaneConfirmations->AMOut != null) {
+            AttendanceData::where('BiometricUserId', $employee->BiometricsUserId)
+                ->where('EmployeeId', $employee->id)
+                ->where('Timestamp', $attendaneConfirmations->AMOut)
+                ->delete();
+        }            
+
+        // DELETE START AFTERNOON IN
+        if ($attendaneConfirmations->PMIn != null) {
+            AttendanceData::where('BiometricUserId', $employee->BiometricsUserId)
+                ->where('EmployeeId', $employee->id)
+                ->where('Timestamp', $attendaneConfirmations->PMIn)
+                ->delete();
+        }
+        
+        // DELETE START AFTERNOON OUT
+        if ($attendaneConfirmations->PMOut != null) {
+            AttendanceData::where('BiometricUserId', $employee->BiometricsUserId)
+                ->where('EmployeeId', $employee->id)
+                ->where('Timestamp', $attendaneConfirmations->PMOut)
+                ->delete();
+        }
+
+        // DELETE START OT IN
+        if ($attendaneConfirmations->OTIn != null) {
+            AttendanceData::where('BiometricUserId', $employee->BiometricsUserId)
+                ->where('EmployeeId', $employee->id)
+                ->where('Timestamp', $attendaneConfirmations->OTIn)
+                ->delete();
+        }
+        
+        // DELETE START OT OUT
+        if ($attendaneConfirmations->OTOut != null) {
+            AttendanceData::where('BiometricUserId', $employee->BiometricsUserId)
+                ->where('EmployeeId', $employee->id)
+                ->where('Timestamp', $attendaneConfirmations->OTOut)
+                ->delete();
+        }
+
+        return response()->json($attendaneConfirmations, 200);
+
+        // Flash::success('Attendane Confirmations deleted successfully.');
+
+        // return redirect(route('attendaneConfirmations.index'));
     }
 
     public function myApprovals(Request $request) {
