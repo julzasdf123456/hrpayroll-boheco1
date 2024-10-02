@@ -181,6 +181,12 @@
                                         <a class="nav-link" id="leave-tab" data-toggle="pill" href="#leave-content" role="tab" aria-controls="leave-content" aria-selected="false">Leave</a>
                                     </li>
                                     <li class="nav-item">
+                                        <a class="nav-link" id="offset-tab" data-toggle="pill" href="#offset-content" role="tab" aria-controls="offset-content" aria-selected="false">Offsets</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" id="attendance-confirmations-tab" data-toggle="pill" href="#attendance-confirmations-content" role="tab" aria-controls="attendance-confirmations-content" aria-selected="false">Att. Confirmations</a>
+                                    </li>
+                                    <li class="nav-item">
                                         <a class="nav-link" id="trip-tickets-tab" data-toggle="pill" href="#trip-ticket-content" role="tab" aria-controls="trip-ticket-content" aria-selected="false">Trip Tickets</a>
                                     </li>
                                     <li class="nav-item">
@@ -195,12 +201,12 @@
                                     <li class="nav-item">
                                         <a class="nav-link" id="files-tab" data-toggle="pill" href="#files-content" role="tab" aria-controls="files-content" aria-selected="false">Files & Docs</a>
                                     </li>
-                                    <li class="nav-item">
+                                    {{-- <li class="nav-item">
                                         <a class="nav-link" id="private-info-tab" data-toggle="pill" href="#private-info-content" role="tab" aria-controls="private-info-content" aria-selected="false">Private Information</a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="nav-link" id="payslip-tab" data-toggle="pill" href="#payslip-content" role="tab" aria-controls="payslip-content" aria-selected="false">Payslips</a>
-                                    </li>
+                                    </li> --}}
                                 </ul>
                                 {{-- TAB BODY --}}
                                 <div class="tab-content" id="custom-tabs-three-tabContent">
@@ -209,6 +215,12 @@
                                     </div>
                                     <div class="tab-pane fade" id="leave-content" role="tabpanel" aria-labelledby="leave-tab">
                                         @include('employees.leave')
+                                    </div>
+                                    <div class="tab-pane fade" id="offset-content" role="tabpanel" aria-labelledby="offset-tab">
+                                        @include('employees.tab_offsets')
+                                    </div>
+                                    <div class="tab-pane fade" id="attendance-confirmations-content" role="tabpanel" aria-labelledby="attendance-confirmations-tab">
+                                        @include('employees.tab_attendance_confirmations')
                                     </div>
                                     <div class="tab-pane fade" id="trip-ticket-content" role="tabpanel" aria-labelledby="trip-tickets-tab">
                                         @include('employees.tab_trip_tickets')
@@ -225,12 +237,12 @@
                                     <div class="tab-pane fade" id="files-content" role="tabpanel" aria-labelledby="files-tab">
                                         @include('employees.tab_files')
                                     </div>
-                                    <div class="tab-pane fade" id="private-info-content" role="tabpanel" aria-labelledby="private-info-tab">
+                                    {{-- <div class="tab-pane fade" id="private-info-content" role="tabpanel" aria-labelledby="private-info-tab">
                                         @include('employees.private_info_view')
                                     </div>
                                     <div class="tab-pane fade" id="payslip-content" role="tabpanel" aria-labelledby="payslip-tab">
                                         @include('employees.payslips')
-                                    </div>
+                                    </div> --}}
                                 </div>
                             </div>
                         </div>
