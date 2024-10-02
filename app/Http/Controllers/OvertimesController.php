@@ -185,7 +185,7 @@ class OvertimesController extends AppBaseController
             $overtime->PurposeOfOT = $item['Purpose'];
             $overtime->TotalHours = $item['TotalHours'];
             $overtime->MaxHourThreshold = $item['MaxHours'];
-            $overtime->Status = isset($item['Status']) && $item['Status']=='APPROVED' ? $item['Status'] : null;
+            $overtime->Status = isset($item['Status']) && $item['Status']=='APPROVED' ? 'FOR ACCOUNTING CHECKING' : null;
             $overtime->UserId = Auth::id();
             $overtime->save();
 

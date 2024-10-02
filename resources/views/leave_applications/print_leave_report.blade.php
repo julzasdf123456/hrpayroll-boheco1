@@ -188,6 +188,7 @@
     <table class="bordered">
         <thead>
             <th>Employee</th>
+            <th>Type</th>
             <th>Date Filed</th>
             <th>Leave Days</th>
             <th>Reason</th>
@@ -197,6 +198,7 @@
             @foreach ($data as $item)
                 <tr>
                     <td>{{ Employees::getMergeNameFormal($item) }}</td>
+                    <td>{{ $item->LeaveType }}</td>
                     <td>{{ date('M d, Y', strtotime($item->created_at)) }}</td>
                     <td>
                         @foreach ($item->Days as $day)
