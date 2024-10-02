@@ -11,24 +11,24 @@
     <ul class="nav nav-treeview">
         <li class="nav-item">
             <a href="{{ route('employees.index') }}"
-               class="nav-link {{ Request::is('employees.index*') ? 'active' : '' }}">
-               <i class="fas fa-list nav-icon"></i>
+                class="nav-link {{ Request::is('employees.index*') ? 'active' : '' }}">
+                <i class="fas fa-list nav-icon"></i>
                 <p>Browse</p>
             </a>
         </li>
 
         <li class="nav-item">
             <a href="{{ route('employees.create') }}"
-               class="nav-link {{ Request::is('employees.create*') ? 'active' : '' }}">
-               <i class="fas fa-user-plus nav-icon"></i>
+                class="nav-link {{ Request::is('employees.create*') ? 'active' : '' }}">
+                <i class="fas fa-user-plus nav-icon"></i>
                 <p>Add Employee</p>
             </a>
         </li>
         
         <li class="nav-item">
             <a href="{{ route('employeePayrollSchedules.index') }}"
-               class="nav-link {{ Request::is('employeePayrollSchedules.index*') ? 'active' : '' }}">
-               <i class="fas fa-cogs nav-icon"></i>
+                class="nav-link {{ Request::is('employeePayrollSchedules.index*') ? 'active' : '' }}">
+                <i class="fas fa-cogs nav-icon"></i>
                 <p>Employee Configurations</p>
             </a>
         </li>  
@@ -122,6 +122,61 @@
                 <i class="fas fa-plane-departure nav-icon"></i><p>Travel Order</p>
             </a>
         </li>
+    </ul>
+</li>
+
+{{-- HR Reports --}}
+<li class="nav-item">
+    <a href="#" class="nav-link">
+        <i class="nav-icon fas fa-file-alt"></i>
+        <p>
+            HR Reports
+            <i class="right fas fa-caret-left"></i>
+        </p>
+    </a>
+    <ul class="nav nav-treeview">
+        <li class="nav-item">
+            <a href="{{ route('leaveApplications.leave-report') }}"
+                class="nav-link {{ Request::is('leaveApplications.leave-report*') ? 'active' : '' }}">
+                <i class="far fa-circle nav-icon"></i><p>Leave</p>
+            </a>
+        </li>
+        {{-- <li class="nav-item">
+            <a href="{{ route('tripTickets.manual-entry') }}"
+               class="nav-link {{ Request::is('tripTickets.manual-entry*') ? 'active' : '' }}">
+                <i class="fas fa-car nav-icon"></i><p>Trip Tickets</p>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="{{ route('tripTicketGRS.create-grs') }}"
+               class="nav-link {{ Request::is('tripTicketGRS.create-grs*') ? 'active' : '' }}">
+                <i class="fas fa-gas-pump nav-icon"></i><p>GRS</p>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="{{ route('offsetApplications.manual-entry') }}"
+               class="nav-link {{ Request::is('offsetApplications.manual-entry*') ? 'active' : '' }}">
+                <i class="fas fa-random nav-icon"></i><p>Offsets</p>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="{{ route('overtimes.manual-entry') }}"
+               class="nav-link {{ Request::is('overtimes.manual-entry*') ? 'active' : '' }}">
+                <i class="fas fa-user-clock nav-icon"></i><p>Overtimes</p>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="{{ route('attendanceConfirmations.manual-entry') }}"
+               class="nav-link {{ Request::is('attendanceConfirmations.manual-entry*') ? 'active' : '' }}">
+                <i class="fas fa-fingerprint nav-icon"></i><p>Attendance Confirmation</p>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="{{ route('travelOrders.manual-entry') }}"
+               class="nav-link {{ Request::is('travelOrders.manual-entry*') ? 'active' : '' }}">
+                <i class="fas fa-plane-departure nav-icon"></i><p>Travel Order</p>
+            </a>
+        </li> --}}
     </ul>
 </li>
 

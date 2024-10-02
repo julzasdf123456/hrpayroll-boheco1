@@ -50,6 +50,7 @@ import LeaveList from "./components/employees/leave-list.vue"
 import DueForPayroll from "./components/overtimes/due-for-payroll.vue"
 import MemoIndex from "./components/memos/memo-index.vue"
 import FeedIndex from "./components/feed/feed-index.vue"
+import LeaveReport from "./components/reports/leave-report.vue"
 
 // Tests
 import AccountView from "./components/tests/account-view.vue"
@@ -96,6 +97,7 @@ app.component('leave-list', LeaveList);
 app.component('due-for-payroll', DueForPayroll);
 app.component('memo-index', MemoIndex);
 app.component('feed-index', FeedIndex);
+app.component('leave-report', LeaveReport);
 
 app.component('account-view', AccountView);
 app.component('it-exam', ITExam);

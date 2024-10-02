@@ -1822,4 +1822,97 @@ class LeaveApplicationsController extends AppBaseController
 
         return response()->json($data, 200);
     }
+
+    public function leaveReport(Request $request) {
+        return view('/leave_applications/leave_report', []);
+    }
+
+    public function getLeaveReport(Request $request) {
+        $from = $request['From'];
+        $to = $request['To'];
+        $type = $request['Type'];
+
+        if ($type === 'All') {
+            $data = DB::table('LeaveApplications')
+                ->leftJoin('Employees', 'LeaveApplications.EmployeeId', '=', 'Employees.id')
+                ->whereRaw("(LeaveApplications.created_at BETWEEN '" . $from . "' AND '" . $to . "')")
+                ->select(
+                    'LeaveApplications.*',
+                    'Employees.FirstName',
+                    'Employees.LastName',
+                    'Employees.MiddleName',
+                    'Employees.Suffix',
+                )
+                ->orderByDesc('LeaveApplications.created_at')
+                ->get();
+        } else {
+            $data = DB::table('LeaveApplications')
+                ->leftJoin('Employees', 'LeaveApplications.EmployeeId', '=', 'Employees.id')
+                ->where('LeaveType', $type)
+                ->whereRaw("(LeaveApplications.created_at BETWEEN '" . $from . "' AND '" . $to . "')")
+                ->select(
+                    'LeaveApplications.*',
+                    'Employees.FirstName',
+                    'Employees.LastName',
+                    'Employees.MiddleName',
+                    'Employees.Suffix',
+                )
+                ->orderByDesc('LeaveApplications.created_at')
+                ->get();
+        }
+
+        foreach($data as $item) {
+            $item->Days = DB::table('LeaveDays')
+                ->where('LeaveId', $item->id)
+                ->get();
+        }
+
+        $data = IDGenerator::paginate($data, 50);
+
+        return response()->json($data, 200);
+    }
+
+    public function printLeaveReport($from, $to, $type) {
+        if ($type === 'All') {
+            $data = DB::table('LeaveApplications')
+                ->leftJoin('Employees', 'LeaveApplications.EmployeeId', '=', 'Employees.id')
+                ->whereRaw("(LeaveApplications.created_at BETWEEN '" . $from . "' AND '" . $to . "')")
+                ->select(
+                    'LeaveApplications.*',
+                    'Employees.FirstName',
+                    'Employees.LastName',
+                    'Employees.MiddleName',
+                    'Employees.Suffix',
+                )
+                ->orderByDesc('LeaveApplications.created_at')
+                ->get();
+        } else {
+            $data = DB::table('LeaveApplications')
+                ->leftJoin('Employees', 'LeaveApplications.EmployeeId', '=', 'Employees.id')
+                ->where('LeaveType', $type)
+                ->whereRaw("(LeaveApplications.created_at BETWEEN '" . $from . "' AND '" . $to . "')")
+                ->select(
+                    'LeaveApplications.*',
+                    'Employees.FirstName',
+                    'Employees.LastName',
+                    'Employees.MiddleName',
+                    'Employees.Suffix',
+                )
+                ->orderByDesc('LeaveApplications.created_at')
+                ->get();
+        }
+
+        foreach($data as $item) {
+            $item->Days = DB::table('LeaveDays')
+                ->where('LeaveId', $item->id)
+                ->get();
+        }
+
+        return view('/leave_applications/print_leave_report', [
+            'from' => $from,
+            'to' => $to,
+            'type' => $type,
+            'data' => $data,
+        ]);
+    }
 }
