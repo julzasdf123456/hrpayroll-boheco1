@@ -25,6 +25,7 @@
                 <div class="col-lg-2">
                     <span class="text-muted">Salary Period</span>
                     <select v-model="salaryPeriod" class="form-control form-control-sm">
+                        <option value="2024-09-30">September 15, 2024</option>
                         <option :value="fifteenth">{{ moment(fifteenth).format('MMMM DD, YYYY') }}</option>
                         <option :value="thirtieth">{{ moment(thirtieth).format('MMMM DD, YYYY') }}</option>
                     </select>
@@ -164,8 +165,8 @@ export default {
             employeeType : 'Regular',
             department : 'OGM',
             salaryPeriod : '',
-            from : '2024-05-01',
-            to : '2024-05-15',
+            from : moment().format("YYYY-MM-DD"),
+            to : moment().format("YYYY-MM-DD"),
             // TABLE COLUMNS
             dateHeaders : [],
             summaryHeaders : [],
