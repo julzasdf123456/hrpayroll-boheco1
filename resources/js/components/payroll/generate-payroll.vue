@@ -165,8 +165,8 @@ export default {
             employeeType : 'Regular',
             department : 'OGM',
             salaryPeriod : '',
-            from : '2024-05-01',
-            to : '2024-05-15',
+            from : moment().format("YYYY-MM-DD"),
+            to : moment().format("YYYY-MM-DD"),
             // TABLE COLUMNS
             dateHeaders : [],
             summaryHeaders : [],
