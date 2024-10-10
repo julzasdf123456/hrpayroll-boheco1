@@ -19,7 +19,7 @@
                             </td>
                         </tr>
                         <tr>
-                            <td class="text-right">Monthly Ammortization</td>
+                            <td class="text-right">Loanable Amount</td>
                             <td>
                                 <input id="Amount" class="form-control form-control-sm text-right" type="number" step="any" style="font-weight: bold;">
                             </td>
@@ -28,6 +28,12 @@
                             <td class="text-right">Terms in Months</td>
                             <td>
                                 <input id="Terms" class="form-control form-control-sm text-right" type="number" step="any" style="font-weight: bold;">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="text-right">Interest Rate</td>
+                            <td>
+                                <input id="Interest" class="form-control form-control-sm text-right" type="number" step="any" style="font-weight: bold;" value="0.1">
                             </td>
                         </tr>
                         <tr>
@@ -55,9 +61,10 @@
                 type : 'GET',
                 data : {
                     EmployeeId : $('#EmployeeId').val(),
-                    MonthlyAmmortization : $('#Amount').val(),
+                    LoanAmount : $('#Amount').val(),
                     Terms : $('#Terms').val(),
                     StartingDate : $('#StartingDate').val(),
+                    Interest : $('#Interest').val()
                 },
                 success : function(res) {
                     Toast.fire({

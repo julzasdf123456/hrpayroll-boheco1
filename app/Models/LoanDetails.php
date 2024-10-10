@@ -15,7 +15,8 @@ class LoanDetails extends Model
         'Principal',
         'MonthlyAmmortization',
         'Month',
-        'Paid'
+        'Paid',
+        'ForwardedBalance'
     ];
 
     protected $casts = [
@@ -25,7 +26,8 @@ class LoanDetails extends Model
         'Principal' => 'decimal:2',
         'MonthlyAmmortization' => 'decimal:2',
         'Month' => 'date',
-        'Paid' => 'string'
+        'Paid' => 'string',
+        'ForwardedBalance' => 'string',
     ];
 
     public static array $rules = [
@@ -36,7 +38,8 @@ class LoanDetails extends Model
         'Month' => 'nullable',
         'Paid' => 'nullable|string|max:50',
         'created_at' => 'nullable',
-        'updated_at' => 'nullable'
+        'updated_at' => 'nullable',
+        'ForwardedBalance' => 'nullable|string',
     ];
 
     

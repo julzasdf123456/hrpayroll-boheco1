@@ -32,20 +32,24 @@
                         <thead>
                             <th class="text-center">Employee</th>
                             <th class="text-center">Terms</th>
-                            <th class="text-center">Payrolld Deduction Term</th>
-                            <th class="text-center">Monthly Ammortization</th>
+                            <th class="text-center">Payroll Deduction Term</th>
+                            <th class="text-center">Amount Loaned</th>
+                            <th class="text-center">Interest</th>
+                            <th class="text-center">Monthly Amortization</th>
                             <th class="text-center">Date Created</th>
                             <th></th>
                         </thead>
                         <tbody>
                             @foreach ($data as $item)
                                 <tr>
-                                    <td onclick="showDetails(`{{ $item->id }}`)">{{ Employees::getMergeNameFormal($item) }}</td>
-                                    <td onclick="showDetails(`{{ $item->id }}`)">{{ round($item->Terms) . ' (' . $item->TermUnit . ')' }}</td>
-                                    <td onclick="showDetails(`{{ $item->id }}`)">{{ $item->PaymentTerm }}</td>
-                                    <td onclick="showDetails(`{{ $item->id }}`)" class="text-right">₱ {{ number_format($item->MonthlyAmmortization, 2) }}</td>
-                                    <td onclick="showDetails(`{{ $item->id }}`)">{{ date('M d, Y h:i A', strtotime($item->created_at)) }}</td>
-                                    <td>
+                                    <td style="cursor: pointer;" onclick="showDetails(`{{ $item->id }}`)">{{ Employees::getMergeNameFormal($item) }}</td>
+                                    <td style="cursor: pointer;" onclick="showDetails(`{{ $item->id }}`)">{{ round($item->Terms) . ' (' . $item->TermUnit . ')' }}</td>
+                                    <td style="cursor: pointer;" onclick="showDetails(`{{ $item->id }}`)">{{ $item->PaymentTerm }}</td>
+                                    <td style="cursor: pointer;" onclick="showDetails(`{{ $item->id }}`)" class="text-right">₱ {{ number_format($item->LoanAmount, 2) }}</td>
+                                    <td style="cursor: pointer;" onclick="showDetails(`{{ $item->id }}`)" class="text-right">{{ $item->InterestRate != null ? ($item->InterestRate * 100) : '0' }}%</td>
+                                    <td style="cursor: pointer;" onclick="showDetails(`{{ $item->id }}`)" class="text-right">₱ {{ number_format($item->MonthlyAmmortization, 2) }}</td>
+                                    <td style="cursor: pointer;" onclick="showDetails(`{{ $item->id }}`)">{{ date('M d, Y h:i A', strtotime($item->created_at)) }}</td>
+                                    <td style="cursor: pointer;">
                                         {!! Form::open(['route' => ['loans.destroy', $item->id], 'method' => 'delete']) !!}
                                         {!! Form::button('<i class="fas fa-trash-alt"></i>', ['type' => 'submit', 'class' => 'btn btn-danger btn-xs float-right', 'onclick' => "return confirm('Are you sure?')"]) !!}
                                         {!! Form::close() !!}
@@ -62,7 +66,7 @@
 
 @include('loans.modal_create_motorcycle')
 
-@include('loans.modal_loan_details')
+@include('loans.modal_loan_details_motorcycle')
 
 @push('page_scripts')
     <script>
@@ -83,7 +87,7 @@
                 success : function(res) {
                     if (!isNull(res)) {
                         $.each(res, function(index, element) {
-                            $('#loan-details-table tbody').append(addDetailsRow(res[index]['Month'], res[index]['MonthlyAmmortization'], res[index]['Paid']))
+                            $('#loan-details-table tbody').append(addDetailsRow(res[index]['Month'], res[index]['MonthlyAmmortization'], res[index]['Paid'], res[index]['Interest'], res[index]['Principal'], res[index]['ForwardedBalance'], index))
                         })
                     }
                 },
@@ -96,11 +100,15 @@
             })
         }
 
-        function addDetailsRow(month, amount, status) {
+        function addDetailsRow(month, amount, status, interest, principal, balance, i) {
             var statusClass = !isNull(status) ? 'fas fa-check-circle text-success' : 'fas fa-exclamation-circle text-warning'
             return `<tr>
+                        <td>${ i+1 }</td>
                         <td>` + moment(month).format('MMMM DD, YYYY') + `</td>
                         <td class='text-right'>` + toMoney(amount) + `</td>
+                        <td class='text-right'>` + toMoney(principal) + `</td>
+                        <td class='text-right'>` + toMoney(interest) + `</td>
+                        <td class='text-right'>` + toMoney(balance) + `</td>
                         <td><i class='` + statusClass + ` ico-tab-mini'></i>` + (isNull(status) ? 'Unpaid' : status) + `</td>
                     </tr>`
         }
