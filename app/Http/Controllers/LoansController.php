@@ -331,9 +331,10 @@ class LoansController extends AppBaseController
 
     public function saveMotorcycleLoans(Request $request) {
         $employeeId = $request['EmployeeId'];
-        $monthlyAmmortization = $request['MonthlyAmmortization'];
+        $loanAmount = $request['LoanAmount'];
         $terms = $request['Terms'];
         $startingDate = $request['StartingDate'];
+        $interestRate = $request['Interest'];
 
         $loanId = IDGenerator::generateID();
         $loan = new Loans;
@@ -341,21 +342,41 @@ class LoansController extends AppBaseController
         $loan->LoanFor = 'Motorcycle';
         $loan->LoanName = 'Motorcycle';
         $loan->Terms = $terms;
+        $loan->InterestRate = $interestRate;
         $loan->TermUnit = 'Monthly';
         $loan->EmployeeId = $employeeId;
         $loan->PaymentTerm = '15/30';
-        $loan->MonthlyAmmortization = $monthlyAmmortization;
-        $loan->save();
+        $loan->LoanAmount = $loanAmount;
 
+        // compute monthly ammortization
+        $moPercentage = floatval($interestRate)/12;
+        $base = 1-1/($moPercentage+1);
+        $interestCoefficient = $moPercentage / (1-1/($moPercentage+1) ** floatval($terms));
+        $monthlyAmmortization = round($interestCoefficient * floatval($loanAmount), 2);
+
+        $loan->MonthlyAmmortization = $monthlyAmmortization;
+
+        $balance = floatval($loanAmount);
         for($i=0; $i<$terms; $i++) {
+            // compute interest and principal
+            $interest = $moPercentage * $balance;
+            $principal = $monthlyAmmortization - $interest;
+
             if ($loan->PaymentTerm=='15') {
+                $balance = $balance - $principal;
+
                 $loanDetails = new LoanDetails;
                 $loanDetails->id = IDGenerator::generateIDandRandString() . $i;
                 $loanDetails->LoanId = $loanId;
                 $loanDetails->MonthlyAmmortization = $monthlyAmmortization;
+                $loanDetails->Principal = $principal;
+                $loanDetails->Interest = $interest;
+                $loanDetails->ForwardedBalance = $balance;
                 $loanDetails->Month = date('Y-m-15', strtotime($startingDate . ' +' . $i . ' months'));
                 $loanDetails->save();
             } elseif ($loan->PaymentTerm=='30') {
+                $balance = $balance - $principal;
+
                 $baseDate = date('Y-m-d', strtotime($startingDate . ' +' . $i . ' months'));
                 $month = date('Y-m-d', strtotime('last day of ' . $baseDate));
 
@@ -363,27 +384,53 @@ class LoansController extends AppBaseController
                 $loanDetails->id = IDGenerator::generateIDandRandString() . $i;
                 $loanDetails->LoanId = $loanId;
                 $loanDetails->MonthlyAmmortization = $monthlyAmmortization;
+                $loanDetails->Principal = $principal;
+                $loanDetails->Interest = $interest;
+                $loanDetails->ForwardedBalance = $balance;
                 $loanDetails->Month = date('Y-m-d', strtotime($month));
                 $loanDetails->save();
             } else {
+                $interest = $interest/2;
+                $principal = $principal/2;
+
+                $balance = $balance - ($principal);
+
                 $loanDetails = new LoanDetails;
                 $loanDetails->id = IDGenerator::generateIDandRandString() . $i;
                 $loanDetails->LoanId = $loanId;
-                $loanDetails->MonthlyAmmortization = round(floatval($monthlyAmmortization)/2, 2);
+                $loanDetails->MonthlyAmmortization = floatval($monthlyAmmortization)/2;
+                $loanDetails->Principal = $principal;
+                $loanDetails->Interest = $interest;
+                $loanDetails->ForwardedBalance = $balance;
                 $loanDetails->Month = date('Y-m-15', strtotime($startingDate . ' +' . $i . ' months'));
                 $loanDetails->save();
 
                 $baseDate = date('Y-m-d', strtotime($startingDate . ' +' . $i . ' months'));
                 $month = date('Y-m-d', strtotime('last day of ' . $baseDate));
 
+                $balance = $balance - ($principal);
+
+                if ($balance < 0) {
+                    $monthlyAmmortization = $monthlyAmmortization + $balance;
+
+                    // $interest = $interest + ($balance / 2);
+                    $principal = $principal + ($balance / 2);
+                }
+
                 $loanDetails = new LoanDetails;
                 $loanDetails->id = IDGenerator::generateIDandRandString() . $i;
                 $loanDetails->LoanId = $loanId;
-                $loanDetails->MonthlyAmmortization = round(floatval($monthlyAmmortization)/2, 2);
+                $loanDetails->MonthlyAmmortization = floatval($monthlyAmmortization)/2;
+                $loanDetails->Principal = $principal;
+                $loanDetails->Interest = $interest;
+                $loanDetails->ForwardedBalance = $balance < 0 ? 0 : $balance;
                 $loanDetails->Month = date('Y-m-d', strtotime($month));
                 $loanDetails->save();
             }
         }
+
+        
+        $loan->save();
 
         return response()->json($loan, 200);
     }

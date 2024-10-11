@@ -32,20 +32,20 @@
                         <thead>
                             <th class="text-center">Employee</th>
                             <th class="text-center">Terms</th>
-                            <th class="text-center">Payrolld Deduction Term</th>
-                            <th class="text-center">Monthly Ammortization</th>
+                            <th class="text-center">Payroll Deduction Term</th>
+                            <th class="text-center">Monthly Amortization</th>
                             <th class="text-center">Date Created</th>
                             <th></th>
                         </thead>
                         <tbody>
                             @foreach ($data as $item)
                                 <tr>
-                                    <td onclick="showDetails(`{{ $item->id }}`)">{{ Employees::getMergeNameFormal($item) }}</td>
-                                    <td onclick="showDetails(`{{ $item->id }}`)">{{ round($item->Terms) . ' (' . $item->TermUnit . ')' }}</td>
-                                    <td onclick="showDetails(`{{ $item->id }}`)">{{ $item->PaymentTerm }}</td>
-                                    <td onclick="showDetails(`{{ $item->id }}`)" class="text-right">₱ {{ number_format($item->MonthlyAmmortization, 2) }}</td>
-                                    <td onclick="showDetails(`{{ $item->id }}`)">{{ date('M d, Y h:i A', strtotime($item->created_at)) }}</td>
-                                    <td>
+                                    <td style="cursor: pointer;" onclick="showDetails(`{{ $item->id }}`)">{{ Employees::getMergeNameFormal($item) }}</td>
+                                    <td style="cursor: pointer;" onclick="showDetails(`{{ $item->id }}`)">{{ round($item->Terms) . ' (' . $item->TermUnit . ')' }}</td>
+                                    <td style="cursor: pointer;" onclick="showDetails(`{{ $item->id }}`)">{{ $item->PaymentTerm }}</td>
+                                    <td style="cursor: pointer;" onclick="showDetails(`{{ $item->id }}`)" class="text-right">₱ {{ number_format($item->MonthlyAmmortization, 2) }}</td>
+                                    <td style="cursor: pointer;" onclick="showDetails(`{{ $item->id }}`)">{{ date('M d, Y h:i A', strtotime($item->created_at)) }}</td>
+                                    <td style="cursor: pointer;">
                                         {!! Form::open(['route' => ['loans.destroy', $item->id], 'method' => 'delete']) !!}
                                         {!! Form::button('<i class="fas fa-trash-alt"></i>', ['type' => 'submit', 'class' => 'btn btn-danger btn-xs float-right', 'onclick' => "return confirm('Are you sure?')"]) !!}
                                         {!! Form::close() !!}
