@@ -335,6 +335,8 @@ class LoansController extends AppBaseController
         $terms = $request['Terms'];
         $startingDate = $request['StartingDate'];
         $interestRate = $request['Interest'];
+        $balance = $request['Balance'];
+        $remainingTerms = $request['RemainingTerms'];
 
         $loanId = IDGenerator::generateID();
         $loan = new Loans;
@@ -356,8 +358,8 @@ class LoansController extends AppBaseController
 
         $loan->MonthlyAmmortization = $monthlyAmmortization;
 
-        $balance = floatval($loanAmount);
-        for($i=0; $i<$terms; $i++) {
+        $balance = floatval($balance);
+        for($i=0; $i<$remainingTerms; $i++) {
             // compute interest and principal
             $interest = $moPercentage * $balance;
             $principal = $monthlyAmmortization - $interest;
@@ -429,7 +431,6 @@ class LoansController extends AppBaseController
             }
         }
 
-        
         $loan->save();
 
         return response()->json($loan, 200);

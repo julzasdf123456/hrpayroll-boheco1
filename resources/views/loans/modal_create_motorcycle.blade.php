@@ -31,6 +31,18 @@
                             </td>
                         </tr>
                         <tr>
+                            <td class="text-right">Remaining Balance</td>
+                            <td>
+                                <input id="Balance" class="form-control form-control-sm text-right" type="number" step="any" style="font-weight: bold;">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="text-right">Remaining Terms in Months</td>
+                            <td>
+                                <input id="RemainingTerms" class="form-control form-control-sm text-right" type="number" step="any" style="font-weight: bold;">
+                            </td>
+                        </tr>
+                        <tr>
                             <td class="text-right">Interest Rate</td>
                             <td>
                                 <input id="Interest" class="form-control form-control-sm text-right" type="number" step="any" style="font-weight: bold;" value="0.1">
@@ -64,7 +76,9 @@
                     LoanAmount : $('#Amount').val(),
                     Terms : $('#Terms').val(),
                     StartingDate : $('#StartingDate').val(),
-                    Interest : $('#Interest').val()
+                    Interest : $('#Interest').val(),
+                    Balance : $('#Balance').val(),
+                    RemainingTerms : $('#RemainingTerms').val(),
                 },
                 success : function(res) {
                     Toast.fire({
