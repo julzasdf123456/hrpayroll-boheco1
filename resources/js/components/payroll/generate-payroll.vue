@@ -178,9 +178,9 @@ export default {
             isDisplayed : 'gone',
             isButtonDisabled : false,
             widthClass : '',
-            legendView : true,
-            legendIcon : 'fa-eye',
-            isLegendDisplayed : '',
+            legendView : false,
+            legendIcon : 'fa-eye-slash',
+            isLegendDisplayed : 'gone',
             totalDateColumns : 0,
             areDateColumnsDisplayed : true,
             isGenerateButtonDisabled : true,
@@ -1662,10 +1662,15 @@ export default {
                         summaryChunks.push(taxableIncentives > 0 ? `₱` + this.toMoney(taxableIncentives) : '-');
 
                         // TAX WITHHELD  
+                        /*
+                         * ===========================================
+                         * RE-ENABLE NEXT YEAR
                         var baseSalaryTaxable = this.getSalaryWithOTAndAbsences(response.data['Employees'][i]['SalaryAmount'], lateAmount, otAmount)
                         var totalTaxableAmount = baseSalaryTaxable + taxableIncentives - (pagIbigContribution + sssContribution + philHealth)
                         var taxWheld = this.getTaxByBracket(totalTaxableAmount)
                         taxWheld = taxWheld > 0 ? (taxWheld/12/2) : 0
+                        */
+                        var taxWheld = this.getSalaryWT(response.data['Employees'][i]['SalaryAmount'], lateAmount, otAmount)
                         summaryChunks.push(taxWheld > 0 ? `₱` + this.toMoney(taxWheld) : '-');
 
                         // TOTAL DEDUCTIONS 
