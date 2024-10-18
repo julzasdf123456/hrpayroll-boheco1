@@ -83,6 +83,7 @@ Route::get('/my_account/get-employees-by-department', [UsersController::class, '
 Route::get('/my_account/staff-day-off-schedules/{employeeId}', [UsersController::class, 'staffDayOffSchedules'])->name('users.staff-day-off-schedules');
 Route::get('/my_account/attendance-index', [UsersController::class, 'attendanceIndex'])->name('users.attendance-index');
 Route::get('/my_account/staff-super-view/{id}', [UsersController::class, 'staffSuperView'])->name('users.staff-super-view');
+Route::post('/users/update-password-admin', [UsersController::class, 'updatePasswordAdmin'])->name('users.update-password-admin');
 Route::resource('users', UsersController::class);
 
 Route::get('/register/get-employee-ajax', [App\Http\Controllers\Auth\RegisterController::class, 'getEmployeeAjax'])->name('register.get-employee-ajax');

@@ -23,6 +23,7 @@ class EmployeePayrollSundries extends Model
         'PagIbigContributionEmployer',
         'SSSContributionEmployer',
         'PhilHealthContributionEmployer',
+        'PagIbigMP2'
     ];
 
     protected $casts = [
@@ -40,6 +41,7 @@ class EmployeePayrollSundries extends Model
         'PagIbigContributionEmployer' => 'string',
         'SSSContributionEmployer' => 'string',
         'PhilHealthContributionEmployer' => 'string',
+        'PagIbigMP2' => 'string',
     ];
 
     public static array $rules = [
@@ -58,6 +60,7 @@ class EmployeePayrollSundries extends Model
         'PagIbigContributionEmployer' => 'nullable|string',
         'SSSContributionEmployer' => 'nullable|string',
         'PhilHealthContributionEmployer' => 'nullable|string',
+        'PagIbigMP2' => 'nullable|string',
     ];
 
     
