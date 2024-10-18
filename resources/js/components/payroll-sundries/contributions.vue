@@ -12,7 +12,7 @@
                 </div>
                 <div class="col-lg-1">
                     <span class="text-muted">Department</span>
-                    <select v-model="department" class="form-control form-control-sm">
+                    <select @change="getEmployees" v-model="department" class="form-control form-control-sm">
                         <option value="ESD">ESD</option>
                         <option value="ISD">ISD</option>
                         <option value="OGM">OGM</option>
@@ -40,23 +40,33 @@
                 <tr>
                     <th class='text-center' rowspan="2">Employees</th>
                     <th class='text-center' colspan="2">Pag-Ibig Contribution</th>
+                    <th class="text-center" rowspan="2">
+                        Pag-Ibig MP2
+                        <br>
+                        <input title="Enter a fixed amount to all employees" 
+                            type="number" step="any" 
+                            class="form-control form-control-sm" 
+                            style="width: 120px; float: right; height: 28px;" 
+                            placeholder="Fill Amount"
+                            v-model="mp2"
+                            @keyup.enter="fillAmount('PagIbigMP2', mp2)"
+                            :disabled="fillInputsDisabled">
+                    </th>
                     <th class='text-center' colspan="2">SSS Contribution</th>
                     <th class='text-center' colspan="2">PhilHealth Contribution</th>
                     <th class="text-center">Rice & Laundry</th>
                 </tr>
                 <tr>
                     <th>
-                        <i class="fas fa-shield-alt"></i>
-                        Employer
+                        <i class="fas fa-shield-alt"></i>Employer
                         <input title="Enter a fixed amount to all employees" 
-                        type="number" step="any" 
-                        class="form-control form-control-sm" 
-                        style="width: 120px; display: inline-block; float: right; height: 28px;" 
-                        placeholder="Fill Amount"
-                        v-model="pagIbigEmployer"
-                        @keyup.enter="fillAmount('PagIbigEmployer', pagIbigEmployer)"
-                        :disabled="fillInputsDisabled"
-                        >
+                            type="number" step="any" 
+                            class="form-control form-control-sm" 
+                            style="width: 120px; float: right; height: 28px;" 
+                            placeholder="Fill Amount"
+                            v-model="pagIbigEmployer"
+                            @keyup.enter="fillAmount('PagIbigEmployer', pagIbigEmployer)"
+                            :disabled="fillInputsDisabled">
                     </th>
                     <th>
                         <i class="fas fa-user-circle"></i>
@@ -64,7 +74,7 @@
                         <input title="Enter a fixed amount to all employees" 
                         type="number" step="any" 
                         class="form-control form-control-sm" 
-                        style="width: 120px; display: inline-block; float: right; height: 28px;" 
+                        style="width: 120px; float: right; height: 28px;" 
                         placeholder="Fill Amount"
                         v-model="pagIbigEmployee"
                         @keyup.enter="fillAmount('PagIbigEmployee', pagIbigEmployee)"
@@ -77,7 +87,7 @@
                         <!-- <input title="Enter a fixed amount to all employees" 
                         type="number" step="any" 
                         class="form-control form-control-sm" 
-                        style="width: 120px; display: inline-block; float: right; height: 28px;" 
+                        style="width: 120px; float: right; height: 28px;" 
                         placeholder="Fill Amount"
                         v-model="sssEmployer"
                         @keyup.enter="fillAmount('SSSEmployer', sssEmployer)"
@@ -91,7 +101,7 @@
                         <!-- <input title="Enter a fixed amount to all employees" 
                         type="number" step="any" 
                         class="form-control form-control-sm" 
-                        style="width: 120px; display: inline-block; float: right; height: 28px;" 
+                        style="width: 120px; float: right; height: 28px;" 
                         placeholder="Fill Amount"
                         v-model="sssEmployee"
                         @keyup.enter="fillAmount('SSSEmployee', sssEmployee)"
@@ -105,7 +115,7 @@
                         <!-- <input title="Enter a fixed amount to all employees" 
                         type="number" step="any" 
                         class="form-control form-control-sm" 
-                        style="width: 120px; display: inline-block; float: right; height: 28px;" 
+                        style="width: 120px; float: right; height: 28px;" 
                         placeholder="Fill Amount"
                         v-model="philHealthEmployer"
                         @keyup.enter="fillAmount('PhilHealthEmployer', philHealthEmployer)"
@@ -119,7 +129,7 @@
                         <!-- <input title="Enter a fixed amount to all employees" 
                         type="number" step="any" 
                         class="form-control form-control-sm" 
-                        style="width: 120px; display: inline-block; float: right; height: 28px;" 
+                        style="width: 120px; float: right; height: 28px;" 
                         placeholder="Fill Amount"
                         v-model="philHealthEmployee"
                         @keyup.enter="fillAmount('PhilHealthEmployee', philHealthEmployee)"
@@ -148,6 +158,9 @@
                     </td>
                     <td>
                         <input class="table-input text-right" :class="tableInputTextColor" v-model="employee.PagIbigEmployee" @keyup.enter="inputEnter(employee.PagIbigEmployee, employee.id, 'PagIbigEmployee')" @blur="inputEnter(employee.PagIbigEmployee, employee.id, 'PagIbigEmployee')" type="number" step="any"/>
+                    </td>
+                    <td>
+
                     </td>
                     <td>
                         <input class="table-input text-right" :class="tableInputTextColor" v-model="employee.SSSEmployer" @keyup.enter="inputEnter(employee.SSSEmployer, employee.id, 'SSSEmployer')" @blur="inputEnter(employee.SSSEmployer, employee.id, 'SSSEmployer')" type="number" step="any"/>
@@ -691,7 +704,7 @@ export default {
         
     },
     mounted() {
-       
+        this.getEmployees()
     }
 }
 
