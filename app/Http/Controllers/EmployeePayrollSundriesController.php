@@ -222,6 +222,8 @@ class EmployeePayrollSundriesController extends AppBaseController
             $sundry->PhilHealth = $amount;
         } elseif ($type == 'PhilHealthEmployee') {
             $sundry->PhilHealthContributionEmployer = $amount;
+        } elseif ($type == 'PagIbigMP2') {
+            $sundry->PagIbigMP2 = $amount;
         }
         
         UserFootprints::log('Updated Employee Contribution Data', "Updated " . $type . " contributions data for Employee ID " . $employeeId . ", amounting to " . $amount);

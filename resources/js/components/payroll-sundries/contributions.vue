@@ -160,7 +160,7 @@
                         <input class="table-input text-right" :class="tableInputTextColor" v-model="employee.PagIbigEmployee" @keyup.enter="inputEnter(employee.PagIbigEmployee, employee.id, 'PagIbigEmployee')" @blur="inputEnter(employee.PagIbigEmployee, employee.id, 'PagIbigEmployee')" type="number" step="any"/>
                     </td>
                     <td>
-
+                        <input class="table-input text-right" :class="tableInputTextColor" v-model="employee.PagIbigMP2" @keyup.enter="inputEnter(employee.PagIbigMP2, employee.id, 'PagIbigMP2')" @blur="inputEnter(employee.PagIbigMP2, employee.id, 'PagIbigMP2')" type="number" step="any"/>
                     </td>
                     <td>
                         <input class="table-input text-right" :class="tableInputTextColor" v-model="employee.SSSEmployer" @keyup.enter="inputEnter(employee.SSSEmployer, employee.id, 'SSSEmployer')" @blur="inputEnter(employee.SSSEmployer, employee.id, 'SSSEmployer')" type="number" step="any"/>
@@ -291,6 +291,7 @@ export default {
                         PhilHealthEmployee : response.data[i]['PhilHealth'],
                         Salary : response.data[i]['BasicSalary'],
                         RiceAndLaundry : response.data[i]['RiceAllowance'],
+                        PagIbigMP2 : response.data[i]['PagIbigMP2'],
                     });
                     
                     this.isDisplayed = 'gone';

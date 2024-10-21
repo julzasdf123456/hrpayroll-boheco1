@@ -594,7 +594,43 @@ class PayrollIndexController extends AppBaseController
             ->select('Status')
             ->first();
 
-        if ($department == 'SUB-OFFICE') {
+        if ($department === 'All') {
+            $employees = DB::table('Employees')
+                ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+                ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+                ->leftJoin('PayrollSchedules', 'Employees.PayrollScheduleId', '=', 'PayrollSchedules.id')
+                ->leftJoin('EmployeePayrollSundries', 'Employees.id', '=', 'EmployeePayrollSundries.EmployeeId')
+                ->select('Employees.FirstName',
+                        'Employees.MiddleName',
+                        'Employees.LastName',
+                        'Employees.Suffix',
+                        'Employees.id',
+                        'Employees.BiometricsUserId',
+                        'Employees.PayrollScheduleId',
+                        'Employees.NoAttendanceAllowed',
+                        'Employees.DateHired',
+                        'Employees.DayOffDates',
+                        'Positions.BasicSalary AS SalaryAmount',
+                        'Positions.Level',
+                        'Positions.Department',
+                        'EmployeesDesignations.Status',
+                        'PayrollSchedules.StartTime',
+                        'PayrollSchedules.BreakStart',
+                        'PayrollSchedules.BreakEnd',
+                        'PayrollSchedules.EndTime',
+                        // 'EmployeePayrollSundries.Longevity',
+                        'EmployeePayrollSundries.RiceAllowance',
+                        'EmployeePayrollSundries.Insurances',
+                        'EmployeePayrollSundries.PagIbigContribution',
+                        'EmployeePayrollSundries.PagIbigMP2',
+                        'EmployeePayrollSundries.SSSContribution',
+                        'EmployeePayrollSundries.PhilHealth',
+                )
+                ->where('EmployeesDesignations.Status', $employeeType)
+                ->whereRaw("Employees.OfficeDesignation NOT IN ('SUB-OFFICE') AND (EmploymentStatus IS NULL OR EmploymentStatus NOT IN ('Resigned', 'Retired'))")
+                ->orderBy('Employees.LastName')
+                ->get();
+        } elseif ($department === 'SUB-OFFICE') {
             $employees = DB::table('Employees')
                 ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
                 ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
@@ -612,6 +648,7 @@ class PayrollIndexController extends AppBaseController
                         'Employees.DateHired',
                         'Positions.BasicSalary AS SalaryAmount',
                         'Positions.Level',
+                        'Positions.Department',
                         'EmployeesDesignations.Status',
                         'PayrollSchedules.StartTime',
                         'PayrollSchedules.BreakStart',
@@ -621,6 +658,7 @@ class PayrollIndexController extends AppBaseController
                         'EmployeePayrollSundries.RiceAllowance',
                         'EmployeePayrollSundries.Insurances',
                         'EmployeePayrollSundries.PagIbigContribution',
+                        'EmployeePayrollSundries.PagIbigMP2',
                         'EmployeePayrollSundries.SSSContribution',
                         'EmployeePayrollSundries.PhilHealth',
                 )
@@ -647,6 +685,7 @@ class PayrollIndexController extends AppBaseController
                         'Employees.DayOffDates',
                         'Positions.BasicSalary AS SalaryAmount',
                         'Positions.Level',
+                        'Positions.Department',
                         'EmployeesDesignations.Status',
                         'PayrollSchedules.StartTime',
                         'PayrollSchedules.BreakStart',
@@ -656,6 +695,7 @@ class PayrollIndexController extends AppBaseController
                         'EmployeePayrollSundries.RiceAllowance',
                         'EmployeePayrollSundries.Insurances',
                         'EmployeePayrollSundries.PagIbigContribution',
+                        'EmployeePayrollSundries.PagIbigMP2',
                         'EmployeePayrollSundries.SSSContribution',
                         'EmployeePayrollSundries.PhilHealth',
                 )
