@@ -13,9 +13,10 @@
                 <div class="col-lg-1">
                     <span class="text-muted">Department</span>
                     <select v-model="department" class="form-control form-control-sm">
+                        <option value="All">ALL</option>
                         <option value="ESD">ESD</option>
                         <option value="ISD">ISD</option>
-                        <option value="OGM" selected>OGM</option>
+                        <option value="OGM">OGM</option>
                         <option value="OSD">OSD</option>
                         <option value="PGD">PGD</option>
                         <option value="SEEAD">SEEAD</option>
@@ -25,7 +26,7 @@
                 <div class="col-lg-2">
                     <span class="text-muted">Salary Period</span>
                     <select v-model="salaryPeriod" class="form-control form-control-sm">
-                        <option value="2024-09-30">September 15, 2024</option>
+                        <option value="2024-09-30">September 30, 2024</option>
                         <option :value="fifteenth">{{ moment(fifteenth).format('MMMM DD, YYYY') }}</option>
                         <option :value="thirtieth">{{ moment(thirtieth).format('MMMM DD, YYYY') }}</option>
                     </select>
@@ -163,7 +164,7 @@ export default {
             }),
             // PAYROLL DATA
             employeeType : 'Regular',
-            department : 'OGM',
+            department : 'All',
             salaryPeriod : '',
             from : moment().format("YYYY-MM-DD"),
             to : moment().format("YYYY-MM-DD"),
@@ -190,12 +191,34 @@ export default {
         }
     },
     methods : {
-        isNull (item) {
-            if (jquery.isEmptyObject(item)) {
+        isNull (value) {
+            // Check for null or undefined
+            if (value === null || value === undefined) {
                 return true;
-            } else {
-                return false;
             }
+
+            // Check for empty string
+            if (typeof value === 'string' && value.trim() === '') {
+                return true;
+            }
+
+            // Check for empty array
+            if (Array.isArray(value) && value.length === 0) {
+                return true;
+            }
+
+            // Check for empty object
+            if (typeof value === 'object' && !Array.isArray(value) && Object.keys(value).length === 0) {
+                return true;
+            }
+
+            // Check for NaN
+            if (typeof value === 'number' && isNaN(value)) {
+                return true;
+            }
+
+            // If none of the above, it's not null, empty, or undefined
+            return false;
         },
         getInBetweenDates(from, to) {
             let startDate = moment(from);
@@ -1619,7 +1642,7 @@ export default {
                         summaryChunks.push(mcLoan > 0 ? `₱` + this.toMoney(mcLoan) : '-'); 
 
                         // PAG IBIG CONT  
-                        var pagIbigContribution = this.isFifteenth(this.salaryPeriod) ? (this.isNull(response.data['Employees'][i]['PagIbigContribution']) ? 0 : this.round(parseFloat(response.data['Employees'][i]['PagIbigContribution']))) : 0;
+                        var pagIbigContribution = this.isFifteenth(this.salaryPeriod) ? this.sumValues([response.data['Employees'][i]['PagIbigContribution'], response.data['Employees'][i]['PagIbigMP2']]) : 0;
                         summaryChunks.push(pagIbigContribution > 0 ? `₱` + this.toMoney(pagIbigContribution) : '-');
                         
                         // PAG IBIG LOAN  
@@ -1725,7 +1748,7 @@ export default {
                             TotalDeductions : totalDeductions,
                             NetPay : netPay,
                             Status : 'Generated',
-                            Department : this.department,
+                            Department : response.data['Employees'][i]['Department'],
                             EmployeeType : this.employeeType,
                         })
 
@@ -1877,6 +1900,16 @@ export default {
                 this.isDisplayed = 'gone';
                 this.isButtonDisabled = false;
             });
+        },
+        sumValues(arr) {
+            var sum = 0
+            for (let i=0; i<arr.length; i++) {
+                if (!this.isNull(arr[i])) {
+                    sum += parseFloat(arr[i])
+                }
+            }
+
+            return sum
         }
     },
     created() {
