@@ -161,6 +161,7 @@ class LeaveConversionsController extends AppBaseController
 
     public function requestMultiple(Request $request) {
         $data = $request['Requests'];
+        $status = $request['Status'];
 
         foreach ($data as $item) {
             $employee = DB::table('Employees')
@@ -195,14 +196,56 @@ class LeaveConversionsController extends AppBaseController
                 $leaveConversion->VacationAmount = $vacationAmount;
                 $leaveConversion->SickAmount = $sickAmount;
                 $leaveConversion->Year = date('Y');
-                $leaveConversion->Status = 'Filed';
+
+                if (isset($status)) {
+                    $leaveConversion->Status = $status;
+
+                    if ($status === 'Approved') {
+                        // UPDATE LeaveBalances
+                        $leaveBalances = LeaveBalances::where('EmployeeId', $employee->id)->first();
+                        if ($leaveBalances != null) {
+                            $leaveBalances->Vacation = $leaveBalances->Vacation != null ? ($leaveBalances->Vacation - ($leaveConversion->VacationDays * 8 * 60)) : 0;
+                            $leaveBalances->Sick = $leaveBalances->Sick != null ? ($leaveBalances->Sick - ($leaveConversion->SickDays * 8 * 60)) : 0;
+                            $leaveBalances->save();
+
+                            // VACATION
+                            if ($leaveConversion->VacationDays > 0) {
+                                LeaveBalanceDetails::leaveLog(
+                                    $leaveBalances->EmployeeId,
+                                    'DEDUCT',
+                                    $leaveConversion->VacationDays,
+                                    'Deducted ' . $leaveConversion->VacationDays . ' days from Vacation Leave for cash conversion',
+                                    'VACATION'
+                                );
+                            }
+                            
+                            // SICK
+                            if ($leaveConversion->SickDays > 0) {
+                                LeaveBalanceDetails::leaveLog(
+                                    $leaveBalances->EmployeeId,
+                                    'DEDUCT',
+                                    $leaveConversion->SickDays,
+                                    'Deducted ' . $leaveConversion->SickDays . ' days from Sick Leave for cash conversion',
+                                    'SICK'
+                                );
+                            }
+                        }
+
+                        UserFootprints::logSource('Leave Conversion Request Approved', 
+                                'Leave credit to cash conversion approved and posted.',
+                                $id);
+                    }
+                } else {
+                    $leaveConversion->Status = 'Filed';
+
+                    UserFootprints::logSource('Requested Leave Conversion', 
+                        'Requested for leave to cash conversion for ' . Employees::getMergeNameFormal($employee) . ' with ' . $vacation . ' days for Vacation and ' . $sick . ' days for Sick Leave.',
+                        $id);
+                }
+                
                 $leaveConversion->UserId = Auth::id();
                 $leaveConversion->DateFiled = $item['DateFiled'];
                 $leaveConversion->save();
-
-                UserFootprints::logSource('Requested Leave Conversion', 
-                    'Requested for leave to cash conversion for ' . Employees::getMergeNameFormal($employee) . ' with ' . $vacation . ' days for Vacation and ' . $sick . ' days for Sick Leave.',
-                    $id);
             }
         }
 
@@ -573,5 +616,21 @@ class LeaveConversionsController extends AppBaseController
         $employeeId = $request['EmployeeId'];
 
         return response()->json(LeaveConversions::where('EmployeeId', $employeeId)->orderByDesc('created_at')->get(), 200);
+    }
+
+    public function manualLeaveConversion(Request $request) {
+        $employees = DB::table('Employees')
+            ->leftJoin('LeaveBalances', 'Employees.id', '=', 'LeaveBalances.EmployeeId')
+            ->select(
+                'Employees.*',
+                'Vacation',
+                'Sick'
+            )
+            ->orderBy('LastName')
+            ->get();
+
+        return view('/leave_conversions/manual_leave_conversion', [
+            'employees' => $employees,
+        ]);
     }
 }

@@ -1,4 +1,4 @@
-@canany('god permission')
+@canany('admin ui')
 {{-- EMPLOYEES --}}
 <li class="nav-item">
     <a href="#" class="nav-link">
@@ -9,6 +9,7 @@
         </p>
     </a>
     <ul class="nav nav-treeview">
+        @canany(['god permission', 'view employee'])
         <li class="nav-item">
             <a href="{{ route('employees.index') }}"
                 class="nav-link {{ Request::is('employees.index*') ? 'active' : '' }}">
@@ -16,7 +17,9 @@
                 <p>Browse</p>
             </a>
         </li>
+        @endcanany
 
+        @canany(['god permission', 'create employee'])
         <li class="nav-item">
             <a href="{{ route('employees.create') }}"
                 class="nav-link {{ Request::is('employees.create*') ? 'active' : '' }}">
@@ -24,19 +27,23 @@
                 <p>Add Employee</p>
             </a>
         </li>
+        @endcanany
         
+        @canany(['god permission', 'update employee'])
         <li class="nav-item">
             <a href="{{ route('employeePayrollSchedules.index') }}"
                 class="nav-link {{ Request::is('employeePayrollSchedules.index*') ? 'active' : '' }}">
                 <i class="fas fa-cogs nav-icon"></i>
                 <p>Employee Configurations</p>
             </a>
-        </li>  
+        </li>
+        @endcanany
     </ul>
 </li>
 @endcanany
 
-{{-- EMPLOYEES --}}
+{{-- LEAVE --}}
+@canany('admin ui')
 <li class="nav-item">
     <a href="#" class="nav-link">
         <i class="nav-icon fas fa-umbrella-beach"></i>
@@ -46,6 +53,7 @@
         </p>
     </a>
     <ul class="nav nav-treeview">
+        @canany(['god permission', 'view leave balances'])
         <li class="nav-item">
             <a href="{{ route('leaveBalances.balances') }}"
                 class="nav-link {{ Request::is('leaveBalances.balances*') ? 'active' : '' }}">
@@ -53,6 +61,9 @@
                 <p>Balances</p>
             </a>
         </li>  
+        @endcanany
+        
+        @canany(['god permission', 'edit leave balances'])
         <li class="nav-item">
             <a href="{{ route('leaveBalances.batch-edit') }}"
                 class="nav-link {{ Request::is('leaveBalances.batch-edit*') ? 'active' : '' }}">
@@ -60,6 +71,9 @@
                 <p>Leave Balance Conf.</p>
             </a>
         </li>    
+        @endcanany
+
+        @canany(['god permission', 'view leave'])
         <li class="nav-item">
             <a href="{{ route('leaveApplications.view-all-leave') }}"
                 class="nav-link {{ Request::is('leaveApplications.view-all-leave*') ? 'active' : '' }}">
@@ -67,10 +81,13 @@
                 <p>All Leave</p>
             </a>
         </li>  
+        @endcanany
     </ul>
 </li>
+@endcanany
 
 {{-- MANUAL ENTRIES --}}
+@canany('admin ui')
 <li class="nav-item">
     <a href="#" class="nav-link">
         <i class="nav-icon fas fa-sign-out-alt"></i>
@@ -80,52 +97,83 @@
         </p>
     </a>
     <ul class="nav nav-treeview">
+        @canany(['god permission', 'manual entry leave'])
         <li class="nav-item">
             <a href="{{ route('leaveApplications.manual-entries') }}"
-               class="nav-link {{ Request::is('leaveApplications.manual-entries*') ? 'active' : '' }}">
+                class="nav-link {{ Request::is('leaveApplications.manual-entries*') ? 'active' : '' }}">
                 <i class="fas fa-file-export nav-icon"></i><p>Leave</p>
             </a>
         </li>
+        @endcanany
+
+        @canany(['god permission', 'manual entry trip ticket'])
         <li class="nav-item">
             <a href="{{ route('tripTickets.manual-entry') }}"
-               class="nav-link {{ Request::is('tripTickets.manual-entry*') ? 'active' : '' }}">
+                class="nav-link {{ Request::is('tripTickets.manual-entry*') ? 'active' : '' }}">
                 <i class="fas fa-car nav-icon"></i><p>Trip Tickets</p>
             </a>
         </li>
+        @endcanany
+
+        @canany(['god permission', 'manual entry grs'])
         <li class="nav-item">
             <a href="{{ route('tripTicketGRS.create-grs') }}"
-               class="nav-link {{ Request::is('tripTicketGRS.create-grs*') ? 'active' : '' }}">
+                class="nav-link {{ Request::is('tripTicketGRS.create-grs*') ? 'active' : '' }}">
                 <i class="fas fa-gas-pump nav-icon"></i><p>GRS</p>
             </a>
         </li>
+        @endcanany
+
+        @canany(['god permission', 'manual entry offset'])
         <li class="nav-item">
             <a href="{{ route('offsetApplications.manual-entry') }}"
-               class="nav-link {{ Request::is('offsetApplications.manual-entry*') ? 'active' : '' }}">
+                class="nav-link {{ Request::is('offsetApplications.manual-entry*') ? 'active' : '' }}">
                 <i class="fas fa-random nav-icon"></i><p>Offsets</p>
             </a>
         </li>
+        @endcanany
+
+        @canany(['god permission', 'manual entry overtime'])
         <li class="nav-item">
             <a href="{{ route('overtimes.manual-entry') }}"
-               class="nav-link {{ Request::is('overtimes.manual-entry*') ? 'active' : '' }}">
+                class="nav-link {{ Request::is('overtimes.manual-entry*') ? 'active' : '' }}">
                 <i class="fas fa-user-clock nav-icon"></i><p>Overtimes</p>
             </a>
         </li>
+        @endcanany
+
+        @canany(['god permission', 'manual entry attendance confirmation'])
         <li class="nav-item">
             <a href="{{ route('attendanceConfirmations.manual-entry') }}"
-               class="nav-link {{ Request::is('attendanceConfirmations.manual-entry*') ? 'active' : '' }}">
+                class="nav-link {{ Request::is('attendanceConfirmations.manual-entry*') ? 'active' : '' }}">
                 <i class="fas fa-fingerprint nav-icon"></i><p>Attendance Confirmation</p>
             </a>
         </li>
+        @endcanany
+
+        @canany(['god permission', 'manual entry travel order'])
         <li class="nav-item">
             <a href="{{ route('travelOrders.manual-entry') }}"
-               class="nav-link {{ Request::is('travelOrders.manual-entry*') ? 'active' : '' }}">
+                class="nav-link {{ Request::is('travelOrders.manual-entry*') ? 'active' : '' }}">
                 <i class="fas fa-plane-departure nav-icon"></i><p>Travel Order</p>
             </a>
         </li>
+        @endcanany
+        
+        @canany(['god permission', 'manual entry leave conversion'])
+        <li class="nav-item">
+            <a href="{{ route('leaveConversions.manual-leave-conversion') }}"
+                class="nav-link {{ Request::is('leaveConversions.manual-leave-conversion*') ? 'active' : '' }}">
+                <i class="fas fa-dollar-sign nav-icon"></i><p>Leave Conversion</p>
+            </a>
+        </li>
+        @endcanany
     </ul>
 </li>
+@endcanany
 
 {{-- HR Reports --}}
+@canany('admin ui')
 <li class="nav-item">
     <a href="#" class="nav-link">
         <i class="nav-icon fas fa-file-alt"></i>
@@ -135,52 +183,20 @@
         </p>
     </a>
     <ul class="nav nav-treeview">
+        @canany(['god permission', 'hr report leave'])
         <li class="nav-item">
             <a href="{{ route('leaveApplications.leave-report') }}"
                 class="nav-link {{ Request::is('leaveApplications.leave-report*') ? 'active' : '' }}">
                 <i class="far fa-circle nav-icon"></i><p>Leave</p>
             </a>
         </li>
-        <li class="nav-item">
-            <a href="{{ route('tripTickets.manual-entry') }}"
-                class="nav-link {{ Request::is('tripTickets.manual-entry*') ? 'active' : '' }}">
-                <i class="fas fa-car nav-icon"></i><p>Trip Tickets</p>
-            </a>
-        </li>
-        {{-- <li class="nav-item">
-            <a href="{{ route('tripTicketGRS.create-grs') }}"
-               class="nav-link {{ Request::is('tripTicketGRS.create-grs*') ? 'active' : '' }}">
-                <i class="fas fa-gas-pump nav-icon"></i><p>GRS</p>
-            </a>
-        </li>
-        <li class="nav-item">
-            <a href="{{ route('offsetApplications.manual-entry') }}"
-               class="nav-link {{ Request::is('offsetApplications.manual-entry*') ? 'active' : '' }}">
-                <i class="fas fa-random nav-icon"></i><p>Offsets</p>
-            </a>
-        </li>
-        <li class="nav-item">
-            <a href="{{ route('overtimes.manual-entry') }}"
-               class="nav-link {{ Request::is('overtimes.manual-entry*') ? 'active' : '' }}">
-                <i class="fas fa-user-clock nav-icon"></i><p>Overtimes</p>
-            </a>
-        </li>
-        <li class="nav-item">
-            <a href="{{ route('attendanceConfirmations.manual-entry') }}"
-               class="nav-link {{ Request::is('attendanceConfirmations.manual-entry*') ? 'active' : '' }}">
-                <i class="fas fa-fingerprint nav-icon"></i><p>Attendance Confirmation</p>
-            </a>
-        </li>
-        <li class="nav-item">
-            <a href="{{ route('travelOrders.manual-entry') }}"
-               class="nav-link {{ Request::is('travelOrders.manual-entry*') ? 'active' : '' }}">
-                <i class="fas fa-plane-departure nav-icon"></i><p>Travel Order</p>
-            </a>
-        </li> --}}
+        @endcanany
     </ul>
 </li>
+@endcanany
 
 {{-- TRIP TICKETS --}}
+@canany('admin ui')
 <li class="nav-item">
     <a href="#" class="nav-link">
         <i class="nav-icon fas fa-car"></i>
@@ -190,12 +206,15 @@
         </p>
     </a>
     <ul class="nav nav-treeview">
+        @canany(['god permission', 'create trip ticket'])
         <li class="nav-item">
             <a href="{{ route('tripTickets.create') }}" class="nav-link {{ Request::is('tripTickets.create') ? 'active' : '' }}">
                 <i class="nav-icon fas fa-plus-circle"></i>
                 <p>File Trip Ticket</p>
             </a>
         </li>
+        @endcanany
+
         @canany(['create grs', 'god permission'])
             <li class="nav-item">
                 <a href="{{ route('tripTicketGRS.grs-requests') }}" class="nav-link {{ Request::is('tripTicketGRS.grs-requests') ? 'active' : '' }}">
@@ -204,6 +223,7 @@
                 </a>
             </li>
         @endcanany
+
         @canany(['log vehicle departures', 'god permission'])
             <li class="nav-item">
                 <a href="{{ route('tripTickets.log-vehicle-trips') }}" class="nav-link {{ Request::is('tripTickets.log-vehicle-trips') ? 'active' : '' }}">
@@ -220,6 +240,7 @@
         @endcanany
     </ul>
 </li>
+@endcanany
 
 {{-- OVERTIMES --}}
 <li class="nav-item">

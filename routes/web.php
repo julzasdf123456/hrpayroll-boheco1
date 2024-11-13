@@ -435,6 +435,7 @@ Route::get('/leave-conversions/print-single/{id}', [LeaveConversionsController::
 Route::get('/leave-conversions/mark-as-done', [LeaveConversionsController::class, 'markAsDone'])->name('leaveConversions.mark-as-done');
 Route::get('/leave-conversions/mark-all-as-done', [LeaveConversionsController::class, 'markAllAsDone'])->name('leaveConversions.mark-all-as-done');
 Route::get('/leave-conversions/get-leave-conversions-data', [LeaveConversionsController::class, 'getLeaveConversionsData'])->name('leaveConversions.get-leave-conversions-data');
+Route::get('/leave-conversions/manual-leave-conversion', [LeaveConversionsController::class, 'manualLeaveConversion'])->name('leaveConversions.manual-leave-conversion');
 Route::resource('leaveConversions', LeaveConversionsController::class);
 
 Route::post('/leave-incentives_year_end_details/save-year-end', [IncentivesYearEndDetailsController::class, 'saveYearEndData'])->name('incentivesYearEndDetails.save-year-end');
