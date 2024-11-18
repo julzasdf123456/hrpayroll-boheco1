@@ -18,7 +18,7 @@ class SMSNotificationsAPI extends Controller {
         $sms = DB::table('SMSNotifications')
             ->select('*')
             ->where('Status', 'PENDING')
-            ->whereRaw("TRY_CAST(created_at AS DATE) >= GETDATE()")
+            ->whereRaw("TRY_CAST(created_at AS DATE) = GETDATE()")
             ->orderBy('created_at')
             ->first();
 
