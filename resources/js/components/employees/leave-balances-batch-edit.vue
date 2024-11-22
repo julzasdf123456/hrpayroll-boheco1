@@ -250,6 +250,7 @@ export default {
                     Value : newVal,
                     id : id,
                     Type : type,
+                    AddedValue : addedHours,
                 }).then(response => {
                     this.showSaveFader()
 
