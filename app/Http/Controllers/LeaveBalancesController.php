@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Models\LeaveBalances;
 use App\Models\LeaveBalanceDetails;
+use App\Models\IDGenerator;
 use Flash;
 use Response;
 
@@ -238,14 +239,25 @@ class LeaveBalancesController extends AppBaseController
         $id = $request['id'];
         $type = $request['Type'];
         $value = $request['Value'];
+        $added = $request['AddedValue'];
 
         $leaveBalances = LeaveBalances::find($id);
+
+        $displayData = null;
 
         if ($leaveBalances != null) {
             if ($type == 'Vacation') {
                 $leaveBalances->Vacation = $value;
+
+                if (isset($added) && $added != null) {
+                    $displayData = $added;
+                }
             } else if ($type == 'Sick') {
                 $leaveBalances->Sick = $value;
+
+                if (isset($added) && $added != null) {
+                    $displayData = $added;
+                }
             } else if ($type == 'Special') {
                 $leaveBalances->Special = $value;
             } else if ($type == 'Maternity') {
@@ -258,6 +270,19 @@ class LeaveBalancesController extends AppBaseController
                 $leaveBalances->SoloParent = $value;
             }
             $leaveBalances->save();
+
+            
+            if ($displayData != null) {
+                LeaveBalanceDetails::create([
+                    'id' => IDGenerator::generateIDandRandString(),
+                    'EmployeeId' => $leaveBalances->EmployeeId,
+                    'Method' => 'ADD-MANUAL',
+                    'Days' => $added > 0 ? ($added / 8) : 0,
+                    'Details' => 'Added ' . $displayData . ' hours of ' . $type . ' leave by ' . Auth::user()->name . '. Current ' . $type . ' leave total as of ' . date('M d, Y') . ': ' . $value,
+                    'Month' => date('Y-m-01'),
+                    'LeaveType' => strtoupper($type),
+                ]);
+            }
         }
 
         return response()->json($leaveBalances, 200);
