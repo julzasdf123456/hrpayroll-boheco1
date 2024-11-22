@@ -41,16 +41,24 @@
                                     <tr v-for="item in employees" :key="item.id">
                                         <td>{{ item.name }}</td>
                                         <td>
-                                            <input type="number" step="any" class="text-right form-control form-control-sm" 
-                                            v-model="item.Vacation"
-                                            @keyup.enter="inputEnter(item.Vacation, item.id, 'Vacation')"
-                                            @blur="inputEnter(item.Vacation, item.id, 'Vacation')">
+                                            <div style="display: flex; flex-direction: row;">
+                                                <input type="number" step="any" class="text-right form-control form-control-sm" 
+                                                    v-model="item.Vacation"
+                                                    @keyup.enter="inputEnter(item.Vacation, item.id, 'Vacation')"
+                                                    @blur="inputEnter(item.Vacation, item.id, 'Vacation')">
+
+                                                <button @click="addLeaveHours(item.Vacation, item.id, 'Vacation')" class="btn btn-xs btn-default" title="Add vacation leave hours"><i class="fas fa-plus"></i></button>
+                                            </div>
                                         </td>
                                         <td>
-                                            <input type="number" step="any" class="text-right form-control form-control-sm" 
-                                            v-model="item.Sick"
-                                            @keyup.enter="inputEnter(item.Sick, item.id, 'Sick')"
-                                            @blur="inputEnter(item.Sick, item.id, 'Sick')">
+                                            <div style="display: flex; flex-direction: row;">
+                                                <input type="number" step="any" class="text-right form-control form-control-sm" 
+                                                v-model="item.Sick"
+                                                @keyup.enter="inputEnter(item.Sick, item.id, 'Sick')"
+                                                @blur="inputEnter(item.Sick, item.id, 'Sick')">
+
+                                                <button @click="addLeaveHours(item.Sick, item.id, 'Sick')" class="btn btn-xs btn-default" title="Add sick leave hours"><i class="fas fa-plus"></i></button>
+                                            </div>
                                         </td>
                                         <td>
                                             <input type="number" step="any" class="text-right form-control form-control-sm" 
@@ -189,10 +197,6 @@ export default {
                 id : id,
                 Type : type,
             }).then(response => {
-                // this.toast.fire({
-                //     icon : 'success',
-                //     text : 'Saved!'
-                // })
                 this.showSaveFader()
             })
             .catch(error => {
@@ -200,8 +204,8 @@ export default {
                     icon : 'error',
                     title : 'Error saving leave balance!',
                 });
-                console.log(error)
-            });
+                console.log(error.response)
+            })
         },  
         showSaveFader() {
             var message = document.getElementById('msg-display');
@@ -214,13 +218,75 @@ export default {
                 // Fade out the message
                 message.style.opacity = 0;
             }, 1500);
+        },
+        async addLeaveHours(value, id, type) {
+            const { value: numberInput } = await Swal.fire({
+                title: `Add ${ type } Leave`,
+                input: 'text',
+                inputPlaceholder: `Add ${ type } Leave in HOURS`,
+                inputAttributes: {
+                    type: 'number',
+                    min: '0', // Optional: Set minimum value
+                    step: '1', // Optional: Set step value
+                },
+                showCancelButton: true,
+                confirmButtonText: 'Submit',
+                cancelButtonText: 'Cancel',
+                preConfirm: (value) => {
+                    if (!value || isNaN(value)) {
+                        Swal.showValidationMessage('Please enter a valid number')
+                        return false;
+                    }
+                },
+            })
+
+            if (numberInput) {
+                // update value
+                value = parseFloat(value)
+                const addedHours = parseFloat(numberInput)
+                const newVal = this.computeAddedHours(value, addedHours)
+
+                axios.post(`${ axios.defaults.baseURL }/leave_balances/update-value`, {
+                    Value : newVal,
+                    id : id,
+                    Type : type,
+                }).then(response => {
+                    this.showSaveFader()
+
+                    if (type === 'Vacation') {
+                        this.employees = this.employees.map(obj => 
+                            obj.id === id 
+                                ? { ...obj, Vacation : newVal }
+                                : obj 
+                        )
+                    } else if (type === 'Sick') {
+                        this.employees = this.employees.map(obj => 
+                            obj.id === id 
+                                ? { ...obj, Sick : newVal }
+                                : obj 
+                        )
+                    }
+                })
+                .catch(error => {
+                    Swal.fire({
+                        icon : 'error',
+                        title : 'Error saving leave balance!',
+                    });
+                    console.log(error.response)
+                })
+            }
+        },
+        computeAddedHours(oldVal, addedValInHours) {
+            const addInMins = addedValInHours * 60
+
+            return oldVal + addInMins
         }
     },
     created() {
         
     },
     mounted() {
-       this.getEmployees()
+        this.getEmployees()
     }
 }
 
