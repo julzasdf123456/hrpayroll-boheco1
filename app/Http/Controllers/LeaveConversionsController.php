@@ -152,6 +152,10 @@ class LeaveConversionsController extends AppBaseController
             return redirect(route('leaveConversions.index'));
         }
 
+        UserFootprints::logSource('Deleted Conversion Log', 
+                        Auth::user()->name . ' deleted a leave conversion log for employee ID ' . $leaveConversions->EmployeeId . ' with ' . $leaveConversions->VacationDays . ' Vacation days and ' . $leaveConversions->SickDays . ' Sick days.',
+                        $id);
+
         $this->leaveConversionsRepository->delete($id);
 
         // Flash::success('Leave Conversions deleted successfully.');
