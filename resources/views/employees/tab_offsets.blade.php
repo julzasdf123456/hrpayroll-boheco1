@@ -58,14 +58,14 @@
                         success : function(res) {
                             Toast.fire({
                                 icon : 'success',
-                                error : 'Offset deleted!'
+                                text : 'Offset deleted!'
                             })
                             location.reload()
                         },
                         error : function(err) {
                             Toast.fire({
                                 icon : 'error',
-                                error : 'Error deleting offset!'
+                                text : 'Error deleting offset!'
                             })
                         }
                     })

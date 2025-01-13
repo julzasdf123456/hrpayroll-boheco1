@@ -25,6 +25,7 @@ use App\Models\LeaveImageAttachments;
 use App\Models\HolidaysList;
 use App\Models\SMSNotifications;
 use App\Models\LeaveExcessAbsences;
+use App\Models\Permission;
 use DatePeriod;
 use DateTime;
 use DateInterval;
@@ -1039,74 +1040,78 @@ class LeaveApplicationsController extends AppBaseController
     public function deleteLeave(Request $request) {
         $id = $request['id'];
 
-        $leaveApplication = LeaveApplications::find($id);
+        if (Permission::hasDirectPermission(['god permission', 'delete leave'])) {
+            $leaveApplication = LeaveApplications::find($id);
 
-        // DELETE BIOMETRIC DATA IN AttendanceData table
-        $leaveDays = LeaveDays::where('LeaveId', $id)->get();
-        foreach($leaveDays as $item) {
-            AttendanceData::where('AbsentPermission', 'LEAVE')
-                ->whereRaw("TRY_CAST(Timestamp AS DATE)='" . $item->LeaveDate . "' AND EmployeeId='" . $leaveApplication->EmployeeId . "'")
-                ->delete();
-        }
-
-        // re-add balance
-        $leaveDays = LeaveDays::where('LeaveId', $id)->get();
-        $totalBalDays = 0;
-        foreach($leaveDays as $item) {
-            $totalBalDays += floatval($item->Longevity);
-        }
-
-        $balanceToAdd = $leaveApplication->TotalCredits != null ? $leaveApplication->TotalCredits : 0;
-
-        $balances = LeaveBalances::where('EmployeeId', $leaveApplication->EmployeeId)->orderByDesc('created_at')->first();
-        if ($balances != null && $leaveApplication->Status === 'APPROVED') {
-            if ($leaveApplication->LeaveType === 'Vacation') {
-                $existingBal = $balances->Vacation != null ? floatval($balances->Vacation) : 0;
-                $existingBal = $existingBal + $balanceToAdd;
-                $balances->Vacation = $existingBal;
-                $balances->save();
-            } elseif ($leaveApplication->LeaveType === 'Sick') {
-                $existingBal = $balances->Sick != null ? floatval($balances->Sick) : 0;
-                $existingBal = $existingBal + $balanceToAdd;
-                $balances->Sick = $existingBal;
-                $balances->save();
-            } elseif ($leaveApplication->LeaveType === 'Special') {
-                $existingBal = $balances->Special != null ? floatval($balances->Special) : 0;
-                $existingBal = $existingBal + $balanceToAdd;
-                $balances->Special = $existingBal;
-                $balances->save();
-            } elseif ($leaveApplication->LeaveType === 'Paternity') {
-                $existingBal = $balances->Paternity != null ? floatval($balances->Paternity) : 0;
-                $existingBal = $existingBal + $balanceToAdd;
-                $balances->Paternity = $existingBal;
-                $balances->save();
-            } elseif ($leaveApplication->LeaveType === 'Maternity') {
-                $existingBal = $balances->Maternity != null ? floatval($balances->Maternity) : 0;
-                $existingBal = $existingBal + $balanceToAdd;
-                $balances->Maternity = $existingBal;
-                $balances->save();
-            } elseif ($leaveApplication->LeaveType === 'MaternityForSoloMother') {
-                $existingBal = $balances->MaternityForSoloMother != null ? floatval($balances->MaternityForSoloMother) : 0;
-                $existingBal = $existingBal + $balanceToAdd;
-                $balances->MaternityForSoloMother = $existingBal;
-                $balances->save();
-            } elseif ($leaveApplication->LeaveType === 'SoloParent') {
-                $existingBal = $balances->SoloParent != null ? floatval($balances->SoloParent) : 0;
-                $existingBal = $existingBal + $balanceToAdd;
-                $balances->SoloParent = $existingBal;
-                $balances->save();
+            // DELETE BIOMETRIC DATA IN AttendanceData table
+            $leaveDays = LeaveDays::where('LeaveId', $id)->get();
+            foreach($leaveDays as $item) {
+                AttendanceData::where('AbsentPermission', 'LEAVE')
+                    ->whereRaw("TRY_CAST(Timestamp AS DATE)='" . $item->LeaveDate . "' AND EmployeeId='" . $leaveApplication->EmployeeId . "'")
+                    ->delete();
             }
+
+            // re-add balance
+            $leaveDays = LeaveDays::where('LeaveId', $id)->get();
+            $totalBalDays = 0;
+            foreach($leaveDays as $item) {
+                $totalBalDays += floatval($item->Longevity);
+            }
+
+            $balanceToAdd = $leaveApplication->TotalCredits != null ? $leaveApplication->TotalCredits : 0;
+
+            $balances = LeaveBalances::where('EmployeeId', $leaveApplication->EmployeeId)->orderByDesc('created_at')->first();
+            if ($balances != null && $leaveApplication->Status === 'APPROVED') {
+                if ($leaveApplication->LeaveType === 'Vacation') {
+                    $existingBal = $balances->Vacation != null ? floatval($balances->Vacation) : 0;
+                    $existingBal = $existingBal + $balanceToAdd;
+                    $balances->Vacation = $existingBal;
+                    $balances->save();
+                } elseif ($leaveApplication->LeaveType === 'Sick') {
+                    $existingBal = $balances->Sick != null ? floatval($balances->Sick) : 0;
+                    $existingBal = $existingBal + $balanceToAdd;
+                    $balances->Sick = $existingBal;
+                    $balances->save();
+                } elseif ($leaveApplication->LeaveType === 'Special') {
+                    $existingBal = $balances->Special != null ? floatval($balances->Special) : 0;
+                    $existingBal = $existingBal + $balanceToAdd;
+                    $balances->Special = $existingBal;
+                    $balances->save();
+                } elseif ($leaveApplication->LeaveType === 'Paternity') {
+                    $existingBal = $balances->Paternity != null ? floatval($balances->Paternity) : 0;
+                    $existingBal = $existingBal + $balanceToAdd;
+                    $balances->Paternity = $existingBal;
+                    $balances->save();
+                } elseif ($leaveApplication->LeaveType === 'Maternity') {
+                    $existingBal = $balances->Maternity != null ? floatval($balances->Maternity) : 0;
+                    $existingBal = $existingBal + $balanceToAdd;
+                    $balances->Maternity = $existingBal;
+                    $balances->save();
+                } elseif ($leaveApplication->LeaveType === 'MaternityForSoloMother') {
+                    $existingBal = $balances->MaternityForSoloMother != null ? floatval($balances->MaternityForSoloMother) : 0;
+                    $existingBal = $existingBal + $balanceToAdd;
+                    $balances->MaternityForSoloMother = $existingBal;
+                    $balances->save();
+                } elseif ($leaveApplication->LeaveType === 'SoloParent') {
+                    $existingBal = $balances->SoloParent != null ? floatval($balances->SoloParent) : 0;
+                    $existingBal = $existingBal + $balanceToAdd;
+                    $balances->SoloParent = $existingBal;
+                    $balances->save();
+                }
+            }
+
+            $leaveApplication->delete();
+
+            LeaveDays::where('LeaveId', $id)->delete();
+
+            LeaveImageAttachments::where('LeaveId', $id)->delete();
+
+            LeaveSignatories::where('LeaveId', $id)->delete();
+
+            return response()->json('ok', 200);
+        } else {
+            return abort(403, 'You are not authorized to access this module.');
         }
-
-        $leaveApplication->delete();
-
-        LeaveDays::where('LeaveId', $id)->delete();
-
-        LeaveImageAttachments::where('LeaveId', $id)->delete();
-
-        LeaveSignatories::where('LeaveId', $id)->delete();
-
-        return response()->json('ok', 200);
     }
 
     public function addImageAttachments(Request $request) {

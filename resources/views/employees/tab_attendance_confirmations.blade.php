@@ -56,14 +56,14 @@
                         success : function(res) {
                             Toast.fire({
                                 icon : 'success',
-                                error : 'Attendance confirmation deleted!'
+                                text : 'Attendance confirmation deleted!'
                             })
                             location.reload()
                         },
                         error : function(err) {
                             Toast.fire({
                                 icon : 'error',
-                                error : 'Error deleting attendance confirmation!'
+                                text : 'Error deleting attendance confirmation!'
                             })
                         }
                     })

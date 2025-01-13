@@ -32,6 +32,7 @@ use App\Models\EmployeeDayOffs;
 use App\Models\LeaveExcessAbsences;
 use App\Models\AttendaneConfirmations;
 use Illuminate\Http\Request;
+use App\Models\Permission;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 // use Illuminate\Support\Facades\File;
@@ -59,10 +60,14 @@ class EmployeesController extends AppBaseController
      */
     public function index(Request $request)
     {
-        $employees = $this->employeesRepository->all();
+        if (Permission::hasDirectPermission(['god permission', 'view employee'])) {
+            $employees = $this->employeesRepository->all();
 
-        return view('employees.index')
-            ->with('employees', $employees);
+            return view('employees.index')
+                ->with('employees', $employees);
+        } else {
+            return abort(403, 'You are not authorized to access this module.');
+        }
     }
 
     /**
@@ -111,105 +116,108 @@ class EmployeesController extends AppBaseController
      */
     public function show($id)
     {
-        
-        $employees = $this->employeesRepository->find($id);
-        $employeeDesignations = DB::table('EmployeesDesignations')
-            ->leftJoin('Positions', 'EmployeesDesignations.PositionId', '=', 'Positions.id')
-            ->select('EmployeesDesignations.*', 'Positions.Position')
-            ->where('EmployeesDesignations.EmployeeId', $id)
-            ->orderByDesc('EmployeesDesignations.created_at')
-            ->get();
-        $rankings = DB::table('Rankings')
-            ->leftJoin('RankingRepository', 'Rankings.RankingRepositoryId', '=', 'RankingRepository.id')
-            ->where('Rankings.EmployeeId', $id)
-            ->select('Rankings.id', 'RankingRepository.Type', 'RankingRepository.RankingName', 'Rankings.Points')
-            ->get();
-        $educationalAttainment = EducationalAttainment::where('EmployeeId', $id)->get();        
-        $ids = ProfessionalIDs::where('EmployeeId', $id)->get();
-        $payslips = DB::table('PayrollDetails')
-            ->leftJoin('PayrollIndex', 'PayrollDetails.PayrolIndexId', '=', 'PayrollIndex.id')
-            ->select('PayrollIndex.SalaryPeriod', 
-                    'PayrollIndex.DateFrom',
-                    'PayrollIndex.DateTo',
-                    'PayrollDetails.id')
-            ->where('PayrollDetails.EmployeeId', $id)
-            ->get();
-        // $workSchedules = PayrollSchedules::find($employees->PayrollScheduleId);
-        $workSchedules = null;
-        $leaveBalance = LeaveBalances::where('EmployeeId', $id)->first();
-        $leaveBalanceDetails = LeaveBalanceDetails::where('EmployeeId', $id)->orderByDesc('created_at')->get();
+        if (Permission::hasDirectPermission(['god permission', 'view employee'])) {
+            $employees = $this->employeesRepository->find($id);
+            $employeeDesignations = DB::table('EmployeesDesignations')
+                ->leftJoin('Positions', 'EmployeesDesignations.PositionId', '=', 'Positions.id')
+                ->select('EmployeesDesignations.*', 'Positions.Position')
+                ->where('EmployeesDesignations.EmployeeId', $id)
+                ->orderByDesc('EmployeesDesignations.created_at')
+                ->get();
+            $rankings = DB::table('Rankings')
+                ->leftJoin('RankingRepository', 'Rankings.RankingRepositoryId', '=', 'RankingRepository.id')
+                ->where('Rankings.EmployeeId', $id)
+                ->select('Rankings.id', 'RankingRepository.Type', 'RankingRepository.RankingName', 'Rankings.Points')
+                ->get();
+            $educationalAttainment = EducationalAttainment::where('EmployeeId', $id)->get();        
+            $ids = ProfessionalIDs::where('EmployeeId', $id)->get();
+            $payslips = DB::table('PayrollDetails')
+                ->leftJoin('PayrollIndex', 'PayrollDetails.PayrolIndexId', '=', 'PayrollIndex.id')
+                ->select('PayrollIndex.SalaryPeriod', 
+                        'PayrollIndex.DateFrom',
+                        'PayrollIndex.DateTo',
+                        'PayrollDetails.id')
+                ->where('PayrollDetails.EmployeeId', $id)
+                ->get();
+            // $workSchedules = PayrollSchedules::find($employees->PayrollScheduleId);
+            $workSchedules = null;
+            $leaveBalance = LeaveBalances::where('EmployeeId', $id)->first();
+            $leaveBalanceDetails = LeaveBalanceDetails::where('EmployeeId', $id)->orderByDesc('created_at')->get();
 
-        $tripTickets = DB::table('TripTickets')
-            ->leftJoin('Employees', 'TripTickets.Driver', '=', 'Employees.id')
-            ->leftJoin(DB::raw("Employees AS e"), 'TripTickets.EmployeeId', '=', DB::raw("e.id"))
-            ->whereRaw("TripTickets.EmployeeId='" . $id . "' AND TripTickets.Status NOT IN ('Trash')")
-            ->select(
-                'TripTickets.*',
-                'Employees.FirstName AS DriverFirstName',
-                'Employees.MiddleName AS DriverMiddleName',
-                'Employees.LastName AS DriverLastName',
-                'Employees.Suffix AS DriverSuffix',
-                'e.FirstName',
-                'e.MiddleName',
-                'e.LastName',
-                'e.Suffix',
-            )
-            ->orderByDesc('DatetimeFiled')
-            ->get();
+            $tripTickets = DB::table('TripTickets')
+                ->leftJoin('Employees', 'TripTickets.Driver', '=', 'Employees.id')
+                ->leftJoin(DB::raw("Employees AS e"), 'TripTickets.EmployeeId', '=', DB::raw("e.id"))
+                ->whereRaw("TripTickets.EmployeeId='" . $id . "' AND TripTickets.Status NOT IN ('Trash')")
+                ->select(
+                    'TripTickets.*',
+                    'Employees.FirstName AS DriverFirstName',
+                    'Employees.MiddleName AS DriverMiddleName',
+                    'Employees.LastName AS DriverLastName',
+                    'Employees.Suffix AS DriverSuffix',
+                    'e.FirstName',
+                    'e.MiddleName',
+                    'e.LastName',
+                    'e.Suffix',
+                )
+                ->orderByDesc('DatetimeFiled')
+                ->get();
 
-        $travelOrders = DB::table('TravelOrderEmployees')
-            ->leftJoin('TravelOrders', 'TravelOrderEmployees.TravelOrderId', '=', 'TravelOrders.id')
-            ->whereRaw("TravelOrderEmployees.EmployeeId='" . $id . "'")
-            ->select(
-                'TravelOrders.*',
-                'TravelOrderEmployees.id AS TOEmployeeId',
-                DB::raw("(SELECT CONCAT(Day, ', ') 
-                    FROM TravelOrderDays 
-                    WHERE TravelOrderDays.TravelOrderId = TravelOrders.id
-                    FOR XML PATH('')) AS Days")
-            )
-            ->orderByDesc('TravelOrders.DateFiled')
-            ->get();
+            $travelOrders = DB::table('TravelOrderEmployees')
+                ->leftJoin('TravelOrders', 'TravelOrderEmployees.TravelOrderId', '=', 'TravelOrders.id')
+                ->whereRaw("TravelOrderEmployees.EmployeeId='" . $id . "'")
+                ->select(
+                    'TravelOrders.*',
+                    'TravelOrderEmployees.id AS TOEmployeeId',
+                    DB::raw("(SELECT CONCAT(Day, ', ') 
+                        FROM TravelOrderDays 
+                        WHERE TravelOrderDays.TravelOrderId = TravelOrders.id
+                        FOR XML PATH('')) AS Days")
+                )
+                ->orderByDesc('TravelOrders.DateFiled')
+                ->get();
 
-        $overtimes = Overtimes::where('EmployeeId', $id)->orderByDesc('created_at')->get();
+            $overtimes = Overtimes::where('EmployeeId', $id)->orderByDesc('created_at')->get();
 
-        $offsets = OffsetApplications::where('EmployeeId', $id)->orderByDesc('created_at')->get();
-        
-        $payrollSundries = EmployeePayrollSundries::where('EmployeeId', $id)->first();
+            $offsets = OffsetApplications::where('EmployeeId', $id)->orderByDesc('created_at')->get();
+            
+            $payrollSundries = EmployeePayrollSundries::where('EmployeeId', $id)->first();
 
-        $leaveBalanceExcess = LeaveExcessAbsences::where('EmployeeId', $id)
-            ->orderByDesc('created_at')
-            ->get();
+            $leaveBalanceExcess = LeaveExcessAbsences::where('EmployeeId', $id)
+                ->orderByDesc('created_at')
+                ->get();
 
-        if (empty($employees)) {
-            Flash::error('Employees not found');
+            if (empty($employees)) {
+                Flash::error('Employees not found');
 
-            return redirect(route('employees.index'));
+                return redirect(route('employees.index'));
+            }
+
+            $userData = User::where('employee_id', $id)->permission('create leave for others')->first();
+
+            $attendanceConfirmations = AttendaneConfirmations::where("EmployeeId", $id)->orderByDesc('created_at')->get();
+
+            return view('employees.show', [
+                'employees' => $employees, 
+                'employeeDesignations' => $employeeDesignations,
+                'rankings' => $rankings,
+                'educationalAttainment' => $educationalAttainment,
+                'ids' => $ids,
+                'payslips' => $payslips,
+                'workSchedules' => $workSchedules,
+                'leaveBalance' => $leaveBalance,
+                'leaveBalanceDetails' => $leaveBalanceDetails,
+                'tripTickets' => $tripTickets,
+                'overtimes' => $overtimes,
+                'payrollSundries' => $payrollSundries,
+                'travelOrders' => $travelOrders,
+                'leaveBalanceExcess' => $leaveBalanceExcess,
+                'userData' => $userData,
+                'offsets' => $offsets,
+                'attendanceConfirmations' => $attendanceConfirmations, 
+            ]);
+        } else {
+            return abort(403, 'You are not authorized to access this module.');
         }
-
-        $userData = User::where('employee_id', $id)->permission('create leave for others')->first();
-
-        $attendanceConfirmations = AttendaneConfirmations::where("EmployeeId", $id)->orderByDesc('created_at')->get();
-
-        return view('employees.show', [
-            'employees' => $employees, 
-            'employeeDesignations' => $employeeDesignations,
-            'rankings' => $rankings,
-            'educationalAttainment' => $educationalAttainment,
-            'ids' => $ids,
-            'payslips' => $payslips,
-            'workSchedules' => $workSchedules,
-            'leaveBalance' => $leaveBalance,
-            'leaveBalanceDetails' => $leaveBalanceDetails,
-            'tripTickets' => $tripTickets,
-            'overtimes' => $overtimes,
-            'payrollSundries' => $payrollSundries,
-            'travelOrders' => $travelOrders,
-            'leaveBalanceExcess' => $leaveBalanceExcess,
-            'userData' => $userData,
-            'offsets' => $offsets,
-            'attendanceConfirmations' => $attendanceConfirmations, 
-        ]);
     }
 
     /**
@@ -221,16 +229,20 @@ class EmployeesController extends AppBaseController
      */
     public function edit($id)
     {
-        $employees = $this->employeesRepository->find($id);
-        $towns = Towns::orderBy('Town')->pluck('Town', 'id');
+        if (Permission::hasDirectPermission(['god permission', 'update employee'])) {
+            $employees = $this->employeesRepository->find($id);
+            $towns = Towns::orderBy('Town')->pluck('Town', 'id');
 
-        if (empty($employees)) {
-            Flash::error('Employees not found');
+            if (empty($employees)) {
+                Flash::error('Employees not found');
 
-            return redirect(route('employees.index'));
+                return redirect(route('employees.index'));
+            }
+
+            return view('employees.edit', ['employees' => $employees, 'towns' => $towns]);
+        } else {
+            return abort(403, 'You are not authorized to access this module.');
         }
-
-        return view('employees.edit', ['employees' => $employees, 'towns' => $towns]);
     }
 
     /**
@@ -243,19 +255,23 @@ class EmployeesController extends AppBaseController
      */
     public function update($id, UpdateEmployeesRequest $request)
     {
-        $employees = $this->employeesRepository->find($id);
+        if (Permission::hasDirectPermission(['god permission', 'update employee'])) {
+            $employees = $this->employeesRepository->find($id);
 
-        if (empty($employees)) {
-            Flash::error('Employees not found');
+            if (empty($employees)) {
+                Flash::error('Employees not found');
 
-            return redirect(route('employees.index'));
+                return redirect(route('employees.index'));
+            }
+
+            $employees = $this->employeesRepository->update($request->all(), $id);
+
+            Flash::success('Employees updated successfully.');
+
+            return redirect(route('employees.show', [$id]));
+        } else {
+            return abort(403, 'You are not authorized to access this module.');
         }
-
-        $employees = $this->employeesRepository->update($request->all(), $id);
-
-        Flash::success('Employees updated successfully.');
-
-        return redirect(route('employees.show', [$id]));
     }
 
     public function updateAjax($id, Request $request)
@@ -282,34 +298,42 @@ class EmployeesController extends AppBaseController
      */
     public function destroy($id)
     {
-        $employees = $this->employeesRepository->find($id);
+        if (Permission::hasDirectPermission(['god permission', 'delete employee'])) {
+            $employees = $this->employeesRepository->find($id);
 
-        if (empty($employees)) {
-            Flash::error('Employees not found');
+            if (empty($employees)) {
+                Flash::error('Employees not found');
+
+                return redirect(route('employees.index'));
+            }
+
+            $this->employeesRepository->delete($id);
+
+            Flash::success('Employees deleted successfully.');
 
             return redirect(route('employees.index'));
+        } else {
+            return abort(403, 'You are not authorized to access this module.');
         }
-
-        $this->employeesRepository->delete($id);
-
-        Flash::success('Employees deleted successfully.');
-
-        return redirect(route('employees.index'));
     }
 
     public function createDesignations($id) {
-        $employee = $this->employeesRepository->find($id);
-        $departments = DB::table('Positions')
-            ->select('Department')
-            ->orderBy('Department')
-            ->groupBy('Department')
-            ->get();
+        if (Permission::hasDirectPermission(['god permission', 'create employee designation'])) {
+            $employee = $this->employeesRepository->find($id);
+            $departments = DB::table('Positions')
+                ->select('Department')
+                ->orderBy('Department')
+                ->groupBy('Department')
+                ->get();
 
-        return view('/employees/create_designations', [
-            'employee' => $employee,
-            'departments' => $departments,
-            'employeesDesignations' => null,
-        ]);
+            return view('/employees/create_designations', [
+                'employee' => $employee,
+                'departments' => $departments,
+                'employeesDesignations' => null,
+            ]);
+        } else {
+            return abort(403, 'You are not authorized to access this module.');
+        }
     }
 
     public function getSearchResults(Request $request) {
@@ -614,13 +638,17 @@ class EmployeesController extends AppBaseController
         $id = $request['id'];
         $status = $request['Status'];
 
-        $employee = Employees::find($id);
-        if ($employee != null) {
-            $employee->NoAttendanceAllowed = $status;
-            $employee->save();
-        }
+        if (Permission::hasDirectPermission(['god permission', 'set allow no attendance'])) {
+            $employee = Employees::find($id);
+            if ($employee != null) {
+                $employee->NoAttendanceAllowed = $status;
+                $employee->save();
+            }
 
-        return response()->json($employee, 200);
+            return response()->json($employee, 200);
+        } else {
+            return response()->json('You are not allowed to access this module', 403);
+        }
     }
 
     public function savePayrollSundries(Request $request) {
@@ -633,38 +661,42 @@ class EmployeesController extends AppBaseController
         $philHealth = $request['PhilHealth'];
         $notes = $request['Notes'];
 
-        $sundries = EmployeePayrollSundries::where('EmployeeId', $employeeId)->first();
-        $employee = Employees::find($employeeId);
+        if (Permission::hasDirectPermission(['god permission', 'update payroll sundries'])) {
+            $sundries = EmployeePayrollSundries::where('EmployeeId', $employeeId)->first();
+            $employee = Employees::find($employeeId);
 
-        if ($sundries != null) {
-            $sundries->Longevity = $longevity;
-            $sundries->RiceAllowance = $riceAllowance;
-            $sundries->Insurances = $insurance;
-            $sundries->PagIbigContribution = $pagIbig;
-            $sundries->SSSContribution = $sss;
-            $sundries->PhilHealth = $philHealth;
-            $sundries->Notes = $notes;
-            $sundries->save();
+            if ($sundries != null) {
+                $sundries->Longevity = $longevity;
+                $sundries->RiceAllowance = $riceAllowance;
+                $sundries->Insurances = $insurance;
+                $sundries->PagIbigContribution = $pagIbig;
+                $sundries->SSSContribution = $sss;
+                $sundries->PhilHealth = $philHealth;
+                $sundries->Notes = $notes;
+                $sundries->save();
+            } else {
+                $sundries = new EmployeePayrollSundries;
+                $sundries->id = IDGenerator::generateIDandRandString();
+                $sundries->EmployeeId = $employeeId;
+                $sundries->Longevity = $longevity;
+                $sundries->RiceAllowance = $riceAllowance;
+                $sundries->Insurances = $insurance;
+                $sundries->PagIbigContribution = $pagIbig;
+                $sundries->SSSContribution = $sss;
+                $sundries->PhilHealth = $philHealth;
+                $sundries->Notes = $notes;
+                $sundries->save();
+            }
+
+            if ($employee != null) {
+                $employee->Longevity = $longevity;
+                $employee->save();
+            }
+
+            return response()->json($sundries, 200);
         } else {
-            $sundries = new EmployeePayrollSundries;
-            $sundries->id = IDGenerator::generateIDandRandString();
-            $sundries->EmployeeId = $employeeId;
-            $sundries->Longevity = $longevity;
-            $sundries->RiceAllowance = $riceAllowance;
-            $sundries->Insurances = $insurance;
-            $sundries->PagIbigContribution = $pagIbig;
-            $sundries->SSSContribution = $sss;
-            $sundries->PhilHealth = $philHealth;
-            $sundries->Notes = $notes;
-            $sundries->save();
+            return abort(403, 'You are not authorized to access this module.');
         }
-
-        if ($employee != null) {
-            $employee->Longevity = $longevity;
-            $employee->save();
-        }
-
-        return response()->json($sundries, 200);
     }
 
     public function updateOffice(Request $request) {
@@ -692,10 +724,14 @@ class EmployeesController extends AppBaseController
         $type = $request['Type'];
         $id = $request['id'];
 
-        Employees::where('id', $id)
-            ->update(['DateEnded' => $dateEnded, 'EmploymentStatus' => $type]);
+        if (Permission::hasDirectPermission(['god permission', 'update retirement'])) {
+            Employees::where('id', $id)
+                ->update(['DateEnded' => $dateEnded, 'EmploymentStatus' => $type]);
 
-        return response()->json('ok', 200);
+            return response()->json('ok', 200);
+        } else {
+            return response()->json('You are not allowed to access this module', 403);
+        }
     }
 
     public function updateBiometricsId(Request $request) {
@@ -719,20 +755,24 @@ class EmployeesController extends AppBaseController
     }
 
     public function uploadFile($employeeId) {
-        $employees = DB::table('Employees')
-                ->select('Employees.FirstName',
-                        'Employees.MiddleName',
-                        'Employees.LastName',
-                        'Employees.Suffix',
-                        'Employees.id',
-                )
-                ->where('Employees.id', $employeeId)
-                ->first();
+        if (Permission::hasDirectPermission(['god permission', 'upload employee files'])) {
+            $employees = DB::table('Employees')
+                    ->select('Employees.FirstName',
+                            'Employees.MiddleName',
+                            'Employees.LastName',
+                            'Employees.Suffix',
+                            'Employees.id',
+                    )
+                    ->where('Employees.id', $employeeId)
+                    ->first();
 
-        return view('/employees/upload_file', [
-            'employeeId' => $employeeId,
-            'employee' => $employees,
-        ]);
+            return view('/employees/upload_file', [
+                'employeeId' => $employeeId,
+                'employee' => $employees,
+            ]); 
+        } else {
+            return abort(403, 'You are not authorized to access this module.');
+        }
     }
 
     public function saveUploadedFiles(Request $request) {

@@ -28,7 +28,7 @@
       
                       <h3 class="profile-username text-center">{{ $users->name }}</h3>
       
-                      <p class="text-muted text-center">Software Engineer</p>
+                      {{-- <p class="text-muted text-center">Software Engineer</p> --}}
       
                         <ul class="list-group list-group-unbordered mb-3">
                             <li class="list-group-item">
@@ -41,7 +41,7 @@
                                 <b>Friends</b> <a class="float-right">13,287</a>
                             </li>
                         </ul>
-      
+
                         <a href="{{ route('users.edit', [$users->id]) }}" class="btn btn-primary btn-block"><b>Update</b></a>
                     </div>
                     <!-- /.card-body -->
@@ -49,29 +49,27 @@
             </div>
 
             <div class="col-md-7">
-                <div class="card">
-                    <div class="card-header">
-                        <span class="card-title">Permissions</span>
+                <div class="card shadow-none">
+                    <div class="card-header border-0">
+                        <span class="card-title">Role(s) Assigned</span>
 
                         <div class="card-tools">
-                            <a href="{{ route('users.add-roles', $users->id) }}" class="btn btn-tool btn-sm" title="Add Permissions">
-                                <i class="fas fa-key"></i>
-                            </a>
-
-                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                                <i class="fas fa-minus"></i>
-                            </button>
+                            <a class="btn btn-tool" href="{{ route('users.assign-roles', [$users->id]) }}" title="Add or Edit Roles"><i class="fas fa-unlock"></i></a>
+                            <a href="{{ route('users.add-roles', $users->id) }}" class="btn btn-tool btn-sm" title="Add Permissions"><i class="fas fa-key"></i></a>
                         </div>
                     </div>
-
                     <div class="card-body">
-                        <table class="table">
+                        @foreach ($roles as $key => $item)
+                            <span><strong>{{ $item }} {{ $key == count($roles)-1 ? '' : ', ' }}</strong></span>
+                        @endforeach
+
+                        <p class="text-muted text-sm mt-4">Permissions</p>
+
+                        <ul class="text-sm">
                             @foreach ($permissions as $item)
-                                <tr>
-                                    <td>{{ $item->name }}</td>
-                                </tr>
+                                <li>{{ $item->name }}</li>
                             @endforeach
-                        </table>
+                        </ul>
                     </div>
                 </div>
             </div>

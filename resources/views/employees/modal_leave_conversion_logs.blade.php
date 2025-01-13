@@ -27,6 +27,7 @@
                             <th class="text-center" colspan="2">Vacation</th>
                             <th class="text-center" colspan="2">Sick</th>
                             <th class="text-center" rowspan="2">Total Amount</th>
+                            <th class="text-center" rowspan="2"></th>
                         </tr>
                         <tr>
                             <th class="text-center"># of Days</th>
@@ -42,50 +43,94 @@
             </div>
         </div>
     </div>
- </div>
- 
- @push('page_scripts')
+</div>
+
+@push('page_scripts')
     <script>
         $(document).ready(function() {
-            
+
         })
 
-        $('#modal-leave-conversion-logs').on('shown.bs.modal', function (e) {
+        $('#modal-leave-conversion-logs').on('shown.bs.modal', function(e) {
             $('#loader').removeClass('gone')
             $('#leave-conversions-table tbody tr').remove()
             $.ajax({
-                url : "{{ route('leaveConversions.get-leave-conversions-data') }}",
-                type : "GET",
-                data : {
-                    EmployeeId : "{{ $employees->id }}"
+                url: "{{ route('leaveConversions.get-leave-conversions-data') }}",
+                type: "GET",
+                data: {
+                    EmployeeId: "{{ $employees->id }}"
                 },
-                success : function(res) {
+                success: function(res) {
                     $('#loader').addClass('gone')
 
                     $.each(res, function(index, element) {
-                        var vacation = isNull(res[index]['VacationAmount']) ? 0 : parseFloat(res[index]['VacationAmount'])
-                        var sick = isNull(res[index]['SickAmount']) ? 0 : parseFloat(res[index]['SickAmount'])
+                        var vacation = isNull(res[index]['VacationAmount']) ? 0 : parseFloat(
+                            res[index]['VacationAmount'])
+                        var sick = isNull(res[index]['SickAmount']) ? 0 : parseFloat(res[index][
+                            'SickAmount'
+                        ])
                         $('#leave-conversions-table tbody').append(`
-                            <tr>
+                            <tr id='${ res[index]['id'] }'>
                                 <td>` + (moment(res[index]['created_at']).format('MMM DD, YYYY h:m A')) + `</td>
                                 <td class='text-center'><span class='badge bg-info'>` + res[index]['Status'] + `</span></td>
                                 <td class='text-right'>` + res[index]['VacationDays'] + `</td>
                                 <td class='text-right'>` + toMoney(vacation) + `</td>
                                 <td class='text-right'>` + res[index]['SickDays'] + `</td>
                                 <td class='text-right'>` + toMoney(sick) + `</td>
-                                <td class='text-right'><strong>` + toMoney(sick + vacation) + `</strong></td>
+                                <td class='text-right'><strong>` + toMoney(sick + vacation) +
+                            `</strong></td>
+                                <td class='text-right'>
+                                    <button class='btn btn-sm btn-link text-danger' title='Delete Log' onclick="deleteConversionLog('` +
+                            res[index]['id'] + `')"><i class='fas fa-trash'></i></button>    
+                                </td>
                             </tr>
                         `)
                     })
                 },
-                error : function(err) {
+                error: function(err) {
                     $('#loader').addClass('gone')
                     Toast.fire({
-                        icon : 'error',
-                        text : 'Error getting leave conversions history'
+                        icon: 'error',
+                        text: 'Error getting leave conversions history'
                     })
                 }
             })
         })
-    </script>    
- @endpush
+
+        function deleteConversionLog(id) {
+            Swal.fire({
+                title: "Delete Log?",
+                text: "Deleting this log will not affect the leave balances of the employee. Proceed with caution.",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3273a8",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: "{{ url('/leaveConversions') }}/" + id,
+                        type: "DELETE",
+                        data: {
+                            _token: "{{ csrf_token() }}",
+                            id: id,
+                        },
+                        success: function(res) {
+                            Toast.fire({
+                                icon: 'success',
+                                text: 'Conversion log removed!'
+                            })
+                            $('#' + id).remove()
+                        },
+                        error: function(err) {
+                            Toast.fire({
+                                icon: 'error',
+                                text: 'Error deleting conversion log!'
+                            })
+                        }
+                    })
+                }
+            })
+        }
+    </script>
+@endpush

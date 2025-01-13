@@ -332,14 +332,14 @@
                         success : function(res) {
                             Toast.fire({
                                 icon : 'success',
-                                error : 'Allowed for no time-in no time-out.'
+                                text : 'Allowed for no time-in no time-out.'
                             })
                             location.reload()
                         },
                         error : function(err) {
                             Toast.fire({
                                 icon : 'error',
-                                error : 'Error allowing no time-in no time-out!'
+                                text : 'Error allowing no time-in no time-out! ' + err.data,
                             })
                         }
                     })
@@ -366,14 +366,14 @@
                         success : function(res) {
                             Toast.fire({
                                 icon : 'success',
-                                error : 'No attendance policy removed!'
+                                text : 'No attendance policy removed!'
                             })
                             location.reload()
                         },
                         error : function(err) {
                             Toast.fire({
                                 icon : 'error',
-                                error : 'Error removing no time-in no time-out!'
+                                text : 'Error removing no time-in no time-out!'
                             })
                         }
                     })
