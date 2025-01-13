@@ -50,7 +50,7 @@
 @push('page_scripts')
     <script>
         $(document).ready(function() {
-           
+
         })   
         
         function trash(id) {

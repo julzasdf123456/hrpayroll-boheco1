@@ -9,6 +9,7 @@ use App\Http\Controllers\AppBaseController;
 use Illuminate\Http\Request;
 use App\Models\Employees;
 use App\Models\EmployeesDesignations;
+use App\Models\Permission;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Flash;
@@ -114,24 +115,28 @@ class EmployeesDesignationsController extends AppBaseController
      */
     public function edit($id)
     {
-        $employeesDesignations = $this->employeesDesignationsRepository->find($id);
+        if (Permission::hasDirectPermission(['god permission', 'update employee designation'])) {
+            $employeesDesignations = $this->employeesDesignationsRepository->find($id);
 
-        if (empty($employeesDesignations)) {
-            Flash::error('Employees Designations not found');
+            if (empty($employeesDesignations)) {
+                Flash::error('Employees Designations not found');
 
-            return redirect(route('employeesDesignations.index'));
+                return redirect(route('employeesDesignations.index'));
+            }
+
+            $departments = DB::table('Positions')
+                ->select('Department')
+                ->orderBy('Department')
+                ->groupBy('Department')
+                ->get();
+
+            return view('employees_designations.edit', [
+                'employeesDesignations' => $employeesDesignations,
+                'departments' => $departments,
+            ]);
+        } else {
+            return abort(403, 'You are not authorized to access this module.');
         }
-
-        $departments = DB::table('Positions')
-            ->select('Department')
-            ->orderBy('Department')
-            ->groupBy('Department')
-            ->get();
-
-        return view('employees_designations.edit', [
-            'employeesDesignations' => $employeesDesignations,
-            'departments' => $departments,
-        ]);
     }
 
     /**

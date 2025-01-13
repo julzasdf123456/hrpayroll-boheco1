@@ -115,9 +115,14 @@ class UsersController extends AppBaseController
             return redirect(route('users.index'));
         }
 
-        $permissions = $user->getAllPermissions();
+        $permissions = $user->permissions;
+        $roles = $user->getRoleNames();
 
-        return view('users.show', ['users' => $users, 'permissions' => $permissions]);
+        return view('users.show', [
+            'users' => $users, 
+            'permissions' => $permissions,
+            'roles' => $roles
+        ]);
     }
 
     /**
@@ -194,7 +199,7 @@ class UsersController extends AppBaseController
     public function addRoles($id) {
         $users = User::find($id);
 
-        $roles = Role::all();
+        $permissions = Permission::all();
 
         if (empty($users)) {
             Flash::error('Users not found');
@@ -202,7 +207,7 @@ class UsersController extends AppBaseController
             return redirect(route('users.index'));
         }
 
-        return view('/users/add_roles', ['users' => $users, 'roles' => $roles]);
+        return view('/users/add_roles', ['users' => $users, 'permissions' => $permissions]);
     }
 
     public function createRoles(Request $request) {
@@ -511,5 +516,29 @@ class UsersController extends AppBaseController
             'status' => 'success',
             'message' => 'Password updated successfully.',
         ]);
+    }
+
+    public function assignRoles($id) {
+        $user = User::find($id);
+
+        $roles = Role::all();
+
+        return view('/users/assign_roles', ['user' => $user, 'roles' => $roles]);
+    }
+
+    public function createUserRoles(Request $request) {
+        $user = User::find($request->userId);
+
+        $user->syncRoles($request->input('roles', []));
+
+        $permissions = $user->roles->flatMap(function ($role) {
+            return $role->permissions;
+        })->pluck('name')->unique(); // Get unique permission names
+        
+        // Sync the permissions directly to the user
+        $user->syncPermissions($permissions);
+
+        // return redirect(route('users.add_user_permissions', ['id' => $user->id, 'roles' => $request->input('roles', [])]));
+        return redirect('users/' . $request->userId);
     }
 }

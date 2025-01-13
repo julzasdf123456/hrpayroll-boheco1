@@ -75,4 +75,15 @@ class Permission extends Model
     {
         return $this->belongsToMany(\App\Models\Role::class, 'role_has_permissions');
     }
+
+    public static function hasDirectPermission($permissions) {
+        $user = auth()->user();
+
+        if (!$user) {
+            return false;
+        }
+
+        // Check only direct permissions
+        return collect($permissions)->intersect($user->permissions->pluck('name'))->isNotEmpty();
+    }
 }

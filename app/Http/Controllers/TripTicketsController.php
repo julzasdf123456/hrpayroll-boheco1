@@ -19,6 +19,7 @@ use App\Models\SMSNotifications;
 use App\Models\Users;
 use App\Models\TripTicketGRS;
 use App\Models\TripTicketPassengers;
+use App\Models\Permission;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Flash;
@@ -265,22 +266,22 @@ class TripTicketsController extends AppBaseController
      */
     public function destroy($id)
     {
-        $tripTickets = $this->tripTicketsRepository->find($id);
+        if (Permission::hasDirectPermission(['god permission', 'delete trip ticket'])) {
+            $tripTickets = $this->tripTicketsRepository->find($id);
 
-        if (empty($tripTickets)) {
-            Flash::error('Trip Tickets not found');
+            if (empty($tripTickets)) {
+                Flash::error('Trip Tickets not found');
 
-            return redirect(route('tripTickets.index'));
+                return redirect(route('tripTickets.index'));
+            }
+
+            $tripTickets->Status = 'Trash';
+            $tripTickets->save();
+
+            return response()->json($tripTickets, 200);
+        } else {
+            return abort(403, 'You are not authorized to access this module.');
         }
-
-        // $this->tripTicketsRepository->delete($id);
-        $tripTickets->Status = 'Trash';
-        $tripTickets->save();
-
-        // Flash::success('Trip Tickets deleted successfully.');
-
-        // return redirect(route('tripTickets.index'));
-        return response()->json($tripTickets, 200);
     }
 
     public function getSignatories(Request $request) {

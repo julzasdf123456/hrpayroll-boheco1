@@ -154,9 +154,11 @@ class LeaveConversionsController extends AppBaseController
 
         $this->leaveConversionsRepository->delete($id);
 
-        Flash::success('Leave Conversions deleted successfully.');
+        // Flash::success('Leave Conversions deleted successfully.');
 
-        return redirect(route('leaveConversions.index'));
+        // return redirect(route('leaveConversions.index'));
+
+        return response()->json('ok', 200);
     }
 
     public function requestMultiple(Request $request) {

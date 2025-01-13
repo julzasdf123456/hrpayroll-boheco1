@@ -15,6 +15,7 @@ use App\Models\OffsetSignatories;
 use App\Models\IDGenerator;
 use App\Models\AttendanceData;
 use App\Models\Users;
+use App\Models\Permission;
 use Flash;
 
 class OffsetApplicationsController extends AppBaseController
@@ -122,21 +123,21 @@ class OffsetApplicationsController extends AppBaseController
      */
     public function destroy($id)
     {
-        $offsetApplications = $this->offsetApplicationsRepository->find($id);
+        if (Permission::hasDirectPermission(['god permission', 'delete offset'])) {
+            $offsetApplications = $this->offsetApplicationsRepository->find($id);
 
-        if (empty($offsetApplications)) {
-            Flash::error('Offset Applications not found');
+            if (empty($offsetApplications)) {
+                Flash::error('Offset Applications not found');
 
-            return redirect(route('offsetApplications.index'));
+                return redirect(route('offsetApplications.index'));
+            }
+
+            $this->offsetApplicationsRepository->delete($id);
+
+            return response()->json($offsetApplications, 200);
+        } else {
+            return abort(403, 'You are not authorized to access this module.');
         }
-
-        $this->offsetApplicationsRepository->delete($id);
-
-        return response()->json($offsetApplications, 200);
-
-        // Flash::success('Offset Applications deleted successfully.');
-
-        // return redirect(route('offsetApplications.index'));
     }
 
     public function saveOffsetApplications(Request $request) {

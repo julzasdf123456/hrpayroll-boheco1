@@ -243,6 +243,7 @@
 @endcanany
 
 {{-- OVERTIMES --}}
+@canany('admin ui')
 <li class="nav-item">
     <a href="#" class="nav-link">
         <i class="nav-icon fas fa-clock"></i>
@@ -264,8 +265,10 @@
         {{-- @endcanany --}}
     </ul>
 </li>
+@endcanany
 
 {{-- ISSUANCES --}}
+@canany('admin ui')
 <li class="nav-item">
     <a href="#" class="nav-link">
         <i class="nav-icon fas fa-folder-open"></i>
@@ -294,8 +297,10 @@
         @endcanany
     </ul>
 </li>
+@endcanany
 
 {{-- APPROVALS --}}
+@canany('admin ui')
 <li class="nav-item">
     <a href="#" class="nav-link">
         <i class="nav-icon fas fa-check-circle"></i>
@@ -306,10 +311,10 @@
     </a>
     <ul class="nav nav-treeview">
         {{-- @canany('god permission') --}}
-        @canany('approve leave conversion', 'god permission')
+        @canany(['approve leave conversion', 'god permission'])
         <li class="nav-item">
             <a href="{{ route('leaveConversions.my-approvals') }}"
-               class="nav-link {{ Request::is('leaveConversions.my-approvals*') ? 'active' : '' }}">
+                class="nav-link {{ Request::is('leaveConversions.my-approvals*') ? 'active' : '' }}">
                 <i class="fas fa-exchange-alt nav-icon"></i><p>Leave Conversions</p>
             </a>
         </li>
@@ -317,8 +322,9 @@
         {{-- @endcanany --}}
     </ul>
 </li>
+@endcanany
 
-@canany('god permission', 'create payroll')
+@canany('admin ui')
 {{-- PAYROLL --}}
 <li class="nav-item">
     <a href="#" class="nav-link">
@@ -329,26 +335,27 @@
         </p>
     </a>
     <ul class="nav nav-treeview">
-
+        @canany(['view payroll', 'god permission'])
         <li class="nav-item">
             <a href="{{ route('payrollIndices.index') }}"
-               class="nav-link {{ Request::is('payrollIndices*') ? 'active' : '' }}">
-               <i class="fas fa-money-check-alt nav-icon"></i>
+                class="nav-link {{ Request::is('payrollIndices*') ? 'active' : '' }}">
+                <i class="fas fa-money-check-alt nav-icon"></i>
                 <p>All Payroll</p>
             </a>
         </li>
+        @endcanany
         
         <li class="nav-item">
             <a href="{{ route('payrollIndices.payroll') }}"
-               class="nav-link {{ Request::is('payrollIndices.payroll*') ? 'active' : '' }}">
-               <i class="fas fa-wallet nav-icon"></i>
+                class="nav-link {{ Request::is('payrollIndices.payroll*') ? 'active' : '' }}">
+                <i class="fas fa-wallet nav-icon"></i>
                 <p>Generate Payroll</p>
             </a>
         </li>
         <li class="nav-item">
             <a href="{{ route('payrollIndices.payroll-audit') }}"
-               class="nav-link {{ Request::is('payrollIndices.payroll-audit*') ? 'active' : '' }}">
-               <i class="fas fa-search-dollar nav-icon"></i>
+                class="nav-link {{ Request::is('payrollIndices.payroll-audit*') ? 'active' : '' }}">
+                <i class="fas fa-search-dollar nav-icon"></i>
                 <p>Audit Payroll</p>
             </a>
         </li>

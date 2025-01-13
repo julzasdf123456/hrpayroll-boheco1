@@ -67,6 +67,8 @@ Route::get('/home/chat', [HomeController::class, 'chat'])->name('home.chat');
 Route::get('/users/add_permissions/{id}', [UsersController::class, 'addRoles'])->name('users.add-roles');
 Route::post('/users/create-roles', [UsersController::class, 'createRoles']);
 Route::get('/users/switch-color-modes', [UsersController::class, 'switchColorModes'])->name('users.switch-color-modes');
+Route::get('/users/assign-roles/{id}', [UsersController::class, 'assignRoles'])->name('users.assign-roles');
+Route::post('/users/create-user-roles', [UsersController::class, 'createUserRoles'])->name('users.create-user-roles');
 
 Route::get('/my_account/my-account-index/{employeeId}', [UsersController::class, 'myAccountIndex'])->name('users.my-account-index');
 Route::get('/my_account/leave-credits/{employeeId}', [UsersController::class, 'leaveCredits'])->name('users.leave-credits');
