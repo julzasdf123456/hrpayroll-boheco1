@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\Biometrics;
 use App\Http\Controllers\API\SMSNotificationsAPI;
+use App\Http\Controllers\API\AuthOut;
 
 /*
 |--------------------------------------------------------------------------
@@ -33,3 +34,8 @@ Route::get('get-version', [Biometrics::class, 'getVersion']);
 Route::get('get-random-notification', [SMSNotificationsAPI::class, 'getRandomNotification']);
 Route::get('update-sms', [SMSNotificationsAPI::class, 'updateSMSNotification']);
 Route::get('insert-bio-attendance', [SMSNotificationsAPI::class, 'insertSMSNotifForBiometricAttendance']);
+
+/**
+ * AUTH
+ */
+Route::post('login', [AuthOut::class, 'login']);
