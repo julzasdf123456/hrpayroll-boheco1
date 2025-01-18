@@ -100,7 +100,7 @@ class Employees extends Model
         'SoloParent',
         'Mother',
         'Father',
-        'ProfilePicture'
+        'ProfilePicture',
     ];
 
     /**
