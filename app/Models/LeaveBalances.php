@@ -185,7 +185,7 @@ class LeaveBalances extends Model
             // ];
             return [ 'days' => $days . '', 'hours' => $hours . '', 'minutes' => $excessMins . '' ];
         } else {
-            return 0 . ' days, ' . 0 . ' hrs, ' . 0 . ' mins';
+            return [ 'days' => '0', 'hours' => '0', 'minutes' => '0' ];
         }
     }
 }
