@@ -164,4 +164,28 @@ class LeaveBalances extends Model
             return 0 . ' days, ' . 0 . ' hrs, ' . 0 . ' mins';
         }
     }
+
+    public static function toBalanceAssocArray($mins) {
+        if ($mins != null && is_numeric($mins) && $mins > 0) {
+            $days = (int) ($mins / 8 / 60);
+            
+            // hours
+            $exactDayInMins = $days * 8 * 60;
+            $excessMins = $mins - $exactDayInMins;
+            $hours = (int) ($excessMins / 60);
+
+            // mins
+            $totalMins = ($days * 8 * 60) + ($hours * 60);
+            $excessMins = $mins - $totalMins;
+
+            // return [
+            //     'Days' => $days,
+            //     'Hours' => $hours,
+            //     'Minutes' => $excessMins,
+            // ];
+            return [ 'days' => $days . '', 'hours' => $hours . '', 'minutes' => $excessMins . '' ];
+        } else {
+            return 0 . ' days, ' . 0 . ' hrs, ' . 0 . ' mins';
+        }
+    }
 }

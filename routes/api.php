@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\Biometrics;
 use App\Http\Controllers\API\SMSNotificationsAPI;
 use App\Http\Controllers\API\AuthOut;
+use App\Http\Controllers\API\EmployeeInfo;
+use App\Http\Controllers\API\Leave;
 
 /*
 |--------------------------------------------------------------------------
@@ -39,3 +41,15 @@ Route::get('insert-bio-attendance', [SMSNotificationsAPI::class, 'insertSMSNotif
  * AUTH
  */
 Route::post('login', [AuthOut::class, 'login']);
+
+/**
+ * EMPLOYEE DATA
+ */
+Route::get('get-employee-information', [EmployeeInfo::class, 'getEmployeeInformation']);
+Route::get('get-attendance-data', [EmployeeInfo::class, 'getAttendanceData']);
+
+/**
+ * LEAVE
+ */
+Route::get('get-leave-signatories', [Leave::class, 'getLeaveSignatories']);
+Route::post('post-leave', [Leave::class, 'postLeave']);
