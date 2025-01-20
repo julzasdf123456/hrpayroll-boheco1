@@ -6,6 +6,7 @@ use App\Http\Controllers\API\Biometrics;
 use App\Http\Controllers\API\SMSNotificationsAPI;
 use App\Http\Controllers\API\AuthOut;
 use App\Http\Controllers\API\EmployeeInfo;
+use App\Http\Controllers\API\Leave;
 
 /*
 |--------------------------------------------------------------------------
@@ -46,3 +47,9 @@ Route::post('login', [AuthOut::class, 'login']);
  */
 Route::get('get-employee-information', [EmployeeInfo::class, 'getEmployeeInformation']);
 Route::get('get-attendance-data', [EmployeeInfo::class, 'getAttendanceData']);
+
+/**
+ * LEAVE
+ */
+Route::get('get-leave-signatories', [Leave::class, 'getLeaveSignatories']);
+Route::post('post-leave', [Leave::class, 'postLeave']);
