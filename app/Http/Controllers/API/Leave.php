@@ -155,4 +155,80 @@ class Leave extends Controller {
         }
         return response()->json([], 200);
     }
+
+    public function getAllLeave(Request $request) {
+        $employeeId = $request['EmployeeId'];
+        $type = $request['Type'];
+        $search = $request['Search'];
+
+        if ($type === 'All') {
+            if ($search != null) {
+                $data = DB::table('LeaveApplications')
+                    ->where('EmployeeId', $employeeId)
+                    ->whereRaw("Content LIKE '%" . $search . "%'")
+                    ->select(
+                        'LeaveApplications.*',
+                    )
+                    ->orderByDesc('LeaveApplications.created_at')
+                    ->get();
+            } else {
+                $data = DB::table('LeaveApplications')
+                    ->where('EmployeeId', $employeeId)
+                    ->select(
+                        'LeaveApplications.*',
+                    )
+                    ->orderByDesc('LeaveApplications.created_at')
+                    ->get();
+            }
+        } else {
+            if ($search != null) {
+                $data = DB::table('LeaveApplications')
+                    ->where('EmployeeId', $employeeId)
+                    ->whereRaw("Content LIKE '%" . $search . "%' AND LeaveType='" . $type . "'")
+                    ->select(
+                        'LeaveApplications.*',
+                    )
+                    ->orderByDesc('LeaveApplications.created_at')
+                    ->get();
+            } else {
+                $data = DB::table('LeaveApplications')
+                    ->where('EmployeeId', $employeeId)
+                    ->whereRaw("LeaveType='" . $type . "'")
+                    ->select(
+                        'LeaveApplications.*',
+                    )
+                    ->orderByDesc('LeaveApplications.created_at')
+                    ->get();
+            }
+        }
+
+        foreach($data as $item) {
+            $item->Days = DB::table('LeaveDays')
+                ->where('LeaveId', $item->id)
+                ->get();
+        }
+
+        return response()->json($data, 200);
+    }
+
+    public function deleteLeave(Request $request) {
+        $id = $request['id'];
+
+        $leave = LeaveApplications::find($id);
+
+        if ($leave != null) {
+            // only allow deletes on leave that has a 'Filed' status
+            if ($leave->Status === 'Filed') {
+                LeaveDays::where('LeaveId', $id)->delete();
+                LeaveSignatories::where('LeaveId', $id)->delete();
+                $leave->delete();
+
+                return response()->json(['res' => 'ok'], 200);
+            } else {
+                return response()->json('Not allowed', 403);
+            }
+        } else {
+            return response()->json('No leave found', 404);
+        }
+    }
 }

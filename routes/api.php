@@ -53,3 +53,5 @@ Route::get('get-attendance-data', [EmployeeInfo::class, 'getAttendanceData']);
  */
 Route::get('get-leave-signatories', [Leave::class, 'getLeaveSignatories']);
 Route::post('post-leave', [Leave::class, 'postLeave']);
+Route::get('get-all-leave', [Leave::class, 'getAllLeave']);
+Route::post('delete-leave', [Leave::class, 'deleteLeave']);
