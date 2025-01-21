@@ -45,7 +45,7 @@ class LeaveApplications extends Model
         'Content',
         'Status',
         'LeaveType',
-        'TotalCredits'
+        'TotalCredits',
     ];
 
     /**

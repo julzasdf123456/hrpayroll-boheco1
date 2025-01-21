@@ -41,7 +41,7 @@ class EmployeeInfo extends Controller {
             $employee = Employees::find($id);
 
             $attendanceData = AttendanceData::where('BiometricUserId', $employee != null && $employee->BiometricsUserId != null ? $employee->BiometricsUserId : '')
-                ->whereNull('AbsentPermission')
+                // ->whereNull('AbsentPermission')
                 ->orderBy('Timestamp')
                 ->get();
 
