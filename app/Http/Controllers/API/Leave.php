@@ -15,6 +15,7 @@ use App\Models\LeaveApplications;
 use App\Models\LeaveDays;
 use App\Models\LeaveSignatories;
 use App\Models\Users;
+use App\Models\LeaveBalanceDetails;
 
 class Leave extends Controller {
     public function getLeaveSignatories(Request $request) {
@@ -230,5 +231,13 @@ class Leave extends Controller {
         } else {
             return response()->json('No leave found', 404);
         }
+    }
+
+    public function getLeaveCreditLogs(Request $request) {
+        $id = $request['id'];
+        
+        $leaveBalanceDetails = LeaveBalanceDetails::where('EmployeeId', $id)->orderByDesc('created_at')->get();
+
+        return response()->json($leaveBalanceDetails, 200);
     }
 }
