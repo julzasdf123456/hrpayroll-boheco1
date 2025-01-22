@@ -43,7 +43,7 @@ class LeaveBalanceDetails extends Model
         'Days',
         'Details',
         'Month',
-        'LeaveType'
+        'LeaveType',
     ];
 
     /**

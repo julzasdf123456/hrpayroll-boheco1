@@ -7,6 +7,7 @@ use App\Http\Controllers\API\SMSNotificationsAPI;
 use App\Http\Controllers\API\AuthOut;
 use App\Http\Controllers\API\EmployeeInfo;
 use App\Http\Controllers\API\Leave;
+use App\Http\Controllers\API\TripTicketsAPI;
 
 /*
 |--------------------------------------------------------------------------
@@ -55,3 +56,10 @@ Route::get('get-leave-signatories', [Leave::class, 'getLeaveSignatories']);
 Route::post('post-leave', [Leave::class, 'postLeave']);
 Route::get('get-all-leave', [Leave::class, 'getAllLeave']);
 Route::post('delete-leave', [Leave::class, 'deleteLeave']);
+Route::get('get-leave-credit-logs', [Leave::class, 'getLeaveCreditLogs']);
+
+/**
+ * Trip Tickets
+ */
+Route::get('get-trip-ticket-dependencies', [TripTicketsAPI::class, 'getTripTicketDependencies']);
+Route::post('post-trip-ticket', [TripTicketsAPI::class, 'postTripTicket']);
