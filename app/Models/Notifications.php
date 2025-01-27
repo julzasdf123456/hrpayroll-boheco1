@@ -51,7 +51,9 @@ class Notifications extends Model
         'Type' => 'string',
         'Content' => 'string',
         'Notes' => 'string',
-        'Status' => 'string'
+        'Status' => 'string',
+        'created_at' => 'string',
+        'updated_at' => 'string',     
     ];
 
     /**
@@ -64,8 +66,8 @@ class Notifications extends Model
         'Type' => 'nullable|string|max:100',
         'Content' => 'nullable|string|max:2000',
         'Notes' => 'nullable|string|max:1000',
-        'created_at' => 'nullable',
-        'updated_at' => 'nullable',        
+        'created_at' => 'nullable|string',
+        'updated_at' => 'nullable|string',        
         'Status' => 'string|nullable'
     ];
 
