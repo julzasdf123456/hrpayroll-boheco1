@@ -240,4 +240,30 @@ class Leave extends Controller {
 
         return response()->json($leaveBalanceDetails, 200);
     }
+
+    public function getLeave(Request $request) {
+        $id = $request['id'];
+
+        $data = LeaveApplications::find($id);
+
+        if ($data != null) {
+            $data->Days = DB::table('LeaveDays')
+                ->where('LeaveId', $data->id)
+                ->get();
+
+            $data->Signatories = DB::table('LeaveSignatories')
+                ->leftJoin("users", "LeaveSignatories.EmployeeId", "=", 'users.id')
+                ->select(
+                    "LeaveSignatories.*",
+                    "users.name"
+                )
+                ->where('LeaveId', $data->id)
+                ->orderBy("Rank")
+                ->get();
+
+            return response()->json($data, 200);
+        } else {
+            return response()->json('leave not found', 404);
+        }
+    }
 }

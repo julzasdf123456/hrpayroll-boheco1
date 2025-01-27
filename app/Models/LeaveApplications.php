@@ -54,7 +54,7 @@ class LeaveApplications extends Model
      * @var array
      */
     protected $casts = [
-        'id' => 'integer',
+        'id' => 'string',
         'EmployeeId' => 'string',
         'DateFrom' => 'date',
         'DateTo' => 'date',

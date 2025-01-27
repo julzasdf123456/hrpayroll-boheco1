@@ -137,4 +137,59 @@ class TripTicketsAPI extends Controller {
 
         return response()->json('ok', 200);
     }
+
+    public function getAllTripTickets(Request $request) {
+        $employeeId = $request['EmployeeId'];
+        // $type = $request['Type'];
+        $search = $request['Search'];
+
+        if ($search == null) {
+            $data = DB::table("TripTicketPassengers")
+                ->leftJoin('TripTickets', 'TripTicketPassengers.TripTicketId', '=', 'TripTickets.id')
+                ->leftJoin('Employees', 'TripTickets.Driver', '=', 'Employees.id')
+                ->whereRaw("TripTicketPassengers.EmployeeId='" . $employeeId . "' AND TripTickets.Status NOT IN ('Trash')")
+                ->select(
+                    'TripTickets.*',
+                    'Employees.FirstName AS DriverFirstName',
+                    'Employees.MiddleName AS DriverMiddleName',
+                    'Employees.LastName AS DriverLastName',
+                    'Employees.Suffix AS DriverSuffix',
+                    DB::raw("(SELECT STRING_AGG(DestinationAddress, ',') FROM TripTicketDestinations WHERE TripTicketDestinations.TripTicketId=TripTickets.id) AS Destinations")
+                )
+                ->orderByDesc('TripTicketPassengers.created_at')
+                ->get();
+        } else {
+            $data = DB::table("TripTicketPassengers")
+                ->leftJoin('TripTickets', 'TripTicketPassengers.TripTicketId', '=', 'TripTickets.id')
+                ->leftJoin('Employees', 'TripTickets.Driver', '=', 'Employees.id')
+                ->whereRaw("TripTicketPassengers.EmployeeId='" . $employeeId . "' AND TripTickets.PurposeOfTravel LIKE '%" . $search . "%' AND TripTickets.Status NOT IN ('Trash')")
+                ->select(
+                    'TripTickets.*',
+                    'Employees.FirstName AS DriverFirstName',
+                    'Employees.MiddleName AS DriverMiddleName',
+                    'Employees.LastName AS DriverLastName',
+                    'Employees.Suffix AS DriverSuffix',
+                    DB::raw("(SELECT STRING_AGG(DestinationAddress, ',') FROM TripTicketDestinations WHERE TripTicketDestinations.TripTicketId=TripTickets.id) AS Destinations")
+                )
+                ->orderByDesc('TripTicketPassengers.created_at')
+                ->get();
+        }
+
+        return response()->json($data, 200);
+    }
+
+    public function deleteTripTicket(Request $request) {
+        $id = $request['id'];
+
+        $tripTicket = TripTickets::find($id);
+
+        if ($tripTicket != null && $tripTicket->Status != 'APPROVED') {
+            $tripTicket->Status = 'Trash';
+            $tripTicket->save();
+
+            return response()->json($tripTicket, 200);
+        } else {
+            return response()->json('Not allowed', 403);
+        }
+    }
 }

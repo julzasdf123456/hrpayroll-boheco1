@@ -8,6 +8,7 @@ use App\Http\Controllers\API\AuthOut;
 use App\Http\Controllers\API\EmployeeInfo;
 use App\Http\Controllers\API\Leave;
 use App\Http\Controllers\API\TripTicketsAPI;
+use App\Http\Controllers\API\NotificationsAPI;
 
 /*
 |--------------------------------------------------------------------------
@@ -57,9 +58,17 @@ Route::post('post-leave', [Leave::class, 'postLeave']);
 Route::get('get-all-leave', [Leave::class, 'getAllLeave']);
 Route::post('delete-leave', [Leave::class, 'deleteLeave']);
 Route::get('get-leave-credit-logs', [Leave::class, 'getLeaveCreditLogs']);
+Route::get('get-leave', [Leave::class, 'getLeave']);
 
 /**
  * Trip Tickets
  */
 Route::get('get-trip-ticket-dependencies', [TripTicketsAPI::class, 'getTripTicketDependencies']);
 Route::post('post-trip-ticket', [TripTicketsAPI::class, 'postTripTicket']);
+Route::get('get-all-trip-tickets', [TripTicketsAPI::class, 'getAllTripTickets']);
+Route::post('delete-trip-ticket', [TripTicketsAPI::class, 'deleteTripTicket']);
+
+/**
+ * Notifications
+ */
+Route::get('get-notifications', [NotificationsAPI::class, 'getNotifications']);
