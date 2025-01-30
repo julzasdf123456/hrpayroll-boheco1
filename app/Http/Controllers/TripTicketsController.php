@@ -19,6 +19,7 @@ use App\Models\SMSNotifications;
 use App\Models\Users;
 use App\Models\TripTicketGRS;
 use App\Models\TripTicketPassengers;
+use App\Models\Notifications;
 use App\Models\Permission;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -106,6 +107,15 @@ class TripTicketsController extends AppBaseController
             $employee = Employees::find($user->employee_id);
             $requisitioner = Employees::find($tripTickets->EmployeeId);
             if ($employee != null) {
+                Notifications::create([
+                    'UserId' => $user->id,
+                    'Content' => ($requisitioner != null ? ($requisitioner->FirstName . " " . $requisitioner->LastName) : 'An employee ') . " has filed a trip ticket that needs your approval. ",
+                    'Type' => 'TRIP_TICKET',
+                    'Notes' => $input['id'],
+                    'Status' => 'UNREAD',
+                    'ForSignatory' => 'Yes',
+                ]);
+
                 /**
                  * =========================================================================
                  * SEND SMS
@@ -440,12 +450,25 @@ class TripTicketsController extends AppBaseController
          * =========================================================================
          */
         $employee = Employees::find(Users::find($tripTicket->UserId)->employee_id);
-        if ($employee != null && $employee->ContactNumbers != null) {
-            SMSNotifications::sendSMS($employee->ContactNumbers, 
-                "HRS Trip Ticket Approval\n\nHello " . $employee->FirstName . ", " . Auth::user()->name . " has APPROVED your trip ticket with Ref. No. " . $id . ".",
-                "HR-Trip Ticket",
-                $id
-            );
+        $approver = Auth::user();
+
+        if ($approver != null) {
+            // send notification
+            Notifications::create([
+                'UserId' => $tripTicket->UserId,
+                'Content' => ($approver->name) . " has approved your trip ticket.",
+                'Type' => 'TRIP_TICKET_APPROVAL',
+                'Notes' => $id,
+                'Status' => 'UNREAD',
+            ]);
+
+            if ($employee != null && $employee->ContactNumbers != null) {
+                SMSNotifications::sendSMS($employee->ContactNumbers, 
+                    "HRS Trip Ticket Approval\n\nHello " . $employee->FirstName . ", " . Auth::user()->name . " has APPROVED your trip ticket with Ref. No. " . $id . ".",
+                    "HR-Trip Ticket",
+                    $id
+                );
+            }
         }
 
         return response()->json('ok', 200);

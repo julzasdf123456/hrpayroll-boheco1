@@ -24,7 +24,10 @@
             <div id="card-{{ $item->id }}" class="col-lg-4 col-md-6 col-sm-12">
                 <div class="card shadow-none">
                     <div class="card-header border-0">
-                        <span class="card-title text-info"><i class="fas fa-info-circle ico-tab"></i>{{ Employees::getMergeName($item) }}</span>
+                        <span class="card-title">
+                            <h4 class="no-pads"><strong>{{ Employees::getMergeName($item) }}</strong></h4>
+                            <span class="badge bg-info">{{ $item->LeaveType }}</span>
+                        </span>
                     </div>
                     <div class="card-body">
                         <p style="margin: 0; padding: 0; font-size: 1.3em;">{{ $item->Content }}</p>
@@ -33,20 +36,25 @@
                         <br>
                         <ul>
                             @foreach ($leaveDays as $days)
-                                <li><strong>{{ date('D, M d, Y', strtotime($days->LeaveDate)) }}</strong> <span class="text-muted">({{ $days->Duration }})</span></li>
+                                <li><strong>{{ date('D, M d, Y', strtotime($days->LeaveDate)) }}</strong> <span
+                                        class="text-muted">({{ $days->Duration }})</span></li>
                             @endforeach
                         </ul>
                         <span class="text-muted">No. of Days: <strong>{{ count($leaveDays) }}</strong></span>
                         <br>
-                        <span class="text-muted">Date Filed: <strong>{{ date('D, M d, Y', strtotime($item->created_at)) }}</strong></span>
+                        <span class="text-muted">Date Filed:
+                            <strong>{{ date('D, M d, Y', strtotime($item->created_at)) }}</strong></span>
                     </div>
                     <div class="card-footer">
-                        <button id="{{ $item->id }}" class="btn btn-sm btn-success" onclick="approveLeave(`{{ $item->id }}`)" sig-id="{{ $item->SignatoryId }}"><i class="fas fa-check-circle ico-tab-mini"></i>Approve</button>
-                        <button onclick="rejectLeave(`{{ $item->id }}`, `{{ $item->SignatoryId }}`)" class="btn btn-sm btn-danger float-right"><i class="fas fa-times-circle ico-tab-mini"></i>Reject</button>
+                        <button id="{{ $item->id }}" class="btn btn-sm btn-success"
+                            onclick="approveLeave(`{{ $item->id }}`)" sig-id="{{ $item->SignatoryId }}"><i
+                                class="fas fa-check-circle ico-tab-mini"></i>Approve</button>
+                        <button onclick="rejectLeave(`{{ $item->id }}`, `{{ $item->SignatoryId }}`)"
+                            class="btn btn-sm btn-danger float-right"><i
+                                class="fas fa-times-circle ico-tab-mini"></i>Reject</button>
                     </div>
                 </div>
             </div>
-            
         @endforeach
     </div>
 @endsection
@@ -62,43 +70,45 @@
 
             Swal.fire({
                 title: 'Approval Confirmation',
-                text : 'Approve this leave application?',
+                text: 'Approve this leave application?',
                 showDenyButton: true,
                 confirmButtonText: 'Approve',
                 denyButtonText: `Close`,
-                }).then((result) => {
+            }).then((result) => {
                 /* Read more about isConfirmed, isDenied below */
                 if (result.isConfirmed) {
                     $.ajax({
-                        url : "{{ route('leaveApplications.approve-ajax') }}",
-                        type : 'GET',
-                        data : {
-                            id : id,
-                            SignatoryId : signatoryId,
+                        url: "{{ route('leaveApplications.approve-ajax') }}",
+                        type: 'GET',
+                        data: {
+                            id: id,
+                            SignatoryId: signatoryId,
                         },
-                        success : function(suc) {
+                        success: function(suc) {
                             Toast.fire({
-                                text : 'Leave approved',
-                                icon : 'success'
+                                text: 'Leave approved',
+                                icon: 'success'
                             })
                             $('#card-' + id).remove()
                         },
-                        error : function(err) {
+                        error: function(err) {
                             Swal.fire({
-                                text : 'Error approving leave! Contact IT support for more.',
-                                icon : 'error'
+                                text: 'Error approving leave! Contact IT support for more.',
+                                icon: 'error'
                             })
                         }
                     })
                 } else if (result.isDenied) {
-                    
+
                 }
             })
         }
 
         function rejectLeave(id, signatoryId) {
             (async () => {
-                const { value: text } = await Swal.fire({
+                const {
+                    value: text
+                } = await Swal.fire({
                     input: 'textarea',
                     inputLabel: 'Remarks/Notes',
                     inputPlaceholder: 'Type your remarks here...',
@@ -106,30 +116,30 @@
                         'aria-label': 'Type your remarks here'
                     },
                     title: 'Reject This Leave?',
-                    text : 'Before you reject this leave, please provide a remark or comment so the employee can assess the situation further.',
+                    text: 'Before you reject this leave, please provide a remark or comment so the employee can assess the situation further.',
                     showCancelButton: true
                 })
 
                 if (text) {
                     $.ajax({
-                        url : "{{ route('leaveApplications.reject-leave-ajax') }}",
-                        type : "GET",
-                        data : {
-                            id : id, 
-                            SignatoryId : signatoryId,
-                            Notes : text, 
-                        }, 
-                        success : function(res) {
+                        url: "{{ route('leaveApplications.reject-leave-ajax') }}",
+                        type: "GET",
+                        data: {
+                            id: id,
+                            SignatoryId: signatoryId,
+                            Notes: text,
+                        },
+                        success: function(res) {
                             Toast.fire({
-                                icon : 'info',
-                                text : 'Leave rejected!'
-                            })                            
+                                icon: 'info',
+                                text: 'Leave rejected!'
+                            })
                             $('#card-' + id).remove()
                         },
-                        error : function(err) {
+                        error: function(err) {
                             Swal.fire({
-                                icon : 'error',
-                                text : 'Error rejecting leave!'
+                                icon: 'error',
+                                text: 'Error rejecting leave!'
                             })
                         }
                     })

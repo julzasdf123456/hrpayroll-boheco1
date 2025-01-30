@@ -15,6 +15,7 @@ use App\Models\TripTicketDestinations;
 use App\Models\TripTickets;
 use App\Models\TripTicketSignatories;
 use App\Models\TripTicketPassengers;
+use App\Models\Notifications;
 
 class TripTicketsAPI extends Controller {
     public function getTripTicketDependencies(Request $request) {
@@ -118,6 +119,16 @@ class TripTicketsAPI extends Controller {
             $employee = Employees::find($user->employee_id);
             $requisitioner = Employees::find($tripTickets->EmployeeId);
             if ($employee != null) {
+                // send notification
+                Notifications::create([
+                    'UserId' => $user->id,
+                    'Content' => ($requisitioner != null ? ($requisitioner->FirstName . " " . $requisitioner->LastName) : 'An employee ') . " has filed a trip ticket that needs your approval. ",
+                    'Type' => 'TRIP_TICKET',
+                    'Notes' => $id,
+                    'Status' => 'UNREAD',
+                    'ForSignatory' => 'Yes',
+                ]);
+
                 /**
                  * =========================================================================
                  * SEND SMS
@@ -187,9 +198,141 @@ class TripTicketsAPI extends Controller {
             $tripTicket->Status = 'Trash';
             $tripTicket->save();
 
+            Notifications::where('Notes', $id)->delete();
+
             return response()->json($tripTicket, 200);
         } else {
             return response()->json('Not allowed', 403);
         }
+    }
+
+    public function getTT(Request $request) {
+        $id = $request['id'];
+
+        $data = DB::table("TripTicketPassengers")
+            ->leftJoin('TripTickets', 'TripTicketPassengers.TripTicketId', '=', 'TripTickets.id')
+            ->leftJoin('Employees', 'TripTickets.Driver', '=', 'Employees.id')
+            ->whereRaw("TripTickets.id='" . $id . "'")
+            ->select(
+                'TripTickets.*',
+                'Employees.FirstName AS DriverFirstName',
+                'Employees.MiddleName AS DriverMiddleName',
+                'Employees.LastName AS DriverLastName',
+                'Employees.Suffix AS DriverSuffix',
+                DB::raw("(SELECT STRING_AGG(DestinationAddress, ',') FROM TripTicketDestinations WHERE TripTicketDestinations.TripTicketId=TripTickets.id) AS Destinations")
+            )
+            ->first();
+
+        if ($data != null) {
+            $data->Employee = Employees::find($data->EmployeeId);
+
+            $data->Signatories = DB::table('TripTicketSignatories')
+                ->leftJoin("users", "TripTicketSignatories.EmployeeId", "=", 'users.id')
+                ->select(
+                    "TripTicketSignatories.*",
+                    "users.name"
+                )
+                ->where('TripTicketId', $data->id)
+                ->orderBy("Rank")
+                ->get();
+
+            return response()->json($data, 200);
+        } else {
+            return response()->json('trip ticket not found', 404);
+        }
+    }
+
+    public function approveTripTicket(Request $request) {
+        $id = $request['id'];
+        $userId = $request['UserId'];
+
+        $tripTicket = TripTickets::where('id', $id)->first();
+
+        if ($tripTicket != null) {
+            $tripTicket->Status = 'APPROVED';
+            $tripTicket->save();
+        }
+
+        TripTicketSignatories::where('TripTicketId', $id)
+            ->update(['Status' => 'APPROVED']);
+
+        /**
+         * =========================================================================
+         * SEND SMS
+         * =========================================================================
+         */
+        $employee = Employees::find(Users::find($tripTicket->UserId)->employee_id);
+        $approver = Users::find($userId);
+
+        if ($approver != null) {
+            // send notification
+            Notifications::create([
+                'UserId' => $tripTicket->UserId,
+                'Content' => ($approver->name) . " has approved your trip ticket.",
+                'Type' => 'TRIP_TICKET_APPROVAL',
+                'Notes' => $id,
+                'Status' => 'UNREAD',
+            ]);
+
+            if ($employee != null && $employee->ContactNumbers != null) {
+                SMSNotifications::sendSMS($employee->ContactNumbers, 
+                    "HRS Trip Ticket Approval\n\nHello " . $employee->FirstName . ", " . $approver->name . " has APPROVED your trip ticket with Ref. No. " . $id . ".",
+                    "HR-Trip Ticket",
+                    $id
+                );
+            }
+        }
+
+        return response()->json('ok', 200);
+    }
+
+    public function rejectTripTicket(Request $request) {
+        $id = $request['id'];
+        $notes = $request['Notes'];
+        $userId = $request['UserId'];
+
+        TripTickets::where('id', $id)
+            ->update(['Status' => 'REJECTED']);
+
+        TripTicketSignatories::where('TripTicketId', $id)
+            ->update(['Status' => 'REJECTED', 'Notes' => $notes]);
+
+        /**
+         * =========================================================================
+         * SEND SMS
+         * =========================================================================
+         */
+        $tripTicket = TripTickets::where('id', $id)->first();
+        $approver = Users::find($userId);
+        if ($approver != null && $tripTicket != null) {
+            // send notification
+            Notifications::create([
+                'UserId' => $tripTicket->UserId,
+                'Content' => ($approver->name) . " has REJECTED your trip ticket.",
+                'Type' => 'TRIP_TICKET_APPROVAL',
+                'Notes' => $id,
+                'Status' => 'UNREAD',
+            ]);
+
+            $employee = Employees::find(Users::find($tripTicket->UserId)->employee_id);
+            if ($employee != null && $employee->ContactNumbers != null) {
+                SMSNotifications::sendSMS($employee->ContactNumbers, 
+                    "HR System - Trip Ticket Approval:\n\n" . $approver->name . " has DISAPPROVED your trip ticket with Ref. No. " . $id . ".",
+                    "HR-Trip Ticket",
+                    $id
+                );
+            }
+        }
+
+        return response()->json('ok', 200);
+    }
+
+    public function requestGRS(Request $request) {
+        $id = $request['id'];
+
+        TripTickets::where('id', $id)
+            ->update(['RequestGRS' => 'Yes']);
+
+        return response()->json('ok', 200);
     }
 }

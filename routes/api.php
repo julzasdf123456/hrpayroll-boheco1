@@ -59,6 +59,8 @@ Route::get('get-all-leave', [Leave::class, 'getAllLeave']);
 Route::post('delete-leave', [Leave::class, 'deleteLeave']);
 Route::get('get-leave-credit-logs', [Leave::class, 'getLeaveCreditLogs']);
 Route::get('get-leave', [Leave::class, 'getLeave']);
+Route::post('approve-leave', [Leave::class, 'approveLeave']);
+Route::post('reject-leave', [Leave::class, 'rejectLeave']);
 
 /**
  * Trip Tickets
@@ -67,8 +69,13 @@ Route::get('get-trip-ticket-dependencies', [TripTicketsAPI::class, 'getTripTicke
 Route::post('post-trip-ticket', [TripTicketsAPI::class, 'postTripTicket']);
 Route::get('get-all-trip-tickets', [TripTicketsAPI::class, 'getAllTripTickets']);
 Route::post('delete-trip-ticket', [TripTicketsAPI::class, 'deleteTripTicket']);
+Route::get('get-tt', [TripTicketsAPI::class, 'getTT']);
+Route::post('approve-tt', [TripTicketsAPI::class, 'approveTripTicket']);
+Route::post('reject-tt', [TripTicketsAPI::class, 'rejectTripTicket']);
+Route::post('request-grs', [TripTicketsAPI::class, 'requestGRS']);
 
 /**
  * Notifications
  */
 Route::get('get-notifications', [NotificationsAPI::class, 'getNotifications']);
+Route::post('mark-as-read', [NotificationsAPI::class, 'markAsRead']);

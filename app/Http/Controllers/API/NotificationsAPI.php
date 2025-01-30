@@ -22,4 +22,13 @@ class NotificationsAPI extends Controller {
 
         return response()->json($data->items(), 200);
     }
+
+    public function markAsRead(Request $request) {
+        $id = $request['id'];
+
+        Notifications::where('id', $id)
+            ->update(['Status' => 'READ']);
+
+        return response()->json('marked', 200);
+    }
 }
