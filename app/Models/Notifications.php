@@ -37,7 +37,8 @@ class Notifications extends Model
         'Type',
         'Content',
         'Notes',
-        'Status'
+        'Status',
+        'ForSignatory',
     ];
 
     /**
@@ -53,7 +54,8 @@ class Notifications extends Model
         'Notes' => 'string',
         'Status' => 'string',
         'created_at' => 'string',
-        'updated_at' => 'string',     
+        'updated_at' => 'string',  
+        'ForSignatory' => 'string',  
     ];
 
     /**
@@ -68,7 +70,8 @@ class Notifications extends Model
         'Notes' => 'nullable|string|max:1000',
         'created_at' => 'nullable|string',
         'updated_at' => 'nullable|string',        
-        'Status' => 'string|nullable'
+        'Status' => 'string|nullable',
+        'ForSignatory' => 'nullable|string',  
     ];
 
     public static function assessNotificationRoute($type, $id, $notifId) {

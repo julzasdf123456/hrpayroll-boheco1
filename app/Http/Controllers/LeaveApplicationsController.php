@@ -1627,6 +1627,16 @@ class LeaveApplicationsController extends AppBaseController
                     if ($u != null) {
                         $fRank = Employees::find($u->employee_id);
 
+                        // send notification
+                        Notifications::create([
+                            'UserId' => $u->id,
+                            'Content' => $employee != null ? ($employee->FirstName . " " . $employee->LastName) : $u->name . " has filed a leave that needs your approval. ",
+                            'Type' => 'LEAVE_APPROVAL',
+                            'Notes' => $id,
+                            'Status' => 'UNREAD',
+                            'ForSignatory' => 'Yes',
+                        ]);
+
                         if ($fRank != null && $fRank->ContactNumbers != null) {
                             SMSNotifications::sendSMS($fRank->ContactNumbers, 
                                 "HRS Leave Approval\n\nHello " . $fRank->FirstName . ", " . $employee->FirstName . " " . $employee->LastName . " has filed a leave that needs your approval. " .
