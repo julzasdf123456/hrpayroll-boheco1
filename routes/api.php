@@ -9,6 +9,7 @@ use App\Http\Controllers\API\EmployeeInfo;
 use App\Http\Controllers\API\Leave;
 use App\Http\Controllers\API\TripTicketsAPI;
 use App\Http\Controllers\API\NotificationsAPI;
+use App\Http\Controllers\API\Offsets;
 
 /*
 |--------------------------------------------------------------------------
@@ -49,6 +50,7 @@ Route::post('login', [AuthOut::class, 'login']);
  */
 Route::get('get-employee-information', [EmployeeInfo::class, 'getEmployeeInformation']);
 Route::get('get-attendance-data', [EmployeeInfo::class, 'getAttendanceData']);
+Route::get('get-signatories', [EmployeeInfo::class, 'getSignatories']);
 
 /**
  * LEAVE
@@ -79,3 +81,10 @@ Route::post('request-grs', [TripTicketsAPI::class, 'requestGRS']);
  */
 Route::get('get-notifications', [NotificationsAPI::class, 'getNotifications']);
 Route::post('mark-as-read', [NotificationsAPI::class, 'markAsRead']);
+
+/**
+ * Offsets
+ */
+Route::post('post-offset', [Offsets::class, 'postOffset']);
+Route::get('get-offset', [Offsets::class, 'getOffset']);
+Route::post('approve-offset', [Offsets::class, 'approveOffset']);
