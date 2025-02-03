@@ -88,3 +88,4 @@ Route::post('mark-as-read', [NotificationsAPI::class, 'markAsRead']);
 Route::post('post-offset', [Offsets::class, 'postOffset']);
 Route::get('get-offset', [Offsets::class, 'getOffset']);
 Route::post('approve-offset', [Offsets::class, 'approveOffset']);
+Route::post('reject-offset', [Offsets::class, 'rejectOffset']);
