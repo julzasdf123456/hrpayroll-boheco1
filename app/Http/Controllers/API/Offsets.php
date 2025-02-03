@@ -146,14 +146,14 @@ class Offsets extends Controller {
         $notifications = new Notifications;
         $notifications->UserId = $user != null ? $user->id : '';
         $notifications->Type = 'OFFSET_APPROVAL';
-        $notifications->Content = Users::find($offsetSignatory->EmployeeId)->name . ' has approved your leave.';
+        $notifications->Content = Users::find($offsetSignatory->EmployeeId)->name . ' has approved your offset application.';
         $notifications->Notes = $id;
         $notifications->Status = "UNREAD";
         $notifications->save();
 
         // ADD NOTIFICATIONS FOR NEXT SIGNATORY
         $nextSignatory = DB::table('OffsetSignatories')
-            ->whereRaw("OffsetBatchId='" . $id . "' AND (Status IS NULL OR Status NOT IN('REMOVED')) AND Rank > " . $offsetSignatory->Rank)
+            ->whereRaw("OffsetBatchId='" . $offset->OffsetBatchId . "' AND (Status IS NULL OR Status NOT IN('REMOVED')) AND Rank > " . $offsetSignatory->Rank)
             ->orderBy('Rank')
             ->first();
 
@@ -307,5 +307,64 @@ class Offsets extends Controller {
         }
         
         return response()->json('ok', 200);
+    }
+
+    public function rejectOffset(Request $request) {
+        $id = $request['id'];
+        $signatoryId = $request['SignatoryId'];
+        $notes = $request['Notes'];
+
+        $offset = OffsetApplications::find($id);
+        $offsetSignatory = OffsetSignatories::find($signatoryId);
+        $employee = Employees::find($offset->EmployeeId);
+
+        if ($offset != null) {
+            $offset->Status = 'REJECTED';
+            $offset->save();
+        }
+
+        if ($offsetSignatory != null) {
+            $offsetSignatory->Status = 'REJECTED';
+            $offsetSignatory->Notes = $notes;
+            $offsetSignatory->save();
+
+            $nextSignatories = DB::table('OffsetSignatories')
+                ->whereRaw("OffsetBatchId='" . $offset->OffsetBatchId . "' AND (Status IS NULL OR Status NOT IN('REMOVED')) AND Rank > " . $offsetSignatory->Rank)
+                ->orderBy('Rank')
+                ->get();
+            foreach ($nextSignatories as $item) {
+                $leaveSig = OffsetSignatories::find($item->id);
+                if ($leaveSig != null) {
+                    $leaveSig->Status = 'REJECTED';
+                    $leaveSig->Notes = 'Auto rejected due to rejection of previous signatory.';
+                    $leaveSig->save();
+                }
+            }
+
+            // INSERT NOTIF
+            $user = Users::where('employee_id', $offset->EmployeeId)->first();
+            $notifications = new Notifications;
+            $notifications->UserId = $user != null ? $user->id : '';
+            $notifications->Type = 'OFFSET_INFO';
+            $notifications->Content = Users::find($offsetSignatory->EmployeeId)->name . ' REJECTED your offset application.';
+            $notifications->Notes = $id;
+            $notifications->Status = "UNREAD";
+            $notifications->save();
+            
+            /**
+             * =========================================================================
+             * SEND SMS
+             * =========================================================================
+             */
+            if ($employee != null && $employee->ContactNumbers != null) {
+                SMSNotifications::sendSMS($employee->ContactNumbers, 
+                    "HRS Offset Approval:\n\n" . Users::find($offsetSignatory->EmployeeId)->name . " has DISAPPROVED your offset application due to the following reasons:\n\n" . $notes,
+                    "HR-Offset",
+                    $id
+                );
+            }
+        }
+
+        return response()->json($offset, 200);
     }
 }
