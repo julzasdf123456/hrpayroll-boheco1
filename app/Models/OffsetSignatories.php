@@ -13,7 +13,7 @@ class OffsetSignatories extends Model
         'EmployeeId',
         'Rank',
         'Status',
-        'Notes'
+        'Notes',
     ];
 
     protected $casts = [
