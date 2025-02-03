@@ -38,6 +38,7 @@ use App\Http\Controllers\MemorandumsController;
 use App\Http\Controllers\TestController;
 use App\Http\Controllers\TaskHeadsController;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\Tutorials;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -507,3 +508,6 @@ Route::post('/posts/comment', [PostController::class, 'comment'])->name('posts.c
 Route::resource('posts', PostController::class);
 Route::resource('postReactions', App\Http\Controllers\PostReactionsController::class);
 Route::resource('postComments', App\Http\Controllers\PostCommentsController::class);
+
+Route::get('/tutorials/index', [Tutorials::class, 'index'])->name('tutorials.index');
+Route::get('/tutorials/video-viewer/{filename}/{title}/{description}', [Tutorials::class, 'videoViewer'])->name('tutorials.videoViewer');
