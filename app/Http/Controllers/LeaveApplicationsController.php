@@ -1581,7 +1581,8 @@ class LeaveApplicationsController extends AppBaseController
         $leave->Status = 'Filed';
         $leave->LeaveType = $leaveType;
         $leave->created_at = $dateFiled;
-        $leave->save();
+        
+        $totalCredits = 0;
 
         $employee = DB::table('Employees')
             ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
@@ -1594,6 +1595,8 @@ class LeaveApplicationsController extends AppBaseController
         $smsDays = "";
         $totalDays = 0;
         for($i=0; $i<count($days); $i++) {
+            $totalMins = 0;
+            $leaveDays = 0;
             
             $leaveDay = new LeaveDays;
             $leaveDay->id = IDGenerator::generateIDandRandString();
@@ -1601,16 +1604,40 @@ class LeaveApplicationsController extends AppBaseController
             $leaveDay->LeaveDate = $days[$i]['LeaveDate'];
             if ($days[$i]['Duration'] === 'WHOLE') {
                 $leaveDay->Longevity = 1;
-                $totalDays += 1;
+
+                // increment total minutes for vacation and sick leave
+                if ($leaveType === 'Vacation' | $leaveType === 'Sick') {
+                    $totalMins = (8 * 60);
+
+                    $totalCredits += $totalMins;
+                } else {
+                    $leaveDays = 1;
+
+                    $totalCredits += $leaveDays;
+                }
             } else {
                 $leaveDay->Longevity = 0.5;
-                $totalDays += 0.5;
+
+                // increment total minutes for vacation and sick leave
+                if ($leaveType === 'Vacation' | $leaveType === 'Sick') {
+                    $totalMins = (4 * 60);
+                    
+                    $totalCredits += $totalMins;
+                } else {
+                    $leaveDays = .5;
+                    
+                    $totalCredits += $leaveDays;
+                }
             }
+            $totalDays += 1;
             $leaveDay->Duration = $days[$i]['Duration'];
             $leaveDay->save();
 
             $smsDays .= date('D, M d, Y', strtotime($days[$i]['LeaveDate'])) . " (" . $days[$i]['Duration'] . ")" . "\n";
         }
+
+        $leave->TotalCredits = $totalCredits;
+        $leave->save();
 
         // INSERT SIGNATORIES
         if (isset($signatories)) {

@@ -76,9 +76,9 @@ class Notifications extends Model
 
     public static function assessNotificationRoute($type, $id, $notifId) {
         if ($type == 'LEAVE_APPROVAL') {
-            return route('leaveApplications.approvals', [$id]);
+            return route('leaveApplications.my-approvals', [$id]);
         } elseif ($type == 'LEAVE_INFO') {
-            return route('leaveApplications.show', [$id]);
+            return route('users.view-leave', [$id]);
         } elseif ($type == 'PAYROLL_INFO') {
             return route('payrollIndices.payslip', [$id]);
         } elseif($type == 'INFO') {
