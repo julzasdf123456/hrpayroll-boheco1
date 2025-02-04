@@ -367,4 +367,14 @@ class Offsets extends Controller {
 
         return response()->json($offset, 200);
     }
+
+    public function getAllOffsets(Request $request) {
+        $employeeId = $request['EmployeeId'];
+
+        $data = OffsetApplications::where('EmployeeId', $employeeId)
+            ->orderByDesc('created_at')
+            ->simplePaginate(5);
+
+        return response()->json($data->items(), 200);
+    }
 }
