@@ -14,7 +14,7 @@ class AttendaneConfirmationSignatories extends Model
         'EmployeeId',
         'Rank',
         'Status',
-        'Notes'
+        'Notes',
     ];
 
     protected $casts = [

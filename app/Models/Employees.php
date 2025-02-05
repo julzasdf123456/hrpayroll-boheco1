@@ -258,7 +258,7 @@ class Employees extends Model
 
     public static function getSupers($employeeId, $levelArrayFilter /** FILTERS THE LEVELS YOU WANT TO FETCH */) {
         $employee = DB::table('Employees')
-            ->leftJoin('EmployeesDesignations', 'EmployeesDesignations.EmployeeId', '=', 'Employees.id')
+            ->leftJoin('EmployeesDesignations', 'EmployeesDesignations.id', '=', 'Employees.Designation')
             ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
             ->select('Employees.LastName', 'Positions.Position', 'Positions.Department', 'Positions.ParentPositionId')
             ->whereRaw("Employees.id='" . $employeeId . "'")
@@ -277,13 +277,13 @@ class Employees extends Model
             while ($sign) {
                 $signatoryParents = DB::table('users')
                     ->leftJoin('Employees', 'users.employee_id', '=', 'Employees.id')
-                    ->leftJoin('EmployeesDesignations', 'EmployeesDesignations.EmployeeId', '=', 'Employees.id')
+                    ->leftJoin('EmployeesDesignations', 'EmployeesDesignations.id', '=', 'Employees.Designation')
                     ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
                     ->select('users.id', 'Employees.id AS EmployeeId', 'Employees.FirstName', 'Employees.LastName', 'Employees.MiddleName', 'Employees.Suffix', 'Positions.Level', 'Positions.Position', 'Positions.ParentPositionId', 'Positions.id AS PositionId')
                     ->whereRaw("Positions.id='" . $parentPosId . "'")
                     ->first();
 
-                if ($i > 6) {
+                if ($i > 8) {
                     $sign = false;
                     break;
                 } else {

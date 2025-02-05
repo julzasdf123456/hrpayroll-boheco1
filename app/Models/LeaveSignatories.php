@@ -46,7 +46,7 @@ class LeaveSignatories extends Model
      * @var array
      */
     protected $casts = [
-        'id' => 'integer',
+        'id' => 'string',
         'LeaveId' => 'string',
         'EmployeeId' => 'string',
         'Rank' => 'integer',

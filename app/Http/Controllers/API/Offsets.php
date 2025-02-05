@@ -372,9 +372,32 @@ class Offsets extends Controller {
         $employeeId = $request['EmployeeId'];
 
         $data = OffsetApplications::where('EmployeeId', $employeeId)
+            ->select(
+                '*',
+                DB::raw("NULL AS Signatories"),
+                DB::raw("NULL AS Employee"),
+            )
             ->orderByDesc('created_at')
-            ->simplePaginate(5);
+            ->simplePaginate(15);
 
         return response()->json($data->items(), 200);
+    }
+
+    public function deleteOffset(Request $request) {
+        $offsetId = $request['OffsetId'];
+
+        $offset = OffsetApplications::find($offsetId);
+        
+        if ($offset != null) {
+            OffsetSignatories::where('OffsetBatchId', $offset->OffsetBatchId)
+                ->delete();
+
+            Notifications::where('Notes', $offset->id)
+            ->delete();
+        }
+
+        $offset->delete();
+
+        return response()->json($offset, 200);
     }
 }

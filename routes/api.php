@@ -10,6 +10,7 @@ use App\Http\Controllers\API\Leave;
 use App\Http\Controllers\API\TripTicketsAPI;
 use App\Http\Controllers\API\NotificationsAPI;
 use App\Http\Controllers\API\Offsets;
+use App\Http\Controllers\API\AttendanceConfirmationAPI;
 
 /*
 |--------------------------------------------------------------------------
@@ -51,6 +52,7 @@ Route::post('login', [AuthOut::class, 'login']);
 Route::get('get-employee-information', [EmployeeInfo::class, 'getEmployeeInformation']);
 Route::get('get-attendance-data', [EmployeeInfo::class, 'getAttendanceData']);
 Route::get('get-signatories', [EmployeeInfo::class, 'getSignatories']);
+Route::get('my-approvals', [EmployeeInfo::class, 'getMyApprovals']);
 
 /**
  * LEAVE
@@ -90,3 +92,13 @@ Route::get('get-offset', [Offsets::class, 'getOffset']);
 Route::post('approve-offset', [Offsets::class, 'approveOffset']);
 Route::post('reject-offset', [Offsets::class, 'rejectOffset']);
 Route::get('get-all-offsets', [Offsets::class, 'getAllOffsets']);
+Route::post('delete-offset', [Offsets::class, 'deleteOffset']);
+
+/**
+ * Attendance Confirmation
+ */
+Route::post('post-attendance-confirmation', [AttendanceConfirmationAPI::class, 'postAttendanceConfirmation']);
+Route::get('get-attendance-confirmation', [AttendanceConfirmationAPI::class, 'getAttendanceConfirmation']);
+Route::post('approve-attendance-confirmation', [AttendanceConfirmationAPI::class, 'approveAttendanceConfirmation']);
+Route::get('get-all-attendance-confirmations', [AttendanceConfirmationAPI::class, 'getAllAttendanceConfirmations']);
+Route::post('delete-attendance-confirmation', [AttendanceConfirmationAPI::class, 'deleteAttendanceConfirmation']);

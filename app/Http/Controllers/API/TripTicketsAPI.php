@@ -23,7 +23,7 @@ class TripTicketsAPI extends Controller {
 
         $vehicles = Vehicles::orderBy('VehicleName')->get();
         $drivers = DB::table('Employees')
-            ->leftJoin('EmployeesDesignations', 'EmployeesDesignations.EmployeeId', '=', 'Employees.id')
+            ->leftJoin('EmployeesDesignations', 'EmployeesDesignations.id', '=', 'Employees.Designation')
             ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
             ->select('Employees.*')
             ->whereRaw("Positions.Level='Driver' OR Employees.AuthorizedToDrive='Yes'")
@@ -35,7 +35,7 @@ class TripTicketsAPI extends Controller {
 
         $otherSignatories = DB::table('users')
             ->leftJoin('Employees', 'users.employee_id', '=', 'Employees.id')
-            ->leftJoin('EmployeesDesignations', 'EmployeesDesignations.EmployeeId', '=', 'Employees.id')
+            ->leftJoin('EmployeesDesignations', 'EmployeesDesignations.id', '=', 'Employees.Designation')
             ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
             ->select('users.id', 'Employees.id AS EmployeeId', 'Employees.FirstName', 'Employees.LastName', 'Employees.MiddleName', 'Employees.Suffix', 'Positions.Level', 'Positions.Position', 'Positions.ParentPositionId', 'Positions.id AS PositionId')
             ->whereRaw("Positions.Level IN ('Chief', 'Manager', 'General Manager')")
