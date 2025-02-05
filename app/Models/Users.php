@@ -53,7 +53,7 @@ class Users extends Model
      * @var array
      */
     protected $casts = [
-        'id' => 'integer',
+        'id' => 'string',
         'employee_id' => 'string',
         'username' => 'string',
         'name' => 'string',

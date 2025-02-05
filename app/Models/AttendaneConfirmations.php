@@ -20,7 +20,7 @@ class AttendaneConfirmations extends Model
         'OTOut',
         'Status',
         'Notes',
-        'UserId'
+        'UserId',
     ];
 
     protected $casts = [
@@ -54,5 +54,15 @@ class AttendaneConfirmations extends Model
         'UserId' => 'nullable|string',
     ];
 
-    
+    public static function validateTimeSlot($time, $timeSlot, $attConfColumn) {
+        if ($timeSlot != null) {
+            if ($timeSlot === $attConfColumn) {
+                return $time;
+            } else {
+                return null;
+            }
+        } else {
+            return null;
+        }
+    }
 }

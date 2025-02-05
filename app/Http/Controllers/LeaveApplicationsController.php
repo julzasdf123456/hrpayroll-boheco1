@@ -1701,15 +1701,16 @@ class LeaveApplicationsController extends AppBaseController
         $employeeId = $request['EmployeeId'];
 
         $employee = DB::table('Employees')
-            ->leftJoin('EmployeesDesignations', 'EmployeesDesignations.EmployeeId', '=', 'Employees.id')
+            ->leftJoin('EmployeesDesignations', 'EmployeesDesignations.id', '=', 'Employees.Designation')
             ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
             ->select('Positions.Department', 'Positions.ParentPositionId', 'Positions.Level')
             ->whereRaw("Employees.id='" . $employeeId . "'")
+            ->orderByDesc('EmployeesDesignations.created_at')
             ->first();
 
         $otherSignatories = DB::table('users')
             ->leftJoin('Employees', 'users.employee_id', '=', 'Employees.id')
-            ->leftJoin('EmployeesDesignations', 'EmployeesDesignations.EmployeeId', '=', 'Employees.id')
+            ->leftJoin('EmployeesDesignations', 'EmployeesDesignations.id', '=', 'Employees.Designation')
             ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
             ->select('users.id', 'Employees.id AS EmployeeId', 'Employees.FirstName', 'Employees.LastName', 'Employees.MiddleName', 'Employees.Suffix', 'Positions.Level', 'Positions.Position', 'Positions.ParentPositionId', 'Positions.id AS PositionId')
             ->whereRaw("Positions.Level IN ('Supervisor', 'Chief', 'Manager', 'General Manager')")
@@ -1720,7 +1721,7 @@ class LeaveApplicationsController extends AppBaseController
             if (in_array($employee->Level, ['Supervisor', 'Chief', 'Manager'])) {
                 $signatories = Employees::getSupers($employeeId, ['Chief', 'Manager', 'General Manager']);
             } else {
-                $signatories = Employees::getSupers($employeeId, ['Chief', 'Manager']);
+                $signatories = Employees::getSupers($employeeId, ['Supervisor', 'Chief', 'Manager']);
             }
         }
 
