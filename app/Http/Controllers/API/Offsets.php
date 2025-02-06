@@ -137,6 +137,11 @@ class Offsets extends Controller {
         $offsetSignatory->Status = 'APPROVED';
         $offsetSignatory->save();
 
+        // update notification
+        Notifications::where('Notes', $id)
+            ->where('UserId', $offsetSignatory->EmployeeId)
+            ->update(['Status' => 'READ']);
+
         // GET USER
         $user = Users::where('employee_id', $offset->EmployeeId)->first();
         $employee = Employees::find($offset->EmployeeId);

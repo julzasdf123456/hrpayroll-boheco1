@@ -114,7 +114,7 @@ class EmployeeInfo extends Controller {
             ->leftJoin('OffsetApplications', 'OffsetSignatories.OffsetBatchId', '=', 'OffsetApplications.OffsetBatchId')
             ->leftJoin('users', 'OffsetApplications.PreparedBy', '=', 'users.id')
             ->leftJoin('Employees', 'OffsetApplications.EmployeeId', '=', 'Employees.id')
-            ->whereRaw("OffsetSignatories.EmployeeId='" . $userId . "' AND (OffsetApplications.Status IS NULL OR OffsetApplications.Status='FILED') AND OffsetSignatories.id IN 
+            ->whereRaw("OffsetSignatories.EmployeeId='" . $userId . "' AND (OffsetApplications.Status IS NULL OR OffsetApplications.Status NOT IN ('APPROVED', 'REJECTED')) AND OffsetSignatories.id IN 
                 (SELECT TOP 1 x.id FROM OffsetSignatories x WHERE x.OffsetBatchId=OffsetSignatories.OffsetBatchId AND x.Status IS NULL ORDER BY x.Rank)")
             ->select(
                 DB::raw("TRY_CAST(OffsetApplications.id AS VARCHAR) AS id"),
@@ -136,7 +136,7 @@ class EmployeeInfo extends Controller {
             ->leftJoin('AttendanceConfirmations', 'AttendanceConfirmationSignatories.AttendanceConfirmationId', '=', 'AttendanceConfirmations.id')
             ->leftJoin('users', 'AttendanceConfirmations.UserId', '=', 'users.id')
             ->leftJoin('Employees', 'AttendanceConfirmations.EmployeeId', '=', 'Employees.id')
-            ->whereRaw("AttendanceConfirmationSignatories.EmployeeId='" . $userId . "' AND (AttendanceConfirmations.Status IS NULL OR AttendanceConfirmations.Status='FILED') AND AttendanceConfirmationSignatories.id IN 
+            ->whereRaw("AttendanceConfirmationSignatories.EmployeeId='" . $userId . "' AND (AttendanceConfirmations.Status IS NULL OR AttendanceConfirmations.Status NOT IN ('APPROVED', 'REJECTED')) AND AttendanceConfirmationSignatories.id IN 
                 (SELECT TOP 1 x.id FROM AttendanceConfirmationSignatories x WHERE x.AttendanceConfirmationId=AttendanceConfirmationSignatories.AttendanceConfirmationId AND x.Status IS NULL ORDER BY x.Rank)")
             ->select(
                 DB::raw("TRY_CAST(AttendanceConfirmations.id AS VARCHAR) AS id"),

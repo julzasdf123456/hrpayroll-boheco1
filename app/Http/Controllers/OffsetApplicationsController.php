@@ -247,7 +247,7 @@ class OffsetApplicationsController extends AppBaseController
             ->leftJoin('OffsetApplications', 'OffsetSignatories.OffsetBatchId', '=', 'OffsetApplications.OffsetBatchId')
             ->leftJoin('users', 'OffsetApplications.PreparedBy', '=', 'users.id')
             ->leftJoin('Employees', 'OffsetApplications.EmployeeId', '=', 'Employees.id')
-            ->whereRaw("OffsetSignatories.EmployeeId='" . Auth::id() . "' AND (OffsetApplications.Status IS NULL OR OffsetApplications.Status='FILED') AND OffsetSignatories.id IN 
+            ->whereRaw("OffsetSignatories.EmployeeId='" . Auth::id() . "' AND (OffsetApplications.Status IS NULL OR OffsetApplications.Status NOT IN ('APPROVED', 'REJECTED')) AND OffsetSignatories.id IN 
                 (SELECT TOP 1 x.id FROM OffsetSignatories x WHERE x.OffsetBatchId=OffsetSignatories.OffsetBatchId AND x.Status IS NULL ORDER BY x.Rank)")
             ->select('OffsetApplications.*',
                 'OffsetSignatories.id AS SignatoryId',

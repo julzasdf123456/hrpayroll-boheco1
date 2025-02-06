@@ -131,6 +131,11 @@ class AttendanceConfirmationAPI extends Controller {
         $signatory->Status = 'APPROVED';
         $signatory->save();
 
+        // update notification
+        Notifications::where('Notes', $id)
+            ->where('UserId', $signatory->EmployeeId)
+            ->update(['Status' => 'READ']);
+
         // GET USER
         $user = Users::where('employee_id', $attConf->EmployeeId)->first();
         $employee = Employees::find($attConf->EmployeeId);
