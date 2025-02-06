@@ -10,13 +10,67 @@ use App\Models\IDGenerator;
 use App\Models\Employees;
 use App\Models\LeaveBalances;
 use App\Models\AttendanceData;
+use App\Models\EmployeesDesignations;
+use App\Models\Positions;
 
 class EmployeeInfo extends Controller {
     public function getEmployeeInformation(Request $request) {
         $id = $request['employee_id'];
 
         if (isset($id)) {
-            $employee = Employees::find($id);
+            $employee = DB::table('Employees')
+                ->leftJoin('Towns', 'Employees.TownCurrent', '=', 'Towns.id')
+                ->leftJoin('Barangays', 'Employees.BarangayCurrent', '=', 'Barangays.id')
+                ->whereRaw("Employees.id='". $id ."'")
+                ->select(
+                    'Employees.id',
+                    'Employees.FirstName',
+                    'Employees.MiddleName',
+                    'Employees.LastName',
+                    'Employees.Suffix',
+                    'Employees.Gender',
+                    'Employees.Birthdate',
+                    'Employees.StreetCurrent',
+                    DB::raw("Barangays.Barangays as BarangayCurrent"),
+                    DB::raw("Towns.Town as TownCurrent"),
+                    'Employees.ProvinceCurrent',
+                    'Employees.StreetPermanent',
+                    'Employees.BarangayPermanent',
+                    'Employees.TownPermanent',
+                    'Employees.ProvincePermanent',
+                    'Employees.ContactNumbers',
+                    'Employees.EmailAddress',
+                    'Employees.BloodType',
+                    'Employees.CivilStatus',
+                    'Employees.Religion',
+                    'Employees.Citizenship',
+                    'Employees.Designation',
+                    'Employees.BiometricsUserId',
+                    'Employees.PayrollScheduleId',
+                    'Employees.AuthorizedToDrive',
+                    'Employees.NoAttendanceAllowed',
+                    'Employees.DayOffDates',
+                    'Employees.Longevity',
+                    'Employees.OfficeDesignation',
+                    'Employees.DateHired',
+                    'Employees.EmploymentStatus',
+                    'Employees.DateEnded',
+                    'Employees.PrimaryBankNumber',
+                    'Employees.PrimaryBank',
+                    'Employees.TIN',
+                    'Employees.SSSNumber',
+                    'Employees.PhilHealthNumber',
+                    'Employees.PagIbigNumber',
+                    'Employees.PositionStatus',
+                    'Employees.SoloMother',
+                    'Employees.SoloParent',
+                    'Employees.Mother',
+                    'Employees.Father',
+                    'Employees.ProfilePicture',
+                )
+                ->first();
+            $designation = EmployeesDesignations::find($employee->Designation);
+            $position = $designation != null ? Positions::find($designation->PositionId) : null;
             $leaveBalances = LeaveBalances::where('EmployeeId', $id)->first();
 
             if ($leaveBalances != null) {
@@ -25,6 +79,8 @@ class EmployeeInfo extends Controller {
             }
             $data = [
                 'Employee' => $employee,
+                'Designation' => $designation,
+                'Position' => $position,
                 'LeaveBalances' => $leaveBalances,
             ];
 
@@ -177,5 +233,54 @@ class EmployeeInfo extends Controller {
             ->get();
 
         return response()->json($tripTickets, 200);
+    }
+
+    public function getEmployeeDesignations(Request $request) {
+        $id = $request['EmployeeId'];
+
+        $designations = DB::table('EmployeesDesignations')
+            ->leftJoin('Positions', 'EmployeesDesignations.PositionId', '=', 'Positions.id')
+            ->whereRaw("EmployeesDesignations.EmployeeId='" . $id . "'")
+            ->select(
+                'EmployeesDesignations.id',
+                'EmployeesDesignations.EmployeeId',
+                DB::raw("Positions.Position AS PositionId"),
+                'EmployeesDesignations.Description',
+                'EmployeesDesignations.DateStarted',
+                'EmployeesDesignations.DateEnd',
+                'EmployeesDesignations.SalaryGrade',
+                'EmployeesDesignations.SalaryAmount',
+                'EmployeesDesignations.SalaryAddOns',
+                'EmployeesDesignations.Status',
+                'EmployeesDesignations.IsActive',
+                DB::raw("Positions.Department AS SubjectLoad"),
+                'EmployeesDesignations.created_at',
+                'EmployeesDesignations.updated_at',
+            )
+            ->orderByDesc('EmployeesDesignations.DateStarted')
+            ->get();
+
+        return response()->json($designations, 200);
+    }
+
+    public function uploadProfileImage(Request $request) {
+        $request->validate([
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:60048',
+        ]);
+
+        // Store the uploaded image in the 'public/uploads' directory
+        if ($request->file('image')) {
+            $image = $request->file('image');
+            $imageName = $request['employeeId'] . '.jpg';
+            $image->move(public_path() . "/imgs/profiles/", $imageName);
+            
+            // update empoyees
+            Employees::where('id', $request['employeeId'])
+                ->update(['ProfilePicture' => $request['employeeId'] . ".jpg"]);
+
+            return response()->json(['success' => 'Image uploaded successfully!', 'image' => $imageName]);
+        }
+
+        return response()->json(['error' => 'Image upload failed'], 400);
     }
 }

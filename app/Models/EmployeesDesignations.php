@@ -60,7 +60,7 @@ class EmployeesDesignations extends Model
      * @var array
      */
     protected $casts = [
-        'id' => 'integer',
+        'id' => 'string',
         'EmployeeId' => 'string',
         'PositionId' => 'string',
         'Description' => 'string',
