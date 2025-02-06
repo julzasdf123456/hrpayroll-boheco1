@@ -52,7 +52,7 @@ Route::post('login', [AuthOut::class, 'login']);
 Route::get('get-employee-information', [EmployeeInfo::class, 'getEmployeeInformation']);
 Route::get('get-attendance-data', [EmployeeInfo::class, 'getAttendanceData']);
 Route::get('get-signatories', [EmployeeInfo::class, 'getSignatories']);
-Route::get('my-approvals', [EmployeeInfo::class, 'getMyApprovals']);
+Route::get('get-my-approvals', [EmployeeInfo::class, 'getMyApprovals']);
 
 /**
  * LEAVE
@@ -83,6 +83,7 @@ Route::post('request-grs', [TripTicketsAPI::class, 'requestGRS']);
  */
 Route::get('get-notifications', [NotificationsAPI::class, 'getNotifications']);
 Route::post('mark-as-read', [NotificationsAPI::class, 'markAsRead']);
+Route::post('mark-all-as-read', [NotificationsAPI::class, 'markAllAsRead']);
 
 /**
  * Offsets

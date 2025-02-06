@@ -325,6 +325,11 @@ class Leave extends Controller {
         $leaveSignatory->Status = 'APPROVED';
         $leaveSignatory->save();
 
+        // update notification
+        Notifications::where('Notes', $id)
+            ->where('UserId', $leaveSignatory->EmployeeId)
+            ->update(['Status' => 'READ']);
+
         // GET USER
         $user = Users::where('employee_id', $leaveApplication->EmployeeId)->first();
         $employee = Employees::find($leaveApplication->EmployeeId);

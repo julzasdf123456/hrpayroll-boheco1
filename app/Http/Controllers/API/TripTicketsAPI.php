@@ -265,6 +265,11 @@ class TripTicketsAPI extends Controller {
         $approver = Users::find($userId);
 
         if ($approver != null) {
+            // update notification
+            Notifications::where('Notes', $id)
+                ->where('UserId', $approver->id)
+                ->update(['Status' => 'READ']);
+
             // send notification
             Notifications::create([
                 'UserId' => $tripTicket->UserId,

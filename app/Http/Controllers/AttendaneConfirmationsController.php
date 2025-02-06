@@ -283,7 +283,7 @@ class AttendaneConfirmationsController extends AppBaseController
             ->leftJoin('AttendanceConfirmations', 'AttendanceConfirmationSignatories.AttendanceConfirmationId', '=', 'AttendanceConfirmations.id')
             ->leftJoin('users', 'AttendanceConfirmations.UserId', '=', 'users.id')
             ->leftJoin('Employees', 'AttendanceConfirmations.EmployeeId', '=', 'Employees.id')
-            ->whereRaw("AttendanceConfirmationSignatories.EmployeeId='" . Auth::id() . "' AND (AttendanceConfirmations.Status IS NULL OR AttendanceConfirmations.Status='FILED') AND AttendanceConfirmationSignatories.id IN 
+            ->whereRaw("AttendanceConfirmationSignatories.EmployeeId='" . Auth::id() . "' AND (AttendanceConfirmations.Status IS NULL OR AttendanceConfirmations.Status NOT IN ('APPROVED', 'REJECTED')) AND AttendanceConfirmationSignatories.id IN 
                 (SELECT TOP 1 x.id FROM AttendanceConfirmationSignatories x WHERE x.AttendanceConfirmationId=AttendanceConfirmationSignatories.AttendanceConfirmationId AND x.Status IS NULL ORDER BY x.Rank)")
             ->select('AttendanceConfirmations.*',
                 'AttendanceConfirmationSignatories.id AS SignatoryId',
