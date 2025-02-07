@@ -45,6 +45,10 @@ Route::get('insert-bio-attendance', [SMSNotificationsAPI::class, 'insertSMSNotif
  * AUTH
  */
 Route::post('login', [AuthOut::class, 'login']);
+Route::get('check-employee-id', [AuthOut::class, 'checkEmployeeId']);
+Route::get('verify-otp', [AuthOut::class, 'verifyOTP']);
+Route::get('resend-otp', [AuthOut::class, 'resendOTP']);
+Route::post('reset-password', [AuthOut::class, 'resetPassword']);
 
 /**
  * EMPLOYEE DATA
