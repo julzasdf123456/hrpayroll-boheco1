@@ -40,6 +40,12 @@ class IDGenerator extends Model
         return round(microtime(true) * 1000) . '-' . Str::random($numbers);
     }
 
+    public static function generateOTP() {
+        $key = random_int(0, 999999);
+        $key = str_pad($key, 6, 0, STR_PAD_LEFT);
+        return $key;
+    }
+
     public static function generateBillNumber($areaCode) {
         return $areaCode . substr(IDGenerator::generateID(), 6);
     }

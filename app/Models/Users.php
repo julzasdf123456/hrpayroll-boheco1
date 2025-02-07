@@ -44,7 +44,8 @@ class Users extends Model
         'remember_token',
         'ColorProfile',
         'ProfilePicture',
-        'ColorProfile'
+        'ColorProfile',
+        'OTP'
     ];
 
     /**
@@ -64,6 +65,7 @@ class Users extends Model
         'ColorProfile' => 'string',
         'ProfilePicture' => 'string',
         'ColorProfile' => 'string',
+        'OTP' => 'string',
     ];
 
     /**
@@ -84,6 +86,7 @@ class Users extends Model
         'ColorProfile' => 'nullable|string',
         'ProfilePicture' => 'nullable|string',
         'ColorProfile' => 'nullable|string',
+        'OTP' => 'nullable|string',
     ];
 
     
