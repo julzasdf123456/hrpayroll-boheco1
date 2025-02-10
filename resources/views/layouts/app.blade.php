@@ -129,6 +129,13 @@
                     </li>
                 @endif
 
+                <li class="nav-item dropdown">
+                    <a class="nav-link" download href="{{ URL::asset('apk/apk-release.apk') }}"
+                        title="Download Android App">
+                        <i class="fas fa-download"></i>
+                    </a>
+                </li>
+
                 <li class="nav-item">
                     <a class="nav-link" href="{{ route('home.reeve') }}" title="Ask Reeve for Help">
                         <i class="fas fa-poo"></i>
