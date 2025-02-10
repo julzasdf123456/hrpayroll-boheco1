@@ -18,7 +18,7 @@ class Post extends Model
         'RepostOriginalPostId',
         'Privacy',
         'PostRawText',
-        'ReactionCount'
+        'ReactionCount',
     ];
 
     protected $casts = [

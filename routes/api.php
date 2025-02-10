@@ -11,6 +11,7 @@ use App\Http\Controllers\API\TripTicketsAPI;
 use App\Http\Controllers\API\NotificationsAPI;
 use App\Http\Controllers\API\Offsets;
 use App\Http\Controllers\API\AttendanceConfirmationAPI;
+use App\Http\Controllers\API\Posts;
 
 /*
 |--------------------------------------------------------------------------
@@ -109,3 +110,8 @@ Route::get('get-attendance-confirmation', [AttendanceConfirmationAPI::class, 'ge
 Route::post('approve-attendance-confirmation', [AttendanceConfirmationAPI::class, 'approveAttendanceConfirmation']);
 Route::get('get-all-attendance-confirmations', [AttendanceConfirmationAPI::class, 'getAllAttendanceConfirmations']);
 Route::post('delete-attendance-confirmation', [AttendanceConfirmationAPI::class, 'deleteAttendanceConfirmation']);
+
+/**
+ * Feed and Posts
+ */
+Route::get('get-posts', [Posts::class, 'getPosts']);
