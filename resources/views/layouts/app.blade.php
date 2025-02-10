@@ -130,7 +130,7 @@
                 @endif
 
                 <li class="nav-item dropdown">
-                    <a class="nav-link" download href="{{ URL::asset('apk/apk-release.apk') }}"
+                    <a class="nav-link" download href="{{ URL::asset('apk/app-release.apk') }}"
                         title="Download Android App">
                         <i class="fas fa-download"></i>
                     </a>
