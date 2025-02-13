@@ -1011,4 +1011,21 @@ class EmployeesController extends AppBaseController
 
         return response()->json(['error' => 'Image upload failed'], 400);
     }
+
+    public function authorizeToDrive(Request $request) {
+        $id = $request['id'];
+        $auth = $request['AuthorizedToDrive'];
+
+        if (Permission::hasDirectPermission(['god permission', 'employees update'])) {
+            $employee = Employees::find($id);
+            if ($employee != null) {
+                $employee->AuthorizedToDrive = $auth;
+                $employee->save();
+            }
+
+            return response()->json($employee, 200);
+        } else {
+            return response()->json('You are not allowed to access this module', 403);
+        }
+    }
 }
