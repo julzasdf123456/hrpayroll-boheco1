@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\HrReportsController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
@@ -512,3 +513,7 @@ Route::resource('postComments', App\Http\Controllers\PostCommentsController::cla
 
 Route::get('/tutorials/index', [Tutorials::class, 'index'])->name('tutorials.index');
 Route::get('/tutorials/video-viewer/{filename}/{title}/{description}', [Tutorials::class, 'videoViewer'])->name('tutorials.videoViewer');
+
+
+Route::get('/hr_reports/attendance',[HrReportsController::class,'attendanceForm'])->name('hr_reports.attendance');
+Route::get('/hr_reports/attendance/reports',[HrReportsController::class,'attendanceByDepartment'])->name('hr_reports.attendance_store');

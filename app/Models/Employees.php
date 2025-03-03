@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Barangays;
 use App\Models\Towns;
-use App\Models\Employees;
 use Illuminate\Support\Facades\DB;
 use \DateTime;
 use File;

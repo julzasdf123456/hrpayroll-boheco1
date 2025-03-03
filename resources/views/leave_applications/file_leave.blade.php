@@ -100,11 +100,11 @@
                                     showDropdowns: true,
                                     alwaysShowCalendars: true,
                                     isInvalidDate: function(date) {
-                                        if (date.day() == 0 | holidays.includes(date.format('YYYY-MM-DD'))) {
-                                            return true
-                                        } else {
+                                        // if (date.day() == 0 | holidays.includes(date.format('YYYY-MM-DD'))) {
+                                        //     return true
+                                        // } else {
                                             return false
-                                        }
+                                        // }
                                     },
                                     minYear: 1901,
                                     maxYear: parseInt(moment().format('YYYY'),10)

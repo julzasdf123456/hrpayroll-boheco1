@@ -1,3 +1,7 @@
+@php
+    use Carbon\Carbon;
+@endphp
+
 <div class="table-responsive">
     <table class="table" id="payrollSchedules-table">
         <thead>
@@ -15,10 +19,10 @@
         @foreach($payrollSchedules as $payrollSchedules)
             <tr>
                 <td>{{ $payrollSchedules->Name }}</td>
-            <td>{{ $payrollSchedules->StartTime }}</td>
-            <td>{{ $payrollSchedules->BreakStart }}</td>
-            <td>{{ $payrollSchedules->BreakEnd }}</td>
-            <td>{{ $payrollSchedules->EndTime }}</td>
+            <td>{{ Carbon::parse($payrollSchedules->StartTime)->format('g:i A') }}</td>
+            <td>{{ Carbon::parse($payrollSchedules->BreakStart)->format('g:i A') }}</td>
+            <td>{{ Carbon::parse($payrollSchedules->BreakEnd)->format('g:i A') }}</td>
+            <td>{{ Carbon::parse($payrollSchedules->EndTime)->format('g:i A') }}</td>
             <td>{{ $payrollSchedules->Notes }}</td>
                 <td width="120">
                     {!! Form::open(['route' => ['payrollSchedules.destroy', $payrollSchedules->id], 'method' => 'delete']) !!}
