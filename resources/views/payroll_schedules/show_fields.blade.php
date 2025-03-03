@@ -1,3 +1,7 @@
+@php
+    use Carbon\Carbon;
+@endphp
+
 <!-- Name Field -->
 <div class="col-sm-12">
     {!! Form::label('Name', 'Name:') !!}
@@ -7,25 +11,25 @@
 <!-- Starttime Field -->
 <div class="col-sm-12">
     {!! Form::label('StartTime', 'Starttime:') !!}
-    <p>{{ $payrollSchedules->StartTime }}</p>
+    <p>{{ Carbon::parse($payrollSchedules->StartTime)->format('g:i A') }}</p>
 </div>
 
 <!-- Breakstart Field -->
 <div class="col-sm-12">
     {!! Form::label('BreakStart', 'Breakstart:') !!}
-    <p>{{ $payrollSchedules->BreakStart }}</p>
+    <p>{{ Carbon::parse($payrollSchedules->BreakStart)->format('g:i A') }}</p>
 </div>
 
 <!-- Breakend Field -->
 <div class="col-sm-12">
     {!! Form::label('BreakEnd', 'Breakend:') !!}
-    <p>{{ $payrollSchedules->BreakEnd }}</p>
+    <p>{{ Carbon::parse($payrollSchedules->BreakEnd)->format('g:i A') }}</p>
 </div>
 
 <!-- Endtime Field -->
 <div class="col-sm-12">
     {!! Form::label('EndTime', 'Endtime:') !!}
-    <p>{{ $payrollSchedules->EndTime }}</p>
+    <p>{{ Carbon::parse($payrollSchedules->EndTime)->format('g:i A') }}</p>
 </div>
 
 <!-- Notes Field -->

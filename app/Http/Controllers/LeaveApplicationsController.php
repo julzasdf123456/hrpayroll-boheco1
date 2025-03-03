@@ -1750,7 +1750,7 @@ class LeaveApplicationsController extends AppBaseController
         }
 
         if ($employee != null) {
-            return view('/leave_applications/file_leave', [
+            return view('leave_applications.file_leave', [
                 'holidays' => $holidays,
                 'employee' => $employee
             ]);

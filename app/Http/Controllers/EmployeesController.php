@@ -472,7 +472,7 @@ class EmployeesController extends AppBaseController
     public function attendance($id) {
         $employee = Employees::find($id);
 
-        return view('/employees/attendance', [
+        return view('employees.attendance', [
             'employee' => $employee,
         ]);
     }
