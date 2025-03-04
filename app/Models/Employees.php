@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Eloquent as Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -114,7 +115,7 @@ class Employees extends Model
         'LastName' => 'string',
         'Suffix' => 'string',
         'Gender' => 'string',
-        'Birthdate' => 'date',
+        'Birthdate' => 'string',
         'StreetCurrent' => 'string',
         'BarangayCurrent' => 'string',
         'TownCurrent' => 'string',
@@ -385,9 +386,13 @@ class Employees extends Model
         return $employees;
     }
 
-    public static function getYearsFromDateHired($dateHired) {
+    public static function getYearsFromDateHired(string $dateHired) {
+
         $now = new DateTime();
-        $dateHired = new DateTime($dateHired);
+        $dateHired = new DateTime(
+            str_replace(":AM"," AM",
+            str_replace(":PM"," PM",$dateHired))
+        );
 
         $interval = $dateHired->diff($now);
 

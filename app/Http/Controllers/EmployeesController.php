@@ -139,8 +139,8 @@ class EmployeesController extends AppBaseController
                         'PayrollDetails.id')
                 ->where('PayrollDetails.EmployeeId', $id)
                 ->get();
-            // $workSchedules = PayrollSchedules::find($employees->PayrollScheduleId);
-            $workSchedules = null;
+            $workSchedules = PayrollSchedules::find($employees->PayrollScheduleId);
+            // $workSchedules = null;
             $leaveBalance = LeaveBalances::where('EmployeeId', $id)->first();
             $leaveBalanceDetails = LeaveBalanceDetails::where('EmployeeId', $id)->orderByDesc('created_at')->get();
 

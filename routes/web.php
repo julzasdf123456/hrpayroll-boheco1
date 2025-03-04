@@ -517,3 +517,4 @@ Route::get('/tutorials/video-viewer/{filename}/{title}/{description}', [Tutorial
 
 Route::get('/hr_reports/attendance',[HrReportsController::class,'attendanceForm'])->name('hr_reports.attendance');
 Route::get('/hr_reports/attendance/reports',[HrReportsController::class,'attendanceByDepartment'])->name('hr_reports.attendance_store');
+Route::get('/hr_reports/attendance/reports/employee',[HrReportsController::class,'attendanceDataByEmployee'])->name('hr_reports.attendance_employee');

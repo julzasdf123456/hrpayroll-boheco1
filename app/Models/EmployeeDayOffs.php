@@ -20,7 +20,7 @@ class EmployeeDayOffs extends Model
     protected $casts = [
         'id' => 'string',
         'EmployeeId' => 'string',
-        'DayOff' => 'date',
+        'DayOff' => 'string',
         'Notes' => 'string'
     ];
 
