@@ -1,3 +1,7 @@
+@php
+    use Carbon\Carbon;
+    use App\Models\Users;
+@endphp
 <div class="card-body p-0">
     <div class="table-responsive">
         <table class="table" id="offset-applications-table">
@@ -9,9 +13,9 @@
                 <th>Date Of Duty</th>
                 <th>Time Start</th>
                 <th>Time End</th>
-                <th>Purposeofduty</th>
-                <th>Dateofoffset</th>
-                <th>Offsetreason</th>
+                <th>Purpose of Duty</th>
+                <th>Date Of Offset</th>
+                <th>Offset Reason</th>
                 <th>Status</th>
                 <th colspan="3">Action</th>
             </tr>
@@ -19,14 +23,14 @@
             <tbody>
             @foreach($offsetApplications as $offsetApplication)
                 <tr>
-                    <td>{{ $offsetApplication->PreparedBy }}</td>
-                    <td>{{ $offsetApplication->DatePrepared }}</td>
+                    <td>{{ Users::find($offsetApplication->PreparedBy)->name }}</td>
+                    <td>{{  Carbon::parse(str_replace(':AM',' AM', str_replace(':PM',' PM', $offsetApplication->DatePrepared)))->format('M d, Y') }}</td>
                     <td>{{ $offsetApplication->EmployeeId }}</td>
-                    <td>{{ $offsetApplication->DateOfDuty }}</td>
+                    <td>{{ Carbon::parse(str_replace(':AM',' AM', str_replace(':PM',' PM', $offsetApplication->DateOfDuty)))->format('M d, Y') }}</td>
                     <td>{{ $offsetApplication->TimeStart }}</td>
                     <td>{{ $offsetApplication->TimeEnd }}</td>
                     <td>{{ $offsetApplication->PurposeOfDuty }}</td>
-                    <td>{{ $offsetApplication->DateOfOffset }}</td>
+                    <td>{{ Carbon::parse(str_replace(':AM',' AM', str_replace(':PM',' PM', $offsetApplication->DateOfOffset)))->format('M d, Y') }}</td>
                     <td>{{ $offsetApplication->OffsetReason }}</td>
                     <td>{{ $offsetApplication->Status }}</td>
                     <td  style="width: 120px">
