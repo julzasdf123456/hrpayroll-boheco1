@@ -3,12 +3,12 @@
         <table class="table" id="offset-applications-table">
             <thead>
             <tr>
-                <th>Preparedby</th>
-                <th>Dateprepared</th>
-                <th>Employeeid</th>
-                <th>Dateofduty</th>
-                <th>Timestart</th>
-                <th>Timeend</th>
+                <th>Prepared By</th>
+                <th>Date Prepared</th>
+                <th>Employee Id</th>
+                <th>Date Of Duty</th>
+                <th>Time Start</th>
+                <th>Time End</th>
                 <th>Purposeofduty</th>
                 <th>Dateofoffset</th>
                 <th>Offsetreason</th>
@@ -17,26 +17,26 @@
             </tr>
             </thead>
             <tbody>
-            @foreach($offsetApplications as $offsetApplications)
+            @foreach($offsetApplications as $offsetApplication)
                 <tr>
-                    <td>{{ $offsetApplications->PreparedBy }}</td>
-                    <td>{{ $offsetApplications->DatePrepared }}</td>
-                    <td>{{ $offsetApplications->EmployeeId }}</td>
-                    <td>{{ $offsetApplications->DateOfDuty }}</td>
-                    <td>{{ $offsetApplications->TimeStart }}</td>
-                    <td>{{ $offsetApplications->TimeEnd }}</td>
-                    <td>{{ $offsetApplications->PurposeOfDuty }}</td>
-                    <td>{{ $offsetApplications->DateOfOffset }}</td>
-                    <td>{{ $offsetApplications->OffsetReason }}</td>
-                    <td>{{ $offsetApplications->Status }}</td>
+                    <td>{{ $offsetApplication->PreparedBy }}</td>
+                    <td>{{ $offsetApplication->DatePrepared }}</td>
+                    <td>{{ $offsetApplication->EmployeeId }}</td>
+                    <td>{{ $offsetApplication->DateOfDuty }}</td>
+                    <td>{{ $offsetApplication->TimeStart }}</td>
+                    <td>{{ $offsetApplication->TimeEnd }}</td>
+                    <td>{{ $offsetApplication->PurposeOfDuty }}</td>
+                    <td>{{ $offsetApplication->DateOfOffset }}</td>
+                    <td>{{ $offsetApplication->OffsetReason }}</td>
+                    <td>{{ $offsetApplication->Status }}</td>
                     <td  style="width: 120px">
-                        {!! Form::open(['route' => ['offsetApplications.destroy', $offsetApplications->id], 'method' => 'delete']) !!}
+                        {!! Form::open(['route' => ['offsetApplications.destroy', $offsetApplication->id], 'method' => 'delete']) !!}
                         <div class='btn-group'>
-                            <a href="{{ route('offsetApplications.show', [$offsetApplications->id]) }}"
+                            <a href="{{ route('offsetApplications.show', [$offsetApplication->id]) }}"
                                class='btn btn-default btn-xs'>
                                 <i class="far fa-eye"></i>
                             </a>
-                            <a href="{{ route('offsetApplications.edit', [$offsetApplications->id]) }}"
+                            <a href="{{ route('offsetApplications.edit', [$offsetApplication->id]) }}"
                                class='btn btn-default btn-xs'>
                                 <i class="far fa-edit"></i>
                             </a>
