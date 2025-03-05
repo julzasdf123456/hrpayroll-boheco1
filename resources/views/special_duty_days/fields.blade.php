@@ -6,7 +6,13 @@
 
 @push('page_scripts')
     <script type="text/javascript">
-        $('#Date').datepicker()
+        $('#Date').datepicker({
+            format: 'MMMM d, yyyy', // 12-hour time format with AM/PM
+            useCurrent: false, // Avoid using the current time as default
+            sideBySide: true, // Keep the time selection side by side
+            showClear: true, // Optionally, add a clear button
+            showClose: true, // Optionally, add a close button    // Add close button
+        })
     </script>
 @endpush
 
