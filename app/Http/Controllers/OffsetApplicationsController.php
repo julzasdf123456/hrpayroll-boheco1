@@ -34,7 +34,9 @@ class OffsetApplicationsController extends AppBaseController
      */
     public function index(Request $request)
     {
-        $offsetApplications = $this->offsetApplicationsRepository->paginate(10);
+        // $offsetApplications = $this->offsetApplicationsRepository->paginate(10);
+
+        $offsetApplications = OffsetApplications::query()->where('EmployeeId',Auth::user()->employee_id)->paginate(10);
 
         return view('offset_applications.index')
             ->with('offsetApplications', $offsetApplications);

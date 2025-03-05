@@ -9,9 +9,9 @@
                 <th>Date Of Duty</th>
                 <th>Time Start</th>
                 <th>Time End</th>
-                <th>Purposeofduty</th>
-                <th>Dateofoffset</th>
-                <th>Offsetreason</th>
+                <th>Purpose of Duty</th>
+                <th>Date Of Offset</th>
+                <th>Offset Reason</th>
                 <th>Status</th>
                 <th colspan="3">Action</th>
             </tr>
