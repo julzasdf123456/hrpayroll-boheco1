@@ -12,7 +12,7 @@
             <tbody>
             @foreach($specialDutyDays as $specialDutyDay)
                 <tr>
-                    <td>{{ date('F d, Y', strtotime($specialDutyDay->Date)) }}</td>
+                    <td>{{ \Carbon\Carbon::parse(str_replace(':AM',' AM', str_replace(':PM',' PM', $specialDutyDay->Date)))->format('M d, Y') }}</td>
                     <td>{{ $specialDutyDay->Notes }}</td>
                     <td>{{ $specialDutyDay->Term }}</td>
                     <td  style="width: 120px">

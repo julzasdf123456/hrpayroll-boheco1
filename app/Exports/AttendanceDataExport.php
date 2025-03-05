@@ -3,10 +3,17 @@
 namespace App\Exports;
 
 use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\WithStyles;
+use Maatwebsite\Excel\Concerns\WithColumnFormatting;
+use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Events\AfterSheet;
 use Illuminate\Support\Facades\DB;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Font;
 
 
-class AttendanceDataExport implements FromCollection
+class AttendanceDataExport implements FromCollection, WithHeadings, WithStyles, WithColumnFormatting, WithEvents
 {
 
     protected $department;
@@ -22,8 +29,8 @@ class AttendanceDataExport implements FromCollection
     }
 
     /**
-    * @return \Illuminate\Support\Collection
-    */
+     * @return \Illuminate\Support\Collection
+     */
     public function collection()
     {
         $attendance = DB::select("
@@ -115,7 +122,88 @@ class AttendanceDataExport implements FromCollection
                     and cast(d.timestamp as date) between ? and ?
                 order by d.timestamp asc;
             ", [$this->department, $this->date1, $this->date2]);
+        $transposedData = [];
 
-            return collect($attendance);
+        // Add headings as the first column
+        $transposedData[] = [
+            'ID',
+            'Department',
+            'Timestamp',
+            'Type',
+            'Status',
+            'Undertime/Overtime'
+        ];
+
+        // Loop through the data and create rows with corresponding data
+        foreach ($attendance as $item) {
+            $transposedData[] = [
+                $item->id,
+                $item->department,
+                $item->timestamp,
+                $item->type,
+                // Add your other data fields here
+                $item->status,  // Assuming 'status' is part of your query result
+                $item->underovertime,  // Assuming 'underovertime' is part of your query result
+            ];
+        }
+
+        return collect($transposedData); // Return as a collection
+    }
+
+    /**
+     * Set the headings for the Excel file (left side)
+     */
+    public function headings(): array
+    {
+        return [
+            'Field Name', // The leftmost column for headings
+        ];
+    }
+
+    /**
+     * Style the headings and other elements of the sheet
+     */
+    public function styles($sheet)
+    {
+        // Style the left column headings (bold, centered, background color)
+        return [
+            1 => [
+                'font' => ['bold' => true],
+                'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
+                'fill' => ['fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID, 'startColor' => ['argb' => 'FFFF00']],
+            ],
+        ];
+    }
+
+    /**
+     * Define column formatting (e.g., date formatting)
+     */
+    public function columnFormats(): array
+    {
+        return [
+            'B' => 'yyyy-mm-dd hh:mm:ss',  // For timestamp column
+            'C' => 'text',                  // For the "type" column
+            'D' => 'text',                  // For the "status" column
+            'E' => '#,##0.00',              // For numeric columns (e.g., overtime/undertime in minutes)
+        ];
+    }
+
+    /**
+     * Additional events to modify sheet after it's generated
+     */
+    public function registerEvents(): array
+    {
+        return [
+            AfterSheet::class => function (AfterSheet $event) {
+                $sheet = $event->sheet;
+                // Auto-size the leftmost column
+                $sheet->getColumnDimension('A')->setAutoSize(true);
+
+                // Auto-size the rest of the columns to fit the data
+                foreach (range('B', 'Z') as $columnID) {
+                    $sheet->getColumnDimension($columnID)->setAutoSize(true);
+                }
+            },
+        ];
     }
 }
