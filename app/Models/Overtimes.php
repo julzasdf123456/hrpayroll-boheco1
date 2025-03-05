@@ -13,8 +13,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  *
  * @property string $EmployeeId
  * @property string $DateOfOT
- * @property time $From
- * @property time $To
+ * @property string $From
+ * @property string $To
  * @property string $Notes
  */
 class Overtimes extends Model
@@ -58,7 +58,7 @@ class Overtimes extends Model
     protected $casts = [
         'id' => 'integer',
         'EmployeeId' => 'string',
-        'DateOfOT' => 'date',
+        'DateOfOT' => 'string',
         'Notes' => 'string',
         'Multiplier' => 'string',
         'DateOTEnded' => 'string',

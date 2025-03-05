@@ -470,7 +470,7 @@ class UsersController extends AppBaseController
 
         $workSchedules = PayrollSchedules::find($employee->PayrollScheduleId);
 
-        return view('/my_account/attendance_index', [
+        return view('my_account.attendance_index', [
             'workSchedules' => $workSchedules,
         ]);
     }
