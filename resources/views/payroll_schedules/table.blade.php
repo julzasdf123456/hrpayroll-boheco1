@@ -19,10 +19,10 @@
         @foreach($payrollSchedules as $payrollSchedules)
             <tr>
                 <td>{{ $payrollSchedules->Name }}</td>
-            <td>{{ Carbon::parse($payrollSchedules->StartTime)->format('g:i A') }}</td>
-            <td>{{ Carbon::parse($payrollSchedules->BreakStart)->format('g:i A') }}</td>
-            <td>{{ Carbon::parse($payrollSchedules->BreakEnd)->format('g:i A') }}</td>
-            <td>{{ Carbon::parse($payrollSchedules->EndTime)->format('g:i A') }}</td>
+            <td>{{ $payrollSchedules->StartTime? Carbon::parse($payrollSchedules->StartTime)->format('g:i A') : '-' }}</td>
+            <td>{{ $payrollSchedules->BreakStart? Carbon::parse($payrollSchedules->BreakStart)->format('g:i A') : '-'  }}</td>
+            <td>{{ $payrollSchedules->BreakEnd? Carbon::parse($payrollSchedules->BreakEnd)->format('g:i A') : '-'  }}</td>
+            <td>{{ $payrollSchedules->EndTime? Carbon::parse($payrollSchedules->EndTime)->format('g:i A') : '-'  }}</td>
             <td>{{ $payrollSchedules->Notes }}</td>
                 <td width="120">
                     {!! Form::open(['route' => ['payrollSchedules.destroy', $payrollSchedules->id], 'method' => 'delete']) !!}

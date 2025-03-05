@@ -2,12 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Employees;
-use App\Models\Positions;
+use App\Exports\AttendanceDataExport;
 use Carbon\Carbon;
-use DB;
+
+use App\Models\Employees;
+use App\Models\AttendanceData;
+use App\Models\OffsetApplications;
+use App\Models\EmployeeDayOffs;
+use App\Models\Positions;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 
 class HrReportsController extends Controller
 {
@@ -207,7 +213,7 @@ class HrReportsController extends Controller
                 case
                     when 
                         datename(weekday, cast(d.timestamp as date)) in ('Saturday','Sunday')
-                    then 'Overtime'
+                    then 'Present'
                     when 
                         cast(d.timestamp as time) >= '00:00:00' 
                         and cast(d.timestamp as time) <= dateadd(minute, 6, e.starttime)
@@ -289,7 +295,7 @@ class HrReportsController extends Controller
                     c.department = ?
                     and a.dateended is null 
                     and cast(d.timestamp as date) between ? and ?
-                order by d.timestamp asc;
+                order by d.timestamp desc;
             ", [$department, $date1, $date2]);
 
             // return response()->json(
@@ -300,12 +306,24 @@ class HrReportsController extends Controller
             //         'data' => $attendanceData
             //     ]
             // , 200);
-            return response()->json($attendanceData, 200);
+            return response()->json(
+                [
+                    'data' => $attendanceData
+                ], 200);
 
         } catch (Exception $e) {
             return response()->json([
                 'message' => $e->getMessage()
             ], 400);
         }
+    }
+
+
+    public function getAttendanceExport(Request $request) {
+        $department = $request['department']; 
+        $date1 = $request['from_date'];
+        $date2 = $request['to_date'];
+
+        return Excel::download(new AttendanceDataExport($department, $date1, $date2), 'attendance_data.xlsx');
     }
 }

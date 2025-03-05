@@ -1,47 +1,8 @@
 @php
-    set_time_limit(0); // Set unlimited execution time for the script
-
     use Carbon\Carbon;
 
-    function attendanceMatched($date, $data, $id, $type, $status)
-    {
-        $attendance = collect($data)
-            ->filter(function ($item) use ($date) {
-                return Carbon::parse($item->timestamp)->toDateString() === Carbon::parse($date)->toDateString();
-            })
-            ->where('id', '=', $id)
-            ->where('type', '=', $type)
-            ->where('status', '=', $status)
-            ->first();
-
-        return $attendance;
-    }
-
-    function convertToDateTime($date, $data, $id, $type, $status)
-    {
-        $sch_data = attendanceMatched($date, $data, $id, $type, $status);
-        \Log::info(collect($sch_data));
-        return Carbon::parse('2000-01-01 12:00:00')->format('D, M d Y, g:i A');
-    }
-
-    function getAttendanceColor($status)
-    {
-        switch ($status) {
-            case 'Present':
-                return '#28a745';
-            case 'Late':
-                return '#ffc107';
-            case 'Absent':
-                return '#dc3545';
-            case 'Overtime':
-                return '#0fe3c9';
-            case 'Leave':
-                return '#0f83e3';
-            case 'Undertime':
-                return '#0fe3c9';
-            default:
-                return '#f0f0f0'; // Default color (no attendance status)
-        }
+    function exportToExcel() {
+        return null;
     }
 @endphp
 
@@ -102,6 +63,7 @@
                                 <th>Actual Days</th>
                                 <th>Absent Days</th>
                                 <th>Overtime Hours</th>
+                                <th>Undertime Hours</th>
                             </thead>
                             <tbody>
                                 <div style="background-color:#28a745;">
@@ -208,10 +170,21 @@
                                                     </div>
                                                 </th>
                                             @endforeach
-                                            <td>{{ count($dates) }}</td>
-                                            <td>0</td>
-                                            <td>0</td>
-                                            <td>0</td>
+                                            <td>
+                                                <div class="normal-days_{{ $emp->id }}">{{ count($dates) }}</div>
+                                            </td>
+                                            <td>
+                                                <div class="actual-days_{{ $emp->id }}">0</div>
+                                            </td>
+                                            <td>
+                                                <div class="absent-days_{{ $emp->id }}">0</div>
+                                            </td>
+                                            <td>
+                                                <div class="overtime-hours_{{ $emp->id }}">0</div>
+                                            </td>
+                                            <td>
+                                                <div class="undertime-hours_{{ $emp->id }}">0</div>
+                                            </td>
                                         </tr>
                                     @endforeach
                                     @push('page_scripts')
@@ -219,7 +192,8 @@
                                             $.ajax({
                                                 url: "/hr_reports/attendance/reports/employee?department={{ $department }}&date1={{ $date1 }}&date2={{ $date2 }}",
                                                 method: 'GET',
-                                                success: function(res) {
+                                                success: function(response) {
+                                                    res = response.data;
                                                     res.forEach(r => {
                                                         if (r.id == '376-201910') {
                                                             console.log(r);
@@ -289,6 +263,7 @@
                                                 return new Date(timestamp).toLocaleString('en-US', {
                                                     hour: '2-digit',
                                                     minute: '2-digit',
+                                                    second: '2-digit',
                                                     hour12: true,
                                                 })
                                             }
@@ -298,7 +273,8 @@
                         </table>
                     </div>
                 </div>
-
+                
+                
                 <button class="btn btn-primary">Export as Excelsheet</button>
             </div>
         </div>
