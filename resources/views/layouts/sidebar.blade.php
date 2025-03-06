@@ -27,7 +27,7 @@
                         'users.attendance-index',
                         'leaveApplications.create', 'leaveApplications.file-leave', 'leaveApplications.create-step-two', 'leaveApplications.file-for-coworker',
                         'tripTickets.create', 'tripTickets.edit', 'tripTickets.my-trip-tickets',
-                        'offsetApplications.create',
+                        'offsetApplications.create','offsetApplications.index',
                         'overtimes.create',
                         'attendanceConfirmations.create',
                         'leaveConversions.create',
