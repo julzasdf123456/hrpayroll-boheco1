@@ -183,7 +183,7 @@
         </p>
     </a>
     <ul class="nav nav-treeview">
-        {{-- @canany(['god permission', 'hr report leave'])
+        {{-- @canany(['god permission', 'hr report attendance'])
         <li class="nav-item">
             <a href="{{ route('hr_reports.attendance') }}"
                 class="nav-link {{ Request::is('hr_reports.attendance*') ? 'active' : '' }}">

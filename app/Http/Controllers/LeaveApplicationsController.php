@@ -623,7 +623,7 @@ class LeaveApplicationsController extends AppBaseController
                 'Employees.Suffix',)
             ->get();
 
-        return view('/leave_applications/my_approvals', [
+        return view('leave_applications.my_approvals', [
             'leaves' => $leaves
         ]);
     }

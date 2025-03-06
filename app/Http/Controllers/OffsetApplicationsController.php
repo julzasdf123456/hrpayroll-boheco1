@@ -36,7 +36,7 @@ class OffsetApplicationsController extends AppBaseController
     {
         // $offsetApplications = $this->offsetApplicationsRepository->paginate(10);
 
-        $offsetApplications = OffsetApplications::query()->where('EmployeeId',Auth::user()->employee_id)->paginate(10);
+        $offsetApplications = OffsetApplications::query()->where('EmployeeId', Auth::user()->employee_id)->paginate(10);
 
         return view('offset_applications.index')
             ->with('offsetApplications', $offsetApplications);
@@ -47,8 +47,25 @@ class OffsetApplicationsController extends AppBaseController
      */
     public function create()
     {
+        $position = DB::select("
+            select a.id,c.department,c.parentpositionid,c.id as positionid,c.position from employees as a
+                left join employeesdesignations as b on a.id = b.employeeid
+                left join positions as c on b.positionid = c.id 
+            where a.id = ?
+        ", [Auth::user()->employee_id]);
+
+        $employees = DB::select("
+            select a.id,a.FirstName,a.MiddleName,a.LastName,a.Suffix,c.department,c.parentpositionid,c.position from employees as a
+                left join employeesdesignations as b on a.id = b.employeeid
+                left join positions as c on b.positionid = c.id
+            where c.parentpositionid = ? order by a.lastname asc;
+        ", [$position[0]->positionid]);
+
+        \Log::info(collect($employees));
+
         return view('offset_applications.create', [
-            'employees' => Employees::orderBy('LastName')->get(),
+            'employees' => collect($employees),
+            'self' => Employees::where('id',Auth::user()->employee_id)->first()
         ]);
     }
 
@@ -142,12 +159,13 @@ class OffsetApplicationsController extends AppBaseController
         }
     }
 
-    public function saveOffsetApplications(Request $request) {
+    public function saveOffsetApplications(Request $request)
+    {
         $data = $request['Data'];
 
         $id = IDGenerator::generateID();
         $i = 0;
-        foreach($data as $item) {
+        foreach ($data as $item) {
             // INSERT INTO OFFSET APPLICATIONS
             $offset = new OffsetApplications;
             $offset->OffsetBatchId = $id;
@@ -159,13 +177,13 @@ class OffsetApplicationsController extends AppBaseController
             $offset->PurposeOfDuty = $item['Purpose'];
             $offset->DateOfOffset = $item['DateOfOffset'];
             $offset->OffsetReason = $item['Reason'];
-            $offset->Status = isset($item['Status']) && $item['Status']=='APPROVED' ? $item['Status'] : 'FILED';
+            $offset->Status = isset($item['Status']) && $item['Status'] == 'APPROVED' ? $item['Status'] : 'FILED';
             $offset->save();
 
             $i++;
         }
 
-        if (isset($item['Status']) && $item['Status']=='APPROVED') {
+        if (isset($item['Status']) && $item['Status'] == 'APPROVED') {
 
         } else {
             // INSERT SIGNATORY
@@ -218,7 +236,7 @@ class OffsetApplicationsController extends AppBaseController
                                         $offsetSig->id = IDGenerator::generateID() . "" . $i;
                                         $offsetSig->OffsetBatchId = $id;
                                         $offsetSig->EmployeeId = $signatoryParents->id;
-                                        $offsetSig->Rank = ($rank+1);
+                                        $offsetSig->Rank = ($rank + 1);
                                         $offsetSig->Status = null;
                                         $offsetSig->save();
 
@@ -237,27 +255,30 @@ class OffsetApplicationsController extends AppBaseController
                             }
                         }
                     }
-                }           
+                }
             }
         }
 
         return response()->json('ok', 200);
     }
 
-    public function myApprovals(Request $request) {
+    public function myApprovals(Request $request)
+    {
         $offsets = DB::table('OffsetSignatories')
             ->leftJoin('OffsetApplications', 'OffsetSignatories.OffsetBatchId', '=', 'OffsetApplications.OffsetBatchId')
             ->leftJoin('users', 'OffsetApplications.PreparedBy', '=', 'users.id')
             ->leftJoin('Employees', 'OffsetApplications.EmployeeId', '=', 'Employees.id')
             ->whereRaw("OffsetSignatories.EmployeeId='" . Auth::id() . "' AND (OffsetApplications.Status IS NULL OR OffsetApplications.Status NOT IN ('APPROVED', 'REJECTED')) AND OffsetSignatories.id IN 
                 (SELECT TOP 1 x.id FROM OffsetSignatories x WHERE x.OffsetBatchId=OffsetSignatories.OffsetBatchId AND x.Status IS NULL ORDER BY x.Rank)")
-            ->select('OffsetApplications.*',
+            ->select(
+                'OffsetApplications.*',
                 'OffsetSignatories.id AS SignatoryId',
                 'Employees.FirstName',
                 'Employees.MiddleName',
                 'Employees.LastName',
                 'Employees.Suffix',
-                'users.name')
+                'users.name'
+            )
             ->get();
 
         return view('/offset_applications/my_approvals', [
@@ -265,7 +286,8 @@ class OffsetApplicationsController extends AppBaseController
         ]);
     }
 
-    public function approve(Request $request) {
+    public function approve(Request $request)
+    {
         $id = $request['id'];
 
         $offset = OffsetApplications::find($id);
@@ -321,7 +343,8 @@ class OffsetApplicationsController extends AppBaseController
         return response()->json($offset, 200);
     }
 
-    public function reject(Request $request) {
+    public function reject(Request $request)
+    {
         $id = $request['id'];
         $notes = $request['Notes'];
 
@@ -336,13 +359,15 @@ class OffsetApplicationsController extends AppBaseController
         return response()->json($offset, 200);
     }
 
-    public function manualEntry(Request $request) {
+    public function manualEntry(Request $request)
+    {
         return view('/offset_applications/manual_entry', [
             'employees' => Employees::orderBy('LastName')->get(),
         ]);
     }
 
-    public function getOffsetsByEmployee(Request $request) {
+    public function getOffsetsByEmployee(Request $request)
+    {
         $employeeId = $request['EmployeeId'];
         $startDate = $request['StartDate'];
 

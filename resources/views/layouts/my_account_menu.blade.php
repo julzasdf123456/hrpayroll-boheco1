@@ -25,6 +25,14 @@
 </li>
 
 <li class="nav-item">
+    <a href="{{ route('offsetApplications.index') }}"
+        class="nav-link {{ Request::is('offsetApplications.index') ? 'active' : '' }}">
+        <i class="fas fa-calendar-minus nav-icon"></i>
+        <p>Offsets List</p>
+    </a>
+</li>
+
+<li class="nav-item">
     <a href="{{ route('users.payroll-dashboard') }}"
         class="nav-link {{ Request::is('users.payroll-dashboard*') ? 'active' : '' }}">
         <i class="fas fa-coins nav-icon"></i>

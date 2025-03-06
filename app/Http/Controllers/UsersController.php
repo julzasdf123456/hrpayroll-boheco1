@@ -276,7 +276,7 @@ class UsersController extends AppBaseController
             ->orderByDesc('created_at')
             ->get();
 
-        return view('/my_account/leave_credits', [
+        return view('my_account.leave_credits', [
             'employees' => $employee,
             'leaveBalances' => $leaveBalances,
             'leaveBalanceDetails' => $leaveBalanceDetails,
@@ -403,7 +403,7 @@ class UsersController extends AppBaseController
     }
 
     public function staffManagement(Request $request) {
-        return view('/my_account/staff_management', [
+        return view('my_account.staff_management', [
 
         ]);
     }

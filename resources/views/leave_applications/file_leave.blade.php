@@ -1,6 +1,5 @@
 @php
-    use App\Models\Employees;
-    use App\Models\LeaveBalances;
+    use App\Models\Permission;
 @endphp
 @extends('layouts.app')
 
@@ -69,7 +68,7 @@
 
                         <div class="form-group mb-3">
                             <span class="text-muted">Date Filed</span>
-                            <input type="text" name="DateFiled" id="DateFiled" class="form-control" value="{{ date('Y-m-d') }}"/>
+                            <input type="text" name="DateFiled" id="DateFiled" class="form-control" value="{{ date('Y-m-d') }}" {{ Permission::hasDirectPermission(['god permission', 'view employee'])? '' : 'disabled' }} />
                             @push('page_scripts')
                                 <script type="text/javascript">
                                     $('#DateFiled').datetimepicker({
