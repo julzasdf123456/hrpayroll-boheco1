@@ -15,60 +15,83 @@
     </section>
 
     @if ($employee->PositionStatus === 'Regular')
-        <div class="row">        
+        <div class="row">
             {{-- LEAVE FORM --}}
-            <div class="col-lg-7">          
-                {{-- LEAVE FORM --}} 
+            <div class="col-lg-7">
+                {{-- LEAVE FORM --}}
                 <div class="card shadow-none">
                     <div class="card-body">
                         <span class="text-muted">Select Leave Type</span>
                         <div class="form-group pl-5 mb-4">
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="LeaveType" id="Vacation" value="Vacation">
+                                <input class="form-check-input" type="radio" name="LeaveType" id="Vacation"
+                                    value="Vacation">
                                 <label class="form-check-label" for="Vacation">Vacation</label>
                             </div>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="LeaveType" id="Sick" value="Sick">
+                                <input class="form-check-input" type="radio" name="LeaveType" id="Sick"
+                                    value="Sick">
                                 <label class="form-check-label" for="Sick">Sick</label>
                             </div>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="LeaveType" id="Special" value="Special">
+                                <input class="form-check-input" type="radio" name="LeaveType" id="Special"
+                                    value="Special">
                                 <label class="form-check-label" for="Special">Special</label>
                             </div>
-                            @if ($employee->Father === 'Yes') 
+                            @if ($employee->Father === 'Yes')
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="LeaveType" id="Paternity" value="Paternity">
+                                    <input class="form-check-input" type="radio" name="LeaveType" id="Paternity"
+                                        value="Paternity">
                                     <label class="form-check-label" for="Paternity">Paternity</label>
                                 </div>
                             @endif
-                            @if ($employee->Mother === 'Yes') 
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="LeaveType" id="Maternity" value="Maternity">
-                                    <label class="form-check-label" for="Maternity">Maternity</label>
-                                </div>
-                            @endif
-                            @if ($employee->SoloMother === 'Yes') 
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="LeaveType" id="MaternityForSoloMother" value="MaternityForSoloMother">
-                                    <label class="form-check-label" for="MaternityForSoloMother">Maternity For Solo Mother</label>
-                                </div>
-                            @endif
-                            @if ($employee->SoloParent === 'Yes') 
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="LeaveType" id="SoloParent" value="SoloParent">
-                                    <label class="form-check-label" for="SoloParent">Solo Parent</label>
-                                </div>
-                            @endif
+                            {{-- @if ($employee->Mother === 'Yes')  --}}
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="LeaveType" id="Maternity"
+                                    value="Maternity">
+                                <label class="form-check-label" for="Maternity">Maternity</label>
+                            </div>
+                            {{-- @endif
+                            @if ($employee->SoloMother === 'Yes')  --}}
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="LeaveType" id="MaternityForSoloMother"
+                                    value="MaternityForSoloMother">
+                                <label class="form-check-label" for="MaternityForSoloMother">Maternity For Solo
+                                    Mother</label>
+                            </div>
+                            {{-- @endif
+                            @if ($employee->SoloParent === 'Yes')  --}}
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="LeaveType" id="SoloParent"
+                                    value="SoloParent">
+                                <label class="form-check-label" for="SoloParent">Solo Parent</label>
+                            </div>
+                            {{-- @endif --}}
+                        </div>
+
+                        <!-- FOR SPECIAL LEAVE Field -->
+                        <div class="form-group mb-3" id="special-dropdown">
+                            <span class="text-muted">Select Reason</span>
+                            <select name="SpecialReason" id="SpecialReason" class="form-control">
+                                <option value="Enrollment">Enrollment</option>
+                                <option value="Graduation">Graduation</option>
+                                <option value="Birthday">Birthday</option>
+                                <option value="Medical Examination">Medical Examination</option>
+                                <option value="Wedding Anniversary">Wedding Anniversary</option>
+                                <option value="Fiesta">Fiesta</option>
+                            </select>
                         </div>
 
                         <div class="form-group mb-3">
                             <span class="text-muted">Reason</span>
-                            <input type="text" name="Reason" id="Reason" class="form-control"/>
+                            <input type="text" name="Reason" id="Reason" class="form-control" />
                         </div>
 
                         <div class="form-group mb-3">
                             <span class="text-muted">Date Filed</span>
-                            <input type="text" name="DateFiled" id="DateFiled" class="form-control" value="{{ date('Y-m-d') }}" {{ Permission::hasDirectPermission(['god permission', 'view employee'])? '' : 'disabled' }} />
+                            <input type="text" name="DateFiled" id="DateFiled" class="form-control"
+                                value="{{ date('Y-m-d') }}"
+                                {{ Permission::hasDirectPermission(['god permission', 'view employee']) ? '' : 'disabled' }} />
                             @push('page_scripts')
                                 <script type="text/javascript">
                                     $('#DateFiled').datetimepicker({
@@ -82,19 +105,19 @@
 
                         <div class="form-group">
                             <span class="text-muted">Select Days</span>
-                            <input type="text" name="Day" id="Day" class="form-control"/>
+                            <input type="text" name="Day" id="Day" class="form-control" />
                         </div>
 
                         <table id="dates-table" class="table table-hover table-borderless table-sm">
                             <tbody>
-                                
+
                             </tbody>
                         </table>
                         @push('page_scripts')
                             <script>
                                 var holidays = "{{ $holidays }}"
                                 holidays = holidays.split(',')
-                                
+
                                 $('#Day').daterangepicker({
                                     showDropdowns: true,
                                     alwaysShowCalendars: true,
@@ -102,11 +125,11 @@
                                         // if (date.day() == 0 | holidays.includes(date.format('YYYY-MM-DD'))) {
                                         //     return true
                                         // } else {
-                                            return false
+                                        return false
                                         // }
                                     },
                                     minYear: 1901,
-                                    maxYear: parseInt(moment().format('YYYY'),10)
+                                    maxYear: parseInt(moment().format('YYYY'), 10)
                                 }, function(start, end, label) {
                                     addDates(start.format('YYYY-MM-DD'), end.format('YYYY-MM-DD'))
                                 });
@@ -114,7 +137,8 @@
                         @endpush
                     </div>
                     <div class="card-footer">
-                        <button id="saveLeave" onclick="saveLeave()" class="btn btn-primary float-right gone"><i class="fas fa-check-circle ico-tab-mini"></i>Publish Leave</button>
+                        <button id="saveLeave" onclick="saveLeave()" class="btn btn-primary float-right gone"><i
+                                class="fas fa-check-circle ico-tab-mini"></i>Publish Leave</button>
                     </div>
                 </div>
             </div>
@@ -141,25 +165,25 @@
                                     <td>SPECIAL</td>
                                     <td class="text-right" id="balance-special">...</td>
                                 </tr>
-                                @if ($employee->Mother === 'Yes') 
-                                <tr>
-                                    <td>MATERNITY</td>
-                                    <td class="text-right" id="balance-maternity">...</td>
-                                </tr>
+                                @if ($employee->Mother === 'Yes')
+                                    <tr>
+                                        <td>MATERNITY</td>
+                                        <td class="text-right" id="balance-maternity">...</td>
+                                    </tr>
                                 @endif
-                                @if ($employee->SoloMother === 'Yes') 
-                                <tr>
-                                    <td>MATERNITY (SOLO PARENT)</td>
-                                    <td class="text-right" id="balance-maternity-solo-parent">...</td>
-                                </tr>
+                                @if ($employee->SoloMother === 'Yes')
+                                    <tr>
+                                        <td>MATERNITY (SOLO PARENT)</td>
+                                        <td class="text-right" id="balance-maternity-solo-parent">...</td>
+                                    </tr>
                                 @endif
-                                @if ($employee->Father === 'Yes') 
+                                @if ($employee->Father === 'Yes')
                                     <tr>
                                         <td>PATERNITY</td>
                                         <td class="text-right" id="balance-paternity">...</td>
                                     </tr>
                                 @endif
-                                @if ($employee->SoloParent === 'Yes') 
+                                @if ($employee->SoloParent === 'Yes')
                                     <tr>
                                         <td>SOLO PARENT</td>
                                         <td class="text-right" id="balance-solo-parent">...</td>
@@ -197,7 +221,7 @@
     @else
         <h4 class="text-center mt-5 pt-5">You are not yet allowed to file a leave.</h4>
     @endif
-    
+
 @endsection
 
 @push('page_scripts')
@@ -213,20 +237,20 @@
         function getLeaveBalances(employeeId) {
             leaveBalances = []
             $.ajax({
-                url : "{{ route('leaveApplications.get-leave-balances-by-employee') }}",
-                type : "GET",
-                data : {
-                    EmployeeId : employeeId
+                url: "{{ route('leaveApplications.get-leave-balances-by-employee') }}",
+                type: "GET",
+                data: {
+                    EmployeeId: employeeId
                 },
-                success : function(res) {
+                success: function(res) {
                     leaveBalances = res
                     updateLeaveBalancesTable()
                     getSignatories(employeeId)
                 },
-                error : function(err) {
+                error: function(err) {
                     Toast.fire({
-                        icon : 'error',
-                        text : 'Error getting leave balances'
+                        icon: 'error',
+                        text: 'Error getting leave balances'
                     })
                 }
             })
@@ -235,11 +259,16 @@
         function updateLeaveBalancesTable() {
             $('#balance-vacation').html(isNull(leaveBalances.Vacation) ? '...' : leaveBalances.VacationExpanded)
             $('#balance-sick').html(isNull(leaveBalances.Sick) ? '...' : leaveBalances.SickExpanded)
-            $('#balance-special').html(isNull(leaveBalances.Special) ? '...' : leaveBalances.Special + " <span class='text-muted'>days</span>")
-            $('#balance-maternity').html(isNull(leaveBalances.Maternity) ? '...' : leaveBalances.Maternity + " <span class='text-muted'>days</span>")
-            $('#balance-maternity-solo-parent').html(isNull(leaveBalances.MaternityForSoloMother) ? '...' : leaveBalances.MaternityForSoloMother + " <span class='text-muted'>days</span>")
-            $('#balance-paternity').html(isNull(leaveBalances.Paternity) ? '...' : leaveBalances.Paternity + " <span class='text-muted'>days</span>")
-            $('#balance-solo-parent').html(isNull(leaveBalances.SoloParent) ? '...' : leaveBalances.SoloParent + " <span class='text-muted'>days</span>")
+            $('#balance-special').html(isNull(leaveBalances.Special) ? '...' : leaveBalances.Special +
+                " <span class='text-muted'>days</span>")
+            $('#balance-maternity').html(isNull(leaveBalances.Maternity) ? '...' : leaveBalances.Maternity +
+                " <span class='text-muted'>days</span>")
+            $('#balance-maternity-solo-parent').html(isNull(leaveBalances.MaternityForSoloMother) ? '...' : leaveBalances
+                .MaternityForSoloMother + " <span class='text-muted'>days</span>")
+            $('#balance-paternity').html(isNull(leaveBalances.Paternity) ? '...' : leaveBalances.Paternity +
+                " <span class='text-muted'>days</span>")
+            $('#balance-solo-parent').html(isNull(leaveBalances.SoloParent) ? '...' : leaveBalances.SoloParent +
+                " <span class='text-muted'>days</span>")
 
             // validate select
             $('input[name="LeaveType"]').prop('checked', false);
@@ -252,12 +281,12 @@
             $('#signatories-table tbody tr').remove()
 
             $.ajax({
-                url : "{{ route('leaveApplications.get-signatories-for-employee') }}",
-                type : "GET",
-                data : {
-                    EmployeeId : employeeId,
+                url: "{{ route('leaveApplications.get-signatories-for-employee') }}",
+                type: "GET",
+                data: {
+                    EmployeeId: employeeId,
                 },
-                success : function(res) {
+                success: function(res) {
                     if (isNull(res.Signatories) | res.length < 1 | res.Signatories.length < 1) {
                         $('#alert-no-sig').removeClass('gone')
                         $('#saveLeave').addClass('gone')
@@ -269,10 +298,10 @@
                         updateSignatoriesTable()
                     }
                 },
-                error : function(err) {
+                error: function(err) {
                     Toast.fire({
-                        icon : 'error',
-                        text : 'Error getting signatories for this employee'
+                        icon: 'error',
+                        text: 'Error getting signatories for this employee'
                     })
                 }
             })
@@ -296,29 +325,30 @@
 
         function setSignatoryOptions(parentSignatorySelect) {
             var opts = ``
-            for(let x=0; x<otherSigs.length; x++) {
-                var selected = otherSigs[x].id===parentSignatorySelect ? 'selected' : ''
-                opts += `<option value='${ otherSigs[x].id }' ${ selected }>${ otherSigs[x].LastName + ', ' + otherSigs[x].FirstName }</option>`
+            for (let x = 0; x < otherSigs.length; x++) {
+                var selected = otherSigs[x].id === parentSignatorySelect ? 'selected' : ''
+                opts +=
+                    `<option value='${ otherSigs[x].id }' ${ selected }>${ otherSigs[x].LastName + ', ' + otherSigs[x].FirstName }</option>`
             }
 
             return opts
         }
 
         function getSelectedSignatories() {
-            var signatoryUserIds= []
+            var signatoryUserIds = []
             const table = document.getElementById('signatories-table');
 
             const tds = table.getElementsByTagName('td');
 
             for (let i = 0; i < tds.length; i++) {
                 const select = tds[i].querySelector('select');
-                
+
                 if (select) {
                     const selectedOption = select.options[select.selectedIndex].value;
-                    
+
                     signatoryUserIds.push({
-                        Rank : i+1,
-                        UserId : selectedOption
+                        Rank: i + 1,
+                        UserId: selectedOption
                     })
                 }
             }
@@ -330,28 +360,29 @@
          * LEAVE DATES 
          */
         function removeDate(id) {
-            $(`#${id}`).remove() 
-            leaveDates = leaveDates.filter(obj => obj.LeaveDate !== id)       
-            populateLeaveTable()  
+            $(`#${id}`).remove()
+            leaveDates = leaveDates.filter(obj => obj.LeaveDate !== id)
+            populateLeaveTable()
         }
 
         function addDates(start, end) {
             enumerateDaysBetweenDates(start, end)
             //filter duplicate dates
             leaveDates = leaveDates.filter((obj, index, self) =>
-                    index === self.findIndex((t) => t.LeaveDate === obj.LeaveDate)
-                )
+                index === self.findIndex((t) => t.LeaveDate === obj.LeaveDate)
+            )
 
             populateLeaveTable(leaveDates)
         }
 
         function enumerateDaysBetweenDates(startDate, endDate) {
-            var now = moment(startDate).clone(), dates = [];
+            var now = moment(startDate).clone(),
+                dates = [];
 
             while (now.isSameOrBefore(endDate)) {
                 leaveDates.push({
-                    LeaveDate : now.format('YYYY-MM-DD'),
-                    Duration : 'WHOLE'
+                    LeaveDate: now.format('YYYY-MM-DD'),
+                    Duration: 'WHOLE'
                 });
                 now.add(1, 'days');
             }
@@ -359,7 +390,7 @@
 
         function populateLeaveTable() {
             $('#dates-table tbody tr').remove()
-            for (let i=0; i<leaveDates.length; i++) {
+            for (let i = 0; i < leaveDates.length; i++) {
                 $('#dates-table tbody').append(`
                     <tr id='${ leaveDates[i].LeaveDate }'>
                         <td>${ moment(leaveDates[i].LeaveDate).format("MMMM DD, YYYY") }</td>
@@ -378,10 +409,76 @@
             }
         }
 
+        $('#special-dropdown').hide()
+
+        $('input[type=radio][name=LeaveType]').change(function() {
+            var value = this.value
+
+            if (value == 'Special') {
+                $('#special-dropdown').show()
+                $('#Reason').attr('readonly', true)
+                $('#Reason').val($('#SpecialReason').val())
+            } else if (value == 'Sick') {
+                $('#special-dropdown').hide()
+                $('#Reason').removeAttr('readonly')
+                $('#Reason').val(null)
+            } else if (value == 'Paternity' | value == 'Maternity') {
+                $('#special-dropdown').hide()
+                $('#Reason').removeAttr('readonly')
+            } else {
+                $('#special-dropdown').hide()
+                $('#Reason').val(null)
+                $('#Reason').removeAttr('readonly')
+            }
+
+            // filter leave balance
+            if (!isNull(leaveBalances)) {
+                if (value === 'Vacation') {
+                    leaveBalanceCounter = isNull(leaveBalances.Vacation) ? 0 : parseFloat(leaveBalances.Vacation)
+
+                    if (leaveBalanceCounter) {
+                        leaveBalanceCounter = Math.round(((leaveBalanceCounter / 8 / 60) + Number.EPSILON) * 100) /
+                            100
+                    } else {
+                        leaveBalanceCounter = -1
+                    }
+                } else if (value === 'Sick') {
+                    leaveBalanceCounter = isNull(leaveBalances.Sick) ? 0 : parseFloat(leaveBalances.Sick)
+
+                    if (leaveBalanceCounter) {
+                        leaveBalanceCounter = Math.round(((leaveBalanceCounter / 8 / 60) + Number.EPSILON) * 100) /
+                            100
+                    } else {
+                        leaveBalanceCounter = -1
+                    }
+                } else if (value === 'Special') {
+                    leaveBalanceCounter = isNull(leaveBalances.Special) ? 0 : parseFloat(leaveBalances.Special)
+                } else if (value === 'Paternity') {
+                    leaveBalanceCounter = isNull(leaveBalances.Paternity) ? 0 : parseFloat(leaveBalances.Paternity)
+                } else if (value === 'Maternity') {
+                    leaveBalanceCounter = isNull(leaveBalances.Maternity) ? 0 : parseFloat(leaveBalances.Maternity)
+                } else if (value === 'MaternityForSoloMother') {
+                    leaveBalanceCounter = isNull(leaveBalances.MaternityForSoloMother) ? 0 : parseFloat(
+                        leaveBalances.MaternityForSoloMother)
+                } else {
+                    leaveBalanceCounter = isNull(leaveBalances.SoloParent) ? 0 : parseFloat(leaveBalances
+                        .SoloParent)
+                }
+            } else {
+                leaveBalanceCounter = -1
+            }
+
+            console.log(leaveBalanceCounter)
+        })
+
+
         function updateDuration(date) {
             var val = $('#longevity-' + date).val()
-            leaveDates = leaveDates.map(obj => 
-                obj.LeaveDate === date ? { ...obj, Duration: val } : obj
+            leaveDates = leaveDates.map(obj =>
+                obj.LeaveDate === date ? {
+                    ...obj,
+                    Duration: val
+                } : obj
             )
         }
 
@@ -396,41 +493,41 @@
 
             if (isNull(employee) | isNull(leaveType) | isNull(dateFiled) | isNull(reason) | leaveDates.length < 1) {
                 Toast.fire({
-                    icon : 'warning',
-                    text : 'Please supply all fields'
+                    icon: 'warning',
+                    text: 'Please supply all fields'
                 })
             } else {
                 $.ajax({
-                    url : "{{ route('leaveApplications.save-for-coworker') }}",
-                    type : "POST",
-                    data : {
-                        _token : "{{ csrf_token() }}",
-                        EmployeeId : employee,
-                        LeaveType : leaveType,
-                        Reason : reason,
-                        DateFiled : dateFiled,
-                        Days : leaveDates,
-                        Signatories : getSelectedSignatories(),
+                    url: "{{ route('leaveApplications.save-for-coworker') }}",
+                    type: "POST",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        EmployeeId: employee,
+                        LeaveType: leaveType,
+                        Reason: reason,
+                        DateFiled: dateFiled,
+                        Days: leaveDates,
+                        Signatories: getSelectedSignatories(),
                     },
-                    success : function(res) {
+                    success: function(res) {
                         Toast.fire({
-                            icon : 'success',
-                            text : 'Leave successfully filed!'
+                            icon: 'success',
+                            text: 'Leave successfully filed!'
                         })
 
                         window.location.href = "{{ url('/leaveApplications') }}/" + res.id
                     },
-                    error : function(err) {
+                    error: function(err) {
                         Toast.fire({
-                            icon : 'error',
-                            text : 'Leave filing failed!'
+                            icon: 'error',
+                            text: 'Leave filing failed!'
                         })
                     }
                 })
-            } 
+            }
         }
 
-        $(document).ready(function() {   
+        $(document).ready(function() {
             leaveDates = []
             populateLeaveTable()
             getLeaveBalances("{{ $employee->id }}")

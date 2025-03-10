@@ -1,6 +1,6 @@
 @php
     use Carbon\Carbon;
-    use App\Models\Users;
+    use App\Models\Employees;
 @endphp
 <div class="card-body p-0">
     <div class="table-responsive">
@@ -23,7 +23,7 @@
             <tbody>
             @foreach($offsetApplications as $offsetApplication)
                 <tr>
-                    <td>{{ Users::find($offsetApplication->PreparedBy)->name }}</td>
+                    <td>{{ Employees::getMergeNameFormal(Employees::find($offsetApplication->EmployeeId)) }}</td>
                     <td>{{  Carbon::parse(str_replace(':AM',' AM', str_replace(':PM',' PM', $offsetApplication->DatePrepared)))->format('M d, Y') }}</td>
                     <td>{{ $offsetApplication->EmployeeId }}</td>
                     <td>{{ Carbon::parse(str_replace(':AM',' AM', str_replace(':PM',' PM', $offsetApplication->DateOfDuty)))->format('M d, Y') }}</td>

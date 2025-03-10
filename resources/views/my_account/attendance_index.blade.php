@@ -1,7 +1,8 @@
 @php
-    use App\Models\Employees;
+    use Carbon\Carbon;
 
     $colorProf = Auth::user()->ColorProfile;
+
 
     $years = [];
     for($i=0; $i<24; $i++) {
@@ -162,78 +163,97 @@
                         /**
                          * ANALYZE TIME IN AND OUT
                          */
-                        var morningStart = moment(timestamp).format('YYYY-MM-DD') + " {{ $workSchedules != null ? $workSchedules->StartTime : '08:00:00' }}" // 8:00
-                        var morningIn = moment(morningStart, 'YYYY-MM-DD HH:mm:ss').add(6, 'minutes') // 8:05 AM
+                        // var morningStart = moment(timestamp).format('YYYY-MM-DD') + " {{ $workSchedules != null ? Carbon::parse($workSchedules->StartTime)->format('H:i:s') : '08:00:00' }}" // 8:00
+                        var morningStart = moment(timestamp).format('YYYY-MM-DD') + " {{ $workSchedules != null ? Carbon::parse($workSchedules->StartTime)->format('H:i:s') : null }}" // 8:00
+                        var morningIn = moment(morningStart, 'YYYY-MM-DD HH:mm:ss').add(30, 'minutes') // 8:05 AM
                         var morningLate = moment(morningStart, 'YYYY-MM-DD HH:mm:ss').add(16, 'minutes') // 8:15 AM
                         var morningAbsent = moment(morningStart, 'YYYY-MM-DD HH:mm:ss').add(2, 'hours') // 10 AM
                         
-                        var morningEnd =  moment(timestamp).format('YYYY-MM-DD') + " {{ $workSchedules != null ? $workSchedules->BreakStart : '12:00:00' }}"
+                        // var morningEnd =  moment(timestamp).format('YYYY-MM-DD') + " {{ $workSchedules != null ? Carbon::parse($workSchedules->BreakStart)->format('H:i:s') : '12:00:00' }}"
+                        var morningEnd =  moment(timestamp).format('YYYY-MM-DD') + " {{ $workSchedules != null ? Carbon::parse($workSchedules->BreakStart)->format('H:i:s') : null }}"
                         morningEnd = moment(morningEnd, 'YYYY-MM-DD HH:mm:ss') // 12:00 NN
-                        var morningOut = moment(morningEnd, 'YYYY-MM-DD HH:mm:ss').add(30, 'minutes') // 12:30 AM
-                        var afternoonStart =  moment(timestamp).format('YYYY-MM-DD') + " {{ $workSchedules != null ? $workSchedules->BreakEnd : '13:00:00' }}"
+                        var morningOut = moment(morningEnd, 'YYYY-MM-DD HH:mm:ss').add(30,'minutes') // 12:30 AM
+                        // var afternoonStart =  moment(timestamp).format('YYYY-MM-DD') + " {{ $workSchedules != null ? Carbon::parse($workSchedules->BreakEnd)->format('H:i:s') : '13:00:00' }}"
+                        var afternoonStart =  moment(timestamp).format('YYYY-MM-DD') + " {{ $workSchedules != null ? Carbon::parse($workSchedules->BreakEnd)->format('H:i:s') : null }}"
                         afternoonIn = moment(afternoonStart, 'YYYY-MM-DD HH:mm:ss').add(6, 'minutes') // 12:05 PM
                         var afternoonLate = moment(afternoonStart, 'YYYY-MM-DD HH:mm:ss').add(16, 'minutes') // 12:15 PM
                         var afternoonAbsent = moment(afternoonStart, 'YYYY-MM-DD HH:mm:ss').add(2, 'hours') // 3:00 PM
-                        var afternoonEnd =  moment(timestamp).format('YYYY-MM-DD') + " {{ $workSchedules != null ? $workSchedules->EndTime : '17:00:00' }}"
+                        // var afternoonEnd =  moment(timestamp).format('YYYY-MM-DD') + " {{ $workSchedules != null ? Carbon::parse($workSchedules->EndTime)->format('H:i:s') : '17:00:00' }}"
+                        var afternoonEnd =  moment(timestamp).format('YYYY-MM-DD') + " {{ $workSchedules != null ? Carbon::parse($workSchedules->EndTime)->format('H:i:s') : null }}"
                         afternoonEnd = moment(afternoonEnd, 'YYYY-MM-DD HH:mm:ss') // 5:00 PM
 
                         var timeLog = moment(timeOnly, hrFormat)
                         if (timeLog.isBefore( moment(morningIn, hrFormat) )) {
                             /** PUNCTUAL IN MORNING **/
-                            obj['title'] = 'AM IN: ' + moment(timeLog).format('hh:mm A') 
+                            obj['title'] = 'AM IN: ' + moment(timeLog).format('HH:mm')  + " (" + moment(timeLog).format('hh:mm A') + ")" 
                             obj['backgroundColor'] = '#28a745';
                             obj['borderColor'] = '#28a745';
                         } else if (timeLog.isBetween( moment(morningIn, hrFormat) , moment(morningLate, hrFormat))) {
                             /** LATE IN MORNING **/
-                            obj['title'] = 'AM IN: ' + moment(timeLog).format('hh:mm A') 
+                            obj['title'] = 'AM IN: ' + moment(timeLog).format('HH:mm')  + " (" + moment(timeLog).format('hh:mm A') + ")" 
                             obj['backgroundColor'] = '#97bf08';
                             obj['borderColor'] = '#97bf08';
                         } else if (timeLog.isBetween( moment(morningLate, hrFormat) , moment(morningAbsent, hrFormat))) {
                             /** ABSENT IN MORNING **/
-                            obj['title'] = 'AM IN: ' + moment(timeLog).format('hh:mm A') 
+                            obj['title'] = 'AM IN: ' + moment(timeLog).format('HH:mm')  + " (" + moment(timeLog).format('hh:mm A') + ")" 
                             obj['backgroundColor'] = '#bf3f08';
                             obj['borderColor'] = '#bf3f08';
                         } else if (timeLog.isBetween( moment(morningAbsent, hrFormat) , moment(morningEnd, hrFormat))) {
                             /** UNDERTIME OUT MORNING **/
-                            obj['title'] = 'AM OUT: ' + moment(timeLog).format('hh:mm A') 
+                            obj['title'] = 'AM OUT: ' + moment(timeLog).format('HH:mm')  + " (" + moment(timeLog).format('hh:mm A') + ")" 
                             obj['backgroundColor'] = '#b008bf';
                             obj['borderColor'] = '#b008bf';
                         } else if (timeLog.isBetween( moment(morningEnd, hrFormat) , moment(morningOut, hrFormat))) {
                             /** OUT MORNING **/
-                            obj['title'] = 'AM OUT: ' + moment(timeLog).format('hh:mm A') 
+                            obj['title'] = 'AM OUT: ' + moment(timeLog).format('HH:mm')  + " (" + moment(timeLog).format('hh:mm A') + ")" 
                             obj['backgroundColor'] = '#28a745';
                             obj['borderColor'] = '#28a745';
                         } else if (timeLog.isBetween( moment(morningEnd, hrFormat) , moment(morningOut, hrFormat))) {
                             /** PUNCTUAL IN AFTERNOON **/
-                            obj['title'] = 'PM IN: ' + moment(timeLog).format('hh:mm A') 
+                            obj['title'] = 'PM IN: ' + moment(timeLog).format('HH:mm')  + " (" + moment(timeLog).format('hh:mm A') + ")" 
                             obj['backgroundColor'] = '#28a745';
                             obj['borderColor'] = '#28a745';
                         } else if (timeLog.isBetween( moment(morningOut, hrFormat) , moment(afternoonIn, hrFormat))) {
                             /** PUNCTUAL IN AFTERNOON **/
-                            obj['title'] = 'PM IN: ' + moment(timeLog).format('hh:mm A') 
+                            obj['title'] = 'PM IN: ' + moment(timeLog).format('HH:mm')  + " (" + moment(timeLog).format('hh:mm A') + ")" 
                             obj['backgroundColor'] = '#28a745';
                             obj['borderColor'] = '#28a745';
                         } else if (timeLog.isBetween( moment(afternoonIn, hrFormat) , moment(afternoonLate, hrFormat))) {
                             /** LATE IN AFTERNOON **/
-                            obj['title'] = 'PM IN: ' + moment(timeLog).format('hh:mm A') 
+                            obj['title'] = 'PM IN: ' + moment(timeLog).format('HH:mm')  + " (" + moment(timeLog).format('hh:mm A') + ")" 
                             obj['backgroundColor'] = '#97bf08';
                             obj['borderColor'] = '#97bf08';
                         } else if (timeLog.isBetween( moment(afternoonLate, hrFormat) , moment(afternoonAbsent, hrFormat))) {
                             /** ABSENT IN AFTERNOON **/
-                            obj['title'] = 'PM IN: ' + moment(timeLog).format('hh:mm A') 
+                            obj['title'] = 'PM IN: ' + moment(timeLog).format('HH:mm')  + " (" + moment(timeLog).format('hh:mm A') + ")" 
                             obj['backgroundColor'] = '#bf3f08';
                             obj['borderColor'] = '#bf3f08';
                         } else if (timeLog.isBetween( moment(afternoonLate, hrFormat) , moment(afternoonEnd, hrFormat))) {
                             /** UNDERTIME OUT AFTERNOON **/
-                            obj['title'] = 'PM OUT: ' + moment(timeLog).format('hh:mm A') 
+                            obj['title'] = 'PM OUT: ' + moment(timeLog).format('HH:mm')  + " (" + moment(timeLog).format('hh:mm A') + ")" 
                             obj['backgroundColor'] = '#b008bf';
                             obj['borderColor'] = '#b008bf';
+
+
+                            {{ !$workSchedules->BreakStart && !$workSchedules->BreakEnd? 'return true;': '' }}
                         } else if (timeLog.isAfter( moment(afternoonEnd, hrFormat) )) {
                             /** OUT MORNING **/
-                            obj['title'] = 'PM OUT: ' + moment(timeLog).format('hh:mm A') 
+                            obj['title'] = 'PM OUT: ' + moment(timeLog).format('HH:mm')  + " (" + moment(timeLog).format('hh:mm A') + ")" 
                             obj['backgroundColor'] = '#28a745';
                             obj['borderColor'] = '#28a745';
                         } 
+
+
+
+                        // if (moment(timestamp).format('YYYY-MM-DD') == '2025-02-27') {
+                        //     console.log( 
+                        //     " {{ $workSchedules->StartTime }} ", 
+                        //     " {{ $workSchedules->BreakStart }} ", 
+                        //     " {{ Carbon::parse($workSchedules->BreakEnd)->format('H:i:s') }} ", 
+                        //     " {{ $workSchedules->EndTime }} ", 
+                        // )
+                        //     console.log("PM IN - ", timeLog.isBetween( moment(morningOut, hrFormat) , moment(afternoonIn, hrFormat)) + " " + moment(timeLog, hrFormat).format('hh:mm A') + " " + moment(morningOut).format('hh:mm A') + " " + moment(afternoonIn).format('hh:mm A'))
+                        // }
                         
                         obj['start'] = moment(timestamp).format('YYYY-MM-DD');
                         

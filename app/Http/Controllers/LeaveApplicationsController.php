@@ -1245,10 +1245,13 @@ class LeaveApplicationsController extends AppBaseController
             $i++;
         }
 
-        return view('/leave_applications/manual_entries', [
-            'employees' => $employees,
-            'holidays' => $holidays,
-        ]);
+        // return view('leave_applications.manual_entries', [
+        //     'employees' => $employees,
+        //     'holidays' => $holidays,
+        // ]);
+
+
+        return view('technical_difficulties.page', [ 'header' => 'MANUAL ENTRY: Leave Application']);
     }
 
     public function getLeaveBalancesByEmployee(Request $request) {
@@ -1557,11 +1560,13 @@ class LeaveApplicationsController extends AppBaseController
             $i++;
         }
 
-        return view('/leave_applications/file_for_coworker', [
-            'employees' => $employees,
-            'holidays' => $holidays,
-            'otherSignatories' => $otherSignatories,
-        ]);
+        // return view('leave_applications.file_for_coworker', [
+        //     'employees' => $employees,
+        //     'holidays' => $holidays,
+        //     'otherSignatories' => $otherSignatories,
+        // ]);
+
+        return view('technical_difficulties.page', [ 'header' => 'File for Co-Worker: Leave Application']);
     }
 
     public function saveForCoWorker(Request $request) {
@@ -1749,14 +1754,16 @@ class LeaveApplicationsController extends AppBaseController
             $i++;
         }
 
-        if ($employee != null) {
-            return view('leave_applications.file_leave', [
-                'holidays' => $holidays,
-                'employee' => $employee
-            ]);
-        } else {
-            return abort(403, 'You are not authorized to access this module');
-        }
+        // if ($employee != null) {
+        //     return view('leave_applications.file_leave', [
+        //         'holidays' => $holidays,
+        //         'employee' => $employee
+        //     ]);
+        // } else {
+        //     return abort(403, 'You are not authorized to access this module');
+        // }
+
+        return view('technical_difficulties.page', [ 'header' => "File a Leave Application." ]);
     }
 
     public function viewAllLeave(Request $request) {
