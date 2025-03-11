@@ -104,6 +104,7 @@ class LeaveBalances extends Model
     }
 
     public static function toExpanded($mins) {
+
         if ($mins != null && is_numeric($mins) && $mins > 0) {
             $days = (int) ($mins / 8 / 60);
             

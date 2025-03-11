@@ -61,7 +61,9 @@
                                 <td>
                                     <ul>
                                         @foreach ($leaveDays as $item)
-                                            <li>{{ date('D, F d, Y', strtotime($item->LeaveDate)) }} ({{ $item->Duration }})
+                                            <li>{{ date('D, F d, Y', strtotime(
+                                                str_replace(':AM',' AM',str_replace(':PM',' PM',$item->LeaveDate))
+                                                )) }} ({{ $item->Duration }})
                                                 @if ($leaveApplication->Status == 'APPROVED' | $leaveApplication->Status == 'FOR REVIEW')
                                                     
                                                 @else

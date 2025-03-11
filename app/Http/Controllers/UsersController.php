@@ -316,7 +316,7 @@ class UsersController extends AppBaseController
         $leaveDays = LeaveDays::where('LeaveId', $id)->orderBy('LeaveDate')->get();
         $leaveImgs = LeaveImageAttachments::where('LeaveId', $id)->get();
 
-        return view('/my_account/view_leave', [
+        return view('my_account.view_leave', [
             'leaveApplication' => $leaveApplications,
             'leaveSignatories' => $leaveSignatories,
             'leaveDays' => $leaveDays,
@@ -473,6 +473,9 @@ class UsersController extends AppBaseController
         return view('my_account.attendance_index', [
             'workSchedules' => $workSchedules,
         ]);
+
+        // return response()->json($workSchedules, 200);
+        
     }
 
     public function staffSuperView($employeeId) {

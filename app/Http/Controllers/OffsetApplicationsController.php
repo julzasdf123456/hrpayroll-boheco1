@@ -34,9 +34,35 @@ class OffsetApplicationsController extends AppBaseController
      */
     public function index(Request $request)
     {
-        // $offsetApplications = $this->offsetApplicationsRepository->paginate(10);
+    //     $position = DB::select("
+    //         select a.id,c.department,c.parentpositionid,c.id as positionid,c.position from employees as a
+    //             left join employeesdesignations as b on a.id = b.employeeid
+    //             left join positions as c on b.positionid = c.id 
+    //         where a.id = ?
+    //     ", [Auth::user()->employee_id]);
 
-        $offsetApplications = OffsetApplications::query()->where('EmployeeId', Auth::user()->employee_id)->paginate(10);
+    //     $employees_data = DB::select("
+    //         select a.id,a.FirstName,a.MiddleName,a.LastName,a.Suffix,c.department,c.parentpositionid,c.position from employees as a
+    //             left join employeesdesignations as b on a.id = b.employeeid
+    //             left join positions as c on b.positionid = c.id
+    //         where c.parentpositionid = ? order by a.lastname asc;
+    //     ", [$position[0]->positionid]);
+
+    //     $coworkers = DB::select("
+    //     select a.id,a.FirstName,a.MiddleName,a.LastName,a.Suffix,c.department,c.parentpositionid,c.position from employees as a
+    //         left join employeesdesignations as b on a.id = b.employeeid
+    //         left join positions as c on b.positionid = c.id
+    //     where c.parentpositionid = ? order by a.lastname asc;
+    // // ", [$position[0]->parentpositionid]);
+    
+
+    // $coworkersIds = array_map(function ($item) { return $item->id; }, array_column(array(collect($coworkers)),'id'));
+    // $employeesDataIds = array_map(function ($item) { return $item->id; }, array_column(array(collect($employees_data)),'id'));
+    // \Log::info(collect($coworkersIds));
+
+        $offsetApplications = OffsetApplications::query()
+            ->where('EmployeeId',  Auth::user()->employee_id)
+            ->paginate(10);
 
         return view('offset_applications.index')
             ->with('offsetApplications', $offsetApplications);
@@ -54,14 +80,21 @@ class OffsetApplicationsController extends AppBaseController
             where a.id = ?
         ", [Auth::user()->employee_id]);
 
-        $employees = DB::select("
+        $employees_data = DB::select("
             select a.id,a.FirstName,a.MiddleName,a.LastName,a.Suffix,c.department,c.parentpositionid,c.position from employees as a
                 left join employeesdesignations as b on a.id = b.employeeid
                 left join positions as c on b.positionid = c.id
             where c.parentpositionid = ? order by a.lastname asc;
         ", [$position[0]->positionid]);
 
-        \Log::info(collect($employees));
+        $coworkers = DB::select("
+        select a.id,a.FirstName,a.MiddleName,a.LastName,a.Suffix,c.department,c.parentpositionid,c.position from employees as a
+            left join employeesdesignations as b on a.id = b.employeeid
+            left join positions as c on b.positionid = c.id
+        where c.parentpositionid = ? order by a.lastname asc;
+    ", [$position[0]->parentpositionid]);
+
+        $employees = $employees_data? $employees_data: $coworkers ;
 
         return view('offset_applications.create', [
             'employees' => collect($employees),

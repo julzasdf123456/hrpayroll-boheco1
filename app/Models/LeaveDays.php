@@ -52,7 +52,7 @@ class LeaveDays extends Model
     protected $casts = [
         'id' => 'string',
         'LeaveId' => 'string',
-        'LeaveDate' => 'date',
+        'LeaveDate' => 'string',
         'Longevity' => 'float',
         'Notes' => 'string',
         'Duration' => 'string',

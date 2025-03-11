@@ -289,7 +289,7 @@ class LeaveBalancesController extends AppBaseController
     }
 
     public function balances(Request $request) {
-        return view('/leave_balances/balances');
+        return view('leave_balances/balances');
     }
 
     public function printBalances($department, $month, $year) {
