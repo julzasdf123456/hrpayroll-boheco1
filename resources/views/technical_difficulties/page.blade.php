@@ -21,7 +21,8 @@
             <div class="card shadow-none">
                 <div class="card-body">
                     <span class="text-muted">This feature is on halt due to technical issues and difficulties.</span>
-                    <span class="text-muted">Please bear with us for a moment. Thank you.</span>
+                    <span class="text-muted">Please bear with us for a moment.</span><br/><br/>
+                    <span class="text-muted">Kindly refer to the manual filing for leave submissions. Thank you.</span>
                 </div>
                 <div class="card-footer">
                 </div>
