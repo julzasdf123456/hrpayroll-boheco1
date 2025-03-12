@@ -6,6 +6,8 @@ use Eloquent as Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
+use Carbon\Carbon;
+
 /**
  * Class Users
  * @package App\Models
@@ -14,7 +16,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property string $employee_id
  * @property string $name
  * @property string $email
- * @property string|\Carbon\Carbon $email_verified_at
+ * @property string|Carbon $email_verified_at
  * @property string $password
  * @property string $remember_token
  */
@@ -64,7 +66,6 @@ class Users extends Model
         'remember_token' => 'string',
         'ColorProfile' => 'string',
         'ProfilePicture' => 'string',
-        'ColorProfile' => 'string',
         'OTP' => 'string',
     ];
 
@@ -85,7 +86,6 @@ class Users extends Model
         'updated_at' => 'nullable',
         'ColorProfile' => 'nullable|string',
         'ProfilePicture' => 'nullable|string',
-        'ColorProfile' => 'nullable|string',
         'OTP' => 'nullable|string',
     ];
 

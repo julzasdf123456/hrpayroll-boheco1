@@ -23,6 +23,8 @@
             <div class="table-responsive">
                 <table class="table table-hover table-bordered table-sm">
                     <thead>
+                        <tr>
+
                         <th></th>
                         <th>Employee</th>
                         <th>Date Filed</th>
@@ -31,6 +33,7 @@
                         <th>Reason</th>
                         <th>Status</th>
                         <th></th>
+                        </tr>
                     </thead>
                     <tbody>
                         <tr v-for="leave in results.data" :key="leave.id" style="cursor: pointer;">

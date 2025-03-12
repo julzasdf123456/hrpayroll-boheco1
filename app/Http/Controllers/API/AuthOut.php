@@ -20,7 +20,14 @@ class AuthOut extends Controller {
             // $success['token'] =  $user->createToken('assist')-> accessToken; 
             $success['username'] = request('username');
             $success['id'] = $user->id;
+
+            // $token = $user->createToken('assist')-> accessToken; 
             return response()->json($user, 200); 
+
+            // return response()->json([
+            //     'user' => $user,
+            //     'token' => $token
+            // ], 200); 
         } 
         else{ 
             return response()->json(['error'=>'Unauthorised'], 401); 

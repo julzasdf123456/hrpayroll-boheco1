@@ -2,12 +2,14 @@
     <div class="table-responsive">
         <table class="table table-hover table-bordered table-sm">
             <thead>
-                <th>Type</th>
-                <th>Date Filed</th>
-                <th>Leave Days</th>
-                <th>Total Days</th>
-                <th>Reason</th>
-                <th style="max-width: 30px; width: 30px;"></th>
+                <tr>
+                    <th>Type</th>
+                    <th>Date Filed</th>
+                    <th>Leave Days</th>
+                    <th>Total Days</th>
+                    <th>Reason</th>
+                    <th style="max-width: 30px; width: 30px;"></th>
+                </tr>
             </thead>
             <tbody>
                 <tr v-for="leave in results.data" :key="leave.id" style="cursor: pointer;">
