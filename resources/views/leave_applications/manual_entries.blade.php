@@ -1,6 +1,7 @@
 @php
     use App\Models\Employees;
     use App\Models\LeaveBalances;
+
 @endphp
 @extends('layouts.app')
 
@@ -14,6 +15,10 @@
             </div>
         </div>
     </section>
+
+
+
+    @include('flash::message')
 
     <div class="row">
         <div class="col-lg-7">           
@@ -42,7 +47,7 @@
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="radio" name="LeaveType" id="Special" value="Special">
-                            <label class="form-check-label" for="Special">Special</label>
+                            <label class="form-check-label" for="Special" id="SpecialLabel">Special</label>
                         </div>
                             <div class="form-check">
                                 <input class="form-check-input" type="radio" name="LeaveType" id="Paternity" value="Paternity">
@@ -67,17 +72,18 @@
                     <div class="form-group mb-3" id="special-dropdown">
                         <span class="text-muted">Select Reason</span>
                         <select name="SpecialReason" id="SpecialReason" class="form-control">
-                            <option value="Enrollment">Enrollment</option>
-                            <option value="Graduation">Graduation</option>
-                            <option value="Birthday">Birthday</option>
-                            <option value="Medical Examination">Medical Examination</option>
-                            <option value="Wedding Anniversary">Wedding Anniversary</option>
-                            <option value="Fiesta">Fiesta</option>
+                            <option value="">-- Select --</option>
+                            <option id="SpecialValue-Enrollment" value="Enrollment">Enrollment</option>
+                            <option id="SpecialValue-Graduation" value="Graduation">Graduation</option>
+                            <option id="SpecialValue-Birthday" value="Birthday">Birthday</option>
+                            <option id="SpecialValue-MedicalExamination" value="Medical Examination">Medical Examination</option>
+                            <option id="SpecialValue-WeddingAnniversary" value="Wedding Anniversary">Wedding Anniversary</option>
+                            <option id="SpecialValue-Fiesta" value="Fiesta">Fiesta</option>
                         </select> 
                     </div>
 
-                    <div class="form-group mb-3">
-                        <span class="text-muted">Reason</span>
+                    <div class="form-group mb-3" id="reason-field">
+                        <span class="text-muted" id="ReasonLabel">Reason</span>
                         <input type="text" name="Reason" id="Reason" class="form-control"/>
                     </div>
 
@@ -105,6 +111,23 @@
                             
                         </tbody>
                     </table>
+
+                    <div id="upload-section">
+                        <div class="divider"></div>
+                            <input type="file" accept="image/png, image/gif, image/jpeg" id="img-attachment" style="display: none"/>
+                            <button class="btn btn-sm btn-primary float-right" onclick="thisFileUpload()"><i class="fas fa-upload ico-tab-mini"></i>Upload File(s)</button>
+                            <p class="text-muted">Attachments (Physician Consults, Medical Certs, etc.)</p>
+
+                            <div class="row" id="imgs-data">
+                                @foreach ($leaveImgs as $item)
+                                    <div class="col-md-3" id="{{ $item->id }}">
+                                        <button class="btn btn-xs btn-danger" style="" onclick="removeImg('{{ $item->id }}')"><i class="fas fa-trash"></i></button>
+                                        <img src="{{ $item->HexImage }}" style="width: 100%;" alt="">
+                                    </div>
+                                    
+                                @endforeach
+                            </div>
+                        </div>
                     @push('page_scripts')
                         <script>
                             var holidays = "{{ $holidays }}"
@@ -181,6 +204,58 @@
 
 @push('page_scripts')
     <script>
+
+        function getSpecialLeaves(empId) {
+            $("#SpecialReason").prop('selectedIndex', 0);
+            $.ajax({
+                url: "show-special-leaves/" + empId,
+                type: 'GET',
+                success: function ({ count, reasons }) {
+                    if (count >=3) {
+                        $('#Special').attr('disabled', true);
+                        $('#SpecialLabel').attr("title","This employee only had 3 special leaves. Cannot exceed more this year.");
+                    } else {
+                        $('#Special').attr('disabled', false);
+                        $('#SpecialLabel').attr("title",null);
+                    }
+
+                    console.log(count , reasons)
+
+                    if (reasons.Enrollment) {
+                        $('#SpecialValue-Enrollment').attr('disabled', true);
+                        $('#SpecialValue-Enrollment').attr('value', '');
+                        $('#SpecialValue-Enrollment').attr("title","This employee already had this special reason this year.");
+                    }
+                    if (reasons.Graduation) {
+                        $('#SpecialValue-Graduation').attr('disabled', true);
+                        $('#SpecialValue-Graduation').attr('value', '');
+                        $('#SpecialValue-Graduation').attr("title","This employee already had this special reason this year.");
+                    }
+                    if (reasons.Birthday) {
+                        $('#SpecialValue-Birthday').attr('disabled', true);
+                        $('#SpecialValue-Birthday').attr('value', '');
+                        $('#SpecialValue-Birthday').attr("title","This employee already had this special reason this year.");
+                    }
+                    if (reasons.MedicalExamination) {
+                        $('#SpecialValue-MedicalExamination').attr('disabled', true);
+                        $('#SpecialValue-MedicalExamination').attr('value', '');
+                        $('#SpecialValue-MedicalExamination').attr("title","This employee already had this special reason this year.");
+                    }
+                    if (reasons.WeddingAnniversary) {
+                        $('#SpecialValue-WeddingAnniversary').attr('disabled', true);
+                        $('#SpecialValue-WeddingAnniversary').attr('value', '');
+                        $('#SpecialValue-WeddingAnniversary').attr("title","This employee already had this special reason this year.");
+                    }
+                    if (reasons.Fiesta) {
+                        $('#SpecialValue-Fiesta').attr('disabled', true);
+                        $('#SpecialValue-Fiesta').attr('value', '');
+                        $('#SpecialValue-Fiesta').attr("title","This employee already had this special reason this year.");
+                    }
+                    
+                }
+            })
+        }
+
         var leaveDates = []
         var leaveBalances = []
         var leaveBalanceCounter = -1
@@ -359,11 +434,12 @@
          */
         function saveLeave() {
             var employee = $('#EmployeeId').val()
+            var leaveImgs = $('#img-attachment')[0].files;
             var leaveType = $('input[name="LeaveType"]:checked').val()
             var dateFiled = $('#DateFiled').val()
             var reason = $('#Reason').val()
 
-            if (isNull(employee) | isNull(leaveType) | isNull(dateFiled) | isNull(reason) | leaveDates.length < 1) {
+            if (isNull(employee) | isNull(leaveType) | isNull(dateFiled) | isNull(reason) | ( leaveType == "Sick" && leaveImgs.length < 1 ) | leaveDates.length < 1) {
                 Toast.fire({
                     icon : 'warning',
                     text : 'Please supply all fields'
@@ -374,6 +450,7 @@
                     type : "POST",
                     data : {
                         _token : "{{ csrf_token() }}",
+                        Id: "{{ $id }}",
                         EmployeeId : employee,
                         LeaveType : leaveType,
                         Reason : reason,
@@ -414,34 +491,127 @@
             }
         }
 
-        $(document).ready(function() {   
-            $('#EmployeeId').on('change', function() {
-                leaveDates = []
-                populateLeaveTable()
-                getLeaveBalances(this.value)
+
+        function removeImg(id) {
+            Swal.fire({
+                title: 'Remove Confirmation',
+                text : 'You sure you wanna remove this image attachment?',
+                showDenyButton: true,
+                confirmButtonText: 'Remove',
+                denyButtonText: `Close`,
+                }).then((result) => {
+                /* Read more about isConfirmed, isDenied below */
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url : "{{ route('leaveApplications.remove-image') }}",
+                        type : 'GET',
+                        data : {
+                            id : id,
+                        },
+                        success : function(res) {
+                            $('#' + id).remove()
+                        },
+                        error : function(err) {
+                            Swal.fire({
+                                icon : 'error',
+                                text : 'Error removing image attachment'
+                            })
+                        }
+                    })
+                } else if (result.isDenied) {
+                    
+                }
+            })            
+        }
+    
+
+
+        function thisFileUpload() {
+            document.getElementById("img-attachment").click();
+        };
+        
+        function readURL(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    $.ajax({
+                        url : "{{ route('leaveApplications.add-image-attachments') }}",
+                        type : 'POST',
+                        data : {
+                            _token : "{{ csrf_token() }}",
+                            LeaveId : "{{ $id }}",
+                            HexImage : encodeURIComponent(e.target.result),
+                        },
+                        success : function(res) {
+                            $('#imgs-data').append(
+                                "<div class='col-md-3' id='" + res['id'] + "'>" +
+                                    "<button class='btn btn-xs btn-danger' style='position: absolute; right: 10px; top: 5px;' onclick=removeImg('" + res['id'] + "')><i class='fas fa-trash'></i></button>" +
+                                    "<img src='" + res['HexImage'] + "' style='width: 100%;'/>" +
+                                "</div>"
+                            )
+                        },
+                        error : function(err) {
+                            Swal.fire({
+                                icon : 'error',
+                                text : 'Error uploading image attachment'
+                            })
+                        }
+                    })
+                    
+                }
+
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+
+        $('#img-attachment').on('change', function() {
+                readURL(this)
             })
 
-            $('#special-dropdown').hide()
 
-            $('input[type=radio][name=LeaveType]').change(function() {
-                var value = this.value
+        $(document).ready(function() {   
+            $('#EmployeeId').on('change', function() {
+                leaveDates = [] 
+                populateLeaveTable()
+                getLeaveBalances(this.value)
+                getSpecialLeaves(this.value)
+            })
 
-                if (value == 'Special') {
-                    $('#special-dropdown').show()
-                    $('#Reason').attr('readonly', true)
-                    $('#Reason').val($('#SpecialReason').val())
-                } else if (value == 'Sick') {
-                    $('#special-dropdown').hide()
-                    $('#Reason').removeAttr('readonly')
-                    $('#Reason').val(null)
-                } else if (value == 'Paternity' | value == 'Maternity') {
-                    $('#special-dropdown').hide()   
-                    $('#Reason').removeAttr('readonly')
-                } else {           
-                    $('#special-dropdown').hide()   
-                    $('#Reason').val(null)  
-                    $('#Reason').removeAttr('readonly')
-                }
+            
+        $('#special-dropdown').hide()
+        $('#upload-section').hide()
+
+        $('input[type=radio][name=LeaveType]').change(function() {
+            var value = this.value
+
+            if (value == 'Special') {
+                $('#special-dropdown').show()
+                $('#reason-field').hide()
+                $('#Reason').attr('readonly', true)
+                $('#Reason').val($('#SpecialReason').val())
+                $('#upload-section').hide()
+            } else if (value == 'Sick') {
+                $('#special-dropdown').hide()
+                $('#reason-field').show()
+                $('#Reason').removeAttr('readonly')
+                $('#Reason').val(null)
+                $('#upload-section').show()
+            } else if (value == 'Paternity' | value == 'Maternity') {
+                $('#special-dropdown').hide()
+                $('#reason-field').show()
+                $('#Reason').removeAttr('readonly')
+                $('#Reason').val(null)
+                $('#upload-section').hide()
+            } else {
+                $('#special-dropdown').hide()
+                $('#reason-field').show()
+                $('#Reason').val(null)
+                $('#Reason').removeAttr('readonly')
+                $('#upload-section').hide()
+            }
+
 
                 // filter leave balance
                 if (!isNull(leaveBalances)) {

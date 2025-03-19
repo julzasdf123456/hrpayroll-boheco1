@@ -6,6 +6,7 @@ use App\Http\Requests\CreateLeaveApplicationsRequest;
 use App\Http\Requests\UpdateLeaveApplicationsRequest;
 use App\Repositories\LeaveApplicationsRepository;
 use App\Http\Controllers\AppBaseController;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
@@ -52,7 +53,20 @@ class LeaveApplicationsController extends AppBaseController
      */
     public function index(Request $request)
     {
-        $leaveApplications = $this->leaveApplicationsRepository->all();
+        // $leaveApplications = $this->leaveApplicationsRepository->all();
+
+        // $leaveApplications = DB::select("
+        //     select b.FirstName, b.MiddleName,b.LastName, b.Suffix, a.* from leaveapplications as a
+        //     left join employees as b on a.EmployeeId  = b.id;
+        // ");
+
+        $leaveApplications = DB::table('LeaveApplications')
+            ->leftJoin("Employees", "LeaveApplications.EmployeeId", "=", "Employees.id")
+            ->select("LeaveApplications.*", "Employees.FirstName", "Employees.LastName", "Employees.MiddleName", "Employees.Suffix")
+            ->orderByDesc("LeaveApplications.created_at")
+            ->paginate(10);
+
+        // \Log::info($leaveApplications);
 
         return view('leave_applications.index')
             ->with('leaveApplications', $leaveApplications);
@@ -70,12 +84,12 @@ class LeaveApplicationsController extends AppBaseController
             return abort('Employee not found!', 404);
         } else {
             $leaveBalance = LeaveBalances::where('EmployeeId', $employee->id)->first();
-            
+
             return view('leave_applications.create', [
                 'leaveBalance' => $leaveBalance,
                 'employee' => $employee,
             ]);
-        }        
+        }
     }
 
     /**
@@ -112,36 +126,43 @@ class LeaveApplicationsController extends AppBaseController
             ->leftJoin('EmployeesDesignations', 'EmployeesDesignations.EmployeeId', '=', 'Employees.id')
             ->leftJoin('Positions', 'EmployeesDesignations.PositionId', '=', 'Positions.id')
             ->select(
-                'LeaveSignatories.id', 
-                'LeaveSignatories.EmployeeId', 
-                'LeaveSignatories.Status', 
-                'Employees.FirstName', 
-                'Employees.LastName', 
-                'Employees.MiddleName', 
-                'Employees.Suffix', 
-                'Positions.Position', 
-                'LeaveSignatories.updated_at', 
-                'LeaveSignatories.Notes')
+                'LeaveSignatories.id',
+                'LeaveSignatories.EmployeeId',
+                'LeaveSignatories.Status',
+                'Employees.FirstName',
+                'Employees.LastName',
+                'Employees.MiddleName',
+                'Employees.Suffix',
+                'Positions.Position',
+                'LeaveSignatories.updated_at',
+                'LeaveSignatories.Notes'
+            )
             ->where('LeaveSignatories.LeaveId', $id)
             ->whereRaw("(LeaveSignatories.Status IS NULL OR LeaveSignatories.Status NOT IN('REMOVED'))")
             ->orderBy('LeaveSignatories.Rank')
             ->get();
 
-        if (empty($leaveApplications)) {
-            Flash::error('Leave Applications not found');
+        if (
+            empty($leaveApplications)
+            // || ($leaveApplications->Status == "Trashed" 
+            //     && Permission::hasDirectPermission(['god permisions']))
+            || ($leaveApplications->EmployeeId != Auth::user()->employee_id
+                && !Permission::hasDirectPermission(['god permission']))
+        ) {
+            Flash::error('Leave application failed to show.');
 
-            return redirect(route('leaveApplications.index'));
+            return redirect(route('leaveApplications.file-leave'));
+        } else {
+            $leaveDays = LeaveDays::where('LeaveId', $id)->orderBy('LeaveDate')->get();
+            $leaveImgs = LeaveImageAttachments::where('LeaveId', $id)->get();
+
+            return view('leave_applications.show', [
+                'leaveApplication' => $leaveApplications,
+                'leaveSignatories' => $leaveSignatories,
+                'leaveDays' => $leaveDays,
+                'leaveImgs' => $leaveImgs,
+            ]);
         }
-
-        $leaveDays = LeaveDays::where('LeaveId', $id)->orderBy('LeaveDate')->get();
-        $leaveImgs = LeaveImageAttachments::where('LeaveId', $id)->get();
-
-        return view('leave_applications.show', [
-            'leaveApplication' => $leaveApplications,
-            'leaveSignatories' => $leaveSignatories,
-            'leaveDays' => $leaveDays,
-            'leaveImgs' => $leaveImgs,
-        ]);
     }
 
     /**
@@ -215,7 +236,8 @@ class LeaveApplicationsController extends AppBaseController
         return redirect(route('users.leave-credits', [$leaveApplications->EmployeeId]));
     }
 
-    public function createStepTwo($id) {
+    public function createStepTwo($id)
+    {
         $leaveApplication = LeaveApplications::find($id);
 
         LeaveSignatories::where('LeaveId', $id)
@@ -244,14 +266,14 @@ class LeaveApplicationsController extends AppBaseController
 
         $rank = 1;
         if ($signatories != null) {
-            foreach($signatories as $signatory) {
+            foreach ($signatories as $signatory) {
                 $sigs = new LeaveSignatories;
                 // $sigs->id = IDGenerator::generateIDandRandString() . $rank;
                 $sigs->LeaveId = $id;
                 $sigs->EmployeeId = $signatory['id'];
                 $sigs->Rank = $rank;
                 $sigs->save();
-    
+
                 $rank++;
             }
         }
@@ -277,7 +299,7 @@ class LeaveApplicationsController extends AppBaseController
         $holidays = "";
         $size = count($holidaysList);
         $i = 0;
-        foreach($holidaysList as $item) {
+        foreach ($holidaysList as $item) {
             if ($i == ($size - 1)) {
                 $holidays .= date('Y-m-d', strtotime($item->HolidayDate));
             } else {
@@ -300,7 +322,8 @@ class LeaveApplicationsController extends AppBaseController
         ]);
     }
 
-    public function addSignatories(Request $request) {
+    public function addSignatories(Request $request)
+    {
         if ($request->ajax()) {
             $leaveSignatories = LeaveSignatories::where('EmployeeId', $request['UserId'])->where('LeaveId', $request['LeaveId'])->first();
             $existingSignatories = LeaveSignatories::where('LeaveId', $request['LeaveId'])->get();
@@ -309,10 +332,10 @@ class LeaveApplicationsController extends AppBaseController
                 $leaveSignatories = new LeaveSignatories;
                 $leaveSignatories->LeaveId = $request['LeaveId'];
                 $leaveSignatories->EmployeeId = $request['UserId'];
-                $leaveSignatories->Rank = count($existingSignatories)+1;
+                $leaveSignatories->Rank = count($existingSignatories) + 1;
                 $leaveSignatories->save();
 
-                if ((count($existingSignatories)+1) == 1) {
+                if ((count($existingSignatories) + 1) == 1) {
                     $notifications = new Notifications;
                     $notifications->UserId = $request['UserId'];
                     $notifications->Type = 'LEAVE_APPROVAL';
@@ -329,7 +352,8 @@ class LeaveApplicationsController extends AppBaseController
         }
     }
 
-    public function leaveApprovals($id) {
+    public function leaveApprovals($id)
+    {
         $leaveApplication = LeaveApplications::find($id);
         $leaveSignatories = DB::table('LeaveSignatories')
             ->leftJoin('users', 'LeaveSignatories.EmployeeId', '=', 'users.id')
@@ -339,13 +363,14 @@ class LeaveApplicationsController extends AppBaseController
             ->whereRaw("(LeaveSignatories.Status IS NULL OR LeaveSignatories.Status NOT IN('REMOVED'))")
             ->get();
 
-        return view('/leave_applications/approvals',[
+        return view('/leave_applications/approvals', [
             'leaveApplication' => $leaveApplication,
             'leaveSignatories' => $leaveSignatories,
         ]);
     }
 
-    public function approveLeave($id, $signatoryId) {        
+    public function approveLeave($id, $signatoryId)
+    {
         $leaveApplication = LeaveApplications::find($id);
         $leaveSignatory = LeaveSignatories::find($signatoryId);
 
@@ -393,7 +418,8 @@ class LeaveApplicationsController extends AppBaseController
              * =========================================================================
              */
             if ($employee != null && $employee->ContactNumbers != null) {
-                SMSNotifications::sendSMS($employee->ContactNumbers, 
+                SMSNotifications::sendSMS(
+                    $employee->ContactNumbers,
                     "HR System - Leave Approval:\n\n" . Users::find($leaveSignatory->EmployeeId)->name . " has approved your " . $leaveApplication->LeaveType . " leave. 
                         Your leave is now forwarded to the next signatory.",
                     "HR-Leave",
@@ -405,7 +431,7 @@ class LeaveApplicationsController extends AppBaseController
             // THIS PORTION IS WHEN THE LEAVE HAS FULLY SIGNED BY ALL SIGNATORIES
             /**
              * FILTER IF SICK LEAVE, NEEDS TO BE APPROVED BY HR
-            */
+             */
             if ($leaveApplication->LeaveType === 'Sick') {
                 $leaveApplication->Status = 'FOR REVIEW';
                 $leaveApplication->save();
@@ -416,7 +442,7 @@ class LeaveApplicationsController extends AppBaseController
                 // PLOT LEAVE DAYS TO ATTENDANCE DATA
                 $leaveDays = LeaveDays::where('LeaveId', $id)->get();
                 $totalDays = 0.0;
-                foreach($leaveDays as $item) {
+                foreach ($leaveDays as $item) {
                     if ($item->Duration == 'WHOLE') {
                         // INSERT START MORNING IN
                         $attendance = new AttendanceData;
@@ -509,7 +535,7 @@ class LeaveApplicationsController extends AppBaseController
                 // UPDATE LEAVE BALANCES
                 $leaveBalances = LeaveBalances::where('EmployeeId', $leaveApplication->EmployeeId)->first();
                 if ($leaveBalances != null) {
-                    if ($leaveApplication->LeaveType == 'Sick') {                        
+                    if ($leaveApplication->LeaveType == 'Sick') {
                         $balance = floatval($leaveBalances->Sick);
                         $days = $totalDays;
 
@@ -517,110 +543,119 @@ class LeaveApplicationsController extends AppBaseController
                             $balance = 0;
                         } else {
                             $balance = $balance - $days;
-                        }                        
+                        }
 
                         $leaveBalances->Sick = $balance;
 
                     } elseif ($leaveApplication->LeaveType == 'Vacation') {
                         $balance = floatval($leaveBalances->Vacation);
                         $days = count($leaveDays);
-                        
+
                         if ($balance < $days) {
                             $balance = 0;
                         } else {
                             $balance = $balance - $days;
-                        } 
+                        }
 
                         $leaveBalances->Vacation = $balance;
                     } elseif ($leaveApplication->LeaveType == 'Special') {
                         $balance = floatval($leaveBalances->Special);
                         $days = count($leaveDays);
-                        
+
                         if ($balance < $days) {
                             $balance = 0;
                         } else {
                             $balance = $balance - $days;
-                        } 
+                        }
 
                         $leaveBalances->Special = $balance;
                     } elseif ($leaveApplication->LeaveType == 'Paternity') {
                         $balance = floatval($leaveBalances->Paternity);
                         $days = count($leaveDays);
-                        
+
                         if ($balance < $days) {
                             $balance = 0;
                         } else {
                             $balance = $balance - $days;
-                        } 
+                        }
 
                         $leaveBalances->Paternity = $balance;
                     } elseif ($leaveApplication->LeaveType == 'Maternity') {
                         $balance = floatval($leaveBalances->Maternity);
                         $days = count($leaveDays);
-                        
+
                         if ($balance < $days) {
                             $balance = 0;
                         } else {
                             $balance = $balance - $days;
-                        } 
+                        }
 
                         $leaveBalances->Maternity = $balance;
                     } elseif ($leaveApplication->LeaveType == 'MaternityForSoloMother') {
                         $balance = floatval($leaveBalances->MaternityForSoloMother);
                         $days = count($leaveDays);
-                        
+
                         if ($balance < $days) {
                             $balance = 0;
                         } else {
                             $balance = $balance - $days;
-                        } 
+                        }
 
                         $leaveBalances->MaternityForSoloMother = $balance;
                     } elseif ($leaveApplication->LeaveType == 'SoloParent') {
                         $balance = floatval($leaveBalances->SoloParent);
                         $days = count($leaveDays);
-                        
+
                         if ($balance < $days) {
                             $balance = 0;
                         } else {
                             $balance = $balance - $days;
-                        } 
+                        }
 
                         $leaveBalances->SoloParent = $balance;
                     }
                     $leaveBalances->save();
                 }
-            }  
-            
-             /**
+            }
+
+            /**
              * =========================================================================
              * SEND SMS
              * =========================================================================
              */
             if ($employee != null && $employee->ContactNumbers != null) {
-                SMSNotifications::sendSMS($employee->ContactNumbers, 
+                SMSNotifications::sendSMS(
+                    $employee->ContactNumbers,
                     "HR System - Leave Approval:\n\n" . Users::find($leaveSignatory->EmployeeId)->name . " has approved your " . $leaveApplication->LeaveType . " leave.",
                     "HR-Leave",
                     $id
                 );
             }
         }
-        
+
         return redirect(route('home'));
     }
 
-    public function myApprovals(Request $request) {
-        $leaves = DB::table('LeaveSignatories')
-            ->leftJoin('LeaveApplications', 'LeaveSignatories.LeaveId', '=', 'LeaveApplications.id')
-            ->leftJoin('Employees', 'LeaveApplications.EmployeeId', '=', 'Employees.id')
-            ->whereRaw("LeaveSignatories.EmployeeId='" . Auth::id() . "' AND LeaveSignatories.Status IS NULL AND LeaveSignatories.id IN 
-                (SELECT TOP 1 x.id FROM LeaveSignatories x WHERE x.LeaveId=LeaveSignatories.LeaveId AND x.Status IS NULL ORDER BY x.Rank)")
-            ->select('LeaveApplications.*',
-                'LeaveSignatories.id AS SignatoryId',
-                'Employees.FirstName',
-                'Employees.MiddleName',
-                'Employees.LastName',
-                'Employees.Suffix',)
+    public function myApprovals(Request $request)
+    {
+
+        $leaves = DB::table("leavesignatories as a")
+            ->leftJoin("leaveapplications as b", "a.leaveid", "=", "b.id")
+            ->leftJoin("employees as c", "b.employeeid", "=", "c.id")
+            ->whereRaw("a.employeeid = ? and b.employeeid is not null",[Auth::id()])
+            ->select(
+                "a.id as SignatoryId",
+                "b.Status",
+                "b.id",
+                "b.Content",
+                "b.LeaveType",
+                "b.EmployeeId",
+                "b.created_at",
+                "c.FirstName",
+                "c.LastName",
+                "c.MiddleName",
+                "c.Suffix"
+            )->orderByDesc("b.created_at")
             ->get();
 
         return view('leave_applications.my_approvals', [
@@ -628,16 +663,73 @@ class LeaveApplicationsController extends AppBaseController
         ]);
     }
 
-    public function approveAjax(Request $request) {
+    public function myApprovalItem(Request $request)
+    {
+        $id = $request['id'];
+
+        $leave = DB::table("leavesignatories as a")
+            ->leftJoin("leaveapplications as b", "a.leaveid", "=", "b.id")
+            ->leftJoin("employees as c", "b.employeeid", "=", "c.id")
+            ->leftJoin("leavebalances as d", "d.employeeid", "=", "c.id")
+            ->whereRaw("a.EmployeeId = ? and b.EmployeeId is not null and b.id = ? and b.Status != 'Trashed'", [Auth::id(), $id])
+            ->select(
+                "a.EmployeeId as SignatoryId",
+                "b.id",
+                "b.Content",
+                "b.LeaveType",
+                "b.created_at",
+                "c.id as EmployeeId",
+                "c.FirstName",
+                "c.LastName",
+                "c.MiddleName",
+                "c.Suffix",
+                "d.Sick",
+                "d.Vacation",
+                "d.Special",
+                "d.Maternity",
+                "d.MaternityForSoloMother",
+                "d.Paternity",
+                "d.SoloParent"
+            )
+            ->orderByDesc("b.created_at")
+            ->first();
+
+        // \Log::info(collect($leave));         
+
+
+
+        $leaveImgs = LeaveImageAttachments::where('LeaveId', $id)->get();
+
+
+
+        if (empty($leave) || !($leave->SignatoryId == Auth::id() || Permission::hasDirectPermission(['god permission']))) {
+            return redirect(route('leaveApplications.my-approvals'));
+        }
+
+        return view('leave_applications.my_approval_item', [
+            'leave' => $leave,
+            'leaveImgs' => $leaveImgs
+        ]);
+    }
+
+    public function approveAjax(Request $request)
+    {
         $id = $request['id'];
         $signatoryId = $request['SignatoryId'];
 
         $leaveApplication = LeaveApplications::find($id);
         $leaveSignatory = LeaveSignatories::find($signatoryId);
 
+
+
+
+
+
         // UPDATE SIGNATORIES
         $leaveSignatory->Status = 'APPROVED';
         $leaveSignatory->save();
+
+
 
         // GET USER
         $user = Users::where('employee_id', $leaveApplication->EmployeeId)->first();
@@ -653,7 +745,6 @@ class LeaveApplicationsController extends AppBaseController
         $notifications->Status = "UNREAD";
         $notifications->save();
 
-        // ADD NOTIFICATIONS FOR NEXT SIGNATORY
         // ADD NOTIFICATIONS FOR NEXT SIGNATORY
         $nextSignatory = DB::table('LeaveSignatories')
             ->whereRaw("LeaveId='" . $id . "' AND (Status IS NULL OR Status NOT IN('REMOVED')) AND Rank > " . $leaveSignatory->Rank)
@@ -680,9 +771,10 @@ class LeaveApplicationsController extends AppBaseController
                 $fRank = Employees::find($u->employee_id);
 
                 if ($fRank != null && $fRank->ContactNumbers != null) {
-                    SMSNotifications::sendSMS($fRank->ContactNumbers, 
+                    SMSNotifications::sendSMS(
+                        $fRank->ContactNumbers,
                         "HRS Leave Approval\n\nHello " . $fRank->FirstName . ", " . $employee->FirstName . " " . $employee->LastName . " has filed a leave that needs your approval. " .
-                            "Kindly check your HR System approval module for more info.",
+                        "Kindly check your HR System approval module for more info.",
                         "HR-Leave",
                         $id
                     );
@@ -695,28 +787,31 @@ class LeaveApplicationsController extends AppBaseController
              * =========================================================================
              */
             if ($employee != null && $employee->ContactNumbers != null) {
-                SMSNotifications::sendSMS($employee->ContactNumbers, 
+                SMSNotifications::sendSMS(
+                    $employee->ContactNumbers,
                     "HRS Leave Approval\n\nHello " . $employee->FirstName . ", " . Users::find($leaveSignatory->EmployeeId)->name . " has APPROVED your " . $leaveApplication->LeaveType . " leave application. It is now forwarded to the next signatory.",
                     "HR-Leave",
                     $id
                 );
             }
 
+
+
             // UPDATE LEAVE STATUS
             $leaveApplication->Status = 'Partially Approved';
             $leaveApplication->save();
-            
+
         } else {
             // UPDATE LEAVE STATUS
             // THIS PORTION IS WHEN THE LEAVE HAS FULLY SIGNED BY ALL SIGNATORIES
             /**
              * FILTER IF SICK LEAVE, NEEDS TO BE APPROVED BY HR
-            */
+             */
             // if ($leaveApplication->LeaveType == 'Sick') {
             //     $leaveApplication->Status = 'FOR REVIEW';
             //     $leaveApplication->save();
             // } else {
-                
+
             // }     
 
             /**
@@ -725,7 +820,8 @@ class LeaveApplicationsController extends AppBaseController
              * =========================================================================
              */
             if ($employee != null && $employee->ContactNumbers != null) {
-                SMSNotifications::sendSMS($employee->ContactNumbers, 
+                SMSNotifications::sendSMS(
+                    $employee->ContactNumbers,
                     "HRS Leave Approval\n\nHello " . $employee->FirstName . ", " . Users::find($leaveSignatory->EmployeeId)->name . " has APPROVED your " . $leaveApplication->LeaveType . " leave.",
                     "HR-Leave",
                     $id
@@ -736,7 +832,7 @@ class LeaveApplicationsController extends AppBaseController
             $leaveDays = LeaveDays::where('LeaveId', $id)->get();
             $totalDays = 0.0;
             $totalCredits = 0;
-            foreach($leaveDays as $item) {
+            foreach ($leaveDays as $item) {
                 $totalMins = 0;
                 $leaveDays = 0;
 
@@ -852,7 +948,7 @@ class LeaveApplicationsController extends AppBaseController
                 // update balance
                 $leaveBalances = LeaveBalances::where('EmployeeId', $leaveApplication->EmployeeId)->first();
                 if ($leaveBalances != null) {
-                    if ($leaveApplication->LeaveType == 'Sick') {                        
+                    if ($leaveApplication->LeaveType == 'Sick') {
                         $balance = floatval($leaveBalances->Sick);
                         $mins = $totalMins;
 
@@ -872,14 +968,14 @@ class LeaveApplicationsController extends AppBaseController
                         } else {
                             $balance = $balance - $mins;
                             $totalCredits += $mins;
-                        }                        
+                        }
 
                         $leaveBalances->Sick = $balance;
 
                     } elseif ($leaveApplication->LeaveType == 'Vacation') {
                         $balance = floatval($leaveBalances->Vacation);
                         $mins = $totalMins;
-                        
+
                         if ($balance < $mins) {
                             // save sobra nga leave as absent inside LeaveExcessAbsences
                             $excessInMins = ($mins - $balance);
@@ -896,13 +992,13 @@ class LeaveApplicationsController extends AppBaseController
                         } else {
                             $balance = $balance - $mins;
                             $totalCredits += $mins;
-                        } 
+                        }
 
                         $leaveBalances->Vacation = $balance;
                     } elseif ($leaveApplication->LeaveType == 'Special') {
                         $balance = floatval($leaveBalances->Special);
                         $daysL = $leaveDays;
-                        
+
                         if ($balance < $daysL) {
                             $balance = 0;
 
@@ -920,13 +1016,13 @@ class LeaveApplicationsController extends AppBaseController
                         } else {
                             $balance = $balance - $daysL;
                             $totalCredits += $daysL;
-                        } 
+                        }
 
                         $leaveBalances->Special = $balance;
                     } elseif ($leaveApplication->LeaveType == 'Paternity') {
                         $balance = floatval($leaveBalances->Paternity);
                         $daysL = $leaveDays;
-                        
+
                         if ($balance < $daysL) {
                             $balance = 0;
 
@@ -939,18 +1035,18 @@ class LeaveApplicationsController extends AppBaseController
                             $lea->LeaveDate = $item->LeaveDate;
                             $lea->Notes = 'Excess leave application (Paternity leave)';
                             $lea->save();
-                            
+
                             $totalCredits += $balance;
                         } else {
                             $balance = $balance - $daysL;
                             $totalCredits += $daysL;
-                        } 
+                        }
 
                         $leaveBalances->Paternity = $balance;
                     } elseif ($leaveApplication->LeaveType == 'Maternity') {
                         $balance = floatval($leaveBalances->Maternity);
                         $daysL = $leaveDays;
-                        
+
                         if ($balance < $daysL) {
                             $balance = 0;
 
@@ -963,18 +1059,18 @@ class LeaveApplicationsController extends AppBaseController
                             $lea->LeaveDate = $item->LeaveDate;
                             $lea->Notes = 'Excess leave application (Maternity leave)';
                             $lea->save();
-                            
+
                             $totalCredits += $balance;
                         } else {
                             $balance = $balance - $daysL;
                             $totalCredits += $daysL;
-                        } 
+                        }
 
                         $leaveBalances->Maternity = $balance;
                     } elseif ($leaveApplication->LeaveType == 'MaternityForSoloMother') {
                         $balance = floatval($leaveBalances->MaternityForSoloMother);
                         $daysL = $leaveDays;
-                        
+
                         if ($balance < $daysL) {
                             $balance = 0;
 
@@ -987,21 +1083,21 @@ class LeaveApplicationsController extends AppBaseController
                             $lea->LeaveDate = $item->LeaveDate;
                             $lea->Notes = 'Excess leave application (Maternity For Solo Mother leave)';
                             $lea->save();
-                            
+
                             $totalCredits += $balance;
                         } else {
                             $balance = $balance - $daysL;
                             $totalCredits += $daysL;
-                        } 
+                        }
 
                         $leaveBalances->MaternityForSoloMother = $balance;
                     } elseif ($leaveApplication->LeaveType == 'SoloParent') {
                         $balance = floatval($leaveBalances->SoloParent);
                         $daysL = $leaveDays;
-                        
+
                         if ($balance < $daysL) {
                             $balance = 0;
-                            
+
                             // save sobra nga leave as absent inside LeaveExcessAbsences
                             $excessInMins = round(($daysL - $balance) * 8 * 60, 2);
                             $lea = new LeaveExcessAbsences;
@@ -1011,33 +1107,162 @@ class LeaveApplicationsController extends AppBaseController
                             $lea->LeaveDate = $item->LeaveDate;
                             $lea->Notes = 'Excess leave application (Solo Parent leave)';
                             $lea->save();
-                            
+
                             $totalCredits += $balance;
                         } else {
                             $balance = $balance - $daysL;
                             $totalCredits += $daysL;
-                        } 
+                        }
 
                         $leaveBalances->SoloParent = $balance;
                     }
 
                     $leaveBalances->save();
                 }
-            }  
-            
+            }
+
             $leaveApplication->TotalCredits = $totalCredits;
             $leaveApplication->Status = 'APPROVED';
             $leaveApplication->save();
 
             // UPDATE LEAVE DAYS STATUS
             LeaveDays::where('LeaveId', $id)
-                ->update(['Status' => 'APPROVED']);               
+                ->update(['Status' => 'APPROVED']);
+
+
+
+
+            // Deduct leave balance after approved. - Domz
+            $balanceToDeduct = $leaveApplication->TotalCredits != null ? $leaveApplication->TotalCredits : 0;
+            $balances = LeaveBalances::where('EmployeeId', $leaveApplication->EmployeeId)->orderByDesc('created_at')->first();
+            if ($balances != null && $leaveApplication->Status === 'APPROVED') {
+                if ($leaveApplication->LeaveType === 'Vacation') {
+                    $existingBal = $balances->Vacation != null ? floatval($balances->Vacation) : 0;
+                    $existingBal = $existingBal - $balanceToDeduct;
+                    $balances->Vacation = $existingBal;
+                    $balances->save();
+                } elseif ($leaveApplication->LeaveType === 'Sick') {
+                    $existingBal = $balances->Sick != null ? floatval($balances->Sick) : 0;
+                    $existingBal = $existingBal - $balanceToDeduct;
+                    $balances->Sick = $existingBal;
+                    $balances->save();
+                } elseif ($leaveApplication->LeaveType === 'Special') {
+                    $existingBal = $balances->Special != null ? floatval($balances->Special) : 0;
+                    $existingBal = $existingBal - $balanceToDeduct;
+                    $balances->Special = $existingBal;
+                    $balances->save();
+                } elseif ($leaveApplication->LeaveType === 'Paternity') {
+                    $existingBal = $balances->Paternity != null ? floatval($balances->Paternity) : 0;
+                    $existingBal = $existingBal - $balanceToDeduct;
+                    $balances->Paternity = $existingBal;
+                    $balances->save();
+                } elseif ($leaveApplication->LeaveType === 'Maternity') {
+                    $existingBal = $balances->Maternity != null ? floatval($balances->Maternity) : 0;
+                    $existingBal = $existingBal - $balanceToDeduct;
+                    $balances->Maternity = $existingBal;
+                    $balances->save();
+                } elseif ($leaveApplication->LeaveType === 'MaternityForSoloMother') {
+                    $existingBal = $balances->MaternityForSoloMother != null ? floatval($balances->MaternityForSoloMother) : 0;
+                    $existingBal = $existingBal - $balanceToDeduct;
+                    $balances->MaternityForSoloMother = $existingBal;
+                    $balances->save();
+                } elseif ($leaveApplication->LeaveType === 'SoloParent') {
+                    $existingBal = $balances->SoloParent != null ? floatval($balances->SoloParent) : 0;
+                    $existingBal = $existingBal - $balanceToDeduct;
+                    $balances->SoloParent = $existingBal;
+                    $balances->save();
+                }
+            }
         }
-        
+
         return response()->json('ok', 200);
     }
 
-    public function deleteLeave(Request $request) {
+    public function deleteLeave(Request $request)
+    {
+        $id = $request['id'];
+
+        // if (Permission::hasDirectPermission(['god permission', 'delete leave'])) {
+        $leaveApplication = LeaveApplications::find($id);
+
+        // DELETE BIOMETRIC DATA IN AttendanceData table
+        $leaveDays = LeaveDays::where('LeaveId', $id)->get();
+        foreach ($leaveDays as $item) {
+            AttendanceData::where('AbsentPermission', "=", 'LEAVE')
+                ->whereRaw("TRY_CAST(Timestamp AS DATE)='" . str_replace(":AM", " AM", str_replace(":PM", " PM", $item->LeaveDate)) . "' AND EmployeeId='" . $leaveApplication->EmployeeId . "'")
+                ->update(['AbsentPermission' => null]);
+        }
+
+        // re-add balance
+        $leaveDays = LeaveDays::where('LeaveId', $id)->get();
+        $totalBalDays = 0;
+        foreach ($leaveDays as $item) {
+            $totalBalDays += floatval($item->Longevity);
+        }
+
+        // $balanceToAdd = $leaveApplication->TotalCredits != null ? $leaveApplication->TotalCredits : 0;
+
+        // $balances = LeaveBalances::where('EmployeeId', $leaveApplication->EmployeeId)->orderByDesc('created_at')->first();
+        // if ($balances != null && $leaveApplication->Status === 'APPROVED') {
+        //     if ($leaveApplication->LeaveType === 'Vacation') {
+        //         $existingBal = $balances->Vacation != null ? floatval($balances->Vacation) : 0;
+        //         $existingBal = $existingBal + $balanceToAdd;
+        //         $balances->Vacation = $existingBal;
+        //         $balances->save();
+        //     } elseif ($leaveApplication->LeaveType === 'Sick') {
+        //         $existingBal = $balances->Sick != null ? floatval($balances->Sick) : 0;
+        //         $existingBal = $existingBal + $balanceToAdd;
+        //         $balances->Sick = $existingBal;
+        //         $balances->save();
+        //     } elseif ($leaveApplication->LeaveType === 'Special') {
+        //         $existingBal = $balances->Special != null ? floatval($balances->Special) : 0;
+        //         $existingBal = $existingBal + $balanceToAdd;
+        //         $balances->Special = $existingBal;
+        //         $balances->save();
+        //     } elseif ($leaveApplication->LeaveType === 'Paternity') {
+        //         $existingBal = $balances->Paternity != null ? floatval($balances->Paternity) : 0;
+        //         $existingBal = $existingBal + $balanceToAdd;
+        //         $balances->Paternity = $existingBal;
+        //         $balances->save();
+        //     } elseif ($leaveApplication->LeaveType === 'Maternity') {
+        //         $existingBal = $balances->Maternity != null ? floatval($balances->Maternity) : 0;
+        //         $existingBal = $existingBal + $balanceToAdd;
+        //         $balances->Maternity = $existingBal;
+        //         $balances->save();
+        //     } elseif ($leaveApplication->LeaveType === 'MaternityForSoloMother') {
+        //         $existingBal = $balances->MaternityForSoloMother != null ? floatval($balances->MaternityForSoloMother) : 0;
+        //         $existingBal = $existingBal + $balanceToAdd;
+        //         $balances->MaternityForSoloMother = $existingBal;
+        //         $balances->save();
+        //     } elseif ($leaveApplication->LeaveType === 'SoloParent') {
+        //         $existingBal = $balances->SoloParent != null ? floatval($balances->SoloParent) : 0;
+        //         $existingBal = $existingBal + $balanceToAdd;
+        //         $balances->SoloParent = $existingBal;
+        //         $balances->save();
+        //     }
+        // }
+
+        // $leaveApplication->delete();
+
+        // LeaveDays::where('LeaveId', $id)->delete();
+
+        // LeaveImageAttachments::where('LeaveId', $id)->delete();
+
+        // LeaveSignatories::where('LeaveId', $id)->delete();
+
+        $leaveApplication->update(["Status" => "Trashed"]);
+
+        LeaveDays::where('LeaveId', $id)->update(["Status" => "Trashed"]);
+
+        LeaveSignatories::where('LeaveId', $id)->update(["Status" => "Trashed"]);
+
+        return response()->json('ok', 200);
+        // } else {
+        //     return abort(403, 'You are not authorized to access this module.');
+        // }
+    }
+    public function restoreLeave(Request $request)
+    {
         $id = $request['id'];
 
         if (Permission::hasDirectPermission(['god permission', 'delete leave'])) {
@@ -1045,68 +1270,74 @@ class LeaveApplicationsController extends AppBaseController
 
             // DELETE BIOMETRIC DATA IN AttendanceData table
             $leaveDays = LeaveDays::where('LeaveId', $id)->get();
-            foreach($leaveDays as $item) {
-                AttendanceData::where('AbsentPermission', 'LEAVE')
-                    ->whereRaw("TRY_CAST(Timestamp AS DATE)='" . $item->LeaveDate . "' AND EmployeeId='" . $leaveApplication->EmployeeId . "'")
-                    ->delete();
+            foreach ($leaveDays as $item) {
+                AttendanceData::where('AbsentPermission', "=", null)
+                    ->whereRaw("TRY_CAST(Timestamp AS DATE)='" . str_replace(":AM", " AM", str_replace(":PM", " PM", $item->LeaveDate)) . "' AND EmployeeId='" . $leaveApplication->EmployeeId . "'")
+                    ->update(["AbsentPermission" => "LEAVE"]);
             }
 
             // re-add balance
             $leaveDays = LeaveDays::where('LeaveId', $id)->get();
             $totalBalDays = 0;
-            foreach($leaveDays as $item) {
+            foreach ($leaveDays as $item) {
                 $totalBalDays += floatval($item->Longevity);
             }
 
-            $balanceToAdd = $leaveApplication->TotalCredits != null ? $leaveApplication->TotalCredits : 0;
+            // $balanceToAdd = $leaveApplication->TotalCredits != null ? $leaveApplication->TotalCredits : 0;
 
-            $balances = LeaveBalances::where('EmployeeId', $leaveApplication->EmployeeId)->orderByDesc('created_at')->first();
-            if ($balances != null && $leaveApplication->Status === 'APPROVED') {
-                if ($leaveApplication->LeaveType === 'Vacation') {
-                    $existingBal = $balances->Vacation != null ? floatval($balances->Vacation) : 0;
-                    $existingBal = $existingBal + $balanceToAdd;
-                    $balances->Vacation = $existingBal;
-                    $balances->save();
-                } elseif ($leaveApplication->LeaveType === 'Sick') {
-                    $existingBal = $balances->Sick != null ? floatval($balances->Sick) : 0;
-                    $existingBal = $existingBal + $balanceToAdd;
-                    $balances->Sick = $existingBal;
-                    $balances->save();
-                } elseif ($leaveApplication->LeaveType === 'Special') {
-                    $existingBal = $balances->Special != null ? floatval($balances->Special) : 0;
-                    $existingBal = $existingBal + $balanceToAdd;
-                    $balances->Special = $existingBal;
-                    $balances->save();
-                } elseif ($leaveApplication->LeaveType === 'Paternity') {
-                    $existingBal = $balances->Paternity != null ? floatval($balances->Paternity) : 0;
-                    $existingBal = $existingBal + $balanceToAdd;
-                    $balances->Paternity = $existingBal;
-                    $balances->save();
-                } elseif ($leaveApplication->LeaveType === 'Maternity') {
-                    $existingBal = $balances->Maternity != null ? floatval($balances->Maternity) : 0;
-                    $existingBal = $existingBal + $balanceToAdd;
-                    $balances->Maternity = $existingBal;
-                    $balances->save();
-                } elseif ($leaveApplication->LeaveType === 'MaternityForSoloMother') {
-                    $existingBal = $balances->MaternityForSoloMother != null ? floatval($balances->MaternityForSoloMother) : 0;
-                    $existingBal = $existingBal + $balanceToAdd;
-                    $balances->MaternityForSoloMother = $existingBal;
-                    $balances->save();
-                } elseif ($leaveApplication->LeaveType === 'SoloParent') {
-                    $existingBal = $balances->SoloParent != null ? floatval($balances->SoloParent) : 0;
-                    $existingBal = $existingBal + $balanceToAdd;
-                    $balances->SoloParent = $existingBal;
-                    $balances->save();
-                }
-            }
+            // $balances = LeaveBalances::where('EmployeeId', $leaveApplication->EmployeeId)->orderByDesc('created_at')->first();
+            // if ($balances != null && $leaveApplication->Status === 'APPROVED') {
+            //     if ($leaveApplication->LeaveType === 'Vacation') {
+            //         $existingBal = $balances->Vacation != null ? floatval($balances->Vacation) : 0;
+            //         $existingBal = $existingBal - $balanceToAdd;
+            //         $balances->Vacation = $existingBal;
+            //         $balances->save();
+            //     } elseif ($leaveApplication->LeaveType === 'Sick') {
+            //         $existingBal = $balances->Sick != null ? floatval($balances->Sick) : 0;
+            //         $existingBal = $existingBal - $balanceToAdd;
+            //         $balances->Sick = $existingBal;
+            //         $balances->save();
+            //     } elseif ($leaveApplication->LeaveType === 'Special') {
+            //         $existingBal = $balances->Special != null ? floatval($balances->Special) : 0;
+            //         $existingBal = $existingBal - $balanceToAdd;
+            //         $balances->Special = $existingBal;
+            //         $balances->save();
+            //     } elseif ($leaveApplication->LeaveType === 'Paternity') {
+            //         $existingBal = $balances->Paternity != null ? floatval($balances->Paternity) : 0;
+            //         $existingBal = $existingBal - $balanceToAdd;
+            //         $balances->Paternity = $existingBal;
+            //         $balances->save();
+            //     } elseif ($leaveApplication->LeaveType === 'Maternity') {
+            //         $existingBal = $balances->Maternity != null ? floatval($balances->Maternity) : 0;
+            //         $existingBal = $existingBal - $balanceToAdd;
+            //         $balances->Maternity = $existingBal;
+            //         $balances->save();
+            //     } elseif ($leaveApplication->LeaveType === 'MaternityForSoloMother') {
+            //         $existingBal = $balances->MaternityForSoloMother != null ? floatval($balances->MaternityForSoloMother) : 0;
+            //         $existingBal = $existingBal - $balanceToAdd;
+            //         $balances->MaternityForSoloMother = $existingBal;
+            //         $balances->save();
+            //     } elseif ($leaveApplication->LeaveType === 'SoloParent') {
+            //         $existingBal = $balances->SoloParent != null ? floatval($balances->SoloParent) : 0;
+            //         $existingBal = $existingBal - $balanceToAdd;
+            //         $balances->SoloParent = $existingBal;
+            //         $balances->save();
+            //     }
+            // }
 
-            $leaveApplication->delete();
+            // $leaveApplication->delete();
 
-            LeaveDays::where('LeaveId', $id)->delete();
+            // LeaveDays::where('LeaveId', $id)->delete();
 
-            LeaveImageAttachments::where('LeaveId', $id)->delete();
+            // LeaveImageAttachments::where('LeaveId', $id)->delete();
 
-            LeaveSignatories::where('LeaveId', $id)->delete();
+            // LeaveSignatories::where('LeaveId', $id)->delete();
+
+            $leaveApplication->update(["Status" => "Filed"]);
+
+            LeaveDays::where('LeaveId', $id)->update(["Status" => "Filed"]);
+
+            LeaveSignatories::where('LeaveId', $id)->update(["Status" => "Filed"]);
 
             return response()->json('ok', 200);
         } else {
@@ -1114,7 +1345,8 @@ class LeaveApplicationsController extends AppBaseController
         }
     }
 
-    public function addImageAttachments(Request $request) {
+    public function addImageAttachments(Request $request)
+    {
         $leaveId = $request['LeaveId'];
         $hexImage = urldecode($request['HexImage']);
 
@@ -1127,7 +1359,8 @@ class LeaveApplicationsController extends AppBaseController
         return response()->json($img, 200);
     }
 
-    public function removeImage(Request $request) {
+    public function removeImage(Request $request)
+    {
         $id = $request['id'];
 
         LeaveImageAttachments::find($id)->delete();
@@ -1135,7 +1368,8 @@ class LeaveApplicationsController extends AppBaseController
         return response()->json('ok', 200);
     }
 
-    public function removeLeaveSignatory(Request $request) {
+    public function removeLeaveSignatory(Request $request)
+    {
         $id = $request['id'];
 
         $leaveSignatory = LeaveSignatories::find($id);
@@ -1148,7 +1382,8 @@ class LeaveApplicationsController extends AppBaseController
         return response()->json($leaveSignatory, 200);
     }
 
-    public function rejectLeaveAjax(Request $request) {
+    public function rejectLeaveAjax(Request $request)
+    {
         $id = $request['id'];
         $signatoryId = $request['SignatoryId'];
         $notes = $request['Notes'];
@@ -1179,7 +1414,7 @@ class LeaveApplicationsController extends AppBaseController
                     $leaveSig->save();
                 }
             }
-            
+
             // UPDATE LEAVE DAYS STATUS
             LeaveDays::where('LeaveId', $id)
                 ->update(['Status' => 'REJECTED']);
@@ -1195,14 +1430,15 @@ class LeaveApplicationsController extends AppBaseController
             $notifications->Notes = $id;
             $notifications->Status = "UNREAD";
             $notifications->save();
-            
+
             /**
              * =========================================================================
              * SEND SMS
              * =========================================================================
              */
             if ($employee != null && $employee->ContactNumbers != null) {
-                SMSNotifications::sendSMS($employee->ContactNumbers, 
+                SMSNotifications::sendSMS(
+                    $employee->ContactNumbers,
                     "HR System - Leave Approval:\n\n" . Users::find($leaveSignatory->EmployeeId)->name . " has DISAPPROVED your " . $leaveApplication->LeaveType . " leave due to the following reasons:\n\n" . $notes,
                     "HR-Leave",
                     $id
@@ -1213,7 +1449,8 @@ class LeaveApplicationsController extends AppBaseController
         return response()->json($leaveApplication, 200);
     }
 
-    public function getLeavesByType(Request $request) {
+    public function getLeavesByType(Request $request)
+    {
         $employeeId = $request['EmployeeId'];
         $leaveType = $request['LeaveType'];
 
@@ -1229,14 +1466,15 @@ class LeaveApplicationsController extends AppBaseController
         return response()->json($data, 200);
     }
 
-    public function manualEntries(Request $request) {
+    public function manualEntries(Request $request)
+    {
         $employees = Employees::orderBy('LastName')->get();
 
         $holidaysList = HolidaysList::whereRaw("HolidayDate > GETDATE()")->get();
         $holidays = "";
         $size = count($holidaysList);
         $i = 0;
-        foreach($holidaysList as $item) {
+        foreach ($holidaysList as $item) {
             if ($i == ($size - 1)) {
                 $holidays .= date('Y-m-d', strtotime($item->HolidayDate));
             } else {
@@ -1245,16 +1483,51 @@ class LeaveApplicationsController extends AppBaseController
             $i++;
         }
 
-        // return view('leave_applications.manual_entries', [
-        //     'employees' => $employees,
-        //     'holidays' => $holidays,
-        // ]);
+
+        $id = IDGenerator::generateID();
+
+        $leaveImgs = LeaveImageAttachments::where('LeaveId', $id)->get();
+
+        return view('leave_applications.manual_entries', [
+            'employees' => $employees,
+            'holidays' => $holidays,
+            'id' => $id,
+            'leaveImgs' => $leaveImgs
+        ]);
 
 
-        return view('technical_difficulties.page', [ 'header' => 'MANUAL ENTRY: Leave Application']);
+        // return view('technical_difficulties.page', [ 'header' => 'MANUAL ENTRY: Leave Application']);
     }
 
-    public function getLeaveBalancesByEmployee(Request $request) {
+    public function showSpecialLeaves($empId)
+    {
+        $specialLeaves = LeaveApplications::where('employeeid', $empId)
+            ->where("LeaveType", "=", "Special")
+            ->whereRaw("cast(created_at as date) like '" . Carbon::now()->format('Y') . "%'")
+            ->get();
+
+
+        return response()->json([
+            'count' => count($specialLeaves),
+            'reasons' => [
+                "Enrollment" => $this->specialLeaveReasonExists($specialLeaves, "Enrollment"),
+                "Graduation" => $this->specialLeaveReasonExists($specialLeaves, "Graduation"),
+                "Birthday" => $this->specialLeaveReasonExists($specialLeaves, "Birthday"),
+                "Medical Examination" => $this->specialLeaveReasonExists($specialLeaves, "Medical Examination"),
+                "Wedding Anniversary" => $this->specialLeaveReasonExists($specialLeaves, "Wedding Anniversary"),
+                "Fiesta" => $this->specialLeaveReasonExists($specialLeaves, "Fiesta")
+            ]
+        ], 200);
+    }
+    private function specialLeaveReasonExists($specialLeaves, $reason): bool
+    {
+        return $specialLeaves->contains(function ($leave) use ($reason) {
+            return $leave->Content === $reason;
+        });
+    }
+
+    public function getLeaveBalancesByEmployee(Request $request)
+    {
         $data = LeaveBalances::where('EmployeeId', $request['EmployeeId'])
             ->first();
 
@@ -1265,7 +1538,8 @@ class LeaveApplicationsController extends AppBaseController
         return response()->json($data, 200);
     }
 
-    public function manualSave(Request $request) {
+    public function manualSave(Request $request)
+    {
         $employeeId = $request['EmployeeId'];
         $leaveType = $request['LeaveType'];
         $reason = $request['Reason'];
@@ -1273,7 +1547,7 @@ class LeaveApplicationsController extends AppBaseController
         $days = $request['Days'];
 
         // insert leave application
-        $id = IDGenerator::generateID();
+        $id = $request['Id'];
         $leave = new LeaveApplications;
         $leave->id = $id;
         $leave->EmployeeId = $employeeId;
@@ -1285,10 +1559,10 @@ class LeaveApplicationsController extends AppBaseController
         $totalCredits = 0;
 
         // insert days
-        for($i=0; $i<count($days); $i++) {
+        for ($i = 0; $i < count($days); $i++) {
             $totalMins = 0;
             $leaveDays = 0;
-            
+
             $leaveDay = new LeaveDays;
             $leaveDay->id = IDGenerator::generateIDandRandString();
             $leaveDay->LeaveId = $id;
@@ -1319,7 +1593,7 @@ class LeaveApplicationsController extends AppBaseController
             // update balance
             $leaveBalances = LeaveBalances::where('EmployeeId', $employeeId)->first();
             if ($leaveBalances != null) {
-                if ($leaveType == 'Sick') {                        
+                if ($leaveType == 'Sick') {
                     $balance = floatval($leaveBalances->Sick);
                     $mins = $totalMins;
 
@@ -1339,13 +1613,13 @@ class LeaveApplicationsController extends AppBaseController
                     } else {
                         $balance = $balance - $mins;
                         $totalCredits += $mins;
-                    }                        
+                    }
 
                     $leaveBalances->Sick = $balance;
                 } elseif ($leaveType == 'Vacation') {
                     $balance = floatval($leaveBalances->Vacation);
                     $mins = $totalMins;
-                    
+
                     if ($balance < $mins) {
                         // save sobra nga leave as absent inside LeaveExcessAbsences
                         $excessInMins = ($mins - $balance);
@@ -1362,13 +1636,13 @@ class LeaveApplicationsController extends AppBaseController
                     } else {
                         $balance = $balance - $mins;
                         $totalCredits += $mins;
-                    } 
+                    }
 
                     $leaveBalances->Vacation = $balance;
                 } elseif ($leaveType == 'Special') {
                     $balance = floatval($leaveBalances->Special);
                     $daysL = $leaveDays;
-                    
+
                     if ($balance < $daysL) {
                         $balance = 0;
 
@@ -1386,13 +1660,13 @@ class LeaveApplicationsController extends AppBaseController
                     } else {
                         $balance = $balance - $daysL;
                         $totalCredits += $daysL;
-                    } 
+                    }
 
                     $leaveBalances->Special = $balance;
                 } elseif ($leaveType == 'Paternity') {
                     $balance = floatval($leaveBalances->Paternity);
                     $daysL = $leaveDays;
-                    
+
                     if ($balance < $daysL) {
                         $balance = 0;
 
@@ -1405,18 +1679,18 @@ class LeaveApplicationsController extends AppBaseController
                         $lea->LeaveDate = $days[$i]['LeaveDate'];
                         $lea->Notes = 'Excess leave application (Paternity leave)';
                         $lea->save();
-                        
+
                         $totalCredits += $balance;
                     } else {
                         $balance = $balance - $daysL;
                         $totalCredits += $daysL;
-                    } 
+                    }
 
                     $leaveBalances->Paternity = $balance;
                 } elseif ($leaveType == 'Maternity') {
                     $balance = floatval($leaveBalances->Maternity);
                     $daysL = $leaveDays;
-                    
+
                     if ($balance < $daysL) {
                         $balance = 0;
 
@@ -1429,18 +1703,18 @@ class LeaveApplicationsController extends AppBaseController
                         $lea->LeaveDate = $days[$i]['LeaveDate'];
                         $lea->Notes = 'Excess leave application (Maternity leave)';
                         $lea->save();
-                        
+
                         $totalCredits += $balance;
                     } else {
                         $balance = $balance - $daysL;
                         $totalCredits += $daysL;
-                    } 
+                    }
 
                     $leaveBalances->Maternity = $balance;
                 } elseif ($leaveType == 'MaternityForSoloMother') {
                     $balance = floatval($leaveBalances->MaternityForSoloMother);
                     $daysL = $leaveDays;
-                    
+
                     if ($balance < $daysL) {
                         $balance = 0;
 
@@ -1453,21 +1727,21 @@ class LeaveApplicationsController extends AppBaseController
                         $lea->LeaveDate = $days[$i]['LeaveDate'];
                         $lea->Notes = 'Excess leave application (Maternity For Solo Mother leave)';
                         $lea->save();
-                        
+
                         $totalCredits += $balance;
                     } else {
                         $balance = $balance - $daysL;
                         $totalCredits += $daysL;
-                    } 
+                    }
 
                     $leaveBalances->MaternityForSoloMother = $balance;
                 } elseif ($leaveType == 'SoloParent') {
                     $balance = floatval($leaveBalances->SoloParent);
                     $daysL = $leaveDays;
-                    
+
                     if ($balance < $daysL) {
                         $balance = 0;
-                        
+
                         // save sobra nga leave as absent inside LeaveExcessAbsences
                         $excessInMins = round(($daysL - $balance) * 8 * 60, 2);
                         $lea = new LeaveExcessAbsences;
@@ -1477,12 +1751,12 @@ class LeaveApplicationsController extends AppBaseController
                         $lea->LeaveDate = $days[$i]['LeaveDate'];
                         $lea->Notes = 'Excess leave application (Solo Parent leave)';
                         $lea->save();
-                        
+
                         $totalCredits += $balance;
                     } else {
                         $balance = $balance - $daysL;
                         $totalCredits += $daysL;
-                    } 
+                    }
 
                     $leaveBalances->SoloParent = $balance;
                 }
@@ -1496,7 +1770,8 @@ class LeaveApplicationsController extends AppBaseController
         return response()->json($leave, 200);
     }
 
-    public function publishLeave($id) {
+    public function publishLeave($id)
+    {
         $leaveApplications = DB::table('LeaveApplications')
             ->leftJoin('Employees', 'LeaveApplications.EmployeeId', '=', 'Employees.id')
             ->select(
@@ -1519,7 +1794,8 @@ class LeaveApplicationsController extends AppBaseController
                     ->first();
 
                 if ($employee != null && $employee->ContactNumbers != null) {
-                    SMSNotifications::sendSMS($employee->ContactNumbers, 
+                    SMSNotifications::sendSMS(
+                        $employee->ContactNumbers,
                         "HR System - Leave Approval:\n\n" . $leaveApplications->FirstName . " " . $leaveApplications->LastName . " has a new leave application that needs your approval.",
                         "HR-Leave",
                         $id
@@ -1531,13 +1807,37 @@ class LeaveApplicationsController extends AppBaseController
         return redirect(route('home'));
     }
 
-    public function fileForCoWorker(Request $request) {
-        $employees = DB::table('LeaveUsersForOthers')
-            ->leftJoin('Employees', 'LeaveUsersForOthers.EmployeeId', '=', 'Employees.id')
-            ->whereRaw("LeaveUsersForOthers.LeaveCreator='" . Auth::user()->employee_id . "'")
-            ->select('Employees.*')
-            ->orderBy('LastName')
-            ->get();
+    public function fileForCoWorker(Request $request)
+    {
+
+        $employees = Employees::orderBy('LastName')->get();
+
+        //     $position = DB::select("
+        //         select a.id,c.department,c.parentpositionid,c.id as positionid,c.position from employees as a
+        //             left join employeesdesignations as b on a.id = b.employeeid
+        //             left join positions as c on b.positionid = c.id 
+        //         where a.id = ?
+        //     ", [Auth::user()->employee_id]);
+        //     $employees_data = DB::select("
+        //         select a.id,a.FirstName,a.MiddleName,a.LastName,a.Suffix,c.department,c.parentpositionid,c.position from employees as a
+        //             left join employeesdesignations as b on a.id = b.employeeid
+        //             left join positions as c on b.positionid = c.id
+        //         where c.parentpositionid = ? order by a.lastname asc;
+        //     ", [$position[0]->positionid]);
+        //     $coworkers = DB::select("
+        //     select a.id,a.FirstName,a.MiddleName,a.LastName,a.Suffix,c.department,c.parentpositionid,c.position from employees as a
+        //         left join employeesdesignations as b on a.id = b.employeeid
+        //         left join positions as c on b.positionid = c.id
+        //     where c.parentpositionid = ? order by a.lastname asc;
+        // ", [$position[0]->parentpositionid]);
+        //     $employees = $employees_data? $employees_data: $coworkers;
+
+        // $employees = DB::table('LeaveUsersForOthers')
+        //     ->leftJoin('Employees', 'LeaveUsersForOthers.EmployeeId', '=', 'Employees.id')
+        //     ->whereRaw("LeaveUsersForOthers.LeaveCreator='" . Auth::user()->employee_id . "'")
+        //     ->select('Employees.*')
+        //     ->orderBy('LastName')
+        //     ->get();
 
         $otherSignatories = DB::table('users')
             ->leftJoin('Employees', 'users.employee_id', '=', 'Employees.id')
@@ -1546,12 +1846,12 @@ class LeaveApplicationsController extends AppBaseController
             ->select('users.id', 'Employees.id AS EmployeeId', 'Employees.FirstName', 'Employees.LastName', 'Employees.MiddleName', 'Employees.Suffix', 'Positions.Level', 'Positions.Position', 'Positions.ParentPositionId', 'Positions.id AS PositionId')
             ->whereRaw("Positions.Level IN ('Supervisor', 'Chief', 'Manager', 'General Manager')")
             ->get();
-    
+
         $holidaysList = HolidaysList::whereRaw("HolidayDate > GETDATE()")->get();
         $holidays = "";
         $size = count($holidaysList);
         $i = 0;
-        foreach($holidaysList as $item) {
+        foreach ($holidaysList as $item) {
             if ($i == ($size - 1)) {
                 $holidays .= date('Y-m-d', strtotime($item->HolidayDate));
             } else {
@@ -1560,25 +1860,39 @@ class LeaveApplicationsController extends AppBaseController
             $i++;
         }
 
-        // return view('leave_applications.file_for_coworker', [
-        //     'employees' => $employees,
-        //     'holidays' => $holidays,
-        //     'otherSignatories' => $otherSignatories,
-        // ]);
+        $specialLeaves = LeaveApplications::where('employeeid', Auth::user()->employee_id)
+            ->where("LeaveType", "=", "Special")
+            ->whereRaw("cast(created_at as date) like '" . Carbon::now()->format('Y') . "%'")
+            ->get();
 
-        return view('technical_difficulties.page', [ 'header' => 'File for Co-Worker: Leave Application']);
+
+        $id = IDGenerator::generateID();
+        $leaveImgs = LeaveImageAttachments::where('LeaveId', $id)->get();
+
+        return view('leave_applications.file_for_coworker', [
+            'employees' => collect($employees),
+            'holidays' => $holidays,
+            'otherSignatories' => $otherSignatories,
+            'specialLeaves' => $specialLeaves,
+            'leaveImgs' => $leaveImgs,
+            'id' => $id
+        ]);
+
+        // return view('technical_difficulties.page', [ 'header' => 'File for Co-Worker: Leave Application']);
     }
 
-    public function saveForCoWorker(Request $request) {
+    public function saveForCoWorker(Request $request)
+    {
         $employeeId = $request['EmployeeId'];
         $leaveType = $request['LeaveType'];
         $reason = $request['Reason'];
         $dateFiled = $request['DateFiled'];
         $days = $request['Days'];
         $signatories = $request['Signatories'];
+        $id = $request['Id'];
+        $salaryDeduction = $request['SalaryDeduction'] ?? false;
 
         // insert leave application
-        $id = IDGenerator::generateID();
         $leave = new LeaveApplications;
         $leave->id = $id;
         $leave->EmployeeId = $employeeId;
@@ -1586,7 +1900,7 @@ class LeaveApplicationsController extends AppBaseController
         $leave->Status = 'Filed';
         $leave->LeaveType = $leaveType;
         $leave->created_at = $dateFiled;
-        
+
         $totalCredits = 0;
 
         $employee = DB::table('Employees')
@@ -1599,10 +1913,10 @@ class LeaveApplicationsController extends AppBaseController
         // INSERT LEAVE DAYS
         $smsDays = "";
         $totalDays = 0;
-        for($i=0; $i<count($days); $i++) {
+        for ($i = 0; $i < count($days); $i++) {
             $totalMins = 0;
             $leaveDays = 0;
-            
+
             $leaveDay = new LeaveDays;
             $leaveDay->id = IDGenerator::generateIDandRandString();
             $leaveDay->LeaveId = $id;
@@ -1626,11 +1940,11 @@ class LeaveApplicationsController extends AppBaseController
                 // increment total minutes for vacation and sick leave
                 if ($leaveType === 'Vacation' | $leaveType === 'Sick') {
                     $totalMins = (4 * 60);
-                    
+
                     $totalCredits += $totalMins;
                 } else {
                     $leaveDays = .5;
-                    
+
                     $totalCredits += $leaveDays;
                 }
             }
@@ -1646,7 +1960,7 @@ class LeaveApplicationsController extends AppBaseController
 
         // INSERT SIGNATORIES
         if (isset($signatories)) {
-            foreach($signatories as $item) {
+            foreach ($signatories as $item) {
                 $sigs = new LeaveSignatories;
                 $sigs->LeaveId = $id;
                 $sigs->EmployeeId = $item['UserId'];
@@ -1670,14 +1984,15 @@ class LeaveApplicationsController extends AppBaseController
                         ]);
 
                         if ($fRank != null && $fRank->ContactNumbers != null) {
-                            SMSNotifications::sendSMS($fRank->ContactNumbers, 
+                            SMSNotifications::sendSMS(
+                                $fRank->ContactNumbers,
                                 "HRS Leave Approval\n\nHello " . $fRank->FirstName . ", " . $employee->FirstName . " " . $employee->LastName . " has filed a leave that needs your approval. " .
-                                    "Kindly check your HR System approval module for more info.",
+                                "Kindly check your HR System approval module for more info.",
                                 "HR-Leave",
                                 $id
                             );
                         }
-                    }                    
+                    }
                 }
             }
         }
@@ -1688,12 +2003,13 @@ class LeaveApplicationsController extends AppBaseController
          * =========================================================================
          */
         if ($employee != null && $employee->ContactNumbers != null) {
-            SMSNotifications::sendSMS($employee->ContactNumbers, 
+            SMSNotifications::sendSMS(
+                $employee->ContactNumbers,
                 "HRS Leave Application\n\nHello " . $employee->FirstName . ", you have filed a leave with the following details:\n\n" .
-                    "REASON: " . $reason . "\n" .
-                    "DAYS:\n" . $smsDays . "\n" .
-                    "TOTAL DAYS: " . $totalDays . "\n" .
-                    "If this wasn't you, kindly inform the HR office for further checking.\nHave a great day!",
+                "REASON: " . $reason . "\n" .
+                "DAYS:\n" . $smsDays . "\n" .
+                "TOTAL DAYS: " . $totalDays . "\n" .
+                "If this wasn't you, kindly inform the HR office for further checking.\nHave a great day!",
                 "HR-Leave",
                 $id
             );
@@ -1702,7 +2018,8 @@ class LeaveApplicationsController extends AppBaseController
         return response()->json($leave, 200);
     }
 
-    public function getSignatoriesForEmployee(Request $request) {
+    public function getSignatoriesForEmployee(Request $request)
+    {
         $employeeId = $request['EmployeeId'];
 
         $employee = DB::table('Employees')
@@ -1738,14 +2055,15 @@ class LeaveApplicationsController extends AppBaseController
         return response()->json($data, 200);
     }
 
-    public function fileLeave(Request $request) {
+    public function fileLeave(Request $request)
+    {
         $employee = Employees::find(Auth::user()->employee_id);
 
         $holidaysList = HolidaysList::whereRaw("HolidayDate > GETDATE()")->get();
         $holidays = "";
         $size = count($holidaysList);
         $i = 0;
-        foreach($holidaysList as $item) {
+        foreach ($holidaysList as $item) {
             if ($i == ($size - 1)) {
                 $holidays .= date('Y-m-d', strtotime($item->HolidayDate));
             } else {
@@ -1754,23 +2072,48 @@ class LeaveApplicationsController extends AppBaseController
             $i++;
         }
 
-        // if ($employee != null) {
-        //     return view('leave_applications.file_leave', [
-        //         'holidays' => $holidays,
-        //         'employee' => $employee
-        //     ]);
-        // } else {
-        //     return abort(403, 'You are not authorized to access this module');
-        // }
+        $specialLeaves = LeaveApplications::where('employeeid', Auth::user()->employee_id)
+            ->where("LeaveType", "=", "Special")
+            ->whereRaw("cast(created_at as date) like '" . Carbon::now()->format('Y') . "%'")
+            ->get();
 
-        return view('technical_difficulties.page', [ 'header' => "File a Leave Application." ]);
+
+        $status = $specialLeaves->contains(function ($leave) {
+            return $leave->Content === 'Enrollment';
+        });
+
+        $id = IDGenerator::generateID();
+        $leaveImgs = LeaveImageAttachments::where('LeaveId', $id)->get();
+
+        if ($employee != null) {
+            return view('leave_applications.file_leave', [
+                'specialLeaves' => $specialLeaves,
+                'holidays' => $holidays,
+                'employee' => $employee,
+                'leaveImgs' => $leaveImgs,
+                'id' => $id
+            ]);
+
+            // return response()->json([
+            //     'reason' => $status,
+            //     'specialLeaves' => $specialLeaves,
+            //     // 'holidays' => $holidays,
+            //     // 'employee' => $employee
+            // ]);
+        } else {
+            return abort(403, 'You are not authorized to access this module');
+        }
+
+        // return view('technical_difficulties.page', [ 'header' => "File a Leave Application." ]);
     }
 
-    public function viewAllLeave(Request $request) {
-        return view('/leave_applications/all_leave', []);
+    public function viewAllLeave(Request $request)
+    {
+        return view('leave_applications.all_leave', []);
     }
 
-    public function searchLeave(Request $request) {
+    public function searchLeave(Request $request)
+    {
         $params = $request['search'];
         $type = $request['type'];
 
@@ -1835,7 +2178,7 @@ class LeaveApplicationsController extends AppBaseController
             }
         }
 
-        foreach($data as $item) {
+        foreach ($data as $item) {
             $item->Days = DB::table('LeaveDays')
                 ->where('LeaveId', $item->id)
                 ->get();
@@ -1846,23 +2189,24 @@ class LeaveApplicationsController extends AppBaseController
         return response()->json($data, 200);
     }
 
-    public function getLeaveByEmployee(Request $request) {
+    public function getLeaveByEmployee(Request $request)
+    {
         $employeeId = $request['EmployeeId'];
 
         $data = DB::table('LeaveApplications')
-                    ->leftJoin('Employees', 'LeaveApplications.EmployeeId', '=', 'Employees.id')
-                    ->where('EmployeeId', $employeeId)
-                    ->select(
-                        'LeaveApplications.*',
-                        'Employees.FirstName',
-                        'Employees.LastName',
-                        'Employees.MiddleName',
-                        'Employees.Suffix',
-                    )
-                    ->orderByDesc('LeaveApplications.created_at')
-                    ->get();
+            ->leftJoin('Employees', 'LeaveApplications.EmployeeId', '=', 'Employees.id')
+            ->where('EmployeeId', $employeeId)
+            ->select(
+                'LeaveApplications.*',
+                'Employees.FirstName',
+                'Employees.LastName',
+                'Employees.MiddleName',
+                'Employees.Suffix',
+            )
+            ->orderByDesc('LeaveApplications.created_at')
+            ->get();
 
-        foreach($data as $item) {
+        foreach ($data as $item) {
             $item->Days = DB::table('LeaveDays')
                 ->where('LeaveId', $item->id)
                 ->get();
@@ -1873,11 +2217,13 @@ class LeaveApplicationsController extends AppBaseController
         return response()->json($data, 200);
     }
 
-    public function leaveReport(Request $request) {
+    public function leaveReport(Request $request)
+    {
         return view('/leave_applications/leave_report', []);
     }
 
-    public function getLeaveReport(Request $request) {
+    public function getLeaveReport(Request $request)
+    {
         $from = $request['From'];
         $to = $request['To'];
         $type = $request['Type'];
@@ -1911,7 +2257,7 @@ class LeaveApplicationsController extends AppBaseController
                 ->get();
         }
 
-        foreach($data as $item) {
+        foreach ($data as $item) {
             $item->Days = DB::table('LeaveDays')
                 ->where('LeaveId', $item->id)
                 ->get();
@@ -1922,7 +2268,8 @@ class LeaveApplicationsController extends AppBaseController
         return response()->json($data, 200);
     }
 
-    public function printLeaveReport($from, $to, $type) {
+    public function printLeaveReport($from, $to, $type)
+    {
         if ($type === 'All') {
             $data = DB::table('LeaveApplications')
                 ->leftJoin('Employees', 'LeaveApplications.EmployeeId', '=', 'Employees.id')
@@ -1952,7 +2299,7 @@ class LeaveApplicationsController extends AppBaseController
                 ->get();
         }
 
-        foreach($data as $item) {
+        foreach ($data as $item) {
             $item->Days = DB::table('LeaveDays')
                 ->where('LeaveId', $item->id)
                 ->get();

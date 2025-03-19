@@ -5,7 +5,7 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
-                    <h1>Leave Applications</h1>
+                    <h1>Leave Applications of Employees</h1>
                 </div>
                 <div class="col-sm-6">
                     <a class="btn btn-primary float-right"
@@ -28,8 +28,8 @@
                 @include('leave_applications.table')
 
                 <div class="card-footer clearfix float-right">
-                    <div class="float-right">
-                        
+                    <div class="d-flex justify-content-center">
+                         {{ $leaveApplications->links() }}
                     </div>
                 </div>
             </div>

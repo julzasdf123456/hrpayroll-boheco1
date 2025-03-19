@@ -47,7 +47,8 @@
                             <td @click="leaveView(leave.id)" class="v-align">{{leave.Content }}</td>
                             <td @click="leaveView(leave.id)" class="v-align text-center"><span class="badge" :class="getStatusBadgeColor(leave.Status)">{{leave.Status }}</span></td>
                             <td class="v-align text-right">
-                                <button @click="trashLeave(leave.id)" class="btn btn-xs btn-danger"><i class="fas fa-trash ico-tab-mini"></i>Delete</button>
+                                <button v-if="leave.Status == 'Trashed'" @click="restoreLeave(leave.id)" class="btn btn-xs btn-success"><i class="fas fa-trash ico-tab-mini"></i>Restore</button>
+                                <button v-else @click="trashLeave(leave.id)" class="btn btn-xs btn-danger"><i class="fas fa-trash ico-tab-mini"></i>Trash</button>
                             </td>
                         </tr>
                     </tbody>
@@ -137,7 +138,7 @@ export default {
                 return 'bg-info'
             } else if (status === 'Filed') {
                 return 'bg-primary'
-            } else if (status == 'REJECTED') {
+            } else if (status == 'REJECTED' || status == 'Trashed') {
                 return 'bg-danger'
             } else {
                 return 'bg-success'
@@ -165,9 +166,9 @@ export default {
         trashLeave(id) {
             Swal.fire({
                 title: 'Deletion Confirmation',
-                text : 'You sure you wanna delete this leave?',
+                text : 'You sure you wanna trash this leave?',
                 showDenyButton: true,
-                confirmButtonText: 'Delete',
+                confirmButtonText: 'Trash it',
                 denyButtonText: `Close`,
                 }).then((result) => {
                 /* Read more about isConfirmed, isDenied below */
@@ -188,6 +189,40 @@ export default {
                         console.log(error.response)
                         Swal.fire({
                             text : 'Error deleting leave! Contact IT support for more.',
+                            icon : 'error'
+                        })
+                    })
+                } else if (result.isDenied) {
+                    
+                }
+            })
+        },
+        restoreLeave(id) {
+            Swal.fire({
+                title: 'Restoration Confirmation',
+                text : 'You sure you wanna restore this leave?',
+                showDenyButton: true,
+                confirmButtonText: 'Restore',
+                denyButtonText: `Close`,
+                }).then((result) => {
+                /* Read more about isConfirmed, isDenied below */
+                if (result.isConfirmed) {
+                    axios.get(`${ axios.defaults.baseURL }/leave_applications/restore-leave`, {
+                        params : {
+                            id : id,
+                        }  
+                    }) // IF PORT 80 DIRECT FROM APACHE
+                    .then(response => {
+                        this.toast.fire({
+                            icon : 'success',
+                            text : 'Leave restored!'
+                        })
+                        location.reload()
+                    })
+                    .catch(error => {
+                        console.log(error.response)
+                        Swal.fire({
+                            text : 'Error restoring leave! Contact IT support for more.',
                             icon : 'error'
                         })
                     })

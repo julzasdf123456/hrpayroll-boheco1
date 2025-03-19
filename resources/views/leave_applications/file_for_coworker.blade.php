@@ -1,6 +1,15 @@
 @php
     use App\Models\Employees;
     use App\Models\LeaveBalances;
+    use App\Models\Permission;
+
+    $specialLeaveReasons = ["Enrollment","Graduation","Birthday","Medical Examination","Wedding Anniversary","Fiesta"];
+
+    function specialLeaveReasonExists($specialLeaves, $reason): bool {
+        return $specialLeaves->contains(function ($leave) use ($reason) {
+            return $leave->Content === $reason;
+        });
+    }
 @endphp
 @extends('layouts.app')
 
@@ -14,6 +23,10 @@
             </div>
         </div>
     </section>
+
+
+
+    @include('flash::message')
 
     <div class="row">
         {{-- LEAVE FORM --}}
@@ -32,88 +45,150 @@
                         </select>
                     </div>
 
-                    <span class="text-muted">Select Leave Type</span>
-                    <div class="form-group pl-5 mb-4">
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="LeaveType" id="Vacation" value="Vacation">
-                            <label class="form-check-label" for="Vacation">Vacation</label>
+                    
+                    <div class="card-body">
+                        <span class="text-muted">Select Leave Type</span>
+                        <div class="form-group pl-5 mb-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="LeaveType" id="Vacation"
+                                    value="Vacation">
+                                <label class="form-check-label" for="Vacation">Vacation</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="LeaveType" id="Sick"
+                                    value="Sick">
+                                <label class="form-check-label" for="Sick">Sick</label>
+                            </div>
+                            <div class="form-check">
+                                @if (count($specialLeaves) >= 3)
+                                    <input class="form-check-input" type="radio" name="LeaveType" id="Special"
+                                        value="Special" disabled>
+                                    <label class="form-check-label" title="This employee only had 3 special leaves. Cannot exceed more this year." for="Special">Special</label>
+                                @else
+                                    <input class="form-check-input" type="radio" name="LeaveType" id="Special"
+                                        value="Special">
+                                    <label class="form-check-label" for="Special">Special</label>
+                                @endif
+                            </div>
+                            {{-- @if ($employee->Father === 'Yes') --}}
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="LeaveType" id="Paternity"
+                                        value="Paternity">
+                                    <label class="form-check-label" for="Paternity">Paternity</label>
+                                </div>
+                            {{-- @endif --}}
+                            {{-- @if ($employee->Mother === 'Yes')  --}}
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="LeaveType" id="Maternity"
+                                    value="Maternity">
+                                <label class="form-check-label" for="Maternity">Maternity</label>
+                            </div>
+                            {{-- @endif
+                            @if ($employee->SoloMother === 'Yes')  --}}
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="LeaveType" id="MaternityForSoloMother"
+                                    value="MaternityForSoloMother">
+                                <label class="form-check-label" for="MaternityForSoloMother">Maternity For Solo
+                                    Mother</label>
+                            </div>
+                            {{-- @endif
+                            @if ($employee->SoloParent === 'Yes')  --}}
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="LeaveType" id="SoloParent"
+                                    value="SoloParent">
+                                <label class="form-check-label" for="SoloParent">Solo Parent</label>
+                            </div>
+                            {{-- @endif --}}
                         </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="LeaveType" id="Sick" value="Sick">
-                            <label class="form-check-label" for="Sick">Sick</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="LeaveType" id="Special" value="Special">
-                            <label class="form-check-label" for="Special">Special</label>
-                        </div>
-                        <div class="form-check" id="op-paternity">
-                            <input class="form-check-input" type="radio" name="LeaveType" id="Paternity"
-                                value="Paternity">
-                            <label class="form-check-label" for="Paternity">Paternity</label>
-                        </div>
-
-                        <div class="form-check" id="op-maternity">
-                            <input class="form-check-input" type="radio" name="LeaveType" id="Maternity"
-                                value="Maternity">
-                            <label class="form-check-label" for="Maternity">Maternity</label>
-                        </div>
-                        <div class="form-check" id="op-maternity-solo">
-                            <input class="form-check-input" type="radio" name="LeaveType" id="MaternityForSoloMother"
-                                value="MaternityForSoloMother">
-                            <label class="form-check-label" for="MaternityForSoloMother">Maternity For Solo Mother</label>
-                        </div>
-                        <div class="form-check" id="op-solo">
-                            <input class="form-check-input" type="radio" name="LeaveType" id="SoloParent"
-                                value="SoloParent">
-                            <label class="form-check-label" for="SoloParent">Solo Parent</label>
-                        </div>
-                    </div>
-
-
 
                         <!-- FOR SPECIAL LEAVE Field -->
                         <div class="form-group mb-3" id="special-dropdown">
                             <span class="text-muted">Select Reason</span>
                             <select name="SpecialReason" id="SpecialReason" class="form-control">
-                                <option value="Enrollment">Enrollment</option>
-                                <option value="Graduation">Graduation</option>
-                                <option value="Birthday">Birthday</option>
-                                <option value="Medical Examination">Medical Examination</option>
-                                <option value="Wedding Anniversary">Wedding Anniversary</option>
-                                <option value="Fiesta">Fiesta</option>
+                                @foreach ( $specialLeaveReasons as $item )  
+                                    <option 
+                                        value="{{ $item }}" 
+                                        @if (specialLeaveReasonExists($specialLeaves,$item))
+                                            title="This employee already had this special reason this year." disabled
+                                        @endif
+                                    >{{$item}}</option>
+                                @endforeach
                             </select>
                         </div>
 
-                    <div class="form-group mb-3">
-                        <span class="text-muted">Reason</span>
-                        <input type="text" name="Reason" id="Reason" class="form-control" />
-                    </div>
+                        <div class="form-group mb-3" id="reason-field">
+                            <span class="text-muted">Reason</span>
+                            <input type="text" name="Reason" id="Reason" class="form-control" />
+                        </div>
 
-                    <div class="form-group mb-3">
-                        <span class="text-muted">Date Filed</span>
-                        <input type="text" name="DateFiled" id="DateFiled" class="form-control"
-                            value="{{ date('Y-m-d') }}" />
+                        <div class="form-group mb-3">
+                            <span class="text-muted">Date Filed</span>
+                            <input type="text" name="DateFiled" id="DateFiled" class="form-control"
+                                value="{{ date('Y-m-d') }}"
+                                {{ Permission::hasDirectPermission(['god permission', 'view employee']) ? '' : 'disabled' }} />
+                            @push('page_scripts')
+                                <script type="text/javascript">
+                                    $('#DateFiled').datetimepicker({
+                                        format: 'YYYY-MM-DD',
+                                        useCurrent: true,
+                                        sideBySide: true
+                                    })
+                                </script>
+                            @endpush
+                        </div>
+
+                        <div class="form-group">
+                            <span class="text-muted">Select Days</span>
+                            <input type="text" name="Day" id="Day" class="form-control" />
+                        </div>
+                        <table id="dates-table" class="table table-hover table-borderless table-sm">
+                            <tbody>
+
+                            </tbody>
+                        </table>
+
+                        <div id="upload-section">
+                        <div class="divider"></div>
+                            <input type="file" accept="image/png, image/gif, image/jpeg" id="img-attachment" style="display: none"/>
+                            <button class="btn btn-sm btn-primary float-right" onclick="thisFileUpload()"><i class="fas fa-upload ico-tab-mini"></i>Upload File(s)</button>
+                            <p class="text-muted">Attachments (Physician Consults, Medical Certs, etc.)</p>
+
+                            <div class="row" id="imgs-data">
+                                @foreach ($leaveImgs as $item)
+                                    <div class="col-md-3" id="{{ $item->id }}">
+                                        <button class="btn btn-xs btn-danger" style="" onclick="removeImg('{{ $item->id }}')"><i class="fas fa-trash"></i></button>
+                                        <img src="{{ $item->HexImage }}" style="width: 100%;" alt="">
+                                    </div>
+                                    
+                                @endforeach
+                            </div>
+                        </div>
                         @push('page_scripts')
-                            <script type="text/javascript">
-                                $('#DateFiled').datetimepicker({
-                                    format: 'YYYY-MM-DD',
-                                    useCurrent: true,
-                                    sideBySide: true
-                                })
+                            <script>
+                                var holidays = "{{ $holidays }}"
+                                holidays = holidays.split(',')
+
+                                $('#Day').daterangepicker({
+                                    showDropdowns: true,
+                                    alwaysShowCalendars: true,
+                                    isInvalidDate: function(date) {
+                                        // if (date.day() == 0 | holidays.includes(date.format('YYYY-MM-DD'))) {
+                                        //     return true
+                                        // } else {
+                                        return false
+                                        // }
+                                    },
+                                    minYear: 1901,
+                                    maxYear: parseInt(moment().format('YYYY'), 10)
+                                }, function(start, end, label) {
+                                    addDates(start.format('YYYY-MM-DD'), end.format('YYYY-MM-DD'))
+                                });
                             </script>
                         @endpush
                     </div>
 
-                    <div class="form-group">
-                        <span class="text-muted">Select Days</span>
-                        <input type="text" name="Day" id="Day" class="form-control" />
-                    </div>
 
-                    <table id="dates-table" class="table table-hover table-borderless table-sm">
-                        <tbody>
 
-                        </tbody>
-                    </table>
                     @push('page_scripts')
                         <script>
                             var holidays = "{{ $holidays }}"
@@ -248,6 +323,90 @@
             })
         }
 
+
+        function thisFileUpload() {
+            document.getElementById("img-attachment").click();
+        };
+
+
+
+        function removeImg(id) {
+            Swal.fire({
+                title: 'Remove Confirmation',
+                text : 'You sure you wanna remove this image attachment?',
+                showDenyButton: true,
+                confirmButtonText: 'Remove',
+                denyButtonText: `Close`,
+                }).then((result) => {
+                /* Read more about isConfirmed, isDenied below */
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url : "{{ route('leaveApplications.remove-image') }}",
+                        type : 'GET',
+                        data : {
+                            id : id,
+                        },
+                        success : function(res) {
+                            $('#' + id).remove()
+                        },
+                        error : function(err) {
+                            Swal.fire({
+                                icon : 'error',
+                                text : 'Error removing image attachment'
+                            })
+                        }
+                    })
+                } else if (result.isDenied) {
+                    
+                }
+            })            
+        }
+    
+
+
+        $('#img-attachment').on('change', function() {
+                readURL(this)
+            })
+
+
+
+        function readURL(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    $.ajax({
+                        url : "{{ route('leaveApplications.add-image-attachments') }}",
+                        type : 'POST',
+                        data : {
+                            _token : "{{ csrf_token() }}",
+                            LeaveId : "{{ $id }}",
+                            HexImage : encodeURIComponent(e.target.result),
+                        },
+                        success : function(res) {
+                            $('#imgs-data').append(
+                                "<div class='col-md-3' id='" + res['id'] + "'>" +
+                                    "<button class='btn btn-xs btn-danger' style='position: absolute; right: 10px; top: 5px;' onclick=removeImg('" + res['id'] + "')><i class='fas fa-trash'></i></button>" +
+                                    "<img src='" + res['HexImage'] + "' style='width: 100%;'/>" +
+                                "</div>"
+                            )
+                        },
+                        error : function(err) {
+                            Swal.fire({
+                                icon : 'error',
+                                text : 'Error uploading image attachment'
+                            })
+                        }
+                    })
+                    
+                }
+
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+
+
         function updateLeaveBalancesTable(employeeData) {
             if (employeeData.Mother === 'Yes') {
                 $('#balance-maternity').html(isNull(leaveBalances.Maternity) ? '...' : leaveBalances.Maternity +
@@ -339,25 +498,36 @@
 
 
         $('#special-dropdown').hide()
+        $('#upload-section').hide()
+
 
         $('input[type=radio][name=LeaveType]').change(function() {
             var value = this.value
 
             if (value == 'Special') {
                 $('#special-dropdown').show()
+                $('#reason-field').hide()
                 $('#Reason').attr('readonly', true)
                 $('#Reason').val($('#SpecialReason').val())
+                $('#upload-section').hide()
             } else if (value == 'Sick') {
                 $('#special-dropdown').hide()
+                $('#reason-field').show()
                 $('#Reason').removeAttr('readonly')
                 $('#Reason').val(null)
+                $('#upload-section').show()
             } else if (value == 'Paternity' | value == 'Maternity') {
                 $('#special-dropdown').hide()
+                $('#reason-field').show()
                 $('#Reason').removeAttr('readonly')
+                $('#Reason').val(null)
+                $('#upload-section').hide()
             } else {
                 $('#special-dropdown').hide()
+                $('#reason-field').show()
                 $('#Reason').val(null)
                 $('#Reason').removeAttr('readonly')
+                $('#upload-section').hide()
             }
 
             // filter leave balance
@@ -518,11 +688,12 @@
          */
         function saveLeave() {
             var employee = $('#EmployeeId').val()
+            var leaveImgs = $('#img-attachment')[0].files;
             var leaveType = $('input[name="LeaveType"]:checked').val()
             var dateFiled = $('#DateFiled').val()
             var reason = $('#Reason').val()
 
-            if (isNull(employee) | isNull(leaveType) | isNull(dateFiled) | isNull(reason) | leaveDates.length < 1) {
+            if (isNull(employee) | isNull(leaveType) | isNull(dateFiled) | isNull(reason) |  ( leaveType == "Sick" && leaveImgs.length < 1 )  | leaveDates.length < 1) {
                 Toast.fire({
                     icon: 'warning',
                     text: 'Please supply all fields'

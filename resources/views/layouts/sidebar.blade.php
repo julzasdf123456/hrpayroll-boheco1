@@ -32,7 +32,7 @@
                         'attendanceConfirmations.create',
                         'leaveConversions.create',
                         'home.chat', 'home.chat-reeve', 'home.reeve',
-                        'leaveApplications.my-approvals', 'tripTickets.my-approvals', 'offsetApplications.my-approvals', 'attendanceConfirmations.my-approvals', 'overtimes.my-approvals',
+                        'leaveApplications.my-approvals','leaveApplications.my-approval-item', 'tripTickets.my-approvals', 'offsetApplications.my-approvals', 'attendanceConfirmations.my-approvals', 'overtimes.my-approvals',
                         'travelOrders.create', 'travelOrders.my-approvals',
                         'taskHeads.kanban',
                         'posts.index',

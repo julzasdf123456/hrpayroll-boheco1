@@ -28,6 +28,7 @@
                             @endforeach
                             <option value="SUB-OFFICE" {{ isset($_GET['Department']) && $item->Department==$_GET['Department'] ? 'selected' : '' }}>SUB-OFFICE</option>
                         </select>
+                        {{-- <input class="form-control form-sm float-right" style="width: 400px; margin-right: 10px;" value="" placeholder="Search a Name" name="Name" /> --}}
                     </form>
                 </div>
             </div>
@@ -99,6 +100,9 @@
                         @endforeach
                     </tbody>
                 </table>
+                {{-- <div class="d-flex justify-content-center p-4">
+                    {{ $employees->appends(['search' => request('search')])->links() }}
+                </div> --}}
             </div>
         </div>
     </div>

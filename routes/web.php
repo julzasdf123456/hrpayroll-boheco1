@@ -185,7 +185,10 @@ Route::get('/leave_applications/get-leave-by-employee', [LeaveApplicationsContro
 Route::get('/leave_applications/leave-report', [LeaveApplicationsController::class, 'leaveReport'])->name('leaveApplications.leave-report');
 Route::get('/leave_applications/get-leave-report', [LeaveApplicationsController::class, 'getLeaveReport'])->name('leaveApplications.get-leave-report');
 Route::get('/leave_applications/print-leave-report/{from}/{to}/{type}', [LeaveApplicationsController::class, 'printLeaveReport'])->name('leaveApplications.print-leave-report');
+Route::get('/leave_applications/show-special-leaves/{empId}', [LeaveApplicationsController::class, 'showSpecialLeaves'])->name('leaveApplications.show-special-leaves');
 Route::resource('leaveApplications', LeaveApplicationsController::class);
+Route::get('/leave_applications/restore-leave', [LeaveApplicationsController::class, 'restoreLeave'])->name('leaveApplications.restore-leave');
+Route::get('/leave_applications/my-approvals/{id}', [LeaveApplicationsController::class, 'myApprovalitem'])->name('leaveApplications.my-approval-item');
 
 Route::resource('leaveSignatories', App\Http\Controllers\LeaveSignatoriesController::class);
 
