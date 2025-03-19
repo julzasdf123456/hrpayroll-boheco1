@@ -717,6 +717,8 @@ class LeaveApplicationsController extends AppBaseController
         $id = $request['id'];
         $signatoryId = $request['SignatoryId'];
 
+        
+
         $leaveApplication = LeaveApplications::find($id);
         $leaveSignatory = LeaveSignatories::find($signatoryId);
 

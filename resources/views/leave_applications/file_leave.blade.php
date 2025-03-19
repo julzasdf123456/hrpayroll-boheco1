@@ -104,7 +104,9 @@
                             <div class="pl-3 ml-5 mb-5">
                                 <div class="form-check">
                                     <input class="form-check-input" type="checkbox" name="SalaryDeduction" id="SalaryDeduction" />
-                                <label class="form-check-label" for="SalaryDeduction">I shall publish this leave for my salary deduction.</label>
+                                <label class="form-check-label" for="SalaryDeduction">
+                                    I shall publish this leave as my salary deduction instead of my leave balance credits for this matter.
+                                </label>
                                 </div>
                             </div>
                         </div>

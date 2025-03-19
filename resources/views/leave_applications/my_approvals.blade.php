@@ -58,16 +58,16 @@
                         <span class="text-muted">Date Filed:
                             <strong>{{ date('D, M d, Y', strtotime($item->created_at)) }}</strong></span>
                             <br><br>
-                            <a href="/leave_applications/my-approvals/{{ $item->id }}">See More..</a>
+                            <a class="btn btn-sm btn-primary" href="/leave_applications/my-approvals/{{ $item->id }}">See More..</a>
                     </div>
-                    <div class="card-footer">
+                    {{-- <div class="card-footer">
                         <button id="{{ $item->id }}" class="btn btn-sm btn-success"
                             onclick="approveLeave(`{{ $item->id }}`)" sig-id="{{ $item->SignatoryId }}">
                             <i class="fas fa-check-circle ico-tab-mini"></i>Approve</button>
                         <button onclick="rejectLeave(`{{ $item->id }}`, `{{ $item->SignatoryId }}`)"
                             class="btn btn-sm btn-danger float-right">
                             <i class="fas fa-times-circle ico-tab-mini"></i>Reject</button>
-                    </div>
+                    </div> --}}
                 </div>
             </div>
         @endforeach

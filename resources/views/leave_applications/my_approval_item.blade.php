@@ -97,7 +97,7 @@
                             echo '<span style="color:gray;">INSUFFICIENT BALANCE CANNOT APPROVE.</span>';
                         } else {
                             echo '
-                            <button id="{{ $leave->id }}" class="btn btn-sm btn-success"
+                            <button id="approveBtn" class="btn btn-sm btn-success"
                                 onclick="approveLeave(`{{ $leave->id }}`)" sig-id="{{ $leave->SignatoryId }}">
                                 <i class="fas fa-check-circle ico-tab-mini"></i>Approve</button>
                             ';
@@ -171,7 +171,7 @@
             })
 
             function approveLeave(id) {
-                var signatoryId = $('#' + id).attr('sig-id')
+                var signatoryId = $("approveBtn").attr('sig-id')
 
                 Swal.fire({
                     title: 'Approval Confirmation',
