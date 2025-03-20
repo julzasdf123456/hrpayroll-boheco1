@@ -187,14 +187,21 @@
                 @endphp
                 @if ( 
                     ($leaveApplication->EmployeeId == Auth::user()->employee_id || Permission::hasDirectPermission(['god permission'])) 
-                    && ($earliestDate != null && $earliestDate <= date('Y-m-d') && $leaveApplication->Status != 'APPROVED' 
-                    && $leaveApplication->Status != 'REJECTED' && $leaveApplication->Status != 'Trashed')
+                    && (
+                        $earliestDate != null 
+                        && $earliestDate > date(format: 'Y-m-d')
+                        && $leaveApplication->Status != 'APPROVED' 
+                        && $leaveApplication->Status != 'REJECTED'
+                        && $leaveApplication->Status != 'Trashed'
+                    )
                 )
-                <button class="btn btn-danger float-right" id="deleteLeave"><i
-                        class="fas fa-trash ico-tab-mini"></i>Trash Leave</button>
+                <button class="btn btn-danger float-right" id="deleteLeave">
+                    <i class="fas fa-trash ico-tab-mini"></i>Trash Leave
+                </button>
                 @elseif ($leaveApplication->Status == 'Trashed' && Permission::hasDirectPermission(['god permission']))
-                    <button class="btn btn-success float-right" id="restoreLeave"><i
-                            class="fas fa-trash ico-tab-mini"></i>Restore Leave</button>
+                    <button class="btn btn-success float-right" id="restoreLeave">
+                        <i class="fas fa-trash ico-tab-mini"></i>Restore Leave
+                    </button>
                 @else
                     <span class="float-right text-muted">No actions needed for this leave.</span>
                 @endif
@@ -257,9 +264,9 @@
 
                 Swal.fire({
                     title: 'Trash Leave Confirmation',
-                    text: 'You sure you wanna trash this leave?',
+                    text: 'Are you sure you want to trash this leave?',
                     showDenyButton: true,
-                    confirmButtonText: 'Trash It.',
+                    confirmButtonText: 'Trash It',
                     denyButtonText: `Close`,
                 }).then((result) => {
                     /* Read more about isConfirmed, isDenied below */

@@ -20,7 +20,7 @@
         @foreach ($leaves as $item)
             @php
                 $leaveDays = LeaveDays::where('LeaveId', $item->id)->orderBy('LeaveDate')->get();
-                if ($item->Status == "Trashed") {
+                if ($item->Status == "Trashed" || $item->Status == "APPROVED") {
                     continue;
                 }
             @endphp

@@ -5,7 +5,8 @@
     use App\Models\LeaveBalances;
 
     $leavingDays = 0;
-    function leaveDaysTotal($leave): float {
+    if (!function_exists('leaveDaysTotal')) {
+        function leaveDaysTotal($leave): float {
         if ($leave->LeaveType == "Vacation"){
             return $leave->Vacation / 60 / 8;
         } else if ( $leave->LeaveType == "Sick") {
@@ -21,6 +22,7 @@
         } else {
             return $leave->MaternityForSoloMother;
         }
+    }
     }
 @endphp
 @extends('layouts.app')
@@ -43,7 +45,7 @@
         <div id="card-{{ $leave->id }}" class="col">
             <div class="card shadow-none">
                 <div class="card-header border-0">
-                    <span class="card-title">
+                    <span class="card-title style="width:40%;">
                         <h4 class="no-pads"><strong>{{ Employees::getMergeName($leave) }}</strong></h4>
                         <span class="badge bg-info">{{ $leave->LeaveType }}</span>
                     </span>
@@ -91,21 +93,34 @@
                         </div>
                     @endif
                 </div>
+                @if ($leavingDays > leaveDaysTotal($leave))
+                    <div class="mx-4 mt-2" id="insuff-message" style="color:#ffbe33;">
+                        <strong>WARNING: </strong>
+                        <p>This employee has insufficent leave credits. The rest of the later leave dates will be marked as unpaid if you wish to proceed approving this leave.</p>
+                    </div>
+                @endif
                 <div class="card-footer">
-                    @php
-                        if ($leavingDays > leaveDaysTotal($leave)) {
-                            echo '<span style="color:gray;">INSUFFICIENT BALANCE CANNOT APPROVE.</span>';
-                        } else {
-                            echo '
-                            <button id="approveBtn" class="btn btn-sm btn-success"
-                                onclick="approveLeave(`{{ $leave->id }}`)" sig-id="{{ $leave->SignatoryId }}">
-                                <i class="fas fa-check-circle ico-tab-mini"></i>Approve</button>
-                            ';
-                        }
-                    @endphp
-                    <button onclick="rejectLeave(`{{ $leave->id }}`, `{{ $leave->SignatoryId }}`)"
-                        class="btn btn-sm btn-danger float-right">
-                        <i class="fas fa-times-circle ico-tab-mini"></i>Reject</button>
+                    {{-- @if ($leavingDays > leaveDaysTotal($leave))
+                        <span style="color:gray;">INSUFFICIENT BALANCE CANNOT APPROVE.</span>
+                    @else
+                        <button id="approveBtn" class="btn btn-sm btn-success"
+                        onclick="approveLeave(`{{ $leave->id }}`)" sig-id="{{ $leave->SignatoryId }}">
+                        <i class="fas fa-check-circle ico-tab-mini"></i>Approve</button>
+                    @endif --}}
+
+                    @if ($leave->Status !== 'APPROVED')
+                        <button id="approveBtn" class="btn btn-sm btn-success"
+                        onclick="approveLeave(`{{ $leave->id }}`)" sig-id="{{ $leave->SignatoryId }}">
+                        <i class="fas fa-check-circle ico-tab-mini"></i>Approve</button>
+                        
+                        <button onclick="rejectLeave(`{{ $leave->id }}`, `{{ $leave->SignatoryId }}`)"
+                            class="btn btn-sm btn-danger float-right">
+                            <i class="fas fa-times-circle ico-tab-mini"></i>Reject</button>
+                    @else
+                        <span style="color:gray;">YOU ALREADY APPROVED THIS. CANNOT APPROVE AGAIN.</span>
+                    @endif
+                    
+                    
                 </div>
             </div>
         </div>
@@ -187,14 +202,14 @@
                             type: 'GET',
                             data: {
                                 id: id,
-                                SignatoryId: signatoryId,
+                                SignatoryId: "{{ $leave->SignatoryId }}",
                             },
                             success: function(suc) {
                                 Toast.fire({
                                     text: 'Leave approved',
                                     icon: 'success'
                                 })
-                                $('#card-' + id).remove()
+                                window.location.replace("{{ route('leaveApplications.my-approvals') }}");
                             },
                             error: function(err) {
                                 Swal.fire({

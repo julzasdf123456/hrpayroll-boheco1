@@ -69,13 +69,13 @@
                                         <label class="form-check-label" for="Special">Special</label>
                                     @endif
                                 </div>
-                                @if ($employee->Father === 'Yes')
+                                {{-- @if ($employee->Father === 'Yes') --}}
                                     <div class="form-check">
                                         <input class="form-check-input" type="radio" name="LeaveType" id="Paternity"
                                             value="Paternity">
                                         <label class="form-check-label" for="Paternity">Paternity</label>
                                     </div>
-                                @endif
+                                {{-- @endif --}}
                                 {{-- @if ($employee->Mother === 'Yes')  --}}
                                 <div class="form-check">
                                     <input class="form-check-input" type="radio" name="LeaveType" id="Maternity"
@@ -103,10 +103,14 @@
 
                             <div class="pl-3 ml-5 mb-5">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="SalaryDeduction" id="SalaryDeduction" />
+                                    <input class="form-check-input" type="checkbox" name="SalaryDeduction" onchange="updateSalaryCheck()" id="SalaryDeduction" />
                                 <label class="form-check-label" for="SalaryDeduction">
-                                    I shall publish this leave as my salary deduction instead of my leave balance credits for this matter.
+                                    I shall publish this leave with my salary deduction instead of my leave balance credits for this matter.
                                 </label>
+                                </div> 
+                                <div class="my-5" id="insuff-message" style="color:#ffbe33;">
+                                    <strong>WARNING: </strong>
+                                    <p>Insufficent leave credits. The rest of the later leave dates will be marked as unpaid if you wish to proceed publishing this leave.</p>
                                 </div>
                             </div>
                         </div>
@@ -286,10 +290,13 @@
 
 @push('page_scripts')
     <script>
+        var salaryDeducted = false
         var leaveDates = []
         var leaveBalances = []
         var signatories = []
         var otherSigs = []
+        var leaveBalanceCounter = 0
+        var leaveDateDurationCounter = 0
 
         /**
          * LEAVE BALANCES 
@@ -379,7 +386,7 @@
                         <td>
                             <span class='text-muted text-sm'>Approver #${ i+1 }</span>
                             <br>
-                            <select class="custom-select select2">
+                            <select class="custom-select select2" disabled>
                                 ` + setSignatoryOptions(signatories[i].id) + `
                             </select>
                         </td>
@@ -427,7 +434,13 @@
         function removeDate(id) {
             $(`#${id}`).remove()
             leaveDates = leaveDates.filter(obj => obj.LeaveDate !== id)
-            populateLeaveTable()
+            populateLeaveTable();
+            checkIfSufficentBalance();
+        }
+
+        function updateSalaryCheck() {
+            salaryDeducted = $("#SalaryDeduction").prop("checked");
+            checkIfSufficentBalance()
         }
 
         function addDates(start, end) {
@@ -437,6 +450,9 @@
                 index === self.findIndex((t) => t.LeaveDate === obj.LeaveDate)
             )
 
+            // console.log("LeaveDates: "+ leaveDates);
+            
+            checkIfSufficentBalance();
             populateLeaveTable(leaveDates)
         }
 
@@ -450,6 +466,29 @@
                     Duration: 'WHOLE'
                 });
                 now.add(1, 'days');
+            }
+        }
+
+        function checkIfSufficentBalance() {
+            counteringDateDuration();
+            console.log("LeaveBalanceCounter: "+leaveBalanceCounter)
+            console.log("LeaveDatesDuration: "+leaveDateDurationCounter)
+            console.log("check if: " + leaveBalanceCounter < leaveDateDurationCounter && !salaryDeducted )
+            if (leaveBalanceCounter < leaveDateDurationCounter && !salaryDeducted ) {
+                $('#insuff-message').show()
+            } else {
+                $('#insuff-message').hide()
+            }
+        }
+
+        function counteringDateDuration() {
+            leaveDateDurationCounter = 0;
+            for (let i = 0; i < leaveDates.length; i++) {
+                if ( leaveDates[i].Duration === "WHOLE") {
+                    leaveDateDurationCounter += 1;
+                } else {
+                    leaveDateDurationCounter += 0.5;
+                }
             }
         }
 
@@ -472,10 +511,12 @@
                     </tr>
                 `)
             }
+            
         }
 
         $('#special-dropdown').hide()
         $('#upload-section').hide()
+        $('#insuff-message').hide()
 
         $('input[type=radio][name=LeaveType]').change(function() {
             var value = this.value
@@ -540,10 +581,10 @@
                         .SoloParent)
                 }
             } else {
-                leaveBalanceCounter = -1
+                leaveBalanceCounter = 0
             }
 
-            console.log(leaveBalanceCounter)
+            checkIfSufficentBalance();
         })
 
 
@@ -555,6 +596,8 @@
                     Duration: val
                 } : obj
             )
+            
+            checkIfSufficentBalance();
         }
 
         /**
