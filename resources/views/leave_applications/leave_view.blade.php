@@ -36,8 +36,11 @@
                         style="padding: 8px; margin-left: 8px;">{{ $leaveApplication->LeaveType }}</span>
                 </span>
 
-                <div class="card-tools">
-
+                <div class="card-tools d-flex mx-3" style="color:darkkhaki;">
+                    @if ($leaveApplication->MarkAsAbsent)
+                        <i class="fas fa-info-circle m-auto"></i>
+                        <p class="ml-3 my-auto">This leave has marked as unpaid.</p>
+                    @endif
                 </div>
             </div>
             <div class="card-body">

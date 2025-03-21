@@ -45,10 +45,16 @@
         <div id="card-{{ $leave->id }}" class="col">
             <div class="card shadow-none">
                 <div class="card-header border-0">
-                    <span class="card-title style="width:40%;">
+                    <span class="card-title" style="width:40%;">
                         <h4 class="no-pads"><strong>{{ Employees::getMergeName($leave) }}</strong></h4>
-                        <span class="badge bg-info">{{ $leave->LeaveType }}</span>
+                        <span class="badge bg-info m-auto">{{ $leave->LeaveType }}</span>
                     </span>
+                </div>
+                <div class="d-flex mx-3" style="color:darkkhaki;width:400px;">
+                    @if ($leave->MarkAsAbsent)
+                        <i class="fas fa-info-circle m-auto"></i>
+                        <p class="my-auto">This leave has filed as unpaid by this employee.</p>
+                    @endif
                 </div>
                 <div class="card-body">
                     <p style="margin: 0; padding: 0; font-size: 1.3em;">{{ $leave->Content }}</p>
@@ -94,11 +100,13 @@
                     @endif
                 </div>
                 @if ($leavingDays > leaveDaysTotal($leave))
-                    <div class="mx-4 mt-2" id="insuff-message" style="color:#ffbe33;">
+                    <div class="mx-4 mt-2" style="color:#ffbe33;">
                         <strong>WARNING: </strong>
                         <p>This employee has insufficent leave credits. The rest of the later leave dates will be marked as unpaid if you wish to proceed approving this leave.</p>
                     </div>
                 @endif
+                
+                
                 <div class="card-footer">
                     {{-- @if ($leavingDays > leaveDaysTotal($leave))
                         <span style="color:gray;">INSUFFICIENT BALANCE CANNOT APPROVE.</span>
@@ -108,7 +116,9 @@
                         <i class="fas fa-check-circle ico-tab-mini"></i>Approve</button>
                     @endif --}}
 
-                    @if ($leave->Status !== 'APPROVED')
+                    @if(count($leaveLowerSignatories) > 0) 
+                        <span style="color:gray;">Kindly wait for the other signatories to confirm.</span>
+                    @elseif ($leave->Status !== 'APPROVED' || $leaveTopSignatory->Status !== 'APPROVED')
                         <button id="approveBtn" class="btn btn-sm btn-success"
                         onclick="approveLeave(`{{ $leave->id }}`)" sig-id="{{ $leave->SignatoryId }}">
                         <i class="fas fa-check-circle ico-tab-mini"></i>Approve</button>
@@ -117,13 +127,39 @@
                             class="btn btn-sm btn-danger float-right">
                             <i class="fas fa-times-circle ico-tab-mini"></i>Reject</button>
                     @else
-                        <span style="color:gray;">YOU ALREADY APPROVED THIS. CANNOT APPROVE AGAIN.</span>
+                            <span style="color:gray;">ALREADY CONFIRMED AND CANNOT BE CONFIRMED AGAIN.</span>
                     @endif
                     
                     
                 </div>
             </div>
         </div>
+        @if (count($leaveSignatories) > 0)
+            <div class="col-lg-4 card p-3 d-flex flex-col">
+                <p class="text-muted">Signatory Logs</p>
+                @foreach ($leaveSignatories as $item)
+                    <div
+                        class="mb-2 p-2 {{ Auth::user()->ColorProfile != null ? 'border-left-dark' : 'border-left-light' }}">
+                        @if ($item->Status === 'APPROVED')
+                            <span class="badge bg-success">{{ $item->Status }}</span>
+                        @elseif ($item->Status === 'REJECTED')
+                            <span class="badge bg-danger">{{ $item->Status }}</span>
+                        @else
+                            <span
+                                class="badge {{ Auth::user()->ColorProfile != null ? 'bg-white' : 'bg-dark' }}">{{ $item->Status == null || $item->Status == 'Trashed' || $item->Status == 'Filed' ? 'PENDING' : $item->Status }}</span>
+                        @endif
+
+                        <span style="font-size: .85em;"
+                            class="text-muted float-right">{{ date('M d, Y', strtotime($item->updated_at)) }}</span>
+                        <br>
+                        <p class="no-pads"><strong>{{ Employees::getMergeName($item) }} {{ $item->EmployeeId == Auth::id()? "(You)" :"" }}</strong></p>
+                        @if ($item->Notes != null)
+                            <span class="text-muted">{{ $item->Notes }}</span>
+                        @endif
+                    </div>
+                @endforeach
+            </div>
+        @endif
 
         {{-- LEAVE BALANCES HERE --}}
         <div class="col-lg-5">

@@ -541,6 +541,8 @@ class LeaveApplicationsController extends AppBaseController
 
                         if ($balance < $days) {
                             $balance = 0;
+                        } elseif ($leaveApplication->MarkAsAbsent == true) {
+                            //NOTHING DEDUCTED
                         } else {
                             $balance = $balance - $days;
                         }
@@ -553,6 +555,8 @@ class LeaveApplicationsController extends AppBaseController
 
                         if ($balance < $days) {
                             $balance = 0;
+                        } elseif ($leaveApplication->MarkAsAbsent == true) {
+                            //NOTHING DEDUCTED
                         } else {
                             $balance = $balance - $days;
                         }
@@ -564,6 +568,8 @@ class LeaveApplicationsController extends AppBaseController
 
                         if ($balance < $days) {
                             $balance = 0;
+                        } elseif ($leaveApplication->MarkAsAbsent == true) {
+                            //NOTHING DEDUCTED
                         } else {
                             $balance = $balance - $days;
                         }
@@ -575,6 +581,8 @@ class LeaveApplicationsController extends AppBaseController
 
                         if ($balance < $days) {
                             $balance = 0;
+                        } elseif ($leaveApplication->MarkAsAbsent == true) {
+                            //NOTHING DEDUCTED
                         } else {
                             $balance = $balance - $days;
                         }
@@ -586,6 +594,8 @@ class LeaveApplicationsController extends AppBaseController
 
                         if ($balance < $days) {
                             $balance = 0;
+                        } elseif ($leaveApplication->MarkAsAbsent == true) {
+                            //NOTHING DEDUCTED
                         } else {
                             $balance = $balance - $days;
                         }
@@ -597,6 +607,8 @@ class LeaveApplicationsController extends AppBaseController
 
                         if ($balance < $days) {
                             $balance = 0;
+                        } elseif ($leaveApplication->MarkAsAbsent == true) {
+                            //NOTHING DEDUCTED
                         } else {
                             $balance = $balance - $days;
                         }
@@ -608,6 +620,8 @@ class LeaveApplicationsController extends AppBaseController
 
                         if ($balance < $days) {
                             $balance = 0;
+                        } elseif ($leaveApplication->MarkAsAbsent == true) {
+                            //NOTHING DEDUCTED
                         } else {
                             $balance = $balance - $days;
                         }
@@ -675,6 +689,7 @@ class LeaveApplicationsController extends AppBaseController
             ->select(
                 "a.EmployeeId as SignatoryId",
                 "a.Status",
+                "b.MarkAsAbsent",
                 "b.id",
                 "b.Content",
                 "b.LeaveType",
@@ -701,6 +716,46 @@ class LeaveApplicationsController extends AppBaseController
 
         $leaveImgs = LeaveImageAttachments::where('LeaveId', $id)->get();
 
+        $leaveSignatories = DB::table("LeaveSignatories as a")
+                ->leftJoin('users as b', "a.EmployeeId","=","b.id")
+                ->leftJoin('Employees as c', "b.employee_id","=","c.id")
+                // ->whereRaw("a.Status is not null")
+                // ->whereRaw("a.Rank < (select top 1 rank from LeaveSignatories where EmployeeId = ". Auth::id() ." and LeaveId = ". $id .")")
+                ->whereRaw("a.LeaveId = ". $id)
+                ->select(
+                    "a.*",
+                    "c.FirstName","c.MiddleName","c.LastName","c.Suffix",
+                )
+                ->orderByDesc("a.Rank")
+                ->get();
+
+                
+        $leaveTopSignatory = DB::table("LeaveSignatories as a")
+            ->leftJoin('users as b', "a.EmployeeId","=","b.id")
+            ->leftJoin('Employees as c', "b.employee_id","=","c.id")
+            // ->whereRaw("a.Status is not null")
+            // ->whereRaw("a.Rank < (select top 1 rank from LeaveSignatories where EmployeeId = ". Auth::id() ." and LeaveId = ". $id .")")
+            ->whereRaw("a.LeaveId = ". $id)
+            ->select(
+                "a.*",
+                "c.FirstName","c.MiddleName","c.LastName","c.Suffix",
+            )
+            ->orderByDesc("a.Rank")
+            ->first();
+
+        $leaveLowerSignatories = DB::table("LeaveSignatories as a")
+            ->leftJoin('users as b', "a.EmployeeId","=","b.id")
+            ->leftJoin('Employees as c', "b.employee_id","=","c.id")
+            ->whereRaw("(a.Status != 'APPROVED')")
+            ->whereRaw("a.Rank < (select top 1 rank from LeaveSignatories where EmployeeId = ". Auth::id() ." and LeaveId = ". $id .")")
+            ->whereRaw("a.LeaveId = ". $id)
+            ->select(
+                "a.*",
+                "c.FirstName","c.MiddleName","c.LastName","c.Suffix",
+            )
+            ->orderByDesc("a.Rank")
+            ->get();
+
 
 
         if (empty($leave) || !($leave->SignatoryId == Auth::id() || Permission::hasDirectPermission(['god permission']))) {
@@ -709,10 +764,14 @@ class LeaveApplicationsController extends AppBaseController
 
         return view('leave_applications.my_approval_item', [
             'leave' => $leave,
-            'leaveImgs' => $leaveImgs
+            'leaveImgs' => $leaveImgs,
+            'leaveSignatories' => $leaveSignatories,
+            'leaveTopSignatory' => $leaveTopSignatory,
+            'leaveLowerSignatories' => $leaveLowerSignatories
         ]);
 
-        // return response()->json($leave,200);
+        // return response()->json(count($leaveLowerSignatories),200);
+        // return response()->json($leaveLowerSignatories,200);
     }
 
     public function approveAjax(Request $request)
@@ -959,7 +1018,7 @@ class LeaveApplicationsController extends AppBaseController
                         $balance = floatval($leaveBalances->Sick);
                         $mins = $totalMins;
 
-                        if ($balance < $mins || ($leaveApplication->MarkAsAbsent === false ||  $leaveApplication->MarkAsAbsent === null)) {
+                        if ($balance < $mins || $leaveApplication->MarkAsAbsent === true ) {
                             // save sobra nga leave as absent inside LeaveExcessAbsences
                             $excessInMins = ($mins - $balance);
                             $lea = new LeaveExcessAbsences;
@@ -970,7 +1029,7 @@ class LeaveApplicationsController extends AppBaseController
                             $lea->Notes = 'Excess leave application (Sick leave)';
                             $lea->save();
 
-                            $balance = 0;
+                            $balance = ($balance < $mins)? 0: $balance;
                             $totalCredits += $balance;
                         } else {
                             $balance = $balance - $mins;
@@ -983,7 +1042,7 @@ class LeaveApplicationsController extends AppBaseController
                         $balance = floatval($leaveBalances->Vacation);
                         $mins = $totalMins;
 
-                        if ($balance < $mins || ($leaveApplication->MarkAsAbsent === false ||  $leaveApplication->MarkAsAbsent === null)) {
+                        if ($balance < $mins || $leaveApplication->MarkAsAbsent === true ) {
                             // save sobra nga leave as absent inside LeaveExcessAbsences
                             $excessInMins = ($mins - $balance);
                             $lea = new LeaveExcessAbsences;
@@ -994,7 +1053,7 @@ class LeaveApplicationsController extends AppBaseController
                             $lea->Notes = 'Excess leave application (Vacation leave)';
                             $lea->save();
 
-                            $balance = 0;
+                            $balance = ($balance < $mins)? 0: $balance;
                             $totalCredits += $balance;
                         } else {
                             $balance = $balance - $mins;
@@ -1006,8 +1065,8 @@ class LeaveApplicationsController extends AppBaseController
                         $balance = floatval($leaveBalances->Special);
                         $daysL = $leaveDays;
 
-                        if ($balance < $daysL || ($leaveApplication->MarkAsAbsent === false ||  $leaveApplication->MarkAsAbsent === null)) {
-                            $balance = 0;
+                        if ($balance < $daysL || $leaveApplication->MarkAsAbsent === true ) {
+                            $balance = ($balance < $daysL)? 0: $balance;
 
                             // save sobra nga leave as absent inside LeaveExcessAbsences
                             $excessInMins = round(($daysL - $balance) * 8 * 60, 2);
@@ -1030,8 +1089,8 @@ class LeaveApplicationsController extends AppBaseController
                         $balance = floatval($leaveBalances->Paternity);
                         $daysL = $leaveDays;
 
-                        if ($balance < $daysL || ($leaveApplication->MarkAsAbsent === false ||  $leaveApplication->MarkAsAbsent === null)) {
-                            $balance = 0;
+                        if ($balance < $daysL || $leaveApplication->MarkAsAbsent === true ) {
+                            $balance = ($balance < $daysL)? 0: $balance;
 
                             // save sobra nga leave as absent inside LeaveExcessAbsences
                             $excessInMins = round(($daysL - $balance) * 8 * 60, 2);
@@ -1054,8 +1113,8 @@ class LeaveApplicationsController extends AppBaseController
                         $balance = floatval($leaveBalances->Maternity);
                         $daysL = $leaveDays;
 
-                        if ($balance < $daysL || ($leaveApplication->MarkAsAbsent === false ||  $leaveApplication->MarkAsAbsent === null)) {
-                            $balance = 0;
+                        if ($balance < $daysL || $leaveApplication->MarkAsAbsent === true ) {
+                            $balance = ($balance < $daysL)? 0: $balance;
 
                             // save sobra nga leave as absent inside LeaveExcessAbsences
                             $excessInMins = round(($daysL - $balance) * 8 * 60, 2);
@@ -1078,8 +1137,8 @@ class LeaveApplicationsController extends AppBaseController
                         $balance = floatval($leaveBalances->MaternityForSoloMother);
                         $daysL = $leaveDays;
 
-                        if ($balance < $daysL || ($leaveApplication->MarkAsAbsent === false ||  $leaveApplication->MarkAsAbsent === null)) {
-                            $balance = 0;
+                        if ($balance < $daysL || $leaveApplication->MarkAsAbsent === true ) {
+                            $balance = ($balance < $daysL)? 0: $balance;
 
                             // save sobra nga leave as absent inside LeaveExcessAbsences
                             $excessInMins = round(($daysL - $balance) * 8 * 60, 2);
@@ -1102,8 +1161,8 @@ class LeaveApplicationsController extends AppBaseController
                         $balance = floatval($leaveBalances->SoloParent);
                         $daysL = $leaveDays;
 
-                        if ($balance < $daysL || ($leaveApplication->MarkAsAbsent === false ||  $leaveApplication->MarkAsAbsent === null)) {
-                            $balance = 0;
+                        if ($balance < $daysL || $leaveApplication->MarkAsAbsent === true ) {
+                            $balance = ($balance < $daysL)? 0: $balance;
 
                             // save sobra nga leave as absent inside LeaveExcessAbsences
                             $excessInMins = round(($daysL - $balance) * 8 * 60, 2);
@@ -1144,27 +1203,27 @@ class LeaveApplicationsController extends AppBaseController
             $balances = LeaveBalances::where('EmployeeId', $leaveApplication->EmployeeId)->orderByDesc('created_at')->first();
             if ($balances != null && $leaveApplication->Status === 'APPROVED') {
                 if ($leaveApplication->LeaveType === 'Vacation') {
-                    if ( $balanceToDeduct <= $balances->Vacation ) {
+                    if (!$leaveApplication->MarkAsAbsent && $balanceToDeduct <= $balances->Vacation  ) {
                         $existingBal = $balances->Vacation != null ? floatval($balances->Vacation) : 0;
                         $existingBal = $existingBal - $balanceToDeduct;
                         $balances->Vacation = $existingBal;
                         $balances->save();
                     } else {
-                        $balances->Vacation = 0;
+                        $balances->Vacation = ($leaveApplication->MarkAsAbsent)? $balances->Vacation : 0;
                         $balances->save();
                     }
                 } elseif ($leaveApplication->LeaveType === 'Sick') {
-                    if ($balanceToDeduct <= $balances->Sick ) {
+                    if (!$leaveApplication->MarkAsAbsent && $balanceToDeduct <= $balances->Sick ) {
                         $existingBal = $balances->Sick != null ? floatval($balances->Sick) : 0;
                         $existingBal = $existingBal - $balanceToDeduct;
                         $balances->Sick = $existingBal;
                         $balances->save();
                     } else {
-                        $balances->Sick = 0;
+                        $balances->Sick = ($leaveApplication->MarkAsAbsent)? $balances->Sick : 0;
                         $balances->save();
                     }
                 } elseif ($leaveApplication->LeaveType === 'Special') {
-                    if ($balanceToDeduct <= $balances->Special ) {
+                    if (!$leaveApplication->MarkAsAbsent && $balanceToDeduct <= $balances->Special ) {
                         $existingBal = $balances->Special != null ? floatval($balances->Special) : 0;
                         $existingBal = $existingBal - $balanceToDeduct;
                         $balances->Special = $existingBal;
@@ -1174,43 +1233,43 @@ class LeaveApplicationsController extends AppBaseController
                         $balances->save();
                     }
                 } elseif ($leaveApplication->LeaveType === 'Paternity') {
-                    if ($balanceToDeduct <= $balances->Paternity ) {
+                    if (!$leaveApplication->MarkAsAbsent && $balanceToDeduct <= $balances->Paternity ) {
                         $existingBal = $balances->Paternity != null ? floatval($balances->Paternity) : 0;
                         $existingBal = $existingBal - $balanceToDeduct;
                         $balances->Paternity = $existingBal;
                         $balances->save();
                     } else {
-                        $balances->Paternity = 0;
+                        $balances->Paternity =  0;
                         $balances->save();
                     }
                 } elseif ($leaveApplication->LeaveType === 'Maternity') {
-                    if ($balanceToDeduct <= $balances->Maternity ) {
+                    if (!$leaveApplication->MarkAsAbsent && $balanceToDeduct <= $balances->Maternity ) {
                         $existingBal = $balances->Maternity != null ? floatval($balances->Maternity) : 0;
                         $existingBal = $existingBal - $balanceToDeduct;
                         $balances->Maternity = $existingBal;
                         $balances->save();
                     } else {
-                        $balances->Maternity = 0;
+                        $balances->Maternity =  0;
                         $balances->save();
                     }
                 } elseif ($leaveApplication->LeaveType === 'MaternityForSoloMother') {
-                    if ($balanceToDeduct <= $balances->MaternityForSoloMother ) {
+                    if (!$leaveApplication->MarkAsAbsent && $balanceToDeduct <= $balances->MaternityForSoloMother ) {
                         $existingBal = $balances->MaternityForSoloMother != null ? floatval($balances->MaternityForSoloMother) : 0;
                         $existingBal = $existingBal - $balanceToDeduct;
                         $balances->MaternityForSoloMother = $existingBal;
                         $balances->save();
                     } else {
-                        $balances->MaternityForSoloMother = 0;
+                        $balances->MaternityForSoloMother =  0;
                         $balances->save();
                     }
                 } elseif ($leaveApplication->LeaveType === 'SoloParent') {
-                    if ($balanceToDeduct <= $balances->SoloParent ) {
+                    if (!$leaveApplication->MarkAsAbsent && $balanceToDeduct <= $balances->SoloParent ) {
                         $existingBal = $balances->SoloParent != null ? floatval($balances->SoloParent) : 0;
                         $existingBal = $existingBal - $balanceToDeduct;
                         $balances->SoloParent = $existingBal;
                         $balances->save();
                     } else {
-                        $balances->SoloParent = 0;
+                        $balances->SoloParent =  0;
                         $balances->save();
                     }
                 }
@@ -1628,6 +1687,8 @@ class LeaveApplicationsController extends AppBaseController
                     $leaveDays = .5;
                 }
             }
+
+
             $leaveDay->Duration = $days[$i]['Duration'];
             $leaveDay->Status = 'APPROVED';
             $leaveDay->save();
@@ -1639,7 +1700,7 @@ class LeaveApplicationsController extends AppBaseController
                     $balance = floatval($leaveBalances->Sick);
                     $mins = $totalMins;
 
-                    if ($balance < $mins || ($leave->MarkAsAbsent === false ||  $leave->MarkAsAbsent === null)) {
+                    if ($balance < $mins || $leave->MarkAsAbsent === true ) {
                         // save sobra nga leave as absent inside LeaveExcessAbsences
                         $excessInMins = ($mins - $balance);
                         $lea = new LeaveExcessAbsences;
@@ -1650,7 +1711,7 @@ class LeaveApplicationsController extends AppBaseController
                         $lea->Notes = 'Excess leave application (Sick leave)';
                         $lea->save();
 
-                        $balance = 0;
+                        $balance = ($balance < $mins)? 0: $balance;
                         $totalCredits += $balance;
                     } else {
                         $balance = $balance - $mins;
@@ -1662,7 +1723,7 @@ class LeaveApplicationsController extends AppBaseController
                     $balance = floatval($leaveBalances->Vacation);
                     $mins = $totalMins;
 
-                    if ($balance < $mins || ($leave->MarkAsAbsent === false ||  $leave->MarkAsAbsent === null)) {
+                    if ($balance < $mins || $leave->MarkAsAbsent === true ) {
                         // save sobra nga leave as absent inside LeaveExcessAbsences
                         $excessInMins = ($mins - $balance);
                         $lea = new LeaveExcessAbsences;
@@ -1673,7 +1734,7 @@ class LeaveApplicationsController extends AppBaseController
                         $lea->Notes = 'Excess leave application (Vacation leave)';
                         $lea->save();
 
-                        $balance = 0;
+                        $balance = ($balance < $mins)? 0: $balance;
                         $totalCredits += $balance;
                     } else {
                         $balance = $balance - $mins;
@@ -1685,8 +1746,8 @@ class LeaveApplicationsController extends AppBaseController
                     $balance = floatval($leaveBalances->Special);
                     $daysL = $leaveDays;
 
-                    if ($balance < $daysL || ($leave->MarkAsAbsent === false ||  $leave->MarkAsAbsent === null)) {
-                        $balance = 0;
+                    if ($balance < $daysL || $leave->MarkAsAbsent === true ) {
+                        $balance = ($balance < $daysL)? 0: $balance;
 
                         // save sobra nga leave as absent inside LeaveExcessAbsences
                         $excessInMins = round(($daysL - $balance) * 8 * 60, 2);
@@ -1709,8 +1770,8 @@ class LeaveApplicationsController extends AppBaseController
                     $balance = floatval($leaveBalances->Paternity);
                     $daysL = $leaveDays;
 
-                    if ($balance < $daysL || ($leave->MarkAsAbsent === false ||  $leave->MarkAsAbsent === null)) {
-                        $balance = 0;
+                    if ($balance < $daysL || $leave->MarkAsAbsent === true ) {
+                        $balance = ($balance < $daysL)? 0: $balance;
 
                         // save sobra nga leave as absent inside LeaveExcessAbsences
                         $excessInMins = round(($daysL - $balance) * 8 * 60, 2);
@@ -1733,8 +1794,8 @@ class LeaveApplicationsController extends AppBaseController
                     $balance = floatval($leaveBalances->Maternity);
                     $daysL = $leaveDays;
 
-                    if ($balance < $daysL || ($leave->MarkAsAbsent === false ||  $leave->MarkAsAbsent === null)) {
-                        $balance = 0;
+                    if ($balance < $daysL || $leave->MarkAsAbsent === true ) {
+                        $balance = ($balance < $daysL)? 0: $balance;
 
                         // save sobra nga leave as absent inside LeaveExcessAbsences
                         $excessInMins = round(($daysL - $balance) * 8 * 60, 2);
@@ -1757,8 +1818,8 @@ class LeaveApplicationsController extends AppBaseController
                     $balance = floatval($leaveBalances->MaternityForSoloMother);
                     $daysL = $leaveDays;
 
-                    if ($balance < $daysL || ($leave->MarkAsAbsent === false ||  $leave->MarkAsAbsent === null)) {
-                        $balance = 0;
+                    if ($balance < $daysL || $leave->MarkAsAbsent === true ) {
+                        $balance = ($balance < $daysL)? 0: $balance;
 
                         // save sobra nga leave as absent inside LeaveExcessAbsences
                         $excessInMins = round(($daysL - $balance) * 8 * 60, 2);
@@ -1781,8 +1842,8 @@ class LeaveApplicationsController extends AppBaseController
                     $balance = floatval($leaveBalances->SoloParent);
                     $daysL = $leaveDays;
 
-                    if ($balance < $daysL || ($leave->MarkAsAbsent === false ||  $leave->MarkAsAbsent === null)) {
-                        $balance = 0;
+                    if ($balance < $daysL || $leave->MarkAsAbsent === true ) {
+                        $balance = ($balance < $daysL)? 0: $balance;
 
                         // save sobra nga leave as absent inside LeaveExcessAbsences
                         $excessInMins = round(($daysL - $balance) * 8 * 60, 2);
@@ -1932,7 +1993,7 @@ class LeaveApplicationsController extends AppBaseController
         $days = $request['Days'];
         $signatories = $request['Signatories'];
         $id = $request['Id'];
-        $salaryDeduction = $request['SalaryDeduction'] ?? false;
+        $salaryDeduction = ($leaveType === 'Vacation' || $leaveType === 'Sick')? $request['SalaryDeduction'] : false;
 
         // insert leave application
         $leave = new LeaveApplications;

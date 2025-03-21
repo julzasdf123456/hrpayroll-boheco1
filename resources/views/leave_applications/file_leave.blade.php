@@ -102,11 +102,11 @@
 
 
                             <div class="pl-3 ml-5 mb-5">
-                                <div class="form-check">
+                                <div class="form-check" id="salary-deduction-item">
                                     <input class="form-check-input" type="checkbox" name="SalaryDeduction" onchange="updateSalaryCheck()" id="SalaryDeduction" />
-                                <label class="form-check-label" for="SalaryDeduction">
-                                    I shall publish this leave with my salary deduction instead of my leave balance credits for this matter.
-                                </label>
+                                    <label class="form-check-label" for="SalaryDeduction">
+                                        I shall publish this leave with my salary deduction instead of my leave balance credits for this matter.
+                                    </label>
                                 </div> 
                                 <div class="my-5" id="insuff-message" style="color:#ffbe33;">
                                     <strong>WARNING: </strong>
@@ -264,10 +264,16 @@
                         <span class="card-title">Signatories</span>
                     </div>
                     <div class="card-body table-responsive">
-                        <div class="card bg-danger gone" id="alert-no-sig">
+                        {{-- <div class="card bg-danger gone" id="alert-no-sig">
                             <div class="card-body">
                                 <h4><i class="fas fa-exclamation-triangle ico-tab"></i>Oops!</h4>
                                 <p>No signatory found for this employee! Contact IT for troubleshooting.</p>
+                            </div>
+                        </div> --}}
+                        <div class="card gone" id="alert-no-sig">
+                            <div class="card-body">
+                                {{-- <h4><i class="fas fa-exclamation-triangle ico-tab"></i>Oops!</h4> --}}
+                                <p>No signatory is available for you.</p>
                             </div>
                         </div>
                         <table id="signatories-table" class="table table-hover">
@@ -517,6 +523,7 @@
         $('#special-dropdown').hide()
         $('#upload-section').hide()
         $('#insuff-message').hide()
+        $('#salary-deduction-item').hide()
 
         $('input[type=radio][name=LeaveType]').change(function() {
             var value = this.value
@@ -527,24 +534,35 @@
                 $('#Reason').attr('readonly', true)
                 $('#Reason').val($('#SpecialReason').val())
                 $('#upload-section').hide()
+                $('#salary-deduction-item').hide()
             } else if (value == 'Sick') {
                 $('#special-dropdown').hide()
                 $('#reason-field').show()
                 $('#Reason').removeAttr('readonly')
                 $('#Reason').val(null)
+                $('#salary-deduction-item').show()
                 $('#upload-section').show()
+            } else if (value == 'Vacation') {
+                $('#special-dropdown').hide()
+                $('#reason-field').show()
+                $('#Reason').removeAttr('readonly')
+                $('#Reason').val(null)
+                $('#salary-deduction-item').show()
+                $('#upload-section').hide()
             } else if (value == 'Paternity' | value == 'Maternity') {
                 $('#special-dropdown').hide()
                 $('#reason-field').show()
                 $('#Reason').removeAttr('readonly')
                 $('#Reason').val(null)
                 $('#upload-section').hide()
+                $('#salary-deduction-item').hide()
             } else {
                 $('#special-dropdown').hide()
                 $('#reason-field').show()
                 $('#Reason').val(null)
                 $('#Reason').removeAttr('readonly')
                 $('#upload-section').hide()
+                $('#salary-deduction-item').hide()
             }
 
             // filter leave balance
