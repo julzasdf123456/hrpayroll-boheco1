@@ -1198,34 +1198,36 @@ class LeaveApplicationsController extends AppBaseController
 
 
 
-            // Deduct leave balance after approved. - Domz
+            // Deduct leave balance after fully approved. - Domz
             $balanceToDeduct = $leaveApplication->TotalCredits != null ? $leaveApplication->TotalCredits : 0;
+            \Log::info("Balance to Deduct - ". $balanceToDeduct);
             $balances = LeaveBalances::where('EmployeeId', $leaveApplication->EmployeeId)->orderByDesc('created_at')->first();
             if ($balances != null && $leaveApplication->Status === 'APPROVED') {
                 if ($leaveApplication->LeaveType === 'Vacation') {
                     if (!$leaveApplication->MarkAsAbsent && $balanceToDeduct <= $balances->Vacation  ) {
-                        $existingBal = $balances->Vacation != null ? floatval($balances->Vacation) : 0;
-                        $existingBal = $existingBal - $balanceToDeduct;
+                        $existingBal = floatval($balances->Vacation) - $balanceToDeduct;
+                        \Log::info("Balance of Vacation - ". $balances->Vacation);
                         $balances->Vacation = $existingBal;
+                        \Log::info("REMAINING BALANCE OF VACATION - ". $existingBal);
                         $balances->save();
                     } else {
-                        $balances->Vacation = ($leaveApplication->MarkAsAbsent)? $balances->Vacation : 0;
+                        $balances->Vacation = (!$leaveApplication->MarkAsAbsent)? $balances->Vacation: 0;
                         $balances->save();
                     }
                 } elseif ($leaveApplication->LeaveType === 'Sick') {
                     if (!$leaveApplication->MarkAsAbsent && $balanceToDeduct <= $balances->Sick ) {
-                        $existingBal = $balances->Sick != null ? floatval($balances->Sick) : 0;
-                        $existingBal = $existingBal - $balanceToDeduct;
+                        $existingBal = floatval($balances->Sick) - $balanceToDeduct;
+                        \Log::info("Balance of Sick - ". $balances->Sick);
                         $balances->Sick = $existingBal;
+                        \Log::info("REMAINING BALANCE OF SICK - ". $existingBal);
                         $balances->save();
                     } else {
-                        $balances->Sick = ($leaveApplication->MarkAsAbsent)? $balances->Sick : 0;
+                        $balances->Sick = (!$leaveApplication->MarkAsAbsent)? $balances->Sick : 0;
                         $balances->save();
                     }
                 } elseif ($leaveApplication->LeaveType === 'Special') {
-                    if (!$leaveApplication->MarkAsAbsent && $balanceToDeduct <= $balances->Special ) {
-                        $existingBal = $balances->Special != null ? floatval($balances->Special) : 0;
-                        $existingBal = $existingBal - $balanceToDeduct;
+                    if ($balanceToDeduct <= $balances->Special ) {
+                        $existingBal = floatval($balances->Special) - $balanceToDeduct;
                         $balances->Special = $existingBal;
                         $balances->save();
                     } else {
@@ -1233,9 +1235,8 @@ class LeaveApplicationsController extends AppBaseController
                         $balances->save();
                     }
                 } elseif ($leaveApplication->LeaveType === 'Paternity') {
-                    if (!$leaveApplication->MarkAsAbsent && $balanceToDeduct <= $balances->Paternity ) {
-                        $existingBal = $balances->Paternity != null ? floatval($balances->Paternity) : 0;
-                        $existingBal = $existingBal - $balanceToDeduct;
+                    if ($balanceToDeduct <= $balances->Paternity ) {
+                        $existingBal = floatval($balances->Paternity) - $balanceToDeduct;
                         $balances->Paternity = $existingBal;
                         $balances->save();
                     } else {
@@ -1243,8 +1244,8 @@ class LeaveApplicationsController extends AppBaseController
                         $balances->save();
                     }
                 } elseif ($leaveApplication->LeaveType === 'Maternity') {
-                    if (!$leaveApplication->MarkAsAbsent && $balanceToDeduct <= $balances->Maternity ) {
-                        $existingBal = $balances->Maternity != null ? floatval($balances->Maternity) : 0;
+                    if ($balanceToDeduct <= $balances->Maternity ) {
+                        $existingBal = floatval($balances->Maternity) - $balanceToDeduct;
                         $existingBal = $existingBal - $balanceToDeduct;
                         $balances->Maternity = $existingBal;
                         $balances->save();
@@ -1253,9 +1254,8 @@ class LeaveApplicationsController extends AppBaseController
                         $balances->save();
                     }
                 } elseif ($leaveApplication->LeaveType === 'MaternityForSoloMother') {
-                    if (!$leaveApplication->MarkAsAbsent && $balanceToDeduct <= $balances->MaternityForSoloMother ) {
-                        $existingBal = $balances->MaternityForSoloMother != null ? floatval($balances->MaternityForSoloMother) : 0;
-                        $existingBal = $existingBal - $balanceToDeduct;
+                    if ($balanceToDeduct <= $balances->MaternityForSoloMother ) {
+                        $existingBal = floatval($balances->MaternityForSoloMother) - $balanceToDeduct;
                         $balances->MaternityForSoloMother = $existingBal;
                         $balances->save();
                     } else {
@@ -1263,9 +1263,8 @@ class LeaveApplicationsController extends AppBaseController
                         $balances->save();
                     }
                 } elseif ($leaveApplication->LeaveType === 'SoloParent') {
-                    if (!$leaveApplication->MarkAsAbsent && $balanceToDeduct <= $balances->SoloParent ) {
-                        $existingBal = $balances->SoloParent != null ? floatval($balances->SoloParent) : 0;
-                        $existingBal = $existingBal - $balanceToDeduct;
+                    if ( $balanceToDeduct <= $balances->SoloParent ) {
+                        $existingBal = floatval($balances->SoloParent) - $balanceToDeduct;
                         $balances->SoloParent = $existingBal;
                         $balances->save();
                     } else {
