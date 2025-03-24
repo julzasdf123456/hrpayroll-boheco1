@@ -3,14 +3,15 @@
     use App\Models\LeaveBalances;
     use App\Models\Permission;
 
-    $specialLeaveReasons = ["Enrollment","Graduation","Birthday","Medical Examination","Wedding Anniversary","Fiesta"];
+    // $specialLeaveReasons = ["Enrollment","Graduation","Birthday","Medical Examination","Wedding Anniversary","Fiesta"];
 
-    function specialLeaveReasonExists($specialLeaves, $reason): bool {
+    function specialLeaveReasonExists($specialLeaves, $reason): bool
+    {
         return $specialLeaves->contains(function ($leave) use ($reason) {
             return $leave->Content === $reason;
         });
     }
-@endphp 
+@endphp
 @extends('layouts.app')
 
 @section('content')
@@ -45,7 +46,7 @@
                         </select>
                     </div>
 
-                    
+
                     <div class="card-body">
                         <span class="text-muted">Select Leave Type</span>
                         <div class="pl-5 mb-4 d-flex ">
@@ -62,24 +63,24 @@
                                     <label class="form-check-label" for="Sick">Sick</label>
                                 </div>
                                 <div class="form-check">
-                                    @if (count($specialLeaves) >= 3)
+                                    {{-- @if (count($specialLeaves) >= 3)
                                         <input class="form-check-input" type="radio" name="LeaveType" id="Special"
                                             value="Special" disabled>
                                         <label class="form-check-label"
                                             title="You only had 3 special leaves. Cannot exceed more this year."
                                             for="Special">Special</label>
-                                    @else
+                                    @else --}}
                                         <input class="form-check-input" type="radio" name="LeaveType" id="Special"
                                             value="Special">
                                         <label class="form-check-label" for="Special">Special</label>
-                                    @endif
+                                    {{-- @endif --}}
                                 </div>
                                 {{-- @if ($employee->Father === 'Yes') --}}
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="LeaveType" id="Paternity"
-                                            value="Paternity">
-                                        <label class="form-check-label" for="Paternity">Paternity</label>
-                                    </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="LeaveType" id="Paternity"
+                                        value="Paternity">
+                                    <label class="form-check-label" for="Paternity">Paternity</label>
+                                </div>
                                 {{-- @endif --}}
                                 {{-- @if ($employee->Mother === 'Yes')  --}}
                                 <div class="form-check">
@@ -108,14 +109,17 @@
 
                             <div class="pl-3 ml-5 mb-5">
                                 <div class="form-check" id="salary-deduction-item">
-                                    <input class="form-check-input" type="checkbox" name="SalaryDeduction" onchange="updateSalaryCheck()" id="SalaryDeduction" />
+                                    <input class="form-check-input" type="checkbox" name="SalaryDeduction"
+                                        onchange="updateSalaryCheck()" id="SalaryDeduction" />
                                     <label class="form-check-label" for="SalaryDeduction">
-                                        This employee shall publish this leave with his/her salary deduction instead of the leave balance credits for this matter.
+                                        This employee shall publish this leave with his/her salary deduction instead of the
+                                        leave balance credits for this matter.
                                     </label>
-                                </div> 
+                                </div>
                                 <div class="my-5" id="insuff-message" style="color:#ffbe33;">
                                     <strong>WARNING: </strong>
-                                    <p>Insufficent leave credits. The rest of the later leave dates will be marked as unpaid if you wish to proceed publishing his/her leave.</p>
+                                    <p>Insufficent leave credits. The rest of the later leave dates will be marked as unpaid
+                                        if you wish to proceed publishing his/her leave.</p>
                                 </div>
                             </div>
                         </div>
@@ -124,14 +128,15 @@
                         <div class="form-group mb-3" id="special-dropdown">
                             <span class="text-muted">Select Reason</span>
                             <select name="SpecialReason" id="SpecialReason" class="form-control">
-                                @foreach ( $specialLeaveReasons as $item )  
-                                    <option 
-                                        value="{{ $item }}" 
-                                        @if (specialLeaveReasonExists($specialLeaves,$item))
-                                            title="This employee already had this special reason this year." disabled
-                                        @endif
-                                    >{{$item}}</option>
-                                @endforeach
+                                {{-- <option value="">-- Select --</option> --}}
+                                <option id="SpecialValue-Enrollment" value="Enrollment">Enrollment</option>
+                                <option id="SpecialValue-Graduation" value="Graduation">Graduation</option>
+                                <option id="SpecialValue-Birthday" value="Birthday">Birthday</option>
+                                <option id="SpecialValue-MedicalExamination" value="Medical Examination">Medical
+                                    Examination</option>
+                                <option id="SpecialValue-WeddingAnniversary" value="Wedding Anniversary">Wedding
+                                    Anniversary</option>
+                                <option id="SpecialValue-Fiesta" value="Fiesta">Fiesta</option>
                             </select>
                         </div>
 
@@ -167,18 +172,21 @@
                         </table>
 
                         <div id="upload-section">
-                        <div class="divider"></div>
-                            <input type="file" accept="image/png, image/gif, image/jpeg" id="img-attachment" style="display: none"/>
-                            <button class="btn btn-sm btn-primary float-right" onclick="thisFileUpload()"><i class="fas fa-upload ico-tab-mini"></i>Upload File(s)</button>
+                            <div class="divider"></div>
+                            <input type="file" accept="image/png, image/gif, image/jpeg" id="img-attachment"
+                                style="display: none" />
+                            <button class="btn btn-sm btn-primary float-right" onclick="thisFileUpload()"><i
+                                    class="fas fa-upload ico-tab-mini"></i>Upload File(s)</button>
                             <p class="text-muted">Attachments (Physician Consults, Medical Certs, etc.)</p>
 
                             <div class="row" id="imgs-data">
                                 @foreach ($leaveImgs as $item)
                                     <div class="col-md-3" id="{{ $item->id }}">
-                                        <button class="btn btn-xs btn-danger" style="" onclick="removeImg('{{ $item->id }}')"><i class="fas fa-trash"></i></button>
+                                        <button class="btn btn-xs btn-danger" style=""
+                                            onclick="removeImg('{{ $item->id }}')"><i
+                                                class="fas fa-trash"></i></button>
                                         <img src="{{ $item->HexImage }}" style="width: 100%;" alt="">
                                     </div>
-                                    
                                 @endforeach
                             </div>
                         </div>
@@ -296,7 +304,7 @@
                             <p>No signatory found for this employee! Contact IT for troubleshooting.</p>
                         </div>
                     </div> --}}
-                    
+
                     <div class="card gone" id="alert-no-sig">
                         <div class="card-body">
                             {{-- <h4><i class="fas fa-exclamation-triangle ico-tab"></i>Oops!</h4> --}}
@@ -326,6 +334,128 @@
         var otherSigs = []
         var leaveBalanceCounter = 0
         var leaveDateDurationCounter = 0
+
+        function getSpecialLeaves(empId) {
+            $("#SpecialReason").prop('selectedIndex', 0);
+            $.ajax({
+                url: "show-special-leaves/" + empId,
+                type: 'GET',
+                success: function({
+                    count,
+                    reasons
+                }) {
+                    if (count >= 3) {
+                        $('#Special').attr('disabled', true);
+                        $('#SpecialLabel').attr("title",
+                            "This employee only had 3 special leaves. Cannot exceed more this year.");
+                    } else {
+                        $('#Special').attr('disabled', false);
+                        $('#SpecialLabel').attr("title", null);
+                    }
+                    console.log(count, reasons)
+
+                    if (reasons.Enrollment) {
+                        $('#SpecialValue-Enrollment').attr('disabled', true);
+                        $('#SpecialValue-Enrollment').attr('value', '');
+                        $('#SpecialValue-Enrollment').attr("title",
+                            "This employee already had this special reason this year.");
+                    }
+                    if (reasons.Graduation) {
+                        $('#SpecialValue-Graduation').attr('disabled', true);
+                        $('#SpecialValue-Graduation').attr('value', '');
+                        $('#SpecialValue-Graduation').attr("title",
+                            "This employee already had this special reason this year.");
+                    }
+                    if (reasons.Birthday) {
+                        $('#SpecialValue-Birthday').attr('disabled', true);
+                        $('#SpecialValue-Birthday').attr('value', '');
+                        $('#SpecialValue-Birthday').attr("title",
+                            "This employee already had this special reason this year.");
+                    }
+                    if (reasons.MedicalExamination) {
+                        $('#SpecialValue-MedicalExamination').attr('disabled', true);
+                        $('#SpecialValue-MedicalExamination').attr('value', '');
+                        $('#SpecialValue-MedicalExamination').attr("title",
+                            "This employee already had this special reason this year.");
+                    }
+                    if (reasons.WeddingAnniversary) {
+                        $('#SpecialValue-WeddingAnniversary').attr('disabled', true);
+                        $('#SpecialValue-WeddingAnniversary').attr('value', '');
+                        $('#SpecialValue-WeddingAnniversary').attr("title",
+                            "This employee already had this special reason this year.");
+                    }
+                    if (reasons.Fiesta) {
+                        $('#SpecialValue-Fiesta').attr('disabled', true);
+                        $('#SpecialValue-Fiesta').attr('value', '');
+                        $('#SpecialValue-Fiesta').attr("title",
+                            "This employee already had this special reason this year.");
+                    }
+
+                }
+            })
+        }
+
+
+        function getSpecialLeaves(empId) {
+            $("#SpecialReason").prop('selectedIndex', 0);
+            $.ajax({
+                url: "show-special-leaves/" + empId,
+                type: 'GET',
+                success: function({
+                    count,
+                    reasons
+                }) {
+                    if (count >= 3) {
+                        $('#Special').attr('disabled', true);
+                        $('#SpecialLabel').attr("title",
+                            "This employee only had 3 special leaves. Cannot exceed more this year.");
+                    } else {
+                        $('#Special').attr('disabled', false);
+                        $('#SpecialLabel').attr("title", null);
+                    }
+
+                    console.log(count, reasons)
+
+                    if (reasons.Enrollment) {
+                        $('#SpecialValue-Enrollment').attr('disabled', true);
+                        $('#SpecialValue-Enrollment').attr('value', '');
+                        $('#SpecialValue-Enrollment').attr("title",
+                            "This employee already had this special reason this year.");
+                    }
+                    if (reasons.Graduation) {
+                        $('#SpecialValue-Graduation').attr('disabled', true);
+                        $('#SpecialValue-Graduation').attr('value', '');
+                        $('#SpecialValue-Graduation').attr("title",
+                            "This employee already had this special reason this year.");
+                    }
+                    if (reasons.Birthday) {
+                        $('#SpecialValue-Birthday').attr('disabled', true);
+                        $('#SpecialValue-Birthday').attr('value', '');
+                        $('#SpecialValue-Birthday').attr("title",
+                            "This employee already had this special reason this year.");
+                    }
+                    if (reasons.MedicalExamination) {
+                        $('#SpecialValue-MedicalExamination').attr('disabled', true);
+                        $('#SpecialValue-MedicalExamination').attr('value', '');
+                        $('#SpecialValue-MedicalExamination').attr("title",
+                            "This employee already had this special reason this year.");
+                    }
+                    if (reasons.WeddingAnniversary) {
+                        $('#SpecialValue-WeddingAnniversary').attr('disabled', true);
+                        $('#SpecialValue-WeddingAnniversary').attr('value', '');
+                        $('#SpecialValue-WeddingAnniversary').attr("title",
+                            "This employee already had this special reason this year.");
+                    }
+                    if (reasons.Fiesta) {
+                        $('#SpecialValue-Fiesta').attr('disabled', true);
+                        $('#SpecialValue-Fiesta').attr('value', '');
+                        $('#SpecialValue-Fiesta').attr("title",
+                            "This employee already had this special reason this year.");
+                    }
+
+                }
+            })
+        }
 
         /**
          * LEAVE BALANCES 
@@ -362,40 +492,40 @@
         function removeImg(id) {
             Swal.fire({
                 title: 'Remove Confirmation',
-                text : 'You sure you wanna remove this image attachment?',
+                text: 'You sure you wanna remove this image attachment?',
                 showDenyButton: true,
                 confirmButtonText: 'Remove',
                 denyButtonText: `Close`,
-                }).then((result) => {
+            }).then((result) => {
                 /* Read more about isConfirmed, isDenied below */
                 if (result.isConfirmed) {
                     $.ajax({
-                        url : "{{ route('leaveApplications.remove-image') }}",
-                        type : 'GET',
-                        data : {
-                            id : id,
+                        url: "{{ route('leaveApplications.remove-image') }}",
+                        type: 'GET',
+                        data: {
+                            id: id,
                         },
-                        success : function(res) {
+                        success: function(res) {
                             $('#' + id).remove()
                         },
-                        error : function(err) {
+                        error: function(err) {
                             Swal.fire({
-                                icon : 'error',
-                                text : 'Error removing image attachment'
+                                icon: 'error',
+                                text: 'Error removing image attachment'
                             })
                         }
                     })
                 } else if (result.isDenied) {
-                    
+
                 }
-            })            
+            })
         }
-    
+
 
 
         $('#img-attachment').on('change', function() {
-                readURL(this)
-            })
+            readURL(this)
+        })
 
 
 
@@ -403,37 +533,49 @@
             if (input.files && input.files[0]) {
                 var reader = new FileReader();
 
-                reader.onload = function (e) {
+                reader.onload = function(e) {
                     $.ajax({
-                        url : "{{ route('leaveApplications.add-image-attachments') }}",
-                        type : 'POST',
-                        data : {
-                            _token : "{{ csrf_token() }}",
-                            LeaveId : "{{ $id }}",
-                            HexImage : encodeURIComponent(e.target.result),
+                        url: "{{ route('leaveApplications.add-image-attachments') }}",
+                        type: 'POST',
+                        data: {
+                            _token: "{{ csrf_token() }}",
+                            LeaveId: "{{ $id }}",
+                            HexImage: encodeURIComponent(e.target.result),
                         },
-                        success : function(res) {
+                        success: function(res) {
                             $('#imgs-data').append(
                                 "<div class='col-md-3' id='" + res['id'] + "'>" +
-                                    "<button class='btn btn-xs btn-danger' style='position: absolute; right: 10px; top: 5px;' onclick=removeImg('" + res['id'] + "')><i class='fas fa-trash'></i></button>" +
-                                    "<img src='" + res['HexImage'] + "' style='width: 100%;'/>" +
+                                "<button class='btn btn-xs btn-danger' style='position: absolute; right: 10px; top: 5px;' onclick=removeImg('" +
+                                res['id'] + "')><i class='fas fa-trash'></i></button>" +
+                                "<img src='" + res['HexImage'] + "' style='width: 100%;'/>" +
                                 "</div>"
                             )
                         },
-                        error : function(err) {
+                        error: function(err) {
                             Swal.fire({
-                                icon : 'error',
-                                text : 'Error uploading image attachment'
+                                icon: 'error',
+                                text: 'Error uploading image attachment'
                             })
                         }
                     })
-                    
+
                 }
 
                 reader.readAsDataURL(input.files[0]);
             }
         }
 
+        function getCheckSpecialDays() {
+            var leave = $('input[name="LeaveType"]:checked').val()
+            if (leaveDateDurationCounter != 1 && leave === "Special") {
+                $('#saveLeave').attr('disabled', true);
+                $('#saveLeave').attr("title", "This special leave should have only one day off.");
+            } else {
+                $('#saveLeave').attr('disabled', false);
+                $('#saveLeave').attr("title", null);
+            }
+
+        }
 
 
         function updateLeaveBalancesTable(employeeData) {
@@ -713,25 +855,26 @@
         function counteringDateDuration() {
             leaveDateDurationCounter = 0;
             for (let i = 0; i < leaveDates.length; i++) {
-                if ( leaveDates[i].Duration === "WHOLE") {
+                if (leaveDates[i].Duration === "WHOLE") {
                     leaveDateDurationCounter += 1;
                 } else {
                     leaveDateDurationCounter += 0.5;
                 }
             }
         }
-        
+
 
         function checkIfSufficentBalance() {
             counteringDateDuration();
-            console.log("LeaveBalanceCounter: "+leaveBalanceCounter)
-            console.log("LeaveDatesDuration: "+leaveDateDurationCounter)
-            console.log("check if: " + leaveBalanceCounter < leaveDateDurationCounter && !salaryDeducted )
-            if (leaveBalanceCounter < leaveDateDurationCounter && !salaryDeducted ) {
+            // console.log("LeaveBalanceCounter: " + leaveBalanceCounter)
+            // console.log("LeaveDatesDuration: " + leaveDateDurationCounter)
+            // console.log("check if: " + leaveBalanceCounter < leaveDateDurationCounter && !salaryDeducted)
+            if (leaveBalanceCounter < leaveDateDurationCounter && !salaryDeducted) {
                 $('#insuff-message').show()
             } else {
                 $('#insuff-message').hide()
             }
+            getCheckSpecialDays();
         }
 
 
@@ -778,7 +921,8 @@
             var reason = $('#Reason').val()
             var salaryDeduction = $('#SalaryDeduction').prop('checked')
 
-            if (isNull(employee) | isNull(leaveType) | isNull(dateFiled) | isNull(reason) |  ( leaveType == "Sick" && leaveImgs.length < 1 )  | leaveDates.length < 1) {
+            if (isNull(employee) | isNull(leaveType) | isNull(dateFiled) | isNull(reason) | (leaveType == "Sick" &&
+                    leaveImgs.length < 1) | leaveDates.length < 1) {
                 Toast.fire({
                     icon: 'warning',
                     text: 'Please supply all fields'
@@ -789,6 +933,7 @@
                     type: "POST",
                     data: {
                         _token: "{{ csrf_token() }}",
+                        Id: "{{ $id }}",
                         EmployeeId: employee,
                         LeaveType: leaveType,
                         Reason: reason,
@@ -824,6 +969,7 @@
                         $('#balance-maternity-solo-parent').html('...')
                         $('#balance-paternity').html('...')
                         $('#balance-solo-parent').html('...')
+                        window.location.reload()
                     },
                     error: function(err) {
                         console.log(err)
@@ -841,6 +987,7 @@
                 leaveDates = []
                 populateLeaveTable()
                 getLeaveBalances(this.value)
+                getSpecialLeaves(this.value)
             })
         })
     </script>

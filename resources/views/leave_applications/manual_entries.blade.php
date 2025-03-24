@@ -89,7 +89,7 @@
                     <div class="form-group mb-3" id="special-dropdown">
                         <span class="text-muted">Select Reason</span>
                         <select name="SpecialReason" id="SpecialReason" class="form-control">
-                            <option value="">-- Select --</option>
+                            {{-- <option value="">-- Select --</option> --}}
                             <option id="SpecialValue-Enrollment" value="Enrollment">Enrollment</option>
                             <option id="SpecialValue-Graduation" value="Graduation">Graduation</option>
                             <option id="SpecialValue-Birthday" value="Birthday">Birthday</option>
@@ -536,6 +536,7 @@
                         $('#balance-maternity-solo-parent').html('...')
                         $('#balance-paternity').html('...')
                         $('#balance-solo-parent').html('...')
+                        window.location.reload()
                     },
                     error : function(err) {
                         Toast.fire({
