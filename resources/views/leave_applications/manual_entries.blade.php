@@ -36,6 +36,8 @@
                     </div>
 
                     <span class="text-muted">Select Leave Type</span>
+                    
+                    <div class="pl-5 mb-4 d-flex ">
                     <div class="form-group pl-5 mb-4">
                         <div class="form-check">
                             <input class="form-check-input" type="radio" name="LeaveType" id="Vacation" value="Vacation">
@@ -67,6 +69,21 @@
                             <label class="form-check-label" for="SoloParent">Solo Parent</label>
                         </div>
                     </div>
+                    
+
+                    <div class="pl-3 ml-5 mb-5">
+                        <div class="form-check" id="salary-deduction-item">
+                            <input class="form-check-input" type="checkbox" name="SalaryDeduction" onchange="updateSalaryCheck()" id="SalaryDeduction" />
+                            <label class="form-check-label" for="SalaryDeduction"> 
+                                This employee shall publish this leave with his/her salary deduction instead of the leave balance credits for this matter.
+                            </label>
+                        </div> 
+                        <div class="my-5" id="insuff-message" style="color:#ffbe33;">
+                            <strong>WARNING: </strong>
+                            <p>Insufficent leave credits. The rest of the later leave dates will be marked as unpaid if you wish to proceed publishing his/her leave.</p>
+                        </div>
+                    </div>
+                </div>
 
                     <!-- FOR SPECIAL LEAVE Field -->
                     <div class="form-group mb-3" id="special-dropdown">
@@ -256,9 +273,12 @@
             })
         }
 
+        var salaryDeducted = false
         var leaveDates = []
         var leaveBalances = []
-        var leaveBalanceCounter = -1
+        var leaveBalanceCounter = 0
+        var leaveDateDurationCounter = 0
+        
         function deleteSignatory(id) {
             if (confirm('Are you sure you want to delete this signatory?')) {
                 $.ajax({
@@ -365,7 +385,13 @@
             $(`#${id}`).remove() 
             leaveDates = leaveDates.filter(obj => obj.LeaveDate !== id)       
             populateLeaveTable()  
-            validateBalanceAlert()
+            // validateBalanceAlert()
+            checkIfSufficentBalance();
+        }
+
+        function updateSalaryCheck() {
+            salaryDeducted = $("#SalaryDeduction").prop("checked");
+            checkIfSufficentBalance()
         }
 
         function addDates(start, end) {
@@ -375,8 +401,9 @@
                 index === self.findIndex((t) => t.LeaveDate === obj.LeaveDate)
             )
 
+            checkIfSufficentBalance();
             populateLeaveTable(leaveDates)
-            validateBalanceAlert()
+            // validateBalanceAlert()
         }
 
         function validateBalanceAlert() {
@@ -401,6 +428,32 @@
             }
         }
 
+        
+
+        function checkIfSufficentBalance() {
+            counteringDateDuration();
+            console.log("LeaveBalanceCounter: "+leaveBalanceCounter)
+            console.log("LeaveDatesDuration: "+leaveDateDurationCounter)
+            console.log("check if: " + leaveBalanceCounter < leaveDateDurationCounter && !salaryDeducted )
+            if (leaveBalanceCounter < leaveDateDurationCounter && !salaryDeducted ) {
+                $('#insuff-message').show()
+            } else {
+                $('#insuff-message').hide()
+            }
+        }
+
+        
+        function counteringDateDuration() {
+            leaveDateDurationCounter = 0;
+            for (let i = 0; i < leaveDates.length; i++) {
+                if ( leaveDates[i].Duration === "WHOLE") {
+                    leaveDateDurationCounter += 1;
+                } else {
+                    leaveDateDurationCounter += 0.5;
+                }
+            }
+        }
+
         function populateLeaveTable() {
             $('#dates-table tbody tr').remove()
             for (let i=0; i<leaveDates.length; i++) {
@@ -420,6 +473,7 @@
                     </tr>
                 `)
             }
+            checkIfSufficentBalance()
         }
 
         function updateDuration(date) {
@@ -438,6 +492,7 @@
             var leaveType = $('input[name="LeaveType"]:checked').val()
             var dateFiled = $('#DateFiled').val()
             var reason = $('#Reason').val()
+            var salaryDeduction = $('#SalaryDeduction').prop('checked')
 
             if (isNull(employee) | isNull(leaveType) | isNull(dateFiled) | isNull(reason) | ( leaveType == "Sick" && leaveImgs.length < 1 ) | leaveDates.length < 1) {
                 Toast.fire({
@@ -456,6 +511,7 @@
                         Reason : reason,
                         DateFiled : dateFiled,
                         Days : leaveDates,
+                        SalaryDeduction: salaryDeduction
                     },
                     success : function(res) {
                         Toast.fire({
@@ -582,6 +638,8 @@
             
         $('#special-dropdown').hide()
         $('#upload-section').hide()
+        $('#insuff-message').hide()
+        $('#salary-deduction-item').hide()
 
         $('input[type=radio][name=LeaveType]').change(function() {
             var value = this.value
@@ -592,17 +650,27 @@
                 $('#Reason').attr('readonly', true)
                 $('#Reason').val($('#SpecialReason').val())
                 $('#upload-section').hide()
+                $('#salary-deduction-item').hide()
             } else if (value == 'Sick') {
                 $('#special-dropdown').hide()
                 $('#reason-field').show()
                 $('#Reason').removeAttr('readonly')
                 $('#Reason').val(null)
                 $('#upload-section').show()
+                $('#salary-deduction-item').show()
             } else if (value == 'Paternity' | value == 'Maternity') {
                 $('#special-dropdown').hide()
                 $('#reason-field').show()
                 $('#Reason').removeAttr('readonly')
                 $('#Reason').val(null)
+                $('#upload-section').hide()
+                $('#salary-deduction-item').hide()
+            } else if (value == 'Vacation') {
+                $('#special-dropdown').hide()
+                $('#reason-field').show()
+                $('#Reason').removeAttr('readonly')
+                $('#Reason').val(null)
+                $('#salary-deduction-item').show()
                 $('#upload-section').hide()
             } else {
                 $('#special-dropdown').hide()
@@ -621,7 +689,7 @@
                         if (leaveBalanceCounter) {
                             leaveBalanceCounter = Math.round(((leaveBalanceCounter / 8 / 60) + Number.EPSILON) * 100) / 100
                         } else {
-                            leaveBalanceCounter = -1
+                            leaveBalanceCounter = 0
                         }
                     } else if (value === 'Sick') { 
                         leaveBalanceCounter = isNull(leaveBalances.Sick) ? 0 : parseFloat(leaveBalances.Sick)
@@ -629,7 +697,7 @@
                         if (leaveBalanceCounter) {
                             leaveBalanceCounter = Math.round(((leaveBalanceCounter / 8 / 60) + Number.EPSILON) * 100) / 100
                         } else {
-                            leaveBalanceCounter = -1
+                            leaveBalanceCounter = 0
                         }
                     } else if (value === 'Special') {
                         leaveBalanceCounter = isNull(leaveBalances.Special) ? 0 : parseFloat(leaveBalances.Special)
@@ -643,10 +711,11 @@
                         leaveBalanceCounter = isNull(leaveBalances.SoloParent) ? 0 : parseFloat(leaveBalances.SoloParent)
                     }
                 } else {
-                    leaveBalanceCounter = -1
+                    leaveBalanceCounter = 0
                 }
 
-                console.log(leaveBalanceCounter)
+                // console.log(leaveBalanceCounter)
+                checkIfSufficentBalance()
             })
 
             $('#SpecialReason').on('change', function() {

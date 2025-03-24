@@ -10,7 +10,7 @@
             return $leave->Content === $reason;
         });
     }
-@endphp
+@endphp 
 @extends('layouts.app')
 
 @section('content')
@@ -48,57 +48,76 @@
                     
                     <div class="card-body">
                         <span class="text-muted">Select Leave Type</span>
-                        <div class="form-group pl-5 mb-4">
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="LeaveType" id="Vacation"
-                                    value="Vacation">
-                                <label class="form-check-label" for="Vacation">Vacation</label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="LeaveType" id="Sick"
-                                    value="Sick">
-                                <label class="form-check-label" for="Sick">Sick</label>
-                            </div>
-                            <div class="form-check">
-                                @if (count($specialLeaves) >= 3)
-                                    <input class="form-check-input" type="radio" name="LeaveType" id="Special"
-                                        value="Special" disabled>
-                                    <label class="form-check-label" title="This employee only had 3 special leaves. Cannot exceed more this year." for="Special">Special</label>
-                                @else
-                                    <input class="form-check-input" type="radio" name="LeaveType" id="Special"
-                                        value="Special">
-                                    <label class="form-check-label" for="Special">Special</label>
-                                @endif
-                            </div>
-                            {{-- @if ($employee->Father === 'Yes') --}}
+                        <div class="pl-5 mb-4 d-flex ">
+
+                            <div class="form-group">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="LeaveType" id="Paternity"
-                                        value="Paternity">
-                                    <label class="form-check-label" for="Paternity">Paternity</label>
+                                    <input class="form-check-input" type="radio" name="LeaveType" id="Vacation"
+                                        value="Vacation">
+                                    <label class="form-check-label" for="Vacation">Vacation</label>
                                 </div>
-                            {{-- @endif --}}
-                            {{-- @if ($employee->Mother === 'Yes')  --}}
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="LeaveType" id="Maternity"
-                                    value="Maternity">
-                                <label class="form-check-label" for="Maternity">Maternity</label>
-                            </div>
-                            {{-- @endif
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="LeaveType" id="Sick"
+                                        value="Sick">
+                                    <label class="form-check-label" for="Sick">Sick</label>
+                                </div>
+                                <div class="form-check">
+                                    @if (count($specialLeaves) >= 3)
+                                        <input class="form-check-input" type="radio" name="LeaveType" id="Special"
+                                            value="Special" disabled>
+                                        <label class="form-check-label"
+                                            title="You only had 3 special leaves. Cannot exceed more this year."
+                                            for="Special">Special</label>
+                                    @else
+                                        <input class="form-check-input" type="radio" name="LeaveType" id="Special"
+                                            value="Special">
+                                        <label class="form-check-label" for="Special">Special</label>
+                                    @endif
+                                </div>
+                                {{-- @if ($employee->Father === 'Yes') --}}
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="LeaveType" id="Paternity"
+                                            value="Paternity">
+                                        <label class="form-check-label" for="Paternity">Paternity</label>
+                                    </div>
+                                {{-- @endif --}}
+                                {{-- @if ($employee->Mother === 'Yes')  --}}
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="LeaveType" id="Maternity"
+                                        value="Maternity">
+                                    <label class="form-check-label" for="Maternity">Maternity</label>
+                                </div>
+                                {{-- @endif
                             @if ($employee->SoloMother === 'Yes')  --}}
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="LeaveType" id="MaternityForSoloMother"
-                                    value="MaternityForSoloMother">
-                                <label class="form-check-label" for="MaternityForSoloMother">Maternity For Solo
-                                    Mother</label>
-                            </div>
-                            {{-- @endif
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="LeaveType"
+                                        id="MaternityForSoloMother" value="MaternityForSoloMother">
+                                    <label class="form-check-label" for="MaternityForSoloMother">Maternity For Solo
+                                        Mother</label>
+                                </div>
+                                {{-- @endif
                             @if ($employee->SoloParent === 'Yes')  --}}
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="LeaveType" id="SoloParent"
-                                    value="SoloParent">
-                                <label class="form-check-label" for="SoloParent">Solo Parent</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="LeaveType" id="SoloParent"
+                                        value="SoloParent">
+                                    <label class="form-check-label" for="SoloParent">Solo Parent</label>
+                                </div>
+                                {{-- @endif --}}
                             </div>
-                            {{-- @endif --}}
+
+
+                            <div class="pl-3 ml-5 mb-5">
+                                <div class="form-check" id="salary-deduction-item">
+                                    <input class="form-check-input" type="checkbox" name="SalaryDeduction" onchange="updateSalaryCheck()" id="SalaryDeduction" />
+                                    <label class="form-check-label" for="SalaryDeduction">
+                                        This employee shall publish this leave with his/her salary deduction instead of the leave balance credits for this matter.
+                                    </label>
+                                </div> 
+                                <div class="my-5" id="insuff-message" style="color:#ffbe33;">
+                                    <strong>WARNING: </strong>
+                                    <p>Insufficent leave credits. The rest of the later leave dates will be marked as unpaid if you wish to proceed publishing his/her leave.</p>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- FOR SPECIAL LEAVE Field -->
@@ -271,10 +290,17 @@
                     <span class="card-title">Signatories</span>
                 </div>
                 <div class="card-body table-responsive">
-                    <div class="card bg-danger gone" id="alert-no-sig">
+                    {{-- <div class="card bg-danger gone" id="alert-no-sig">
                         <div class="card-body">
                             <h4><i class="fas fa-exclamation-triangle ico-tab"></i>Oops!</h4>
                             <p>No signatory found for this employee! Contact IT for troubleshooting.</p>
+                        </div>
+                    </div> --}}
+                    
+                    <div class="card gone" id="alert-no-sig">
+                        <div class="card-body">
+                            {{-- <h4><i class="fas fa-exclamation-triangle ico-tab"></i>Oops!</h4> --}}
+                            <p>No signatories are available for this employee.</p>
                         </div>
                     </div>
                     <table id="signatories-table" class="table table-hover">
@@ -293,10 +319,13 @@
 
 @push('page_scripts')
     <script>
+        var salaryDeducted = false
         var leaveDates = []
         var leaveBalances = []
         var signatories = []
         var otherSigs = []
+        var leaveBalanceCounter = 0
+        var leaveDateDurationCounter = 0
 
         /**
          * LEAVE BALANCES 
@@ -408,45 +437,53 @@
 
 
         function updateLeaveBalancesTable(employeeData) {
-            if (employeeData.Mother === 'Yes') {
-                $('#balance-maternity').html(isNull(leaveBalances.Maternity) ? '...' : leaveBalances.Maternity +
-                    " <span class='text-muted'>days</span>")
-                $('#op-maternity').removeClass('gone')
-            } else {
-                $('#balance-maternity').html("")
-                $('#op-maternity').addClass('gone')
-            }
+            // if (employeeData.Mother === 'Yes') {
+            //     $('#balance-maternity').html(isNull(leaveBalances.Maternity) ? '...' : leaveBalances.Maternity +
+            //         " <span class='text-muted'>days</span>")
+            //     $('#op-maternity').removeClass('gone')
+            // } else {
+            //     $('#balance-maternity').html("")
+            //     $('#op-maternity').addClass('gone')
+            // }
 
-            if (employeeData.SoloMother === 'Yes') {
-                $('#balance-maternity-solo-parent').html(isNull(leaveBalances.MaternityForSoloMother) ? '...' :
-                    leaveBalances.MaternityForSoloMother + " <span class='text-muted'>days</span>")
-                $('#op-maternity-solo').removeClass('gone')
-            } else {
-                $('#balance-maternity-solo-parent').html("")
-                $('#op-maternity-solo').addClass('gone')
-            }
+            // if (employeeData.SoloMother === 'Yes') {
+            //     $('#balance-maternity-solo-parent').html(isNull(leaveBalances.MaternityForSoloMother) ? '...' :
+            //         leaveBalances.MaternityForSoloMother + " <span class='text-muted'>days</span>")
+            //     $('#op-maternity-solo').removeClass('gone')
+            // } else {
+            //     $('#balance-maternity-solo-parent').html("")
+            //     $('#op-maternity-solo').addClass('gone')
+            // }
 
-            if (employeeData.SoloParent === 'Yes') {
-                $('#balance-solo-parent').html(isNull(leaveBalances.SoloParent) ? '...' : leaveBalances.SoloParent +
-                    " <span class='text-muted'>days</span>")
-                $('#op-solo').removeClass('gone')
-            } else {
-                $('#balance-solo-parent').html("")
-                $('#op-solo').addClass('gone')
-            }
+            // if (employeeData.SoloParent === 'Yes') {
+            //     $('#balance-solo-parent').html(isNull(leaveBalances.SoloParent) ? '...' : leaveBalances.SoloParent +
+            //         " <span class='text-muted'>days</span>")
+            //     $('#op-solo').removeClass('gone')
+            // } else {
+            //     $('#balance-solo-parent').html("")
+            //     $('#op-solo').addClass('gone')
+            // }
 
-            if (employeeData.Father === 'Yes') {
-                $('#balance-paternity').html(isNull(leaveBalances.Paternity) ? '...' : leaveBalances.Paternity +
-                    " <span class='text-muted'>days</span>")
-                $('#op-paternity').removeClass('gone')
-            } else {
-                $('#balance-paternity').html("")
-                $('#op-paternity').addClass('gone')
-            }
+            // if (employeeData.Father === 'Yes') {
+            //     $('#balance-paternity').html(isNull(leaveBalances.Paternity) ? '...' : leaveBalances.Paternity +
+            //         " <span class='text-muted'>days</span>")
+            //     $('#op-paternity').removeClass('gone')
+            // } else {
+            //     $('#balance-paternity').html("")
+            //     $('#op-paternity').addClass('gone')
+            // }
 
             $('#balance-vacation').html(isNull(leaveBalances.Vacation) ? '...' : leaveBalances.VacationExpanded)
             $('#balance-sick').html(isNull(leaveBalances.Sick) ? '...' : leaveBalances.SickExpanded)
             $('#balance-special').html(isNull(leaveBalances.Special) ? '...' : leaveBalances.Special +
+                " <span class='text-muted'>days</span>")
+            $('#balance-maternity').html(isNull(leaveBalances.Maternity) ? '...' : leaveBalances.Maternity +
+                " <span class='text-muted'>days</span>")
+            $('#balance-maternity-solo-parent').html(isNull(leaveBalances.MaternityForSoloMother) ? '...' : leaveBalances
+                .MaternityForSoloMother + " <span class='text-muted'>days</span>")
+            $('#balance-paternity').html(isNull(leaveBalances.Paternity) ? '...' : leaveBalances.Paternity +
+                " <span class='text-muted'>days</span>")
+            $('#balance-solo-parent').html(isNull(leaveBalances.SoloParent) ? '...' : leaveBalances.SoloParent +
                 " <span class='text-muted'>days</span>")
 
             // validate select
@@ -499,6 +536,8 @@
 
         $('#special-dropdown').hide()
         $('#upload-section').hide()
+        $('#insuff-message').hide()
+        $('#salary-deduction-item').hide()
 
 
         $('input[type=radio][name=LeaveType]').change(function() {
@@ -510,12 +549,21 @@
                 $('#Reason').attr('readonly', true)
                 $('#Reason').val($('#SpecialReason').val())
                 $('#upload-section').hide()
+                $('#salary-deduction-item').hide()
             } else if (value == 'Sick') {
                 $('#special-dropdown').hide()
                 $('#reason-field').show()
                 $('#Reason').removeAttr('readonly')
                 $('#Reason').val(null)
                 $('#upload-section').show()
+                $('#salary-deduction-item').show()
+            } else if (value == 'Vacation') {
+                $('#special-dropdown').hide()
+                $('#reason-field').show()
+                $('#Reason').removeAttr('readonly')
+                $('#Reason').val(null)
+                $('#upload-section').show()
+                $('#salary-deduction-item').show()
             } else if (value == 'Paternity' | value == 'Maternity') {
                 $('#special-dropdown').hide()
                 $('#reason-field').show()
@@ -523,6 +571,7 @@
                 $('#Reason').val(null)
                 $('#upload-section').hide()
             } else {
+                $('#salary-deduction-item').hide()
                 $('#special-dropdown').hide()
                 $('#reason-field').show()
                 $('#Reason').val(null)
@@ -564,10 +613,11 @@
                         .SoloParent)
                 }
             } else {
-                leaveBalanceCounter = -1
+                leaveBalanceCounter = 0
             }
 
-            console.log(leaveBalanceCounter)
+            checkIfSufficentBalance();
+            // console.log(leaveBalanceCounter)
         })
 
 
@@ -578,7 +628,7 @@
                         <td>
                             <span class='text-muted text-sm'>Approver #${ i+1 }</span>
                             <br>
-                            <select class="custom-select select2">
+                            <select class="custom-select select2" disabled>
                                 ` + setSignatoryOptions(signatories[i].id) + `
                             </select>
                         </td>
@@ -627,6 +677,12 @@
             $(`#${id}`).remove()
             leaveDates = leaveDates.filter(obj => obj.LeaveDate !== id)
             populateLeaveTable()
+            checkIfSufficentBalance();
+        }
+
+        function updateSalaryCheck() {
+            salaryDeducted = $("#SalaryDeduction").prop("checked");
+            checkIfSufficentBalance()
         }
 
         function addDates(start, end) {
@@ -636,6 +692,7 @@
                 index === self.findIndex((t) => t.LeaveDate === obj.LeaveDate)
             )
 
+            checkIfSufficentBalance();
             populateLeaveTable(leaveDates)
         }
 
@@ -651,6 +708,32 @@
                 now.add(1, 'days');
             }
         }
+
+
+        function counteringDateDuration() {
+            leaveDateDurationCounter = 0;
+            for (let i = 0; i < leaveDates.length; i++) {
+                if ( leaveDates[i].Duration === "WHOLE") {
+                    leaveDateDurationCounter += 1;
+                } else {
+                    leaveDateDurationCounter += 0.5;
+                }
+            }
+        }
+        
+
+        function checkIfSufficentBalance() {
+            counteringDateDuration();
+            console.log("LeaveBalanceCounter: "+leaveBalanceCounter)
+            console.log("LeaveDatesDuration: "+leaveDateDurationCounter)
+            console.log("check if: " + leaveBalanceCounter < leaveDateDurationCounter && !salaryDeducted )
+            if (leaveBalanceCounter < leaveDateDurationCounter && !salaryDeducted ) {
+                $('#insuff-message').show()
+            } else {
+                $('#insuff-message').hide()
+            }
+        }
+
 
         function populateLeaveTable() {
             $('#dates-table tbody tr').remove()
@@ -681,6 +764,7 @@
                     Duration: val
                 } : obj
             )
+            checkIfSufficentBalance();
         }
 
         /**
@@ -692,6 +776,7 @@
             var leaveType = $('input[name="LeaveType"]:checked').val()
             var dateFiled = $('#DateFiled').val()
             var reason = $('#Reason').val()
+            var salaryDeduction = $('#SalaryDeduction').prop('checked')
 
             if (isNull(employee) | isNull(leaveType) | isNull(dateFiled) | isNull(reason) |  ( leaveType == "Sick" && leaveImgs.length < 1 )  | leaveDates.length < 1) {
                 Toast.fire({
@@ -710,6 +795,7 @@
                         DateFiled: dateFiled,
                         Days: leaveDates,
                         Signatories: getSelectedSignatories(),
+                        SalaryDeduction: salaryDeduction
                     },
                     success: function(res) {
                         Toast.fire({

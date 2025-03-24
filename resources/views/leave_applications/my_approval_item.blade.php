@@ -135,7 +135,7 @@
             </div>
         </div>
         @if (count($leaveSignatories) > 0)
-            <div class="col-lg-4 card p-3 d-flex flex-col">
+            <div class="col-lg-4 card mx-2 p-3 d-flex flex-col">
                 <p class="text-muted">Signatory Logs</p>
                 @foreach ($leaveSignatories as $item)
                     <div

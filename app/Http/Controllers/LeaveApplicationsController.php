@@ -1645,15 +1645,17 @@ class LeaveApplicationsController extends AppBaseController
         $reason = $request['Reason'];
         $dateFiled = $request['DateFiled'];
         $days = $request['Days'];
+        $id = $request['Id'];
+        $salaryDeduction = ($leaveType === 'Vacation' || $leaveType === 'Sick')? $request['SalaryDeduction'] : false;
 
         // insert leave application
-        $id = $request['Id'];
         $leave = new LeaveApplications;
         $leave->id = $id;
         $leave->EmployeeId = $employeeId;
         $leave->Content = $reason;
         $leave->Status = 'APPROVED';
         $leave->LeaveType = $leaveType;
+        $leave->MarkAsAbsent = $salaryDeduction;
         $leave->created_at = $dateFiled;
 
         $totalCredits = 0;
@@ -1664,6 +1666,7 @@ class LeaveApplicationsController extends AppBaseController
             $leaveDays = 0;
 
             $leaveDay = new LeaveDays;
+            $leaveDay->MarkAsAbsent = $salaryDeduction;
             $leaveDay->id = IDGenerator::generateIDandRandString();
             $leaveDay->LeaveId = $id;
             $leaveDay->LeaveDate = $days[$i]['LeaveDate'];

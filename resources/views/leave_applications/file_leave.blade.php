@@ -273,7 +273,7 @@
                         <div class="card gone" id="alert-no-sig">
                             <div class="card-body">
                                 {{-- <h4><i class="fas fa-exclamation-triangle ico-tab"></i>Oops!</h4> --}}
-                                <p>No signatory is available for you.</p>
+                                <p>No signatories are available for this employee.</p>
                             </div>
                         </div>
                         <table id="signatories-table" class="table table-hover">
