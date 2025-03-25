@@ -1,7 +1,8 @@
 @php
     use Carbon\Carbon;
 
-    function exportToExcel() {
+    function exportToExcel()
+    {
         return null;
     }
 @endphp
@@ -16,7 +17,7 @@
                     <h1>
                         {{ $department }} Department Attendance
                     </h1>
-                    <p>{{ count($employees) }} Employees marked from {{ Carbon::parse($date1)->format('M d, Y') }} to
+                    <p>{{ count($employees) }} employees marked as from {{ Carbon::parse($date1)->format('M d, Y') }} to
                         {{ Carbon::parse($date2)->format('M d, Y') }}</p>
                 </div>
             </div>
@@ -42,18 +43,28 @@
                     <div class="col-lg-2">
                         <p style="border-left: 25px solid #e30fbc; padding-left: 10px;">Overtime</p>
                     </div>
-                    {{-- <div class="col-lg-1">
-                        <p style="border-left: 10px solid #0f83e3; padding-left: 10px;">Leave</p>
-                    </div> --}}
                     <div class="col-lg-2">
-                        <p style="border-left: 25px solid #0fe3c9; padding-left: 10px;">Undertime</p>
+                        <p style="border-left: 25px solid #fadbd8; padding-left: 10px;">Undertime</p>
                     </div>
                 </div>
-                <div style="overflow-x:auto;overflow-y:auto;height:480px;width: 80vw; max-width:1500px;margin-bottom:30px;">
-                    <div style="width: auto;">
+                {{-- <div class="row">
+                    <div class="col-lg-1">
+                    </div>
+                    <div class="col-lg-2">
+                        <p style="border-left: 25px solid #fadbd8; padding-left: 10px;">Undertime</p>
+                    </div>
+                    <div class="col-lg-2">
+                        <p style="border-left: 25px solid #0fe3c9; padding-left: 10px;">Paid Leave</p>
+                    </div>
+                    <div class="col-lg-2">
+                        <p style="border-left: 25px solid #717d7e; padding-left: 10px;">Unpaid Leave</p>
+                    </div> 
+                </div> --}}
+                <div style="overflow-x:auto;overflow-y:auto;height:600px;width:85vw;max-width:1500px;margin-bottom:30px;">
+                    <div style="width: fit;">
                         <table class="table table-hover table-md" id="attendance-table">
                             <thead>
-                                <th>Employee No.</th>
+                                <th>ID No.</th>
                                 <th>Employee Name</th>
                                 {{-- <th>Position</th> --}}
                                 @foreach ($dates as $date)
@@ -76,114 +87,30 @@
                                                 <th>
                                                     <div style="display:flex; justify: center;">
                                                         <div class="am-in_{{ $emp->id }}_{{ $date }}"
-                                                            style="padding: 10px 3px; margin: 1px"></div>
+                                                            style="padding: 13px 6px; margin: 1px; color:white;"></div>
                                                         <div class="am-out_{{ $emp->id }}_{{ $date }}"
-                                                            style="padding: 10px 3px; margin: 1px"></div>
+                                                            style="padding: 13px 6px; margin: 1px; color:white;"></div>
                                                         <div class="pm-in_{{ $emp->id }}_{{ $date }}"
-                                                            style="padding: 10px 3px; margin: 1px"></div>
+                                                            style="padding: 13px 6px; margin: 1px; color:white;"></div>
                                                         <div class="pm-out_{{ $emp->id }}_{{ $date }}"
-                                                            style="padding: 10px 3px; margin: 1px"></div>
-                                                        {{-- @foreach (['AM IN', 'AM OUT', 'PM IN', 'PM OUT'] as $type)
-                                                            <div style="background-color: {{ getAttendanceColor('Present') }}; padding: 10px 3px; margin: 1px"
-                                                                title="{{ convertToDateTime($date, $attendanceData, $emp->id, $type, 'Present') }} - Present when AM IN">
-                                                            </div>
-                                                        @endforeach --}}
-
-                                                        {{-- @if (attendanceMatched($date, $attendanceData, $emp->id, 'AM IN', 'Present'))
-                                                            <div style="background-color: #28a745; padding: 10px 3px; margin: 1px"
-                                                                title="{{ convertToDateTime($date, $attendanceData, $emp->id, 'AM IN', 'Present') }} - Present when AM IN">
-                                                            </div>
-                                                        @elseif(attendanceMatched($date, $attendanceData, $emp->id, 'AM IN', 'Late'))
-                                                            <div style="background-color: #ffc107; padding: 10px 3px; margin: 1px"
-                                                                title="{{ convertToDateTime($date, $attendanceData, $emp->id, 'AM IN', 'Late') }} - Late when AM IN">
-                                                            </div>
-                                                        @elseif(attendanceMatched($date, $attendanceData, $emp->id, 'AM IN', 'Absent'))
-                                                            <div style="background-color: #dc3545; padding: 10px 3px; margin: 1px"
-                                                                title="{{ convertToDateTime($date, $attendanceData, $emp->id, 'AM IN', 'Absent') }} - Absent when AM IN">
-                                                            </div>
-                                                        @else
-                                                            <div style="padding: 10px 3px; margin: 1px"></div>
-                                                        @endif
-
-
-                                                        @if (attendanceMatched($date, $attendanceData, $emp->id, 'AM OUT', 'Present'))
-                                                            <div style="background-color: #28a745; padding: 10px 3px; margin: 1px"
-                                                                title="{{ convertToDateTime($date, $attendanceData, $emp->id, 'AM OUT', 'Present') }} - Present when AM OUT">
-                                                            </div>
-                                                        @elseif(attendanceMatched($date, $attendanceData, $emp->id, 'AM OUT', 'Late'))
-                                                            <div style="background-color: #ffc107; padding: 10px 3px; margin: 1px"
-                                                                title="{{ convertToDateTime($date, $attendanceData, $emp->id, 'AM OUT', 'Late') }} - Late when AM OUT">
-                                                            </div>
-                                                        @elseif(attendanceMatched($date, $attendanceData, $emp->id, 'AM OUT', 'Absent'))
-                                                            <div style="background-color: #dc3545; padding: 10px 3px; margin: 1px"
-                                                                title="{{ convertToDateTime($date, $attendanceData, $emp->id, 'AM OUT', 'Absent') }} - Absent when AM OUT">
-                                                            </div>
-                                                        @elseif(attendanceMatched($date, $attendanceData, $emp->id, 'AM OUT', 'Undertime'))
-                                                            <div style="background-color: #0fe3c9; padding: 10px 3px; margin: 1px"
-                                                                title="{{ convertToDateTime($date, $attendanceData, $emp->id, 'AM OUT', 'Undertime') }} - Undertime when AM OUT">
-                                                            </div>
-                                                        @else
-                                                            <div style="padding: 10px 3px; margin: 1px"></div>
-                                                        @endif
-
-
-                                                        @if (attendanceMatched($date, $attendanceData, $emp->id, 'PM IN', 'Present'))
-                                                            <div style="background-color: #28a745; padding: 10px 3px; margin: 1px"
-                                                                title="{{ convertToDateTime($date, $attendanceData, $emp->id, 'PM IN', 'Present') }} - Present when PM IN">
-                                                            </div>
-                                                        @elseif(attendanceMatched($date, $attendanceData, $emp->id, 'PM IN', 'Late'))
-                                                            <div style="background-color: #ffc107; padding: 10px 3px; margin: 1px"
-                                                                title="{{ convertToDateTime($date, $attendanceData, $emp->id, 'PM IN', 'Late') }} - Late when PM IN">
-                                                            </div>
-                                                        @elseif(attendanceMatched($date, $attendanceData, $emp->id, 'PM IN', 'Absent'))
-                                                            <div style="background-color: #dc3545; padding: 10px 3px; margin: 1px"
-                                                                title="{{ convertToDateTime($date, $attendanceData, $emp->id, 'PM IN', 'Absent') }} - Absent when PM IN">
-                                                            </div>
-                                                        @else
-                                                            <div style="padding: 10px 3px; margin: 1px"></div>
-                                                        @endif
-
-
-                                                        @if (attendanceMatched($date, $attendanceData, $emp->id, 'PM OUT', 'Present'))
-                                                            <div style="background-color: #28a745; padding: 10px 3px; margin: 1px"
-                                                                title="{{ convertToDateTime($date, $attendanceData, $emp->id, 'PM OUT', 'Present') }} - Present when PM OUT">
-                                                            </div>
-                                                        @elseif(attendanceMatched($date, $attendanceData, $emp->id, 'PM OUT', 'Late'))
-                                                            <div style="background-color: #ffc107; padding: 10px 3px; margin: 1px"
-                                                                title="{{ convertToDateTime($date, $attendanceData, $emp->id, 'PM OUT', 'Late') }} - Late when PM OUT">
-                                                            </div>
-                                                        @elseif(attendanceMatched($date, $attendanceData, $emp->id, 'PM OUT', 'Absent'))
-                                                            <div style="background-color: #dc3545; padding: 10px 3px; margin: 1px"
-                                                                title="{{ convertToDateTime($date, $attendanceData, $emp->id, 'AM OUT', 'Absent') }} - Absent when PM OUT">
-                                                            </div>
-                                                        @elseif(attendanceMatched($date, $attendanceData, $emp->id, 'PM OUT', 'Undertime'))
-                                                            <div style="background-color: #0fe3c9; padding: 10px 3px; margin: 1px"
-                                                                title="{{ convertToDateTime($date, $attendanceData, $emp->id, 'PM OUT', 'Undertime') }} - Undertime when PM OUT">
-                                                            </div>
-                                                        @elseif(attendanceMatched($date, $attendanceData, $emp->id, 'PM OUT', 'Overtime'))
-                                                            <div style="background-color: #0fe3c9; padding: 10px 3px; margin: 1px"
-                                                                title="{{ convertToDateTime($date, $attendanceData, $emp->id, 'PM OUT', 'Overtime') }} - Overtime when PM OUT">
-                                                            </div>
-                                                        @else
-                                                            <div style="padding: 10px 3px; margin: 1px"></div>
-                                                        @endif --}}
+                                                            style="padding: 13px 6px; margin: 1px; color:white;"></div>
                                                     </div>
                                                 </th>
                                             @endforeach
                                             <td>
-                                                <div class="normal-days_{{ $emp->id }}">{{ count($dates) }}</div>
+                                                <p class="normal-days_{{ $emp->id }}">{{ count($dates) }}</p>
                                             </td>
                                             <td>
-                                                <div class="actual-days_{{ $emp->id }}">0</div>
+                                                <p class="actual-days_{{ $emp->id }}">0</p>
                                             </td>
                                             <td>
-                                                <div class="absent-days_{{ $emp->id }}">0</div>
+                                                <p class="absent-days_{{ $emp->id }}">0</p>
                                             </td>
                                             <td>
-                                                <div class="overtime-hours_{{ $emp->id }}">0</div>
+                                                <p class="overtime-hours_{{ $emp->id }}">0</p>
                                             </td>
                                             <td>
-                                                <div class="undertime-hours_{{ $emp->id }}">0</div>
+                                                <p class="undertime-hours_{{ $emp->id }}">0</p>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -195,41 +122,74 @@
                                                 success: function(response) {
                                                     res = response.data;
                                                     res.forEach(r => {
-                                                        if (r.id == '376-201910') {
-                                                            console.log(r);
-                                                        }
+                                                        // if (r.id == '58-199205') {
+                                                        //     console.log(r.timestamp);
+                                                        // }
+                                                        
                                                         switch (r.type) {
                                                             case 'AM IN':
                                                                 $(".am-in_" + r.id + "_" + timestampToDate(r.timestamp))
                                                                     .css('background-color', getAttendanceColor(r.status))
-                                                                    .attr('title',timestampToDate(r.timestamp) + " " + timestampToTime(r.timestamp) + " - AM IN " + r.status)
-                                                                break;
+                                                                    .attr('title', timestampToDate(r.timestamp) + " " + timestampToTime(r
+                                                                        .timestamp) + " - AM IN " + r.status)
+                                                                    if (r.id == '435-202307') {
+                                                                        // console.log(r.timestamp);
+                                                                        console.log(r);
+                                                                        // console.log(r.timestamp + " | " + timestampToTime(r.timestamp)+ " | " + timestampToDate(r.timestamp));
+                                                                        console.log(".am-in_" + r.id + "_" + timestampToDate(r.timestamp)+" = "+r.timestamp)
+                                                                    }
+                                                                    break;
                                                             case 'AM OUT':
                                                                 $(".am-out_" + r.id + "_" + timestampToDate(r.timestamp))
                                                                     .css('background-color', getAttendanceColor(r.status))
-                                                                    .attr('title',timestampToDate(r.timestamp) + " " + timestampToTime(r.timestamp) + " - AM OUT " + r.status)
-                                                                break;
+                                                                    .attr('title', timestampToDate(r.timestamp) + " " + timestampToTime(r
+                                                                        .timestamp) + " - AM OUT " + r.status)
+                                                                    if (r.id == '435-202307') {
+                                                                        // console.log(r.timestamp);
+                                                                        console.log(r);
+                                                                        // console.log(r.timestamp + " | " + timestampToTime(r.timestamp)+ " | " + timestampToDate(r.timestamp));
+                                                                        console.log(".am-out_" + r.id + "_" + timestampToDate(r.timestamp)+" = "+r.timestamp)
+                                                                    }
+                                                                        break;
                                                             case 'PM IN':
                                                                 $(".pm-in_" + r.id + "_" + timestampToDate(r.timestamp))
                                                                     .css('background-color', getAttendanceColor(r.status))
-                                                                    .attr('title',timestampToDate(r.timestamp) + " " + timestampToTime(r.timestamp) + " - PM IN " + r.status)
+                                                                    .attr('title', timestampToDate(r.timestamp) + " " + timestampToTime(r
+                                                                        .timestamp) + " - PM IN " + r.status)
+                                                                    if (r.id == '435-202307') {
+                                                                        // console.log(r.timestamp);
+                                                                        console.log(r);
+                                                                        // console.log(r.timestamp + " | " + timestampToTime(r.timestamp)+ " | " + timestampToDate(r.timestamp));
+                                                                        console.log(".pm-in_" + r.id + "_" + timestampToDate(r.timestamp)+" = "+r.timestamp)
+                                                                    }
                                                                 break;
                                                             case 'PM OUT':
                                                                 $(".pm-out_" + r.id + "_" + timestampToDate(r.timestamp))
                                                                     .css('background-color', getAttendanceColor(r.status))
-                                                                    .attr('title',timestampToDate(r.timestamp) + " " + timestampToTime(r.timestamp) + " - PM OUT " + r.status)
-                                                                break;
+                                                                    .attr('title', timestampToDate(r.timestamp) + " " + timestampToTime(r
+                                                                        .timestamp) + " - PM OUT " + r.status)
+                                                                    if (r.id == '435-202307') {
+                                                                        // console.log(r.timestamp);
+                                                                        console.log(r);
+                                                                        // console.log(r.timestamp + " | " + timestampToTime(r.timestamp)+ " | " + timestampToDate(r.timestamp));
+                                                                        console.log(".pm-out_" + r.id + "_" + timestampToDate(r.timestamp)+" = "+r.timestamp)
+                                                                    }
+                                                                    break;
                                                         }
                                                     });
                                                 },
                                                 error: function(res) {
-                                                    console.log(res)
-                                                    redirect(-1);
+                                                    Swal.fire({
+                                                        icon: 'error',
+                                                        text: 'Error fetching attendance data of all employees. Please contact IT support.'
+                                                    })
                                                 }
                                             })
 
                                             function timestampToDate(timestamp) {
-                                                return new Date(timestamp).toISOString().split('T')[0];
+                                                // console.log(timestamp + " | " + new Date(timestamp).toISOString().split('T')[0])
+                                                // return new Date(timestamp).toISOString().split('T')[0];
+                                                return timestamp.split(' ')[0];
                                             }
 
                                             function getAttendanceColor(status) {
@@ -245,7 +205,11 @@
                                                     case 'Leave':
                                                         return '#0f83e3';
                                                     case 'Undertime':
+                                                        return '#fadbd8';
+                                                    case 'Leave':
                                                         return '#0fe3c9';
+                                                    case 'Unpaid':
+                                                        return '#717d7e';
                                                     default:
                                                         return '#f0f0f0'; // Default color (no attendance status)
                                                 }
@@ -273,8 +237,8 @@
                         </table>
                     </div>
                 </div>
-                
-                
+
+
                 <button class="btn btn-primary">Export as Excelsheet</button>
             </div>
         </div>

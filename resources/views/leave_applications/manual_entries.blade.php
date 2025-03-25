@@ -440,8 +440,21 @@
             } else {
                 $('#insuff-message').hide()
             }
+            getCheckSpecialDays()
         }
 
+        
+        function getCheckSpecialDays() {
+            var leave = $('input[name="LeaveType"]:checked').val()
+            if (leaveDateDurationCounter != 1 && leave === "Special") {
+                $('#saveLeave').attr('disabled', true);
+                $('#saveLeave').attr("title", "This special leave should have only one day off.");
+            } else {
+                $('#saveLeave').attr('disabled', false);
+                $('#saveLeave').attr("title", null);
+            }
+
+        }
         
         function counteringDateDuration() {
             leaveDateDurationCounter = 0;

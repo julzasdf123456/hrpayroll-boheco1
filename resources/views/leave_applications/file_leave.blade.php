@@ -70,11 +70,11 @@
                                     @endif
                                 </div>
                                 {{-- @if ($employee->Father === 'Yes') --}}
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="LeaveType" id="Paternity"
-                                            value="Paternity">
-                                        <label class="form-check-label" for="Paternity">Paternity</label>
-                                    </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="LeaveType" id="Paternity"
+                                        value="Paternity">
+                                    <label class="form-check-label" for="Paternity">Paternity</label>
+                                </div>
                                 {{-- @endif --}}
                                 {{-- @if ($employee->Mother === 'Yes')  --}}
                                 <div class="form-check">
@@ -103,14 +103,17 @@
 
                             <div class="pl-3 ml-5 mb-5">
                                 <div class="form-check" id="salary-deduction-item">
-                                    <input class="form-check-input" type="checkbox" name="SalaryDeduction" onchange="updateSalaryCheck()" id="SalaryDeduction" />
+                                    <input class="form-check-input" type="checkbox" name="SalaryDeduction"
+                                        onchange="updateSalaryCheck()" id="SalaryDeduction" />
                                     <label class="form-check-label" for="SalaryDeduction">
-                                        I shall publish this leave with my salary deduction instead of my leave balance credits for this matter.
+                                        I shall publish this leave with my salary deduction instead of my leave balance
+                                        credits for this matter.
                                     </label>
-                                </div> 
+                                </div>
                                 <div class="my-5" id="insuff-message" style="color:#ffbe33;">
                                     <strong>WARNING: </strong>
-                                    <p>Insufficent leave credits. The rest of the later leave dates will be marked as unpaid if you wish to proceed publishing this leave.</p>
+                                    <p>Insufficent leave credits. The rest of the later leave dates will be marked as unpaid
+                                        if you wish to proceed publishing this leave.</p>
                                 </div>
                             </div>
                         </div>
@@ -457,7 +460,7 @@
             )
 
             // console.log("LeaveDates: "+ leaveDates);
-            
+
             checkIfSufficentBalance();
             populateLeaveTable(leaveDates)
         }
@@ -477,20 +480,21 @@
 
         function checkIfSufficentBalance() {
             counteringDateDuration();
-            console.log("LeaveBalanceCounter: "+leaveBalanceCounter)
-            console.log("LeaveDatesDuration: "+leaveDateDurationCounter)
-            console.log("check if: " + leaveBalanceCounter < leaveDateDurationCounter && !salaryDeducted )
-            if (leaveBalanceCounter < leaveDateDurationCounter && !salaryDeducted ) {
+            console.log("LeaveBalanceCounter: " + leaveBalanceCounter)
+            console.log("LeaveDatesDuration: " + leaveDateDurationCounter)
+            console.log("check if: " + leaveBalanceCounter < leaveDateDurationCounter && !salaryDeducted)
+            if (leaveBalanceCounter < leaveDateDurationCounter && !salaryDeducted) {
                 $('#insuff-message').show()
             } else {
                 $('#insuff-message').hide()
             }
+            getCheckSpecialDays();
         }
 
         function counteringDateDuration() {
             leaveDateDurationCounter = 0;
             for (let i = 0; i < leaveDates.length; i++) {
-                if ( leaveDates[i].Duration === "WHOLE") {
+                if (leaveDates[i].Duration === "WHOLE") {
                     leaveDateDurationCounter += 1;
                 } else {
                     leaveDateDurationCounter += 0.5;
@@ -517,7 +521,7 @@
                     </tr>
                 `)
             }
-            
+
         }
 
         $('#special-dropdown').hide()
@@ -614,7 +618,7 @@
                     Duration: val
                 } : obj
             )
-            
+
             checkIfSufficentBalance();
         }
 
@@ -670,6 +674,18 @@
                     }
                 })
             }
+        }
+
+        function getCheckSpecialDays() {
+            var leave = $('input[name="LeaveType"]:checked').val()
+            if (leaveDateDurationCounter != 1 && leave === "Special") {
+                $('#saveLeave').attr('disabled', true);
+                $('#saveLeave').attr("title", "This special leave should have only one day off.");
+            } else {
+                $('#saveLeave').attr('disabled', false);
+                $('#saveLeave').attr("title", null);
+            }
+
         }
 
 

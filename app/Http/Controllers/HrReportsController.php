@@ -43,113 +43,23 @@ class HrReportsController extends Controller
             $date1 = Carbon::parse($req->input('from_date'))->format('Y-m-d');
             $date2 = Carbon::parse($req->input('to_date'))->format('Y-m-d');
             if (Carbon::parse($date1)->greaterThan(Carbon::parse($date2))) {
-                throw new Exception('From date must be less than or equal to to date');
+                throw new Exception('From date must be less than or equal to the last day date');
             }
 
             $employees = DB::select("
-            select distinct
-                a.id,a.firstname,a.middlename,a.lastname,
-                c.position, c.department
-            from employees as a
-                left join employeesdesignations as b on a.id = b.employeeid
-                left join positions as c on c.id = b.positionid
-            where 
-                c.department = ?
-                and c.position not like '%chief%'
-                and a.dateended is null 
-            order by a.lastname;
+                select distinct
+                    a.id,a.firstname,a.middlename,a.lastname,
+                    c.position, c.department
+                from employees as a
+                    left join employeesdesignations as b on a.id = b.employeeid
+                    left join positions as c on c.id = b.positionid
+                where 
+                    c.department = ?
+                    and a.dateended is null 
+                    and a.employmentstatus is null
+                order by a.lastname;
             ", [$position['department']]);
 
-
-            // $attendanceData = DB::select("
-            // select 
-            //     a.id,
-            //     c.department,
-            //     d.timestamp,d.type,
-            //     case
-            //         when 
-            //             cast(d.timestamp as time) >= '00:00:00' 
-            //             and cast(d.timestamp as time) <= dateadd(minute, 6, e.starttime)
-            //             and d.type = 'AM IN'
-            //         then 'Present'
-            //         when 
-            //             cast(d.timestamp as time) > dateadd(minute, 6, e.starttime) 
-            //             and cast(d.timestamp as time) <= dateadd(minute, 15, e.starttime)
-            //             and d.type = 'AM IN'
-            //         then 'Late'
-            //         when 
-            //             cast(d.timestamp as time) <= dateadd(minute, 30, e.starttime)
-            //             and cast(d.timestamp as time) >= e.breakstart
-            //             and d.type = 'AM OUT' 
-            //             and e.breakstart is not null 
-            //         then 'Undertime'
-            //         when 
-            //             cast(d.timestamp as time) >= e.breakstart
-            //             and cast(d.timestamp as time) <= dateadd(minute, 30, e.breakstart)
-            //             and d.type = 'AM OUT' 
-            //             and e.breakend is not null 
-            //         then 'Present'
-            //         when 
-            //             cast(d.timestamp as time) > dateadd(minute, -30, e.breakend)
-            //             and cast(d.timestamp as time) < dateadd(minute, 6, e.breakend)
-            //             and d.type = 'PM IN' 
-            //             and e.breakend is not null 
-            //         then 'Present'
-            //         when 
-            //             cast(d.timestamp as time) >= dateadd(minute, 6, e.breakend)
-            //             and cast(d.timestamp as time) <= dateadd(minute, 15, e.breakend)
-            //             and d.type = 'PM IN' 
-            //             and e.breakend is not null 
-            //         then 'Late'
-            //         when 
-            //             cast(d.timestamp as time) >= dateadd(minute, 30, e.breakend)
-            //             and cast(d.timestamp as time) < e.endtime
-            //             and d.type = 'PM OUT'
-            //         then 'Undertime'
-            //         when 
-            //             cast(d.timestamp as time) > e.endtime
-            //             and cast(d.timestamp as time) <= dateadd(hour, 1, e.endtime)
-            //             and d.type = 'PM OUT'
-            //         then 'Present'
-            //         when 
-            //             cast(d.timestamp as time) > dateadd(hour, 1, e.endtime)
-            //             and cast(d.timestamp as time) <= '23:59:59'
-            //             and d.type = 'PM OUT' 
-            //         then 'Present'
-            //         when 
-            //             d.type is null or d.type = 'AMBIGUOS' 
-            //         then null
-            //         else 'Absent'
-            //     end as status,
-            //     case
-            //         when 
-            //             cast(d.timestamp as time) >= dateadd(minute, 30, e.starttime)
-            //             and cast(d.timestamp as time) < e.breakstart
-            //             and d.type = 'AM OUT' 
-            //             and e.breakstart is not null  
-            //         then datediff(minute, cast(d.timestamp as time), e.starttime)  -- UNDERTIME
-            //         when 
-            //             cast(d.timestamp as time) >= dateadd(minute, 30, e.breakend)  -- UNDERTIME
-            //             and cast(d.timestamp as time) < e.endtime
-            //             and d.type = 'PM OUT' 
-            //         then datediff(minute, cast(d.timestamp as time), e.endtime) -- OVERTIME
-            //         when 
-            //             status = 'Overtime' 
-            //             and d.type = 'PM OUT' 
-            //         then datediff(minute, e.breakend, d.timestamp)
-            //         else 0
-            //     end as underovertime
-            //     from attendancedata as d
-            //         left join employees as a on a.biometricsuserid = d.biometricuserid
-            //         left join employeesdesignations as b on a.id = b.employeeid
-            //         left join positions as c on c.id = b.positionid
-            //         left join payrollschedules as e on a.payrollscheduleid = e.id
-            //     where 
-            //         c.department = ? 
-            //         and a.dateended is null 
-            //         and cast(d.timestamp as date) between ? and ?
-            //     order by d.timestamp asc;
-            // ", [$position['department'], $date1, $date2]);
 
 
             $dateRange = [];
@@ -206,63 +116,84 @@ class HrReportsController extends Controller
             }
 
             $attendanceData = DB::select("
-            select 
+                select 
                 a.id,
                 c.department,
-                d.timestamp,d.type,
+                d.timestamp,
                 case
+                	when 
+                        cast(d.timestamp as time) >= '00:00:00' 
+                        and cast(d.timestamp as time) <= dateadd(minute, 15, e.starttime)
+                    then 'AM IN'
+                	when 
+                        cast(d.timestamp as time) >= dateadd(minute, -30, e.breakstart)
+                        and cast(d.timestamp as time) <= dateadd(minute, 30, e.breakstart)
+                    then 'AM OUT'
+                	when 
+                        cast(d.timestamp as time) >=  dateadd(minute, -30, e.breakend)
+                        and cast(d.timestamp as time) <= dateadd(minute, 15, e.breakend)
+                    then 'PM IN'
+                	when 
+                        cast(d.timestamp as time) >= dateadd(minute, -30, e.endtime)
+                        and cast(d.timestamp as time) <= '23:59:59'
+                    then 'PM OUT'
+                	when 
+                        cast(d.timestamp as time) >= '00:00:00' 
+                        and cast(d.timestamp as time) < '12:00:00' 
+                        and datename(weekday, cast(d.timestamp as date)) in ('Sunday','Saturday')
+                    then 'AM IN'
+                    when
+                        datename(weekday, cast(d.timestamp as date)) in ('Sunday','Saturday')
+                    then 'PM OUT' 
+                end as type,
+                case
+                    when 
+                        datename(weekday, cast(d.timestamp as date)) in ('Sunday')
+                    then 'Overtime'
                     when 
                         datename(weekday, cast(d.timestamp as date)) in ('Saturday','Sunday')
                     then 'Present'
                     when 
                         cast(d.timestamp as time) >= '00:00:00' 
                         and cast(d.timestamp as time) <= dateadd(minute, 6, e.starttime)
-                        and d.type = 'AM IN'
                     then 'Present'
                     when 
                         cast(d.timestamp as time) > dateadd(minute, 6, e.starttime) 
                         and cast(d.timestamp as time) <= dateadd(minute, 15, e.starttime)
-                        and d.type = 'AM IN'
                     then 'Late'
                     when 
                         cast(d.timestamp as time) <= dateadd(minute, 30, e.starttime)
                         and cast(d.timestamp as time) >= e.breakstart
-                        and d.type = 'AM OUT' 
                         and e.breakstart is not null 
                     then 'Undertime'
                     when 
                         cast(d.timestamp as time) >= e.breakstart
                         and cast(d.timestamp as time) <= dateadd(minute, 30, e.breakstart)
-                        and d.type = 'AM OUT' 
                         and e.breakend is not null 
                     then 'Present'
                     when 
                         cast(d.timestamp as time) > dateadd(minute, -30, e.breakend)
                         and cast(d.timestamp as time) < dateadd(minute, 6, e.breakend)
-                        and d.type = 'PM IN' 
                         and e.breakend is not null 
                     then 'Present'
                     when 
                         cast(d.timestamp as time) >= dateadd(minute, 6, e.breakend)
                         and cast(d.timestamp as time) <= dateadd(minute, 15, e.breakend)
-                        and d.type = 'PM IN' 
                         and e.breakend is not null 
                     then 'Late'
                     when 
                         cast(d.timestamp as time) >= dateadd(minute, 30, e.breakend)
+                        and e.breakend is not null
                         and cast(d.timestamp as time) < e.endtime
-                        and d.type = 'PM OUT'
                     then 'Undertime'
                     when 
                         cast(d.timestamp as time) > e.endtime
                         and cast(d.timestamp as time) <= dateadd(hour, 1, e.endtime)
-                        and d.type = 'PM OUT'
                     then 'Present'
                     when 
                         cast(d.timestamp as time) > dateadd(hour, 1, e.endtime)
                         and cast(d.timestamp as time) <= '23:59:59'
-                        and d.type = 'PM OUT' 
-                    then 'Present'
+                    then 'Overtime'
                     when 
                         d.type is null or d.type = 'AMBIGUOS' 
                     then null
@@ -278,11 +209,9 @@ class HrReportsController extends Controller
                     when 
                         cast(d.timestamp as time) >= dateadd(minute, 30, e.breakend)  -- UNDERTIME
                         and cast(d.timestamp as time) < e.endtime
-                        and d.type = 'PM OUT' 
                     then datediff(minute, cast(d.timestamp as time), e.endtime) -- OVERTIME
                     when 
                         status = 'Overtime' 
-                        and d.type = 'PM OUT' 
                     then datediff(minute, e.breakend, d.timestamp)
                     else 0
                 end as underovertime
@@ -295,17 +224,12 @@ class HrReportsController extends Controller
                     c.department = ?
                     and a.dateended is null 
                     and cast(d.timestamp as date) between ? and ?
-                order by d.timestamp desc;
+                order by d.timestamp asc;
             ", [$department, $date1, $date2]);
 
-            // return response()->json(
-            //     [
-            //         'department' => $department,
-            //         'date1' => $date1,
-            //         'date2' => $date2,
-            //         'data' => $attendanceData
-            //     ]
-            // , 200);
+
+            $leavesOfDepartment = DB::table("");
+            
             return response()->json(
                 [
                     'data' => $attendanceData
