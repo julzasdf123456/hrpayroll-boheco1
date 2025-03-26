@@ -1588,15 +1588,15 @@ class LeaveApplicationsController extends AppBaseController
 
         $leaveImgs = LeaveImageAttachments::where('LeaveId', $id)->get();
 
-        return view('leave_applications.manual_entries', [
-            'employees' => $employees,
-            'holidays' => $holidays,
-            'id' => $id,
-            'leaveImgs' => $leaveImgs
-        ]);
+        // return view('leave_applications.manual_entries', [
+        //     'employees' => $employees,
+        //     'holidays' => $holidays,
+        //     'id' => $id,
+        //     'leaveImgs' => $leaveImgs
+        // ]);
 
 
-        // return view('technical_difficulties.page', [ 'header' => 'MANUAL ENTRY: Leave Application']);
+        return view('technical_difficulties.page', [ 'header' => 'MANUAL ENTRY: Leave Application']);
     }
 
     public function showSpecialLeaves($empId)
@@ -1974,16 +1974,16 @@ class LeaveApplicationsController extends AppBaseController
         $id = IDGenerator::generateID();
         $leaveImgs = LeaveImageAttachments::where('LeaveId', $id)->get();
 
-        return view('leave_applications.file_for_coworker', [
-            'employees' => collect($employees),
-            'holidays' => $holidays,
-            'otherSignatories' => $otherSignatories,
-            'specialLeaves' => $specialLeaves,
-            'leaveImgs' => $leaveImgs,
-            'id' => $id
-        ]);
+        // return view('leave_applications.file_for_coworker', [
+        //     'employees' => collect($employees),
+        //     'holidays' => $holidays,
+        //     'otherSignatories' => $otherSignatories,
+        //     'specialLeaves' => $specialLeaves,
+        //     'leaveImgs' => $leaveImgs,
+        //     'id' => $id
+        // ]);
 
-        // return view('technical_difficulties.page', [ 'header' => 'File for Co-Worker: Leave Application']);
+        return view('technical_difficulties.page', [ 'header' => 'File for Co-Worker: Leave Application']);
     }
 
     public function saveForCoWorker(Request $request)
@@ -2192,26 +2192,26 @@ class LeaveApplicationsController extends AppBaseController
         $id = IDGenerator::generateID();
         $leaveImgs = LeaveImageAttachments::where('LeaveId', $id)->get();
 
-        if ($employee != null) {
-            return view('leave_applications.file_leave', [
-                'specialLeaves' => $specialLeaves,
-                'holidays' => $holidays,
-                'employee' => $employee,
-                'leaveImgs' => $leaveImgs,
-                'id' => $id
-            ]);
+        // if ($employee != null) {
+        //     return view('leave_applications.file_leave', [
+        //         'specialLeaves' => $specialLeaves,
+        //         'holidays' => $holidays,
+        //         'employee' => $employee,
+        //         'leaveImgs' => $leaveImgs,
+        //         'id' => $id
+        //     ]);
 
-            // return response()->json([
-            //     'reason' => $status,
-            //     'specialLeaves' => $specialLeaves,
-            //     // 'holidays' => $holidays,
-            //     // 'employee' => $employee
-            // ]);
-        } else {
-            return abort(403, 'You are not authorized to access this module');
-        }
+        //     // return response()->json([
+        //     //     'reason' => $status,
+        //     //     'specialLeaves' => $specialLeaves,
+        //     //     // 'holidays' => $holidays,
+        //     //     // 'employee' => $employee
+        //     // ]);
+        // } else {
+        //     return abort(403, 'You are not authorized to access this module');
+        // }
 
-        // return view('technical_difficulties.page', [ 'header' => "File a Leave Application." ]);
+        return view('technical_difficulties.page', [ 'header' => "File a Leave Application." ]);
     }
 
     public function viewAllLeave(Request $request)

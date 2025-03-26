@@ -209,19 +209,32 @@ class TripTicketsAPI extends Controller {
     public function getTT(Request $request) {
         $id = $request['id'];
 
-        $data = DB::table("TripTicketPassengers")
-            ->leftJoin('TripTickets', 'TripTicketPassengers.TripTicketId', '=', 'TripTickets.id')
-            ->leftJoin('Employees', 'TripTickets.Driver', '=', 'Employees.id')
-            ->whereRaw("TripTickets.id='" . $id . "'")
+        // $data = DB::table("TripTicketPassengers")
+        //     ->leftJoin('TripTickets', 'TripTicketPassengers.TripTicketId', '=', 'TripTickets.id')
+        //     ->leftJoin('Employees', 'TripTickets.Driver', '=', 'Employees.id')
+        //     ->whereRaw("TripTickets.id='" . $id . "'")
+        //     ->select(
+        //         'TripTickets.*',
+        //         'Employees.FirstName AS DriverFirstName',
+        //         'Employees.MiddleName AS DriverMiddleName',
+        //         'Employees.LastName AS DriverLastName',
+        //         'Employees.Suffix AS DriverSuffix',
+        //         DB::raw("(SELECT STRING_AGG(DestinationAddress, ',') FROM TripTicketDestinations WHERE TripTicketDestinations.TripTicketId=TripTickets.id) AS Destinations")
+        //     )
+        //     ->first();
+
+        $data =  DB::table("TripTickets as a")
+            ->leftJoin("TripTicketPassengers as b","a.id","=","b.TripTicketId")
+            ->leftJoin("Employees as c", "c.id","=","a.Driver")
+            ->where("a.id","=",$id)
             ->select(
-                'TripTickets.*',
-                'Employees.FirstName AS DriverFirstName',
-                'Employees.MiddleName AS DriverMiddleName',
-                'Employees.LastName AS DriverLastName',
-                'Employees.Suffix AS DriverSuffix',
-                DB::raw("(SELECT STRING_AGG(DestinationAddress, ',') FROM TripTicketDestinations WHERE TripTicketDestinations.TripTicketId=TripTickets.id) AS Destinations")
+                "a.*", "c.FirstName as DriverFirstName","c.MiddleName as DriverMiddleName"
+                ,"c.LastName as DriverLastName","c.Suffix as DriverSuffix",
+                DB::raw("(SELECT STRING_AGG(DestinationAddress, ',') FROM TripTicketDestinations WHERE TripTicketDestinations.TripTicketId=a.id) AS Destinations")
             )
             ->first();
+
+        // \Log::info("getTT data ::::: ". collect($data));
 
         if ($data != null) {
             $data->Employee = Employees::find($data->EmployeeId);

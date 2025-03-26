@@ -39,9 +39,13 @@ class TripTicketsController extends AppBaseController
     /**
      * Display a listing of the TripTickets.
      */
-    public function index(Request $request)
+    public function index()
     {
-        $tripTickets = $this->tripTicketsRepository->paginate(10);
+        // $tripTickets = $this->tripTicketsRepository->paginate(10);
+        $tripTickets = TripTickets::where('EmployeeId', Auth::user()->employee_id)
+            ->where("Status","!=","Trash")
+            ->orderByDesc('created_at')
+            ->paginate(10);
 
         return view('trip_tickets.index')
             ->with('tripTickets', $tripTickets);
@@ -149,13 +153,54 @@ class TripTicketsController extends AppBaseController
     {
         $tripTickets = $this->tripTicketsRepository->find($id);
 
+        $drivers = DB::table('Employees')
+            ->leftJoin('EmployeesDesignations', 'EmployeesDesignations.EmployeeId', '=', 'Employees.id')
+            ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+            ->select('Employees.*')
+            ->whereRaw("Positions.Level='Driver' OR Employees.AuthorizedToDrive='Yes'")
+            ->orderBy('Employees.LastName')
+            ->get();
+
+        $vehicles = Vehicles::orderBy('VehicleName')->get();
+
+        $passengers = DB::table('TripTicketPassengers')
+            ->leftJoin('Employees', 'TripTicketPassengers.EmployeeId', '=', 'Employees.id')
+            ->whereRaw("TripTicketPassengers.TripTicketId='" . $id . "'")
+            ->select('Employees.*', 'TripTicketPassengers.id AS PassengerId')
+            ->orderBy('Employees.FirstName')
+            ->get();
+
+        $destinations = DB::table('TripTicketDestinations')
+            ->whereRaw("TripTicketId='" . $id . "'")
+            ->orderBy('DestinationAddress')
+            ->get();
+
+        $signatory = DB::table('TripTicketSignatories')
+            ->leftJoin('users', 'TripTicketSignatories.EmployeeId', '=', 'users.id')
+            ->whereRaw("TripTicketSignatories.TripTicketId='" . $id . "'")
+            ->select('users.*', 
+                'TripTicketSignatories.id AS SignatoryId',
+                'TripTicketSignatories.Status'
+            )
+            ->orderBy('users.name')
+            ->first();
+
         if (empty($tripTickets)) {
             Flash::error('Trip Tickets not found');
 
             return redirect(route('tripTickets.index'));
         }
 
-        return view('trip_tickets.show')->with('tripTickets', $tripTickets);
+        return view('trip_tickets.show', [
+            'tripTickets' => $tripTickets,
+            'employees' => Employees::orderBy('LastName')->get(),
+            'drivers' => $drivers,
+            'towns' => Towns::orderBy('Town')->get(),
+            'vehicles' => $vehicles,
+            'passengers' => $passengers,
+            'destinations' => $destinations,
+            'signatory' => $signatory,
+        ]);
     }
 
     /**
@@ -276,7 +321,7 @@ class TripTicketsController extends AppBaseController
      */
     public function destroy($id)
     {
-        if (Permission::hasDirectPermission(['god permission', 'delete trip ticket'])) {
+        // if (Permission::hasDirectPermission(['god permission', 'delete trip ticket'])) {
             $tripTickets = $this->tripTicketsRepository->find($id);
 
             if (empty($tripTickets)) {
@@ -289,9 +334,9 @@ class TripTicketsController extends AppBaseController
             $tripTickets->save();
 
             return response()->json($tripTickets, 200);
-        } else {
-            return abort(403, 'You are not authorized to access this module.');
-        }
+        // } else {
+        //     return abort(403, 'You are not authorized to access this module.');
+        // }
     }
 
     public function getSignatories(Request $request) {
