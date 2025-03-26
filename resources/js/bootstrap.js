@@ -25,17 +25,10 @@ import Echo from "laravel-echo"
 window.axios = axios;
 window.axios.defaults.headers.common['X-CSRF-TOKEN'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
-<<<<<<< HEAD
-window.axios.defaults.baseURL = 'http://192.168.12.2/hr/public/index.php';
-window.axios.defaults.filePath = 'http://192.168.12.2/hr/public/files/';
-window.axios.defaults.imgsPath = 'http://192.168.12.2/hr/public/imgs/';
-window.axios.defaults.postImagePath = 'http://192.168.12.2/hr/public/posts/';
-=======
 window.axios.defaults.baseURL = window.location.origin + '/hr/public/index.php';
 window.axios.defaults.filePath = window.location.origin + '/hr/public/files/';
 window.axios.defaults.imgsPath = window.location.origin + '/hr/public/imgs/';
 window.axios.defaults.postImagePath = window.location.origin + '/hr/public/posts/';
->>>>>>> 2c57b09a13a507cb5dd1077db07ba58d23a3fdec
 
 window.Pusher = Pusher;
 
