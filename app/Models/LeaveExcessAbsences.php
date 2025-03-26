@@ -19,7 +19,7 @@ class LeaveExcessAbsences extends Model
     protected $casts = [
         'id' => 'string',
         'EmployeeId' => 'string',
-        'LeaveDate' => 'date',
+        'LeaveDate' => 'string',
         'HoursAbsent' => 'decimal:2',
         'Notes' => 'string',
     ];

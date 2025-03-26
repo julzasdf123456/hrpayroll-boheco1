@@ -33,6 +33,14 @@
 </li>
 
 <li class="nav-item">
+    <a href="{{ route('tripTickets.index') }}"
+        class="nav-link {{ Request::is('tripTickets.index') ? 'active' : '' }}">
+        <i class="fas fa-car nav-icon"></i>
+        <p>Trip Tickets List</p>
+    </a>
+</li>
+
+<li class="nav-item">
     <a href="{{ route('users.payroll-dashboard') }}"
         class="nav-link {{ Request::is('users.payroll-dashboard*') ? 'active' : '' }}">
         <i class="fas fa-coins nav-icon"></i>

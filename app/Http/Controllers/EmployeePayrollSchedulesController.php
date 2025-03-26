@@ -38,6 +38,7 @@ class EmployeePayrollSchedulesController extends AppBaseController
     public function index(Request $request)
     {
         $department = $request['Department'];
+        $nameSearch = $request['Name'];
 
         $departments = DB::table('Positions')
             ->select('Department')
@@ -46,6 +47,34 @@ class EmployeePayrollSchedulesController extends AppBaseController
 
         $schedules = PayrollSchedules::orderBy('Name')->get();
         $dayOffs = DayOffSchedules::orderBy('Days')->get();
+
+        // if ($department != null) {
+        //     $employees = DB::table('Employees')
+        //         ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+        //         ->leftJoin('Positions', 'EmployeesDesignations.PositionId', '=', 'Positions.id')
+        //         ->whereRaw("Positions.Department='" . $department . "' AND (EmploymentStatus IS NULL OR EmploymentStatus NOT IN ('Resigned', 'Retired'))")
+        //         ->select('Employees.*', 'Positions.Department', 'Positions.Position')
+        //         ->orderBy("Employees.LastName");
+        //         // ->get();
+        // } else {
+        //     $employees = DB::table('Employees')
+        //         ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
+        //         ->leftJoin('Positions', 'EmployeesDesignations.PositionId', '=', 'Positions.id')
+        //         ->whereRaw("(EmploymentStatus IS NULL OR EmploymentStatus NOT IN ('Resigned', 'Retired'))")
+        //         ->select('Employees.*', 'Positions.Department', 'Positions.Position')
+        //         ->orderBy("Employees.LastName");
+        //         // ->get();
+        // }
+
+        // if ($nameSearch != null) {
+        //     $employees = $employees->where('Employees.FirstName', 'like', "%{$nameSearch}%")
+        //         ->orWhere('Employees.LastName', 'like', "%{$nameSearch}%")
+        //         ->orWhere('Employees.MiddleName', 'like', "%{$nameSearch}%")
+        //         ->orWhere('Employees.Suffix', 'like', "%{$nameSearch}%");
+        // }
+
+        // $employees = $employees->paginate(20);
+
 
         if ($department != null) {
             $employees = DB::table('Employees')

@@ -215,6 +215,26 @@ class EmployeesController extends AppBaseController
                 'offsets' => $offsets,
                 'attendanceConfirmations' => $attendanceConfirmations, 
             ]);
+
+            // return response()->json([
+            //     'employees' => $employees, 
+            //     'employeeDesignations' => $employeeDesignations,
+            //     'rankings' => $rankings,
+            //     'educationalAttainment' => $educationalAttainment,
+            //     'ids' => $ids,
+            //     'payslips' => $payslips,
+            //     'workSchedules' => $workSchedules,
+            //     'leaveBalance' => $leaveBalance,
+            //     'leaveBalanceDetails' => $leaveBalanceDetails,
+            //     'tripTickets' => $tripTickets,
+            //     'overtimes' => $overtimes,
+            //     'payrollSundries' => $payrollSundries,
+            //     'travelOrders' => $travelOrders,
+            //     'leaveBalanceExcess' => $leaveBalanceExcess,
+            //     'userData' => $userData,
+            //     'offsets' => $offsets,
+            //     'attendanceConfirmations' => $attendanceConfirmations, 
+            // ]);
         } else {
             return abort(403, 'You are not authorized to access this module.');
         }

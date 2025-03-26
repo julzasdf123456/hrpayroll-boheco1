@@ -149,7 +149,7 @@
             <div class="col-lg-5 col-md-12">
                 <div class="card shadow-none">
                     <div class="card-header">
-                        <span class="card-title"><i class="fas fa-map ico-tab"></i>Set Destination & Signatory</span>
+                        <span class="card-title"><i class="fas fa-map ico-tab"></i>Set Destinations</span>
                     </div>
                     <div class="card-body">
                         {{-- DESTINATION --}}
@@ -219,7 +219,7 @@
                                         <tr>
                                             <td><i class="fas fa-user-edit ico-tab-mini"></i>Default Signatory</td>
                                             <td>
-                                                <select style="width: 100%;" class="custom-select select2" id="Signatory" name="Signatory">
+                                                <select disabled style="width: 100%;" class="custom-select select2" id="Signatory" name="Signatory">
                                                     <option value="">-- Select --</option>             
                                                 </select>
                                             </td>

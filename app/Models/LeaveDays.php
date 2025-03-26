@@ -40,6 +40,7 @@ class LeaveDays extends Model
         'LeaveDate',
         'Longevity',
         'Notes',
+        'MarkAsAbsent',
         'Duration',
         'Status',
     ];
@@ -55,6 +56,7 @@ class LeaveDays extends Model
         'LeaveDate' => 'string',
         'Longevity' => 'float',
         'Notes' => 'string',
+        'MarkAsAbsent' => 'boolean',
         'Duration' => 'string',
         'Status' => 'string'
     ];

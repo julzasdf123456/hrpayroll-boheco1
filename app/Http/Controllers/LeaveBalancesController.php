@@ -14,6 +14,7 @@ use App\Models\LeaveBalanceDetails;
 use App\Models\IDGenerator;
 use Flash;
 use Response;
+use Carbon\Carbon;
 
 class LeaveBalancesController extends AppBaseController
 {
@@ -195,7 +196,11 @@ class LeaveBalancesController extends AppBaseController
     }
 
     public function getMergeData(Request $request) {
-        $department = $request['Department'];
+        $department = $request['Department'] ?? 'All';
+        $month = $request['Month'] ?? Carbon::now()->format('M');
+        $year = $request['Year'] ?? Carbon::now()->format('Y');
+
+        
 
         if ($department == 'All') {
             $data = DB::table('Employees')
@@ -203,6 +208,8 @@ class LeaveBalancesController extends AppBaseController
                 ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
                 ->leftJoin('Positions', 'EmployeesDesignations.PositionId', '=', 'Positions.id')
                 ->whereRaw("(EmploymentStatus IS NULL OR EmploymentStatus NOT IN ('Resigned', 'Retired'))")
+                ->where("LeaveBalances.Month","=",$month)
+                ->where("LeaveBalances.Year","=",$year)
                 ->select(
                     'LeaveBalances.*',
                     'FirstName',
@@ -219,6 +226,8 @@ class LeaveBalancesController extends AppBaseController
                 ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
                 ->leftJoin('Positions', 'EmployeesDesignations.PositionId', '=', 'Positions.id')
                 ->whereRaw("Positions.Department='" . $department . "' AND (EmploymentStatus IS NULL OR EmploymentStatus NOT IN ('Resigned', 'Retired'))")
+                ->where("LeaveBalances.Month","=",$month)
+                ->where("LeaveBalances.Year","=",$year)
                 ->select(
                     'LeaveBalances.*',
                     'FirstName',
@@ -289,19 +298,27 @@ class LeaveBalancesController extends AppBaseController
     }
 
     public function balances(Request $request) {
+
         return view('leave_balances/balances');
     }
 
     public function printBalances($department, $month, $year) {
+
+
+        $department = $department ?? 'All';
+        $month = $month ?? Carbon::now()->format('M');
+        $year = $year ?? Carbon::now()->format('Y');
+
         if ($department == 'All') {
             $data = DB::table('Employees')
-                ->leftJoin('LeaveBalanceMonthlyImage', 'Employees.id', '=', 'LeaveBalanceMonthlyImage.EmployeeId')
+                ->leftJoin('LeaveBalances', 'Employees.id', '=', 'LeaveBalances.EmployeeId')
                 ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
                 ->leftJoin('Positions', 'EmployeesDesignations.PositionId', '=', 'Positions.id')
-                ->whereRaw("(EmploymentStatus IS NULL OR EmploymentStatus NOT IN ('Resigned', 'Retired')) AND EmployeesDesignations.Status IN ('Regular')")
-                ->whereRaw("LeaveBalanceMonthlyImage.Month='" . $month . "' AND LeaveBalanceMonthlyImage.Year='" . $year . "'")
+                ->whereRaw("(EmploymentStatus IS NULL OR EmploymentStatus NOT IN ('Resigned', 'Retired'))")
+                ->where("LeaveBalances.Month","=",$month)
+                ->where("LeaveBalances.Year","=",$year)
                 ->select(
-                    'LeaveBalanceMonthlyImage.*',
+                    'LeaveBalances.*',
                     'FirstName',
                     'LastName',
                     'MiddleName',
@@ -312,13 +329,14 @@ class LeaveBalancesController extends AppBaseController
                 ->get();
         } else {
             $data = DB::table('Employees')
-                ->leftJoin('LeaveBalanceMonthlyImage', 'Employees.id', '=', 'LeaveBalanceMonthlyImage.EmployeeId')
+                ->leftJoin('LeaveBalances', 'Employees.id', '=', 'LeaveBalances.EmployeeId')
                 ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
                 ->leftJoin('Positions', 'EmployeesDesignations.PositionId', '=', 'Positions.id')
-                ->whereRaw("Positions.Department='" . $department . "' AND (EmploymentStatus IS NULL OR EmploymentStatus NOT IN ('Resigned', 'Retired')) AND EmployeesDesignations.Status IN ('Regular')")
-                ->whereRaw("LeaveBalanceMonthlyImage.Month='" . $month . "' AND LeaveBalanceMonthlyImage.Year='" . $year . "'")
+                ->whereRaw("Positions.Department='" . $department . "' AND (EmploymentStatus IS NULL OR EmploymentStatus NOT IN ('Resigned', 'Retired'))")
+                ->where("LeaveBalances.Month","=",$month)
+                ->where("LeaveBalances.Year","=",$year)
                 ->select(
-                    'LeaveBalanceMonthlyImage.*',
+                    'LeaveBalances.*',
                     'FirstName',
                     'LastName',
                     'MiddleName',
@@ -329,10 +347,16 @@ class LeaveBalancesController extends AppBaseController
                 ->get();
         }
 
-        return view('/leave_balances/print_balances', [
+        return view('leave_balances.print_balances', [
             'data' => $data,
             'month' => $month,
             'year' => $year
         ]);
+
+        // return response()->json([
+        //     'data' => $data,
+        //     'month' => $month,
+        //     'year' => $year
+        // ]);
     }
 }

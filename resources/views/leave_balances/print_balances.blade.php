@@ -210,7 +210,7 @@
                     @endphp
                     <tr>
                         <td>{{ $i }}</td>
-                        <td>{{ strtoupper($item->LastName) . ', ' . strtoupper($item->FirstName) }}</td>
+                        <td>{{ strtoupper($item->LastName) . ', ' . strtoupper($item->FirstName) . ' ' . strtoupper($item->MiddleName) }}</td>
                         <td class="text-right">{{ $vacation != null ? ((isset($vacation[0]) && $vacation[0] != null ? $vacation[0] : '0')) : '' }}</td>
                         <td class="text-right">{{ $vacation != null ? ((isset($vacation[1]) && $vacation[1] != null ? $vacation[1] : '0')) : '' }}</td>
                         <td class="text-right">{{ $vacation != null ? ((isset($vacation[2]) && $vacation[2] != null ? $vacation[2] : '0')) : '' }}</td>

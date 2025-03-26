@@ -85,6 +85,7 @@
 @endphp
 
 <body class="hold-transition sidebar-mini layout-fixed {{ $userCache->ColorProfile }}">
+    @vite('resources/js/app.js')
     <div class="wrapper">
         <!-- Main Header -->
         <nav

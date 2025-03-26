@@ -45,6 +45,7 @@ class LeaveApplications extends Model
         'Content',
         'Status',
         'LeaveType',
+        'MarkAsAbsent',
         'TotalCredits',
     ];
 
@@ -61,6 +62,7 @@ class LeaveApplications extends Model
         'NumberOfDays' => 'integer',
         'Content' => 'string',
         'Status' => 'string',
+        'MarkAsAbsent' => 'boolean',
         'LeaveType' => 'string',
         'TotalCredits' => 'string',
     ];

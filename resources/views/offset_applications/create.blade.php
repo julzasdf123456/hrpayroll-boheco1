@@ -41,12 +41,12 @@
                             <td>
                                 <select class="custom-select select2" name="EmployeeId" id="EmployeeId" style="width: 100%;" required>
                                     <option value={{ $self->id }} selected>{{ Employees::getMergeNameFormal($self) }}</option>
-                                    @foreach ($employees as $item)
+                                    {{-- @foreach ($employees as $item)
                                         @if ($item->id == Auth::user()->employee_id)
                                             @continue
                                         @endif
-                                        <option value="{{ $item->id }}" {{ Auth::user()->employee_id == $item->id? 'selected':'' }} >{{ Employees::getMergeNameFormal($item) }}</option>
-                                    @endforeach
+                                        <option value="{{ $item->id }}">{{ Employees::getMergeNameFormal($item) }}</option>
+                                    @endforeach --}}
                                 </select>
                             </td>
                             <td>

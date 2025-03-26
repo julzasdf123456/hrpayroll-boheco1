@@ -1,6 +1,6 @@
 @php
     use App\Models\Employees;
-    use App\Models\Users;
+    use Carbon\Carbon;
     use App\Models\LeaveDays;
 @endphp
 @extends('layouts.app')
@@ -10,7 +10,7 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-12">
-                    <h4>My Leave Approvals</h4>
+                    <h4>My Employees' Leaves for Approval</h4>
                 </div>
             </div>
         </div>
@@ -20,6 +20,9 @@
         @foreach ($leaves as $item)
             @php
                 $leaveDays = LeaveDays::where('LeaveId', $item->id)->orderBy('LeaveDate')->get();
+                if ($item->Status == "Trashed" || $item->Status == "APPROVED") {
+                    continue;
+                }
             @endphp
             <div id="card-{{ $item->id }}" class="col-lg-4 col-md-6 col-sm-12">
                 <div class="card shadow-none">
@@ -32,27 +35,39 @@
                     <div class="card-body">
                         <p style="margin: 0; padding: 0; font-size: 1.3em;">{{ $item->Content }}</p>
                         <div class="divider"></div>
-                        <span class="text-muted float-left">Leave Date(s):</span>
-                        <br>
-                        <ul>
-                            @foreach ($leaveDays as $days)
-                                <li><strong>{{ date('D, M d, Y', strtotime($days->LeaveDate)) }}</strong> <span
+                            {{-- @foreach ($leaveDays as $days)
+                                <li><strong>{{ Carbon::parse(str_replace(":AM"," AM",str_replace(":PM"," PM",$days->LeaveDate)))->format("M d, Y") }}</strong> <span
                                         class="text-muted">({{ $days->Duration }})</span></li>
-                            @endforeach
-                        </ul>
+                            @endforeach --}}
+                            @if (count($leaveDays) > 1)
+                            <span class="text-muted float-left">Leave Dates:</span>
+                                <br>
+                                <ul>
+                                    <li><strong>{{ Carbon::parse(str_replace(":AM"," AM",str_replace(":PM"," PM",$leaveDays[0]->LeaveDate)))->format("M d, Y") }}</strong>
+                                    <span> to </span><strong>{{ Carbon::parse(str_replace(":AM"," AM",str_replace(":PM"," PM",$leaveDays[count($leaveDays)-1]->LeaveDate)))->format("M d, Y") }}</strong></li>
+                                </ul>
+                            @else
+                            <span class="text-muted float-left">Leave Date:</span>
+                                <br>
+                                <ul>
+                                    <li><strong>{{ Carbon::parse(str_replace(":AM"," AM",str_replace(":PM"," PM",$leaveDays[0]->LeaveDate)))->format("M d, Y") }}</strong>
+                                </ul>
+                            @endif
                         <span class="text-muted">No. of Days: <strong>{{ count($leaveDays) }}</strong></span>
                         <br>
                         <span class="text-muted">Date Filed:
                             <strong>{{ date('D, M d, Y', strtotime($item->created_at)) }}</strong></span>
+                            <br><br>
+                            <a class="btn btn-sm btn-primary" href="/leave_applications/my-approvals/{{ $item->id }}">See More..</a>
                     </div>
-                    <div class="card-footer">
+                    {{-- <div class="card-footer">
                         <button id="{{ $item->id }}" class="btn btn-sm btn-success"
-                            onclick="approveLeave(`{{ $item->id }}`)" sig-id="{{ $item->SignatoryId }}"><i
-                                class="fas fa-check-circle ico-tab-mini"></i>Approve</button>
+                            onclick="approveLeave(`{{ $item->id }}`)" sig-id="{{ $item->SignatoryId }}">
+                            <i class="fas fa-check-circle ico-tab-mini"></i>Approve</button>
                         <button onclick="rejectLeave(`{{ $item->id }}`, `{{ $item->SignatoryId }}`)"
-                            class="btn btn-sm btn-danger float-right"><i
-                                class="fas fa-times-circle ico-tab-mini"></i>Reject</button>
-                    </div>
+                            class="btn btn-sm btn-danger float-right">
+                            <i class="fas fa-times-circle ico-tab-mini"></i>Reject</button>
+                    </div> --}}
                 </div>
             </div>
         @endforeach
