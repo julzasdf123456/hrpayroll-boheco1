@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\TripTicketsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\Biometrics;
@@ -115,3 +116,25 @@ Route::post('delete-attendance-confirmation', [AttendanceConfirmationAPI::class,
  * Feed and Posts
  */
 Route::get('get-posts', [Posts::class, 'getPosts']);
+
+
+// for the security guards api BY DOMZ
+Route::post('auth/login', [AuthOut::class, "loginUser"]);
+Route::prefix("user")->middleware("auth:sanctum")->group(function () {
+    Route::get("verify", [AuthOut::class, "verifyUser"]);
+});
+
+
+// Route::get("trip-tickets/today", [TripTicketsAPI::class, "getAllTodaysTickets"]);
+// Route::get("trip-tickets/all", [TripTicketsAPI::class, "getTripTickets"]);
+
+Route::prefix("trip-tickets")->middleware("auth:sanctum")->group(function () {
+    Route::get("today", [TripTicketsAPI::class, "getAllTodaysTickets"]);
+    Route::get("all", [TripTicketsAPI::class, "getTripTickets"]);
+    Route::get("", [TripTicketsAPI::class, "getTripTicket"]);
+});
+
+Route::prefix("trip-logs")->middleware("auth:sanctum")->group(function () {
+    Route::post("/approve", [TripTicketsAPI::class, "approveTripLog"]);
+    Route::get("/{id}", [TripTicketsAPI::class,"getTripLogs"]);
+});

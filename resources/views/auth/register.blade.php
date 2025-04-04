@@ -8,28 +8,28 @@
     <!-- Tell the browser to be responsive to screen width -->
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
 
-    <link rel="stylesheet" href="{{ URL::asset('css/style.css'); }}">
+    <link rel="stylesheet" href="{{ URL::asset('css/style.css') }}">
 
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="{{ URL::asset('css/source_sans_pro.css'); }} ">
+    <link rel="stylesheet" href="{{ URL::asset('css/source_sans_pro.css') }} ">
 
-    <link rel="stylesheet" href="{{ URL::asset('css/all.css'); }} ">
+    <link rel="stylesheet" href="{{ URL::asset('css/all.css') }} ">
 
-    <link rel="stylesheet" href="{{ URL::asset('css/bootstrap4toggle.css'); }} ">
+    <link rel="stylesheet" href="{{ URL::asset('css/bootstrap4toggle.css') }} ">
           
-    <link rel="stylesheet" href="{{ URL::asset('css/adminlte.min.css'); }} ">
+    <link rel="stylesheet" href="{{ URL::asset('css/adminlte.min.css') }} ">
 
-    <link rel="stylesheet" href="{{ URL::asset('css/bootstrapdatetimepicker.min.css'); }} ">
+    <link rel="stylesheet" href="{{ URL::asset('css/bootstrapdatetimepicker.min.css') }} ">
 
-    <link rel="stylesheet" href="{{ URL::asset('css/jqueryui.css'); }} ">
+    <link rel="stylesheet" href="{{ URL::asset('css/jqueryui.css') }} ">
 
-    <link rel="stylesheet" href="{{ URL::asset('css/select2.min.css'); }} ">
+    <link rel="stylesheet" href="{{ URL::asset('css/select2.min.css') }} ">
 
-    <link rel="stylesheet" href="{{ URL::asset('css/select2.bootstrap4.min.css'); }} ">
+    <link rel="stylesheet" href="{{ URL::asset('css/select2.bootstrap4.min.css') }} ">
 
-    <link rel="stylesheet" href="{{ URL::asset('css/fullcalendar.min.css'); }} ">
+    <link rel="stylesheet" href="{{ URL::asset('css/fullcalendar.min.css') }} ">
 
-    <link rel="stylesheet" href="{{ URL::asset('css/sweetalert2.min.css'); }}">
+    <link rel="stylesheet" href="{{ URL::asset('css/sweetalert2.min.css') }}">
 </head>
 <body class="hold-transition register-page">
 <div class="register-box">
@@ -145,40 +145,40 @@
 </div>
 <!-- /.register-box -->
 
-<script src="{{ URL::asset('js/jquery.min.css'); }}"></script>
+<script src="{{ URL::asset('js/jquery.min.css') }}"></script>
 
-<script src="{{ URL::asset('js/jqueryui.css'); }}"></script>
+<script src="{{ URL::asset('js/jqueryui.css') }}"></script>
 
-<script src="{{ URL::asset('js/popper.min.js'); }}"></script>
+<script src="{{ URL::asset('js/popper.min.js') }}"></script>
 
-<script src="{{ URL::asset('js/bootstrap.bundle.min.js'); }}"></script>
+<script src="{{ URL::asset('js/bootstrap.bundle.min.js') }}"></script>
         
-<script src="{{ URL::asset('js/bscustomfileinput.min.js'); }}"></script>
+<script src="{{ URL::asset('js/bscustomfileinput.min.js') }}"></script>
 
-<script src="{{ URL::asset('js/adminlte.min.js'); }}"></script>
+<script src="{{ URL::asset('js/adminlte.min.js') }}"></script>
 
-<script src="{{ URL::asset('js/moment.js'); }}"></script>
+<script src="{{ URL::asset('js/moment.js') }}"></script>
 
-<script src="{{ URL::asset('js/datetimepicker.min.js'); }}"></script>
+<script src="{{ URL::asset('js/datetimepicker.min.js') }}"></script>
 
-<script src="{{ URL::asset('js/bootstrap4toggle.min.js'); }}"></script>
+<script src="{{ URL::asset('js/bootstrap4toggle.min.js') }}"></script>
 
-<script src="{{ URL::asset('js/bootstrapswitch.min.js'); }}"></script>
+<script src="{{ URL::asset('js/bootstrapswitch.min.js') }}"></script>
 
-<script src="{{ URL::asset('js/lordicon.js'); }}"></script>
+<script src="{{ URL::asset('js/lordicon.js') }}"></script>
 
-<script src="{{ URL::asset('js/chart.min.js'); }}"></script>
+<script src="{{ URL::asset('js/chart.min.js') }}"></script>
 
-<script src="{{ URL::asset('js/svgconnect.js'); }}"></script>
+<script src="{{ URL::asset('js/svgconnect.js') }}"></script>
 
-<script src="{{ URL::asset('js/select2min.js'); }}"></script>
+<script src="{{ URL::asset('js/select2min.js') }}"></script>
 
-<script src="{{ URL::asset('js/jqueryuicalendar.min.js'); }}"></script>
-<script src="{{ URL::asset('js/calendarfulljs.min.js'); }}"></script>
+<script src="{{ URL::asset('js/jqueryuicalendar.min.js') }}"></script>
+<script src="{{ URL::asset('js/calendarfulljs.min.js') }}"></script>
 
-<script src="{{ URL::asset('js/sweetalert2.all.min.js'); }}"></script>
+<script src="{{ URL::asset('js/sweetalert2.all.min.js') }}"></script>
 
-<script src="{{ URL::asset('js/inputmask.min.js'); }}"></script>
+<script src="{{ URL::asset('js/inputmask.min.js') }}"></script>
 
 <script>
     $(document).ready(function() {
@@ -187,7 +187,7 @@
             position: 'top-end',
             showConfirmButton: false,
             timer: 3000
-        });
+        })
 
         $('#verify-id').on('click', function(e) {
             e.preventDefault()
@@ -215,7 +215,7 @@
                          */
                         $(this).attr('disabled', true)
                         $('#employee_id').attr('readonly', true)
-                        $('#name').val(res['FirstName'] + ' ' + res['LastName']);
+                        $('#name').val(res['FirstName'] + ' ' + res['LastName'])
                         $('#username').removeAttr('disabled')
                         $('#username').focus()
                         $('#email').removeAttr('disabled')

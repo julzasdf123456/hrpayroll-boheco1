@@ -327,7 +327,7 @@ class UsersController extends AppBaseController
     public function payrollDashboard() {
         $employeeId = Auth::user()->employee_id;
 
-        return view('/my_account/payroll_dashboard', [
+        return view('my_account/payroll_dashboard', [
 
         ]);
     }
