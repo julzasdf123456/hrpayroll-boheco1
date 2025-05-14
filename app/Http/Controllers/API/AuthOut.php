@@ -130,11 +130,12 @@ class AuthOut extends Controller {
             return response()->json(['message'=> 'Please fill the form.'], 400);
         }
 
-        if (Auth::attempt(['username'=> $req['username'],'password'=> $req['password']])){
-            $user = Users::where('username', $req['username'])->first();
-            $user->makeHidden('password');
-            $user->makeHidden('remember_token');
+        $auth = Auth::attempt(['username'=> $req['username'],'password'=> $req['password']]);
+        $user = Users::where('username', $req['username'])->first();
+        $user->makeHidden('password');
+        $user->makeHidden('remember_token');
 
+        if ($auth && $user->employee_id === "*N/A*"){
             $token = $user->createToken('user_auth_token')->plainTextToken;
 
             return response()->json([
@@ -146,11 +147,34 @@ class AuthOut extends Controller {
         }
     }
 
+    public function registerUser(Request $req) {
+        $input = $req->validate([
+            "name" => "string|required|unique:users,name",
+            "username" => "string|required|unique:users,username",
+            "password" => "string|required|confirmed",
+        ]);
+
+        $input['password'] = Hash::make($input['password']);
+
+        $user = Users::create(array_merge($input,[
+            'employee_id' => '*N/A*'
+        ]));
+
+        return response()->json($user,201);
+    }
+
     public function verifyUser(Request $req) {
 
         $user = Users::where('id', $req->user()->id)->first();
         $user->makeHidden('password');
         $user->makeHidden('remember_token');
-        return $user; 
+
+        if ($user->employee_id === '*N/A*'){
+            return response()->json($user, 200);
+        } else {
+            return response()->json(['message'=> 'Unauthorized.'], 401);
+        }
     }
+
+    
 }

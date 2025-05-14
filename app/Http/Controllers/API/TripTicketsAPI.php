@@ -591,13 +591,10 @@ class TripTicketsAPI extends Controller
     public function getTripLogs($id) {
         $data = DB::table("TripTicketLogs as a")
             ->where("a.TripTicketId","=",$id)
-            ->leftJoin("Employees as b", "a.GuardId", "=", "b.id")
+            ->leftJoin("users as b", DB::raw("CAST(a.GuardId AS BIGINT)"), "=", "b.id")
             ->select(
                 "a.*",
-                "b.FirstName",
-                "b.MiddleName",
-                "b.LastName",
-                "b.Suffix",
+                "b.name",
             )
             ->orderBy("a.created_at")
             ->get();

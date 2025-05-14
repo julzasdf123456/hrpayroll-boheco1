@@ -120,6 +120,8 @@ Route::get('get-posts', [Posts::class, 'getPosts']);
 
 // for the security guards api BY DOMZ
 Route::post('auth/login', [AuthOut::class, "loginUser"]);
+Route::post('auth/register', [AuthOut::class, "registerUser"]);
+
 Route::prefix("user")->middleware("auth:sanctum")->group(function () {
     Route::get("verify", [AuthOut::class, "verifyUser"]);
 });
