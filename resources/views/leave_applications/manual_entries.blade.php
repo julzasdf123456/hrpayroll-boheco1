@@ -1,6 +1,5 @@
 @php
     use App\Models\Employees;
-    use App\Models\LeaveBalances;
 
 @endphp
 @extends('layouts.app')
@@ -81,6 +80,11 @@
                         <div class="my-5" id="insuff-message" style="color:#ffbe33;">
                             <strong>WARNING: </strong>
                             <p>Insufficent leave credits. The rest of the later leave dates will be marked as unpaid if you wish to proceed publishing his/her leave.</p>
+                        </div>
+                        
+                        <div class="my-5" id="irreg-message" style="color:#ffbe33;">
+                            <strong>WARNING: </strong>
+                            <p>This won't deduct leave balance credits until this employee will become a PERMANENT type. Instead, he/she will have a SALARY DEDUCTION after declaring a leave.</p>
                         </div>
                     </div>
                 </div>
@@ -222,12 +226,24 @@
 @push('page_scripts')
     <script>
 
+    var regularPosition = true;
+
         function getSpecialLeaves(empId) {
             $("#SpecialReason").prop('selectedIndex', 0);
             $.ajax({
                 url: "show-special-leaves/" + empId,
                 type: 'GET',
-                success: function ({ count, reasons }) {
+                success: function ({ status, count, reasons }) {
+                    
+                    if (status !== 'Regular') {
+                        regularPosition = false;
+                        $('#irreg-message').show();
+                        return;
+                    } else {
+                        regularPosition = true;
+                        $('#irreg-message').hide();
+                    }
+
                     if (count >=3) {
                         $('#Special').attr('disabled', true);
                         $('#SpecialLabel').attr("title","This employee only had 3 special leaves. Cannot exceed more this year.");
@@ -435,7 +451,7 @@
             console.log("LeaveBalanceCounter: "+leaveBalanceCounter)
             console.log("LeaveDatesDuration: "+leaveDateDurationCounter)
             console.log("check if: " + leaveBalanceCounter < leaveDateDurationCounter && !salaryDeducted )
-            if (leaveBalanceCounter < leaveDateDurationCounter && !salaryDeducted ) {
+            if (leaveBalanceCounter < leaveDateDurationCounter && !salaryDeducted && regularPosition ) {
                 $('#insuff-message').show()
             } else {
                 $('#insuff-message').hide()
@@ -654,6 +670,7 @@
         $('#upload-section').hide()
         $('#insuff-message').hide()
         $('#salary-deduction-item').hide()
+        $('#irreg-message').hide();
 
         $('input[type=radio][name=LeaveType]').change(function() {
             var value = this.value
@@ -692,6 +709,15 @@
                 $('#Reason').val(null)
                 $('#Reason').removeAttr('readonly')
                 $('#upload-section').hide()
+            }
+
+            
+            if (!regularPosition) {
+                $('#insuff-message').hide()
+                $('#salary-deduction-item').hide()
+                $('#irreg-message').show();
+            } else {
+                $('#irreg-message').hide();
             }
 
 

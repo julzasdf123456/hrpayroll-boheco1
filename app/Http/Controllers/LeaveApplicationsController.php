@@ -1588,15 +1588,15 @@ class LeaveApplicationsController extends AppBaseController
 
         $leaveImgs = LeaveImageAttachments::where('LeaveId', $id)->get();
 
-        // return view('leave_applications.manual_entries', [
-        //     'employees' => $employees,
-        //     'holidays' => $holidays,
-        //     'id' => $id,
-        //     'leaveImgs' => $leaveImgs
-        // ]);
+        return view('leave_applications.manual_entries', [
+            'employees' => $employees,
+            'holidays' => $holidays,
+            'id' => $id,
+            'leaveImgs' => $leaveImgs
+        ]);
 
 
-        return view('technical_difficulties.page', [ 'header' => 'MANUAL ENTRY: Leave Application']);
+        // return view('technical_difficulties.page', [ 'header' => 'MANUAL ENTRY: Leave Application']);
     }
 
     public function showSpecialLeaves($empId)
@@ -1606,8 +1606,12 @@ class LeaveApplicationsController extends AppBaseController
             ->whereRaw("cast(created_at as date) like '" . Carbon::now()->format('Y') . "%'")
             ->get();
 
+        $emp = Employees::where("id",$empId)
+            ->first();
+
 
         return response()->json([
+            'status' => $emp->PositionStatus,
             'count' => count($specialLeaves),
             'reasons' => [
                 "Enrollment" => $this->specialLeaveReasonExists($specialLeaves, "Enrollment"),
@@ -1648,6 +1652,8 @@ class LeaveApplicationsController extends AppBaseController
         $id = $request['Id'];
         $salaryDeduction = ($leaveType === 'Vacation' || $leaveType === 'Sick')? $request['SalaryDeduction'] : false;
 
+        $emp = Employees::where('id', $employeeId)->first();
+
         // insert leave application
         $leave = new LeaveApplications;
         $leave->id = $id;
@@ -1655,7 +1661,7 @@ class LeaveApplicationsController extends AppBaseController
         $leave->Content = $reason;
         $leave->Status = 'APPROVED';
         $leave->LeaveType = $leaveType;
-        $leave->MarkAsAbsent = $salaryDeduction;
+        $leave->MarkAsAbsent = $emp->PositionStatus === "Regular"? $salaryDeduction: true;
         $leave->created_at = $dateFiled;
 
         $totalCredits = 0;
@@ -1666,7 +1672,7 @@ class LeaveApplicationsController extends AppBaseController
             $leaveDays = 0;
 
             $leaveDay = new LeaveDays;
-            $leaveDay->MarkAsAbsent = $salaryDeduction;
+            $leaveDay->MarkAsAbsent = $emp->PositionStatus === "Regular"? $salaryDeduction: true;
             $leaveDay->id = IDGenerator::generateIDandRandString();
             $leaveDay->LeaveId = $id;
             $leaveDay->LeaveDate = $days[$i]['LeaveDate'];
@@ -1912,7 +1918,7 @@ class LeaveApplicationsController extends AppBaseController
         return redirect(route('home'));
     }
 
-    public function fileForCoWorker(Request $request)
+    public function fileForCoWorker()
     {
 
         $employees = Employees::orderBy('LastName')->get();
@@ -1974,16 +1980,16 @@ class LeaveApplicationsController extends AppBaseController
         $id = IDGenerator::generateID();
         $leaveImgs = LeaveImageAttachments::where('LeaveId', $id)->get();
 
-        // return view('leave_applications.file_for_coworker', [
-        //     'employees' => collect($employees),
-        //     'holidays' => $holidays,
-        //     'otherSignatories' => $otherSignatories,
-        //     'specialLeaves' => $specialLeaves,
-        //     'leaveImgs' => $leaveImgs,
-        //     'id' => $id
-        // ]);
+        return view('leave_applications.file_for_coworker', [
+            'employees' => collect($employees),
+            'holidays' => $holidays,
+            'otherSignatories' => $otherSignatories,
+            'specialLeaves' => $specialLeaves,
+            'leaveImgs' => $leaveImgs,
+            'id' => $id
+        ]);
 
-        return view('technical_difficulties.page', [ 'header' => 'File for Co-Worker: Leave Application']);
+        // return view('technical_difficulties.page', [ 'header' => 'File for Co-Worker: Leave Application']);
     }
 
     public function saveForCoWorker(Request $request)
@@ -1997,17 +2003,7 @@ class LeaveApplicationsController extends AppBaseController
         $id = $request['Id'];
         $salaryDeduction = ($leaveType === 'Vacation' || $leaveType === 'Sick')? $request['SalaryDeduction'] : false;
 
-        // insert leave application
-        $leave = new LeaveApplications;
-        $leave->id = $id;
-        $leave->EmployeeId = $employeeId;
-        $leave->Content = $reason;
-        $leave->Status = 'Filed';
-        $leave->LeaveType = $leaveType;
-        $leave->MarkAsAbsent = $salaryDeduction;
-        $leave->created_at = $dateFiled;
-
-        $totalCredits = 0;
+        
 
         $employee = DB::table('Employees')
             ->leftJoin('EmployeesDesignations', 'Employees.Designation', '=', 'EmployeesDesignations.id')
@@ -2015,6 +2011,18 @@ class LeaveApplicationsController extends AppBaseController
             ->select('Employees.*', 'Positions.Department', 'Positions.ParentPositionId', 'Positions.Level')
             ->whereRaw("Employees.id='" . $employeeId . "'")
             ->first();
+
+        // insert leave application
+        $leave = new LeaveApplications;
+        $leave->id = $id;
+        $leave->EmployeeId = $employeeId;
+        $leave->Content = $reason;
+        $leave->Status = 'Filed';
+        $leave->LeaveType = $leaveType;
+        $leave->MarkAsAbsent = ($employee->PositionStatus === 'Regular') ? $salaryDeduction : true;
+        $leave->created_at = $dateFiled;
+
+        $totalCredits = 0;
 
         // INSERT LEAVE DAYS
         $smsDays = "";
@@ -2024,7 +2032,7 @@ class LeaveApplicationsController extends AppBaseController
             $leaveDays = 0;
 
             $leaveDay = new LeaveDays;
-            $leaveDay->MarkAsAbsent = $salaryDeduction;
+            $leaveDay->MarkAsAbsent = ($employee->PositionStatus === 'Regular') ? $salaryDeduction : true;
             $leaveDay->id = IDGenerator::generateIDandRandString();
             $leaveDay->LeaveId = $id;
             $leaveDay->LeaveDate = $days[$i]['LeaveDate'];
@@ -2192,26 +2200,26 @@ class LeaveApplicationsController extends AppBaseController
         $id = IDGenerator::generateID();
         $leaveImgs = LeaveImageAttachments::where('LeaveId', $id)->get();
 
-        // if ($employee != null) {
-        //     return view('leave_applications.file_leave', [
-        //         'specialLeaves' => $specialLeaves,
-        //         'holidays' => $holidays,
-        //         'employee' => $employee,
-        //         'leaveImgs' => $leaveImgs,
-        //         'id' => $id
-        //     ]);
+        if ($employee != null) {
+            return view('leave_applications.file_leave', [
+                'specialLeaves' => $specialLeaves,
+                'holidays' => $holidays,
+                'employee' => $employee,
+                'leaveImgs' => $leaveImgs,
+                'id' => $id
+            ]);
 
-        //     // return response()->json([
-        //     //     'reason' => $status,
-        //     //     'specialLeaves' => $specialLeaves,
-        //     //     // 'holidays' => $holidays,
-        //     //     // 'employee' => $employee
-        //     // ]);
-        // } else {
-        //     return abort(403, 'You are not authorized to access this module');
-        // }
+            // return response()->json([
+            //     'reason' => $status,
+            //     'specialLeaves' => $specialLeaves,
+            //     // 'holidays' => $holidays,
+            //     // 'employee' => $employee
+            // ]);
+        } else {
+            return abort(403, 'You are not authorized to access this module');
+        }
 
-        return view('technical_difficulties.page', [ 'header' => "File a Leave Application." ]);
+        // return view('technical_difficulties.page', [ 'header' => "File a Leave Application." ]);
     }
 
     public function viewAllLeave(Request $request)

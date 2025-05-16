@@ -698,7 +698,7 @@ class TripTicketsController extends AppBaseController
 
         $vehicles = Vehicles::orderBy('VehicleName')->get();
 
-        return view('/trip_tickets/manual_entry', [
+        return view('trip_tickets.manual_entry', [
             'employees' => $employees,
             'drivers' => $drivers,
             'towns' => Towns::orderBy('Town')->get(),

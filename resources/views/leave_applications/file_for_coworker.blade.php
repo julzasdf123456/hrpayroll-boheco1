@@ -121,6 +121,10 @@
                                     <p>Insufficent leave credits. The rest of the later leave dates will be marked as unpaid
                                         if you wish to proceed publishing his/her leave.</p>
                                 </div>
+                                <div class="my-5" id="irreg-message" style="color:#ffbe33;">
+                                    <strong>WARNING: </strong>
+                                    <p>This won't deduct leave balance credits until this employee will become a PERMANENT type. Instead, he/she will have a SALARY DEDUCTION after declaring a leave.</p>
+                                </div>
                             </div>
                         </div>
 
@@ -243,8 +247,7 @@
                     <button id="saveLeave" onclick="saveLeave()" class="btn btn-primary float-right"><i
                             class="fas fa-check-circle ico-tab-mini"></i>Publish Leave</button>
 
-                    <p class="text-muted gone" id="not-allowed-note">Non-regular employees are not allowed to file leave
-                        yet.</p>
+                    {{-- <p class="text-muted gone" id="not-allowed-note">Non-regular employees are not allowed to file leave yet.</p> --}}
                 </div>
             </div>
         </div>
@@ -334,6 +337,7 @@
         var otherSigs = []
         var leaveBalanceCounter = 0
         var leaveDateDurationCounter = 0
+        var regularPosition = false;
 
         function getSpecialLeaves(empId) {
             $("#SpecialReason").prop('selectedIndex', 0);
@@ -341,9 +345,19 @@
                 url: "show-special-leaves/" + empId,
                 type: 'GET',
                 success: function({
+                    status,
                     count,
                     reasons
                 }) {
+                    if (status !== 'Regular') {
+                        regularPosition = false;
+                        $('#irreg-message').show();
+                        return;
+                    } else {
+                        regularPosition = true;
+                        $('#irreg-message').hide();
+                    }
+
                     if (count >= 3) {
                         $('#Special').attr('disabled', true);
                         $('#SpecialLabel').attr("title",
@@ -395,67 +409,6 @@
             })
         }
 
-
-        function getSpecialLeaves(empId) {
-            $("#SpecialReason").prop('selectedIndex', 0);
-            $.ajax({
-                url: "show-special-leaves/" + empId,
-                type: 'GET',
-                success: function({
-                    count,
-                    reasons
-                }) {
-                    if (count >= 3) {
-                        $('#Special').attr('disabled', true);
-                        $('#SpecialLabel').attr("title",
-                            "This employee only had 3 special leaves. Cannot exceed more this year.");
-                    } else {
-                        $('#Special').attr('disabled', false);
-                        $('#SpecialLabel').attr("title", null);
-                    }
-
-                    console.log(count, reasons)
-
-                    if (reasons.Enrollment) {
-                        $('#SpecialValue-Enrollment').attr('disabled', true);
-                        $('#SpecialValue-Enrollment').attr('value', '');
-                        $('#SpecialValue-Enrollment').attr("title",
-                            "This employee already had this special reason this year.");
-                    }
-                    if (reasons.Graduation) {
-                        $('#SpecialValue-Graduation').attr('disabled', true);
-                        $('#SpecialValue-Graduation').attr('value', '');
-                        $('#SpecialValue-Graduation').attr("title",
-                            "This employee already had this special reason this year.");
-                    }
-                    if (reasons.Birthday) {
-                        $('#SpecialValue-Birthday').attr('disabled', true);
-                        $('#SpecialValue-Birthday').attr('value', '');
-                        $('#SpecialValue-Birthday').attr("title",
-                            "This employee already had this special reason this year.");
-                    }
-                    if (reasons.MedicalExamination) {
-                        $('#SpecialValue-MedicalExamination').attr('disabled', true);
-                        $('#SpecialValue-MedicalExamination').attr('value', '');
-                        $('#SpecialValue-MedicalExamination').attr("title",
-                            "This employee already had this special reason this year.");
-                    }
-                    if (reasons.WeddingAnniversary) {
-                        $('#SpecialValue-WeddingAnniversary').attr('disabled', true);
-                        $('#SpecialValue-WeddingAnniversary').attr('value', '');
-                        $('#SpecialValue-WeddingAnniversary').attr("title",
-                            "This employee already had this special reason this year.");
-                    }
-                    if (reasons.Fiesta) {
-                        $('#SpecialValue-Fiesta').attr('disabled', true);
-                        $('#SpecialValue-Fiesta').attr('value', '');
-                        $('#SpecialValue-Fiesta').attr("title",
-                            "This employee already had this special reason this year.");
-                    }
-
-                }
-            })
-        }
 
         /**
          * LEAVE BALANCES 
@@ -653,13 +606,13 @@
                         $('#saveLeave').removeClass('gone')
 
                         // don't allow leave filing if not regular
-                        if (employeeData.PositionStatus === 'Regular') {
-                            $('#saveLeave').removeClass('gone')
-                            $('#not-allowed-note').addClass('gone')
-                        } else {
-                            $('#saveLeave').addClass('gone')
-                            $('#not-allowed-note').removeClass('gone')
-                        }
+                        // if (employeeData.PositionStatus === 'Regular') {
+                        //     $('#saveLeave').removeClass('gone')
+                        //     $('#not-allowed-note').addClass('gone')
+                        // } else {
+                        //     $('#saveLeave').addClass('gone')
+                        //     $('#not-allowed-note').removeClass('gone')
+                        // }
 
                         signatories = res.Signatories
                         otherSigs = res.OtherSignatories
@@ -680,10 +633,12 @@
         $('#upload-section').hide()
         $('#insuff-message').hide()
         $('#salary-deduction-item').hide()
+        $('#irreg-message').hide()
 
 
         $('input[type=radio][name=LeaveType]').change(function() {
             var value = this.value
+
 
             if (value == 'Special') {
                 $('#special-dropdown').show()
@@ -704,7 +659,7 @@
                 $('#reason-field').show()
                 $('#Reason').removeAttr('readonly')
                 $('#Reason').val(null)
-                $('#upload-section').show()
+                $('#upload-section').hide()
                 $('#salary-deduction-item').show()
             } else if (value == 'Paternity' | value == 'Maternity') {
                 $('#special-dropdown').hide()
@@ -719,6 +674,17 @@
                 $('#Reason').val(null)
                 $('#Reason').removeAttr('readonly')
                 $('#upload-section').hide()
+            }
+
+            console.log(regularPosition);
+
+            
+            if (!regularPosition) {
+                $('#insuff-message').hide()
+                $('#salary-deduction-item').hide()
+                $('#irreg-message').show();
+            } else {
+                $('#irreg-message').hide();
             }
 
             // filter leave balance
@@ -869,7 +835,7 @@
             // console.log("LeaveBalanceCounter: " + leaveBalanceCounter)
             // console.log("LeaveDatesDuration: " + leaveDateDurationCounter)
             // console.log("check if: " + leaveBalanceCounter < leaveDateDurationCounter && !salaryDeducted)
-            if (leaveBalanceCounter < leaveDateDurationCounter && !salaryDeducted) {
+            if (leaveBalanceCounter < leaveDateDurationCounter && !salaryDeducted && regularPosition) {
                 $('#insuff-message').show()
             } else {
                 $('#insuff-message').hide()

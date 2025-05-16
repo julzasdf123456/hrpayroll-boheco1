@@ -24,7 +24,7 @@
         <div class="card">
 
             {!! Form::open(['route' => 'dayOffSchedules.store']) !!}
-            <input type="hidden" name="id" value="{{ IDGenerator::generateIDandRandString(); }}">
+            <input type="hidden" name="id" value="{{ IDGenerator::generateIDandRandString() }}">
 
             <div class="card-body">
 

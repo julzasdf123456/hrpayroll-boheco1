@@ -2,11 +2,12 @@
 
 namespace App\Models;
 
-use Eloquent as Model;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 use Carbon\Carbon;
+use Laravel\Sanctum\HasApiTokens;
 
 /**
  * Class Users
@@ -24,7 +25,7 @@ class Users extends Model
 {
     // use SoftDeletes;
 
-    use HasFactory;
+    use HasFactory,HasApiTokens;
 
     public $table = 'users';
     

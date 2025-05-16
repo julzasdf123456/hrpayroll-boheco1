@@ -11,6 +11,7 @@ use App\Models\IDGenerator;
 use App\Models\Users;
 use App\Models\Employees;
 use App\Models\SMSNotifications;
+use function PHPUnit\Framework\returnValue;
 
 class AuthOut extends Controller {
     public function login() {
@@ -120,4 +121,60 @@ class AuthOut extends Controller {
 
         return response()->json($user, 200);
     }
+
+    
+
+    public function loginUser(Request $req) { // created by Domz.
+
+        if ( $req['username']== null ||  $req['password'] == null ) {
+            return response()->json(['message'=> 'Please fill the form.'], 400);
+        }
+
+        $auth = Auth::attempt(['username'=> $req['username'],'password'=> $req['password']]);
+        $user = Users::where('username', $req['username'])->first();
+        $user->makeHidden('password');
+        $user->makeHidden('remember_token');
+
+        if ($auth && $user->employee_id === "*N/A*"){
+            $token = $user->createToken('user_auth_token')->plainTextToken;
+
+            return response()->json([
+                'token'=> $token,
+                'user'=> $user,
+            ], 201);
+        } else {
+            return response()->json(['message'=> 'Invalid Credentials.'], 401);
+        }
+    }
+
+    public function registerUser(Request $req) {
+        $input = $req->validate([
+            "name" => "string|required|unique:users,name",
+            "username" => "string|required|unique:users,username",
+            "password" => "string|required|confirmed",
+        ]);
+
+        $input['password'] = Hash::make($input['password']);
+
+        $user = Users::create(array_merge($input,[
+            'employee_id' => '*N/A*'
+        ]));
+
+        return response()->json($user,201);
+    }
+
+    public function verifyUser(Request $req) {
+
+        $user = Users::where('id', $req->user()->id)->first();
+        $user->makeHidden('password');
+        $user->makeHidden('remember_token');
+
+        if ($user->employee_id === '*N/A*'){
+            return response()->json($user, 200);
+        } else {
+            return response()->json(['message'=> 'Unauthorized.'], 401);
+        }
+    }
+
+    
 }

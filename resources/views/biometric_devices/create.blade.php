@@ -27,7 +27,7 @@
 
                     {!! Form::open(['route' => 'biometricDevices.store']) !!}
 
-                    <input type="hidden" name="id" value="{{ IDGenerator::generateIDandRandString(); }}">
+                    <input type="hidden" name="id" value="{{ IDGenerator::generateIDandRandString() }}">
                     <div class="card-body">
 
                         <div class="row">

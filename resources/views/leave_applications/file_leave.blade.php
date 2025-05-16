@@ -34,7 +34,7 @@
 
     @include('flash::message')
 
-    @if ($employee->PositionStatus === 'Regular')
+    {{-- @if ($employee->PositionStatus === 'Regular') --}}
         <div class="row">
             {{-- LEAVE FORM --}}
             <div class="col-lg-7">
@@ -102,19 +102,27 @@
 
 
                             <div class="pl-3 ml-5 mb-5">
-                                <div class="form-check" id="salary-deduction-item">
-                                    <input class="form-check-input" type="checkbox" name="SalaryDeduction"
-                                        onchange="updateSalaryCheck()" id="SalaryDeduction" />
-                                    <label class="form-check-label" for="SalaryDeduction">
-                                        I shall publish this leave with my salary deduction instead of my leave balance
-                                        credits for this matter.
-                                    </label>
-                                </div>
-                                <div class="my-5" id="insuff-message" style="color:#ffbe33;">
-                                    <strong>WARNING: </strong>
-                                    <p>Insufficent leave credits. The rest of the later leave dates will be marked as unpaid
-                                        if you wish to proceed publishing this leave.</p>
-                                </div>
+                                @if ($employee->PositionStatus === 'Regular')
+                                    <div class="form-check" id="salary-deduction-item">
+                                        <input class="form-check-input" type="checkbox" name="SalaryDeduction"
+                                            onchange="updateSalaryCheck()" id="SalaryDeduction" />
+                                        <label class="form-check-label" for="SalaryDeduction">
+                                            I shall publish this leave with my salary deduction instead of my leave balance
+                                            credits for this matter.
+                                        </label>
+                                    </div>
+                                    <div class="my-5" id="insuff-message" style="color:#ffbe33;">
+                                        <strong>WARNING: </strong>
+                                        <p>Insufficent leave credits. The rest of the later leave dates will be marked as unpaid
+                                            if you wish to proceed publishing this leave.</p>
+                                    </div>
+                                @else
+                                    <div class="my-5" style="color:#ffbe33;">
+                                        <strong>WARNING: </strong>
+                                        <p>You can file your own leave but it won't deduct your leave balance credits until you're a PERMANENT employee. Instead, you will have a SALARY DEDUCTION after declaring a leave.</p>
+                                    </div>
+                                @endif
+                                
                             </div>
                         </div>
 
@@ -291,9 +299,9 @@
                 </div>
             </div>
         </div>
-    @else
+    {{-- @else
         <h4 class="text-center mt-5 pt-5">You are not yet allowed to file a leave.</h4>
-    @endif
+    @endif --}}
 
 @endsection
 
@@ -635,7 +643,8 @@
             var dateFiled = $('#DateFiled').val()
             var reason = $('#Reason').val()
             var salaryDeduction = $('#SalaryDeduction').prop('checked')
-
+            // var salaryDeduction = {{ $employee->PositionStatus !== 'Regular'}}
+            // salaryDeduction = (salaryDeduction === 'true' ? "$('#SalaryDeduction').prop('checked')" : true );
 
             if (isNull(employee) | isNull(leaveType) | isNull(dateFiled) | isNull(reason) | (leaveType == "Sick" &&
                     leaveImgs.length < 1) | leaveDates.length < 1) {

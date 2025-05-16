@@ -1,6 +1,6 @@
 <aside class="main-sidebar {{ $userCache->ColorProfile != null ? 'sidebar-dark-primary' : 'sidebar-light' }}">
     <a href="{{ route('home') }}" class="brand-link" title="{{ env('APP_FULLNAME') }}">
-        <img src="{{ URL::asset('imgs/logo.png'); }}"
+        <img src="{{ URL::asset('imgs/logo.png') }}"
             alt="{{ config('app.name') }} Logo"
             class="brand-image img-circle">
         <span class="brand-text {{ $userCache->ColorProfile != null ? 'brand-text-light' : 'brand-text-dark' }} font-weight-bold">{{ config('app.name') }}</span>
