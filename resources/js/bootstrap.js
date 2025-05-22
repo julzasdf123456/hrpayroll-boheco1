@@ -26,16 +26,15 @@ window.axios = axios;
 window.axios.defaults.headers.common['X-CSRF-TOKEN'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
-// window.axios.defaults.baseURL = window.location.origin + '/hr/public/index.php';
-// window.axios.defaults.filePath = window.location.origin + '/hr/public/files/';
-// window.axios.defaults.imgsPath = window.location.origin + '/hr/public/imgs/';
-// window.axios.defaults.postImagePath = window.location.origin + '/hr/public/posts/';
+window.axios.defaults.baseURL = 'http://192.168.12.2/hr/public/index.php';
+window.axios.defaults.filePath = 'http://192.168.12.2/hr/public/files/';
+window.axios.defaults.imgsPath = 'http://192.168.12.2/hr/public/imgs/';
 
-window.axios.defaults.baseURL = window.location.origin + '/';
-window.axios.defaults.filePath = window.location.origin + '/files/';
-window.axios.defaults.imgsPath = window.location.origin + '/imgs/';
-window.axios.defaults.postImagePath = window.location.origin + '/posts/';
-
+window.axios.defaults.postImagePath = 'http://192.168.12.2/hr/public/posts/';
+window.axios.defaults.baseURL = window.location.origin + '/hr/public/index.php';
+window.axios.defaults.filePath = window.location.origin + '/hr/public/files/';
+window.axios.defaults.imgsPath = window.location.origin + '/hr/public/imgs/';
+window.axios.defaults.postImagePath = window.location.origin + '/hr/public/posts/';
 
 window.Pusher = Pusher;
 

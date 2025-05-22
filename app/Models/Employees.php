@@ -256,7 +256,7 @@ class Employees extends Model
         }
     }
 
-    public static function getSupers($employeeId, $levelArrayFilter /** FILTERS THE LEVELS YOU WANT TO FETCH */) {
+    public static function getSupers(string $employeeId, array $levelArrayFilter /** FILTERS THE LEVELS YOU WANT TO FETCH */) {
         $employee = DB::table('Employees')
             ->leftJoin('EmployeesDesignations', 'EmployeesDesignations.id', '=', 'Employees.Designation')
             ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')

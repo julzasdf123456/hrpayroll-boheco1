@@ -26,7 +26,7 @@
             <tbody>
                 <tr v-for="leave in leaveData.data" :key="leave.id" @click="leaveView(leave.id)" style="cursor: pointer;">
                     <td :title="leave.LeaveType"><i class="fas" :class="getIconType(leave.LeaveType)"></i></td>
-                    <td>{{ moment(leave.created_at).format("MMMM DD, YYY") }}</td>
+                    <td>{{ moment(leave.created_at).format("MMMM DD, YYYY") }}</td>
                     <td>{{leave.Content }}</td>
                     <td class="text-right">{{leave.TotalDays }}</td>
                     <td class="text-center"><span class="badge" :class="getStatusBadgeColor(leave.Status)">{{leave.Status }}</span></td>

@@ -21,6 +21,7 @@ use App\Models\TripTicketGRS;
 use App\Models\TripTicketPassengers;
 use App\Models\Notifications;
 use App\Models\Permission;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Flash;
@@ -43,7 +44,7 @@ class TripTicketsController extends AppBaseController
     {
         // $tripTickets = $this->tripTicketsRepository->paginate(10);
         $tripTickets = TripTickets::where('EmployeeId', Auth::user()->employee_id)
-            ->where("Status","!=","Trash")
+            ->where("Status", "!=", "Trash")
             ->orderByDesc('created_at')
             ->paginate(10);
 
@@ -86,8 +87,8 @@ class TripTicketsController extends AppBaseController
         // SET MANUALLY TYPED DESTINATIONS
         if ($request['DestinationTyped'] != null) {
             $destinations = explode(";", $request['DestinationTyped']);
-            
-            for($i=0; $i<count($destinations); $i++) {
+
+            for ($i = 0; $i < count($destinations); $i++) {
                 if ($destinations[$i] != null) {
                     $destination = new TripTicketDestinations;
                     $destination->id = IDGenerator::generateIDandRandString();
@@ -127,7 +128,8 @@ class TripTicketsController extends AppBaseController
                  */
                 if ($employee != null && $employee->ContactNumbers != null) {
                     if ($requisitioner != null) {
-                        SMSNotifications::sendSMS($employee->ContactNumbers, 
+                        SMSNotifications::sendSMS(
+                            $employee->ContactNumbers,
                             "HRS Trip Ticket Approval\n\nHello " . $employee->FirstName . ", " . $requisitioner->FirstName . " " . $requisitioner->LastName . " has filed a trip ticket that needs your approval.",
                             "HR-Trip Ticket",
                             $tripTickets->id
@@ -142,7 +144,7 @@ class TripTicketsController extends AppBaseController
         if ($request['Status'] == 'APPROVED') {
             return redirect(route('tripTickets.manual-entry'));
         } else {
-            return redirect(route('tripTickets.my-trip-tickets', [$input['UserId']]));
+            return redirect(route('tripTickets.index'));
         }
     }
 
@@ -178,12 +180,14 @@ class TripTicketsController extends AppBaseController
         $signatory = DB::table('TripTicketSignatories')
             ->leftJoin('users', 'TripTicketSignatories.EmployeeId', '=', 'users.id')
             ->whereRaw("TripTicketSignatories.TripTicketId='" . $id . "'")
-            ->select('users.*', 
+            ->select(
+                'users.*',
                 'TripTicketSignatories.id AS SignatoryId',
-                'TripTicketSignatories.Status'
+                'TripTicketSignatories.Status',
             )
             ->orderBy('users.name')
             ->first();
+
 
         if (empty($tripTickets)) {
             Flash::error('Trip Tickets not found');
@@ -235,7 +239,8 @@ class TripTicketsController extends AppBaseController
         $signatory = DB::table('TripTicketSignatories')
             ->leftJoin('users', 'TripTicketSignatories.EmployeeId', '=', 'users.id')
             ->whereRaw("TripTicketSignatories.TripTicketId='" . $id . "'")
-            ->select('users.*', 
+            ->select(
+                'users.*',
                 'TripTicketSignatories.id AS SignatoryId',
                 'TripTicketSignatories.Status'
             )
@@ -281,8 +286,8 @@ class TripTicketsController extends AppBaseController
 
         if ($request['DestinationTyped'] != null) {
             $destinations = explode(";", $request['DestinationTyped']);
-            
-            for($i=0; $i<count($destinations); $i++) {
+
+            for ($i = 0; $i < count($destinations); $i++) {
                 if ($destinations[$i] != null) {
                     $destination = new TripTicketDestinations;
                     $destination->id = IDGenerator::generateIDandRandString();
@@ -297,7 +302,7 @@ class TripTicketsController extends AppBaseController
         // DELETE EXISTING SIGNATORY
         TripTicketSignatories::where('TripTicketId', $id)
             ->delete();
-            
+
         if ($request['Signatory']) {
             $signatory = new TripTicketSignatories;
             $signatory->id = IDGenerator::generateIDandRandString();
@@ -322,24 +327,101 @@ class TripTicketsController extends AppBaseController
     public function destroy($id)
     {
         // if (Permission::hasDirectPermission(['god permission', 'delete trip ticket'])) {
-            $tripTickets = $this->tripTicketsRepository->find($id);
+        $tripTickets = $this->tripTicketsRepository->find($id);
 
-            if (empty($tripTickets)) {
-                Flash::error('Trip Tickets not found');
+        if (empty($tripTickets)) {
+            Flash::error('Trip Tickets not found');
 
-                return redirect(route('tripTickets.index'));
-            }
+            return redirect(route('tripTickets.index'));
+        }
 
-            $tripTickets->Status = 'Trash';
-            $tripTickets->save();
+        $tripTickets->Status = 'Trash';
+        $tripTickets->save();
 
-            return response()->json($tripTickets, 200);
+        return redirect(route("tripTickets.index"));
         // } else {
         //     return abort(403, 'You are not authorized to access this module.');
         // }
     }
 
-    public function getSignatories(Request $request) {
+    public function printTripTicket(TripTickets $tripTicket)
+    {
+
+        $drivers = DB::table('Employees')
+            ->leftJoin('EmployeesDesignations', 'EmployeesDesignations.EmployeeId', '=', 'Employees.id')
+            ->leftJoin('Positions', 'Positions.id', '=', 'EmployeesDesignations.PositionId')
+            ->select('Employees.*')
+            ->whereRaw("Positions.Level='Driver' OR Employees.AuthorizedToDrive='Yes'")
+            ->orderBy('Employees.LastName')
+            ->get();
+
+        $vehicles = Vehicles::orderBy('VehicleName')->get();
+
+        $passengers = DB::table('TripTicketPassengers')
+            ->leftJoin('Employees', 'TripTicketPassengers.EmployeeId', '=', 'Employees.id')
+            ->whereRaw("TripTicketPassengers.TripTicketId='" . $tripTicket->id . "'")
+            ->select('Employees.*', 'TripTicketPassengers.id AS PassengerId')
+            ->orderBy('Employees.FirstName')
+            ->get();
+
+        $destinations = DB::table('TripTicketDestinations')
+            ->whereRaw("TripTicketId='" . $tripTicket->id . "'")
+            ->orderBy('DestinationAddress')
+            ->get();
+
+
+
+        // $signatory = Employees::where(
+        //     "Employees.id",
+        //     User::where(
+        //         "id",
+        //         $tripTicket->id
+        //     )->first()->employee_id
+        // )
+        // ->leftJoin("EmployeesDesignations","Employees.id","=","EmployeesDesignations.EmployeeId")
+        // ->leftJoin("Positions","Positions.id","=","EmployeesDesignations.PositionId")
+        // ->leftJoin("users","users.employee_id","=","Employees.id")
+        // ->leftJoin("TripTicketSignatories","TripTicketSignatories.EmployeeId","=","users.id")
+        // ->select("Employees.*","Positions.Position","TripTicketSignatories.Status")
+        // ->first();
+
+
+        $tripSignatory = TripTicketSignatories::where("TripTicketId", $tripTicket->id)->first();
+
+        $signatories = Employees::getSupers($tripTicket->EmployeeId, ['Chief', 'Manager', 'General Manager']);
+
+        if ($tripSignatory === null) {
+            $signatory = $signatories[0];
+        } else {
+            $filterSignatory = array_filter($signatories, function ($p) use ($tripSignatory) {
+                return $p['EmployeeId'] === $tripSignatory->EmployeeId;
+            });
+
+            $signatory = $filterSignatory;
+        }
+
+        if (empty($tripTicket)) {
+            Flash::error('Trip Ticket invalid.');
+
+            return redirect(route('tripTickets.index'));
+        }
+
+
+
+        return view('trip_tickets.print_trip_ticket', [
+            'tripTicket' => $tripTicket,
+            'employees' => Employees::orderBy('LastName')->get(),
+            'drivers' => $drivers,
+            'towns' => Towns::orderBy('Town')->get(),
+            'vehicles' => $vehicles,
+            'passengers' => $passengers,
+            'destinations' => $destinations,
+            'signatory' => $signatory,
+        ]);
+    }
+
+    public function getSignatories(Request $request)
+    {
         $employeeId = $request['EmployeeId'];
 
         $employee = DB::table('Employees')
@@ -362,13 +444,14 @@ class TripTicketsController extends AppBaseController
         if ($employee != null) {
             $signatories = Employees::getSupers($employeeId, ['Chief', 'Manager', 'General Manager']);
 
-            return response()->json(['Signatories' => $signatories, 'OtherSignatories' => $otherSignatories], 200);           
+            return response()->json(['Signatories' => $signatories, 'OtherSignatories' => $otherSignatories], 200);
         } else {
             return response()->json('Employee not found!', 404);
         }
     }
 
-    public function myTripTickets($userId) {
+    public function myTripTickets($userId)
+    {
         $tripTickets = DB::table('TripTickets')
             ->leftJoin('Employees', 'TripTickets.Driver', '=', 'Employees.id')
             ->leftJoin(DB::raw("Employees AS e"), 'TripTickets.EmployeeId', '=', DB::raw("e.id"))
@@ -392,7 +475,8 @@ class TripTicketsController extends AppBaseController
         ]);
     }
 
-    public function getTripTicketAjax(Request $request) {
+    public function getTripTicketAjax(Request $request)
+    {
         $id = $request['id'];
 
         $tripTicket = DB::table('TripTickets')
@@ -428,7 +512,8 @@ class TripTicketsController extends AppBaseController
             $signatory = DB::table('TripTicketSignatories')
                 ->leftJoin('users', 'TripTicketSignatories.EmployeeId', '=', 'users.id')
                 ->whereRaw("TripTicketSignatories.TripTicketId='" . $id . "'")
-                ->select('users.*', 
+                ->select(
+                    'users.*',
                     'TripTicketSignatories.id AS SignatoryId',
                     'TripTicketSignatories.Status'
                 )
@@ -436,7 +521,7 @@ class TripTicketsController extends AppBaseController
                 ->first();
 
             $grs = TripTicketGRS::where('TripTicketId', $id)->first();
-            
+
             $tripTicket->Passengers = $passengers;
             $tripTicket->Destinations = $destinations;
             $tripTicket->Signatory = $signatory;
@@ -451,7 +536,8 @@ class TripTicketsController extends AppBaseController
         return response()->json($tripTicket, 200);
     }
 
-    public function myApprovals(Request $request) {
+    public function myApprovals(Request $request)
+    {
         $tripTickets = DB::table('TripTickets')
             ->leftJoin('Employees', 'TripTickets.Driver', '=', 'Employees.id')
             ->leftJoin(DB::raw("Employees AS e"), 'TripTickets.EmployeeId', '=', DB::raw("e.id"))
@@ -476,7 +562,8 @@ class TripTicketsController extends AppBaseController
         ]);
     }
 
-    public function approveTripTicket(Request $request) {
+    public function approveTripTicket(Request $request)
+    {
         $id = $request['id'];
 
         $tripTicket = TripTickets::where('id', $id)->first();
@@ -508,7 +595,8 @@ class TripTicketsController extends AppBaseController
             ]);
 
             if ($employee != null && $employee->ContactNumbers != null) {
-                SMSNotifications::sendSMS($employee->ContactNumbers, 
+                SMSNotifications::sendSMS(
+                    $employee->ContactNumbers,
                     "HRS Trip Ticket Approval\n\nHello " . $employee->FirstName . ", " . Auth::user()->name . " has APPROVED your trip ticket with Ref. No. " . $id . ".",
                     "HR-Trip Ticket",
                     $id
@@ -519,7 +607,8 @@ class TripTicketsController extends AppBaseController
         return response()->json('ok', 200);
     }
 
-    public function rejectTripTicket(Request $request) {
+    public function rejectTripTicket(Request $request)
+    {
         $id = $request['id'];
 
         TripTickets::where('id', $id)
@@ -537,7 +626,8 @@ class TripTicketsController extends AppBaseController
         if ($tripTicket != null) {
             $employee = Employees::find(Users::find($tripTicket->UserId)->employee_id);
             if ($employee != null && $employee->ContactNumbers != null) {
-                SMSNotifications::sendSMS($employee->ContactNumbers, 
+                SMSNotifications::sendSMS(
+                    $employee->ContactNumbers,
                     "HR System - Trip Ticket Approval:\n\n" . Auth::user()->name . " has DISAPPROVED your trip ticket with Ref. No. " . $id . ".",
                     "HR-Trip Ticket",
                     $id
@@ -548,7 +638,8 @@ class TripTicketsController extends AppBaseController
         return response()->json('ok', 200);
     }
 
-    public function requestGRS(Request $request) {
+    public function requestGRS(Request $request)
+    {
         $id = $request['id'];
 
         TripTickets::where('id', $id)
@@ -557,7 +648,8 @@ class TripTicketsController extends AppBaseController
         return response()->json('ok', 200);
     }
 
-    public function logVehicleTrips(Request $request) {
+    public function logVehicleTrips(Request $request)
+    {
         $tripTickets = DB::table('TripTickets')
             ->leftJoin('Employees', 'TripTickets.Driver', '=', 'Employees.id')
             ->leftJoin(DB::raw("Employees AS e"), 'TripTickets.EmployeeId', '=', DB::raw("e.id"))
@@ -574,7 +666,7 @@ class TripTicketsController extends AppBaseController
                 'e.Suffix',
             )
             ->orderBy('TripTickets.created_at')
-            ->get();            
+            ->get();
 
         return view('/trip_tickets/log_vehicle_trips', [
             'tripTickets' => $tripTickets,
@@ -582,7 +674,8 @@ class TripTicketsController extends AppBaseController
         ]);
     }
 
-    public function logDeparture(Request $request) {
+    public function logDeparture(Request $request)
+    {
         $id = $request['id'];
 
         $tripTicket = TripTickets::where('id', $id)->first();
@@ -646,7 +739,8 @@ class TripTicketsController extends AppBaseController
         return response()->json('ok', 200);
     }
 
-    public function logVehicleArrivals(Request $request) {
+    public function logVehicleArrivals(Request $request)
+    {
         $tripTickets = DB::table('TripTickets')
             ->leftJoin('Employees', 'TripTickets.Driver', '=', 'Employees.id')
             ->leftJoin(DB::raw("Employees AS e"), 'TripTickets.EmployeeId', '=', DB::raw("e.id"))
@@ -663,14 +757,15 @@ class TripTicketsController extends AppBaseController
                 'e.Suffix',
             )
             ->orderBy('TripTickets.created_at')
-            ->get();            
+            ->get();
 
         return view('/trip_tickets/log_vehicle_arrivals', [
             'tripTickets' => $tripTickets,
         ]);
     }
 
-    public function logArrival(Request $request) {
+    public function logArrival(Request $request)
+    {
         $id = $request['id'];
 
         $tripTicket = TripTickets::where('id', $id)->first();
@@ -685,7 +780,8 @@ class TripTicketsController extends AppBaseController
         return response()->json('ok', 200);
     }
 
-    public function manualEntry(Request $request) {
+    public function manualEntry(Request $request)
+    {
         $employees = Employees::orderBy('LastName')->get();
 
         $drivers = DB::table('Employees')
@@ -706,7 +802,8 @@ class TripTicketsController extends AppBaseController
         ]);
     }
 
-    public function getTripTicketsByEmployee(Request $request) {
+    public function getTripTicketsByEmployee(Request $request)
+    {
         $employeeId = $request['EmployeeId'];
         $startDate = $request['StartDate'];
 

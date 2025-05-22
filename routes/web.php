@@ -314,6 +314,7 @@ Route::get('/trip_tickets/log-vehicle-arrivals', [TripTicketsController::class, 
 Route::get('/trip_tickets/log-arrival', [TripTicketsController::class, 'logArrival'])->name('tripTickets.log-arrival');
 Route::get('/trip_tickets/manual-entry', [TripTicketsController::class, 'manualEntry'])->name('tripTickets.manual-entry');
 Route::get('/trip_tickets/get-trip-tickets-by-employee', [TripTicketsController::class, 'getTripTicketsByEmployee'])->name('tripTickets.get-trip-tickets-by-employee');
+Route::get('/trip_tickets/{tripTicket}/print', [TripTicketsController::class, 'printTripTicket'])->name('tripTickets.print-trip-ticket');
 Route::resource('tripTickets', TripTicketsController::class);
 
 Route::get('/trip_ticket_destinations/remove-destination', [App\Http\Controllers\TripTicketDestinationsController::class, 'removeDestination'])->name('tripTicketDestinations.remove-destination');
